@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+    <sourceDirectory>c:/a/b/c/</sourceDirectory>
+    <archiveDirectory>d:/a/b/c/</archiveDirectory>
+    <factFeeds>
+        <factFeed name="ff1" type="DELTA">
+            <fileNameMask>*.abc</fileNameMask>
+            <nullString>.</nullString>
+            <delimiterString>@@</delimiterString>
+            <header process="true">
+                <eachLineStartsWithCharacter>a</eachLineStartsWithCharacter>
+                <attributes>
+                    <attribute name="abc">1</attribute>
+                </attributes>
+            </header>
+            <data>
+                <eachLineStartsWithCharacter>cc</eachLineStartsWithCharacter>
+                <attributes>
+                    <attribute name="abc">1</attribute>
+                </attributes>
+            </data>
+            <derivedAttributes>
+                <attribute name="abc">1</attribute>
+            </derivedAttributes>
+            <footer process="true">
+                <eachLineStartsWithCharacter>b</eachLineStartsWithCharacter>
+                <attributes>
+                    <attribute name="abc">1</attribute>
+                </attributes>
+            </footer>
+        </factFeed>
+    </factFeeds>
+    <dimensions>
+        <dimension name="dim1" type="T1_INSERT_ONLY">
+            <naturalKey>nk1</naturalKey>
+            <insertSql>select 1</insertSql>
+        </dimension>
+        <dimension name="dim2" type="T1">
+            <naturalKey>nk2</naturalKey>
+            <insertSql>select 2</insertSql>
+        </dimension>
+    </dimensions>
+</config>

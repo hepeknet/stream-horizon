@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.threeglav.bauk</groupId>
+		<artifactId>bauk</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>bauk-core</artifactId>
+	<name>bauk-core</name>
+
+	<properties>
+		<version.camel>2.12.1</version.camel>
+		<version.active.mq>5.5.1</version.active.mq>
+		<version.commons.io>2.4</version.commons.io>
+		<version.infinispan>5.3.0.Final</version.infinispan>
+		<version.spring.jdbc>3.2.4.RELEASE</version.spring.jdbc>
+		<version.commons.config>1.10</version.commons.config>
+		<version.commons.lang>2.6</version.commons.lang>
+		<version.commons.collections>3.2.1</version.commons.collections>
+		<version.disruptor>2.7</version.disruptor>
+	</properties>
+
+	<dependencies>
+	<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bauk-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>feed-parser</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-core</artifactId>
+			<version>${version.camel}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-spring</artifactId>
+			<version>${version.camel}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-zipfile</artifactId>
+			<version>${version.camel}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-stream</artifactId>
+			<version>${version.camel}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-jetty</artifactId>
+			<version>${version.camel}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${version.commons.io}</version>
+		</dependency>
+	</dependencies>
+
+</project>

@@ -1,0 +1,24 @@
+@echo off
+
+set DIRNAME=.\
+
+pushd %DIRNAME%..
+set "RESOLVED_HOME=%CD%"
+popd
+
+set HEAP_OPTS="-Xmx4G -Xmx2G"
+set GC_OPTS=""
+set JAVA_OPTS="-server -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
+set JAVA_OPTS="%JAVA_OPTS -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000"
+
+set CONFIG_OPTIONS="-Dlogback.configurationFile=%RESOLVED_HOME%\config\logback.xml"
+
+set JAVA_CP="%RESOLVED_HOME%\lib\*;%RESOLVED_HOME%\extras\*;%RESOLVED_HOME%\config\baukConfig.xml"
+
+echo.
+echo classpath %JAVA_CP%
+echo heap %HEAP_OPTS%
+echo JVM options %JAVA_OPTS%
+echo.
+
+java -classpath "%JAVA_CP%" "%HEAP_OPTS%" "%JAVA_OPTS%" "%CONFIG_OPTIONS%" com.threeglav.bauk.main.BaukApplication
