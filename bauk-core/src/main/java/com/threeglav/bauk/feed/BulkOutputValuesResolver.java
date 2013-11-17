@@ -12,7 +12,10 @@ import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.header.HeaderParsingUtil;
+import com.threeglav.bauk.model.BulkDefinition;
+import com.threeglav.bauk.model.BulkLoadFileDefinition;
 import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
@@ -43,22 +46,23 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 		this.dbHandler = dbHandler;
 		this.validate();
-		this.bulkOutputFileNumberOfValues = factFeed.getBulkDefinition().getBulkLoadFileDefinition().getAttributes().size();
-		this.outputValueHandlers = new BulkLoadOutputValueHandler[this.bulkOutputFileNumberOfValues];
-		this.log.info("Bulk output file will have {} values", this.bulkOutputFileNumberOfValues);
+		bulkOutputFileNumberOfValues = factFeed.getBulkDefinition().getBulkLoadFileDefinition().getAttributes().size();
+		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
+		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
 		this.createOutputValueHandlers(routeIdentifier);
-		this.outputDelimiter = factFeed.getDelimiterString();
+		outputDelimiter = factFeed.getDelimiterString();
 	}
 
 	private void validate() {
-		if (this.getFactFeed().getBulkDefinition() == null) {
+		final BulkDefinition bulkDefinition = this.getFactFeed().getBulkDefinition();
+		if (bulkDefinition == null) {
 			throw new IllegalArgumentException("Bulk definition not found in configuration");
 		}
-		if (this.getFactFeed().getBulkDefinition().getBulkLoadFileDefinition() == null) {
+		final BulkLoadFileDefinition bulkLoadFileDefinition = bulkDefinition.getBulkLoadFileDefinition();
+		if (bulkLoadFileDefinition == null) {
 			throw new IllegalArgumentException("Bulk load file definition not found in configuration file. Please check your configuration!");
 		}
-		if (this.getFactFeed().getBulkDefinition().getBulkLoadFileDefinition().getAttributes() == null
-				|| this.getFactFeed().getBulkDefinition().getBulkLoadFileDefinition().getAttributes().isEmpty()) {
+		if (bulkLoadFileDefinition.getAttributes() == null || bulkLoadFileDefinition.getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
 		}
 	}
@@ -66,67 +70,55 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private void createOutputValueHandlers(final String routeIdentifier) {
 		final String[] bulkOutputAttributeNames = HeaderParsingUtil.getAttributeNames(this.getFactFeed().getBulkDefinition()
 				.getBulkLoadFileDefinition().getAttributes());
-		if (this.log.isDebugEnabled()) {
-			this.log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
+		if (log.isDebugEnabled()) {
+			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
 		}
-		final String firstStringInEveryLine = this.getFactFeed().getData().getEachLineStartsWithCharacter();
+		final Data feedData = this.getFactFeed().getData();
+		final String firstStringInEveryLine = feedData.getEachLineStartsWithCharacter();
 		int feedDataLineOffset = 0;
 		if (!StringUtil.isEmpty(firstStringInEveryLine)) {
 			feedDataLineOffset = 1;
 		}
 		// one handler per dimension only
 		final Map<String, DimensionHandler> cachedDimensionHandlers = new HashMap<String, DimensionHandler>();
+		final Map<String, Integer> feedAttributeNamesAndPositions = HeaderParsingUtil.getAttributeNamesAndPositions(feedData.getAttributes());
 		for (int i = 0; i < bulkOutputAttributeNames.length; i++) {
 			final String bulkOutputAttributeName = bulkOutputAttributeNames[i];
 			if (bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
 				final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
-				this.log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
+				log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
 				final DimensionHandler cachedHandler = cachedDimensionHandlers.get(requiredDimensionName);
 				if (cachedHandler != null) {
-					this.outputValueHandlers[i] = cachedHandler;
+					outputValueHandlers[i] = cachedHandler;
 				} else {
-					Dimension dim = null;
-					for (final Dimension d : this.getConfig().getDimensions()) {
-						if (requiredDimensionName.equalsIgnoreCase(d.getName())) {
-							dim = d;
-							break;
-						}
-					}
+					final Dimension dim = this.getConfig().getDimensionMap().get(requiredDimensionName);
 					if (dim == null) {
 						throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name ["
 								+ requiredDimensionName + "]");
 					}
-					final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), this.cacheInstanceManager.getCacheInstance(dim
-							.getName()), this.dbHandler, feedDataLineOffset, routeIdentifier);
+					final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim
+							.getName()), dbHandler, feedDataLineOffset, routeIdentifier);
 					cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
-					this.outputValueHandlers[i] = dimHandler;
+					outputValueHandlers[i] = dimHandler;
 				}
-				this.log.debug("Value at position {} in bulk output load will be mapped using dimension {}", i, requiredDimensionName);
+				log.debug("Value at position {} in bulk output load will be mapped using dimension {}", i, requiredDimensionName);
 			} else if (bulkOutputAttributeName.startsWith(FEED_PREFIX)) {
 				final String requiredFeedAttributeName = bulkOutputAttributeName.replace(FEED_PREFIX, "");
-				this.log.debug("Searching for feed attribute {}", requiredFeedAttributeName);
-				final String[] feedAttributeNames = HeaderParsingUtil.getAttributeNames(this.getFactFeed().getData().getAttributes());
-				int foundPosition = -1;
-				for (int k = 0; k < feedAttributeNames.length; k++) {
-					final String feedAttrName = feedAttributeNames[k];
-					if (requiredFeedAttributeName.equalsIgnoreCase(feedAttrName)) {
-						this.log.debug("Found feed attribute {} at position {}", feedAttrName, k);
-						foundPosition = k;
-					}
-				}
-				if (foundPosition < 0) {
+				log.debug("Searching for feed attribute {}", requiredFeedAttributeName);
+				final Integer foundPosition = feedAttributeNamesAndPositions.get(requiredFeedAttributeName);
+				if (foundPosition == null) {
 					throw new IllegalArgumentException("Was not able to find feed attribute " + requiredFeedAttributeName
 							+ " in feed definition and this attribute was defined in bulk output file definition. Check config file!");
 				}
-				this.outputValueHandlers[i] = new PositionalMappingHandler(foundPosition + feedDataLineOffset, feedAttributeNames.length);
-				this.log.debug(
-						"Value at position {} in bulk output load will be copied directly from value in feed, position {}. Every data line in feed must have {} values",
-						i, foundPosition, feedAttributeNames.length);
+				outputValueHandlers[i] = new PositionalMappingHandler(foundPosition + feedDataLineOffset, feedAttributeNamesAndPositions.size());
+				log.debug(
+						"Value at position {} in bulk output load will be copied directly from value in feed at position {}. Every data line in feed must have {} values",
+						i, foundPosition, feedAttributeNamesAndPositions.size());
 			} else if (bulkOutputAttributeName.startsWith(Constants.HEADER_ATTRIBUTE_PREFIX)
 					|| bulkOutputAttributeName.startsWith(Constants.GLOBAL_ATTRIBUTE_PREFIX)) {
 				final ConstantMappingHandler cmh = new ConstantMappingHandler(bulkOutputAttributeName);
-				this.outputValueHandlers[i] = cmh;
-				this.log.debug("Value at position {} in bulk output load will be constant value derived from {}", i, bulkOutputAttributeName);
+				outputValueHandlers[i] = cmh;
+				log.debug("Value at position {} in bulk output load will be constant value derived from {}", i, bulkOutputAttributeName);
 			} else {
 				throw new IllegalArgumentException("Unknown type of bulk output attribute " + bulkOutputAttributeName
 						+ ". Must be either dimension. feed. header. global.");
@@ -136,11 +128,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 
 	public String resolveValues(final String[] inputValues, final Map<String, String> headerData, final Map<String, String> globalData) {
 		final StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < this.bulkOutputFileNumberOfValues; i++) {
+		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
 			if (i != 0) {
-				sb.append(this.outputDelimiter);
+				sb.append(outputDelimiter);
 			}
-			final String val = this.outputValueHandlers[i].getBulkLoadValue(inputValues, headerData, globalData);
+			final String val = outputValueHandlers[i].getBulkLoadValue(inputValues, headerData, globalData);
 			sb.append(val);
 		}
 		return sb.toString();

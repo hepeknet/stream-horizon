@@ -1,6 +1,8 @@
 package com.threeglav.bauk.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -34,6 +36,9 @@ public class Config {
 	@XmlElementWrapper(required = true)
 	@XmlElement(name = "dimension")
 	private ArrayList<Dimension> dimensions;
+
+	// optimization, not found in configuration file
+	private Map<String, Dimension> dimensionMap;
 
 	public ArrayList<FactFeed> getFactFeeds() {
 		return factFeeds;
@@ -89,6 +94,16 @@ public class Config {
 
 	public void setErrorDirectory(final String errorDirectory) {
 		this.errorDirectory = errorDirectory;
+	}
+
+	public synchronized Map<String, Dimension> getDimensionMap() {
+		if (dimensionMap == null) {
+			dimensionMap = new HashMap<String, Dimension>();
+			for (final Dimension d : dimensions) {
+				dimensionMap.put(d.getName(), d);
+			}
+		}
+		return dimensionMap;
 	}
 
 }

@@ -17,34 +17,49 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.Constants;
 import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.util.StringUtil;
 
 public class SpringJdbcDbHandler implements DbHandler {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	protected JdbcTemplate jdbcTemplate;
+	private final JdbcTemplate jdbcTemplate;
+	private final int warningThreshold;
 
 	public SpringJdbcDbHandler(final Config config) {
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
 		final DataSource ds = DataSourceProvider.getDataSource(config);
-		this.jdbcTemplate = new JdbcTemplate(ds);
+		jdbcTemplate = new JdbcTemplate(ds);
+		warningThreshold = ConfigurationProperties.getSystemProperty(Constants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
+				Constants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
+		log.debug("Will report any sql execution taking longer than {}ms", warningThreshold);
 	}
 
 	@Override
 	public Long executeQueryStatementAndReturnKey(final String statement) {
-		this.log.debug("About to execute query statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
-		final List<Long> query = this.jdbcTemplate.query(statement, new RowMapper<Long>() {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
+		log.debug("About to execute query statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
+		final long start = System.currentTimeMillis();
+		final List<Long> query = jdbcTemplate.query(statement, new RowMapper<Long>() {
 			@Override
 			public Long mapRow(final ResultSet resultSet, final int i) throws SQLException {
 				return resultSet.getLong(1);
 			}
 		});
+		final long total = System.currentTimeMillis() - start;
+		if (total > warningThreshold) {
+			log.warn("Took {}ms to execute {}", total, statement);
+		}
 		if (query.size() == 1) {
 			final Long res = query.get(0);
-			this.log.debug("Returned result is {}", res);
+			log.debug("Returned result is {}", res);
 			return res;
 		}
 		if (query.isEmpty()) {
@@ -55,18 +70,26 @@ public class SpringJdbcDbHandler implements DbHandler {
 
 	@Override
 	public Long executeInsertStatementAndReturnKey(final String statement) {
-		this.log.debug("About to execute insert statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
+		log.debug("About to execute insert statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
 		final KeyHolder holder = new GeneratedKeyHolder();
-		this.jdbcTemplate.update(new PreparedStatementCreator() {
+		final long start = System.currentTimeMillis();
+		jdbcTemplate.update(new PreparedStatementCreator() {
 
 			@Override
 			public PreparedStatement createPreparedStatement(final Connection connection) throws SQLException {
-				final PreparedStatement ps = connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
-				return ps;
+				return connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
 			}
+
 		}, holder);
 		final Number num = holder.getKey();
-		this.log.debug("Returned key after insertion is {}", num);
+		final long total = System.currentTimeMillis() - start;
+		if (total > warningThreshold) {
+			log.warn("Took {}ms to execute {}", total, statement);
+		}
+		log.debug("Returned key after insertion is {}", num);
 		if (num == null) {
 			return null;
 		}
@@ -75,16 +98,24 @@ public class SpringJdbcDbHandler implements DbHandler {
 
 	@Override
 	public void executeInsertStatement(final String statement) {
-		this.log.debug("About to execute insert statement [{}]");
-		final int res = this.jdbcTemplate.update(new PreparedStatementCreator() {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
+		final long start = System.currentTimeMillis();
+		log.debug("About to execute insert statement [{}]");
+		final int res = jdbcTemplate.update(new PreparedStatementCreator() {
 
 			@Override
 			public PreparedStatement createPreparedStatement(final Connection connection) throws SQLException {
-				final PreparedStatement ps = connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
-				return ps;
+				return connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
 			}
+
 		});
-		this.log.debug("Successfully executed {}. Returned value is {}", statement, res);
+		final long total = System.currentTimeMillis() - start;
+		if (total > warningThreshold) {
+			log.warn("Took {}ms to execute {}", total, statement);
+		}
+		log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
 	}
 
 }

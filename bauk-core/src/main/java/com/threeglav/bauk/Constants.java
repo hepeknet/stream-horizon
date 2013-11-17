@@ -21,4 +21,7 @@ public interface Constants {
 
 	public static final String NATURAL_KEY_DELIMITER = "_|_|_";
 
+	public static final int SQL_EXECUTION_WARNING_THRESHOLD_MILLIS = 1000 * 10;
+	public static final String SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME = "sql.execution.warning.threshold.millis";
+
 }

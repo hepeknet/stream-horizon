@@ -3,6 +3,8 @@ package com.threeglav.bauk.feed;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,7 +16,6 @@ import org.mockito.stubbing.Answer;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.Dimension;
@@ -59,6 +60,7 @@ public class BulkOutputValuesResolverTest {
 		when(ff.getDelimiterString()).thenReturn(",");
 		final Config conf = Mockito.mock(Config.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(5));
+		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(5));
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);
 		final CacheInstance cacheInstance = Mockito.mock(CacheInstance.class);
 		when(ch.getCacheInstance(Matchers.<String> any())).thenReturn(cacheInstance);
@@ -84,6 +86,7 @@ public class BulkOutputValuesResolverTest {
 		when(ff.getDelimiterString()).thenReturn(",");
 		final Config conf = Mockito.mock(Config.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(4));
+		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(4));
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);
 		final CacheInstance cacheInstance = Mockito.mock(CacheInstance.class);
 		when(ch.getCacheInstance(Matchers.<String> any())).thenReturn(cacheInstance);
@@ -127,6 +130,15 @@ public class BulkOutputValuesResolverTest {
 			attrs.add(at);
 		}
 		return attrs;
+	}
+
+	private Map<String, Dimension> createDimensionMap(final int num) {
+		final ArrayList<Dimension> dims = this.createDimensions(num);
+		final Map<String, Dimension> mapped = new HashMap<String, Dimension>();
+		for (final Dimension d : dims) {
+			mapped.put(d.getName(), d);
+		}
+		return mapped;
 	}
 
 	private ArrayList<Dimension> createDimensions(final int num) {

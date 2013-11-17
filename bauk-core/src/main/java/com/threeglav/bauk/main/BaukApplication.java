@@ -35,6 +35,9 @@ public class BaukApplication {
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
 			configValidator.validate();
 			createCamelRoutes(conf);
+		} else {
+			LOG.error("Unable to find valid configuration! Aborting!");
+			return;
 		}
 		// sleep forever
 		while (true) {

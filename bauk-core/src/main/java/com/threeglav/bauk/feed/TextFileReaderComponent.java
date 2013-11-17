@@ -39,12 +39,12 @@ public class TextFileReaderComponent extends ConfigAware {
 			final CacheInstanceManager cacheInstanceManager, final String routeIdentifier) {
 		super(factFeed, config);
 		this.validate();
-		this.headerParser = new DefaultHeaderParser();
-		this.bulkWriter = new BulkFileWriter(factFeed, config);
-		this.bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, cacheInstanceManager, dbHandler, routeIdentifier);
-		this.feedParserComponent = new FeedParserComponent(factFeed, config, routeIdentifier);
-		this.processAndValidateFooter = factFeed.getFooter().getProcess() != HeaderFooterProcessType.SKIP;
-		this.feedFileSizeHistogram = MetricsUtil.createHistogram("Input feeds (" + routeIdentifier + ") - number of lines");
+		headerParser = new DefaultHeaderParser();
+		bulkWriter = new BulkFileWriter(factFeed, config);
+		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, cacheInstanceManager, dbHandler, routeIdentifier);
+		feedParserComponent = new FeedParserComponent(factFeed, config, routeIdentifier);
+		processAndValidateFooter = factFeed.getFooter().getProcess() != HeaderFooterProcessType.SKIP;
+		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines in feed");
 	}
 
 	private void validate() {
@@ -65,13 +65,13 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	public void readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
-		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), this.bufferSize);
+		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		try {
 			int feedLinesNumber = 0;
 			String line = br.readLine();
 			boolean processedHeader = false;
 			String footerLine = null;
-			this.bulkWriter.startWriting(globalAttributes.get(Constants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
+			bulkWriter.startWriting(globalAttributes.get(Constants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
 			Map<String, String> headerAttributes = null;
 			while (line != null) {
 				if (!processedHeader) {
@@ -81,7 +81,7 @@ public class TextFileReaderComponent extends ConfigAware {
 				} else {
 					final String nextLine = br.readLine();
 					if (nextLine == null) {
-						if (this.processAndValidateFooter) {
+						if (processAndValidateFooter) {
 							footerLine = line;
 						} else {
 							this.processLine(line, headerAttributes, globalAttributes);
@@ -95,30 +95,30 @@ public class TextFileReaderComponent extends ConfigAware {
 					}
 				}
 			}
-			this.log.debug("Successfully processed {} lines in file", feedLinesNumber);
-			if (this.feedFileSizeHistogram != null) {
-				this.feedFileSizeHistogram.update(feedLinesNumber);
+			log.debug("Successfully processed {} lines in file", feedLinesNumber);
+			if (feedFileSizeHistogram != null) {
+				feedFileSizeHistogram.update(feedLinesNumber);
 			}
-			this.bulkWriter.closeResources();
+			bulkWriter.closeResources();
 			this.processFooter(feedLinesNumber, footerLine);
 			br.close();
 		} catch (final IOException ie) {
-			this.log.error("IOException {}", ie.getMessage());
+			log.error("IOException {}", ie.getMessage());
 		} finally {
 			IOUtils.closeQuietly(fileInputStream);
 		}
 	}
 
 	private void processLine(final String line, final Map<String, String> headerAttributes, final Map<String, String> globalAttributes) {
-		final String[] parsedData = this.feedParserComponent.parseData(line);
-		final String lineForOutput = this.bulkoutputResolver.resolveValues(parsedData, headerAttributes, globalAttributes);
-		this.bulkWriter.write(lineForOutput);
-		this.bulkWriter.write("\n");
+		final String[] parsedData = feedParserComponent.parseData(line);
+		final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, headerAttributes, globalAttributes);
+		bulkWriter.write(lineForOutput);
+		bulkWriter.write("\n");
 	}
 
 	private void processFooter(final int feedLinesNumber, final String footerLine) {
-		if (this.processAndValidateFooter) {
-			this.log.debug("Validating footer. Processed in total {} lines, comparing with values in footer line {}", feedLinesNumber, footerLine);
+		if (processAndValidateFooter) {
+			log.debug("Validating footer. Processed in total {} lines, comparing with values in footer line {}", feedLinesNumber, footerLine);
 			final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 			final String[] footerParsedValues = feedParser.parse(footerLine);
 			if (footerParsedValues.length > 2) {
@@ -144,16 +144,16 @@ public class TextFileReaderComponent extends ConfigAware {
 		final HeaderFooter header = this.getFactFeed().getHeader();
 		final HeaderFooterProcessType headerProcessingType = header.getProcess();
 		final String feedName = this.getFactFeed().getName();
-		this.log.debug("For feed {} header processing set to {}", feedName, headerProcessingType);
+		log.debug("For feed {} header processing set to {}", feedName, headerProcessingType);
 		if (headerProcessingType == HeaderFooterProcessType.NO_HEADER || headerProcessingType == HeaderFooterProcessType.SKIP) {
-			this.log.debug("Will skip header processing for {}", feedName);
+			log.debug("Will skip header processing for {}", feedName);
 			return null;
 		}
-		this.log.debug("Not skipping header processing for {}", feedName);
+		log.debug("Not skipping header processing for {}", feedName);
 		final String[] declaredHeaderAttributes = HeaderParsingUtil.getAttributeNames(header.getAttributes());
-		final Map<String, String> parsedHeaderValues = this.headerParser.parseHeader(line, declaredHeaderAttributes,
+		final Map<String, String> parsedHeaderValues = headerParser.parseHeader(line, declaredHeaderAttributes,
 				header.getEachLineStartsWithCharacter(), this.getFactFeed().getDelimiterString());
-		this.log.debug("Parsed header values for {} are {}", feedName, parsedHeaderValues);
+		log.debug("Parsed header values for {} are {}", feedName, parsedHeaderValues);
 		return parsedHeaderValues;
 	}
 
