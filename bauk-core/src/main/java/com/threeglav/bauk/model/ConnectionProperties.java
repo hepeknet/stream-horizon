@@ -12,12 +12,34 @@ public class ConnectionProperties {
 	@XmlElement(required = true)
 	private String jdbcUrl;
 
+	@XmlElement(required = false)
+	private String jdbcUserName;
+
+	@XmlElement(required = false)
+	private String jdbcPassword;
+
 	public String getJdbcUrl() {
 		return jdbcUrl;
 	}
 
 	public void setJdbcUrl(final String jdbcUrl) {
 		this.jdbcUrl = jdbcUrl;
+	}
+
+	public String getJdbcUserName() {
+		return jdbcUserName;
+	}
+
+	public void setJdbcUserName(final String jdbcUserName) {
+		this.jdbcUserName = jdbcUserName;
+	}
+
+	public String getJdbcPassword() {
+		return jdbcPassword;
+	}
+
+	public void setJdbcPassword(final String jdbcPassword) {
+		this.jdbcPassword = jdbcPassword;
 	}
 
 }
