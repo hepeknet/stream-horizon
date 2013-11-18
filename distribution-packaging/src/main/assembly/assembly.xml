@@ -37,6 +37,13 @@
 				<include>*.*</include>
 			</includes>
 		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/customisations/</directory>
+			<outputDirectory>customisations</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
 	</fileSets>
 	<dependencySets>
 		<dependencySet>
