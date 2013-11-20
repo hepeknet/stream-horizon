@@ -2,7 +2,6 @@ package com.threeglav.bauk.dimension;
 
 import gnu.trove.map.hash.THashMap;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -14,10 +13,10 @@ import com.threeglav.bauk.Constants;
 import com.threeglav.bauk.SystemConfigurationOptions;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.NaturalKey;
+import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -95,28 +94,21 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 		naturalKeyPositionsInFeed = new int[numberOfNaturalKeys];
 		log.debug("Calculating natural key position values. Will use offset {}", naturalKeyPositionOffset);
 		int i = 0;
+		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil
+				.getAttributeNamesAndPositions(factFeed.getData().getAttributes());
 		for (final NaturalKey nk : dimension.getNaturalKeys()) {
 			final String nkName = nk.getName();
 			naturalKeyNames[i] = nkName;
-			boolean found = false;
 			log.debug("Trying to find position in feed for natural key {} for dimension {}", nkName, dimension.getName());
-			final ArrayList<Attribute> factFeedDataAttributes = factFeed.getData().getAttributes();
-			for (int j = 0; j < factFeedDataAttributes.size(); j++) {
-				final Attribute attr = factFeedDataAttributes.get(j);
-				final String attrName = attr.getName();
-				if (nkName.equalsIgnoreCase(attrName)) {
-					final int naturalKeyPositionValue = j + naturalKeyPositionOffset;
-					naturalKeyPositionsInFeed[i++] = naturalKeyPositionValue;
-					if (log.isDebugEnabled()) {
-						log.debug("Natural key [{}] for dimension {} will be read from feed position {}", new Object[] { nkName, dimension.getName(),
-								naturalKeyPositionValue });
-					}
-					found = true;
-					break;
-				}
-			}
-			if (!found) {
+			final Integer attrPosition = dataAttributesAndPositions.get(nkName);
+			if (attrPosition == null) {
 				throw new IllegalArgumentException("Was not able to find natural key " + nkName + " in feed " + factFeed.getName());
+			}
+			final int naturalKeyPositionValue = attrPosition + naturalKeyPositionOffset;
+			naturalKeyPositionsInFeed[i++] = naturalKeyPositionValue;
+			if (log.isDebugEnabled()) {
+				log.debug("Natural key [{}] for dimension {} will be read from feed position {}", new Object[] { nkName, dimension.getName(),
+						naturalKeyPositionValue });
 			}
 		}
 	}
@@ -133,7 +125,7 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 				log.trace("Did not find surrogate key for {} in cache. Going to database", dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, headerAttributes, globalAttributes);
-			cacheInstance.cache(cacheKey, surrogateKey);
+			cacheInstance.put(cacheKey, surrogateKey);
 		}
 		return surrogateKey;
 	}
@@ -240,11 +232,11 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			final int key = naturalKeyPositionsInFeed[i];
-			if (i != 0) {
-				sb.append(Constants.NATURAL_KEY_DELIMITER);
-			}
 			if (parsedLine.length <= key) {
 				throw new IllegalArgumentException("Parsed line has less values than needed " + key);
+			}
+			if (i != 0) {
+				sb.append(Constants.NATURAL_KEY_DELIMITER);
 			}
 			sb.append(parsedLine[key]);
 		}

@@ -1,4 +1,4 @@
-package com.threeglav.bauk.header;
+package com.threeglav.bauk.util;
 
 import static org.junit.Assert.fail;
 
@@ -9,19 +9,20 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.util.AttributeParsingUtil;
 
-public class HeaderParsingUtilTest {
+public class AttributeParsingUtilTest {
 
 	@Test
 	public void testNull() {
 		try {
-			HeaderParsingUtil.getAttributeNames(null);
+			AttributeParsingUtil.getAttributeNames(null);
 			fail("nok");
 		} catch (final IllegalArgumentException iae) {
 			Assert.assertTrue(true);
 		}
 		try {
-			HeaderParsingUtil.getAttributeNamesAndPositions(null);
+			AttributeParsingUtil.getAttributeNamesAndPositions(null);
 			fail("nok");
 		} catch (final IllegalArgumentException iae) {
 			Assert.assertTrue(true);
@@ -30,21 +31,21 @@ public class HeaderParsingUtilTest {
 
 	@Test
 	public void testGetNames() {
-		final String[] names = HeaderParsingUtil.getAttributeNames(this.createAttributes(3));
+		final String[] names = AttributeParsingUtil.getAttributeNames(this.createAttributes(3));
 		Assert.assertEquals(3, names.length);
 		Assert.assertEquals("a_0", names[0]);
 		Assert.assertEquals("a_1", names[1]);
 		Assert.assertEquals("a_2", names[2]);
-		final String[] names1 = HeaderParsingUtil.getAttributeNames(this.createAttributes(0));
+		final String[] names1 = AttributeParsingUtil.getAttributeNames(this.createAttributes(0));
 		Assert.assertEquals(0, names1.length);
-		final String[] names2 = HeaderParsingUtil.getAttributeNames(this.createAttributes(1));
+		final String[] names2 = AttributeParsingUtil.getAttributeNames(this.createAttributes(1));
 		Assert.assertEquals(1, names2.length);
 		Assert.assertEquals("a_0", names2[0]);
 	}
 
 	@Test
 	public void testGetNamesAndPositions() {
-		final Map<String, Integer> np = HeaderParsingUtil.getAttributeNamesAndPositions(this.createAttributes(3));
+		final Map<String, Integer> np = AttributeParsingUtil.getAttributeNamesAndPositions(this.createAttributes(3));
 		Assert.assertEquals(3, np.size());
 		Assert.assertEquals(new Integer(0), np.get("a_0"));
 		Assert.assertEquals(new Integer(1), np.get("a_1"));

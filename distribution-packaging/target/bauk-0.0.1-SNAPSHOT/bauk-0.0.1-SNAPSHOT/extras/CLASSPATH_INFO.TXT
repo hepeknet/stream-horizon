@@ -1,1 +1,0 @@
-1) All jar files from /lib/ and /extras/ are automatically added to application classpath

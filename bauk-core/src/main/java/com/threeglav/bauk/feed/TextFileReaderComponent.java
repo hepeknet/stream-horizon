@@ -15,13 +15,13 @@ import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.header.DefaultHeaderParser;
 import com.threeglav.bauk.header.HeaderParser;
-import com.threeglav.bauk.header.HeaderParsingUtil;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.HeaderFooter;
 import com.threeglav.bauk.model.HeaderFooterProcessType;
 import com.threeglav.bauk.parser.FeedParser;
 import com.threeglav.bauk.parser.FullFeedParser;
+import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -51,7 +51,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines in feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
-		declaredHeaderAttributes = HeaderParsingUtil.getAttributeNames(this.getFactFeed().getHeader().getAttributes());
+		declaredHeaderAttributes = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getHeader().getAttributes());
 		shouldProcessHeader = this.checkProcessHeader();
 		if (shouldProcessHeader) {
 			this.initializeHeaderProcessor();

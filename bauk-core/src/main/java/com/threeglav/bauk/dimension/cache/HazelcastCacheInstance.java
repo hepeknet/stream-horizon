@@ -23,7 +23,7 @@ public class HazelcastCacheInstance implements CacheInstance {
 	}
 
 	@Override
-	public void cache(final String naturalKey, final String surrogateKey) {
+	public void put(final String naturalKey, final String surrogateKey) {
 		cache.put(naturalKey, surrogateKey);
 	}
 

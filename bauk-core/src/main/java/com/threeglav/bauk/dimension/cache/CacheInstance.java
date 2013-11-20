@@ -4,6 +4,6 @@ public interface CacheInstance {
 
 	public String getSurrogateKey(String naturalKey);
 
-	public void cache(String naturalKey, String surrogateKey);
+	public void put(String naturalKey, String surrogateKey);
 
 }

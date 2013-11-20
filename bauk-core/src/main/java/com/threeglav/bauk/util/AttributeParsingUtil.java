@@ -1,4 +1,4 @@
-package com.threeglav.bauk.header;
+package com.threeglav.bauk.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.threeglav.bauk.model.Attribute;
 
-public abstract class HeaderParsingUtil {
+public abstract class AttributeParsingUtil {
 
 	public static String[] getAttributeNames(final ArrayList<Attribute> attributes) {
 		if (attributes == null) {

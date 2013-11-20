@@ -11,13 +11,13 @@ import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.header.HeaderParsingUtil;
 import com.threeglav.bauk.model.BulkDefinition;
 import com.threeglav.bauk.model.BulkLoadFileDefinition;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public class BulkOutputValuesResolver extends ConfigAware {
@@ -68,7 +68,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	private void createOutputValueHandlers(final String routeIdentifier) {
-		final String[] bulkOutputAttributeNames = HeaderParsingUtil.getAttributeNames(this.getFactFeed().getBulkDefinition()
+		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getBulkDefinition()
 				.getBulkLoadFileDefinition().getAttributes());
 		if (log.isDebugEnabled()) {
 			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
@@ -81,7 +81,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 		// one handler per dimension only
 		final Map<String, DimensionHandler> cachedDimensionHandlers = new HashMap<String, DimensionHandler>();
-		final Map<String, Integer> feedAttributeNamesAndPositions = HeaderParsingUtil.getAttributeNamesAndPositions(feedData.getAttributes());
+		final Map<String, Integer> feedAttributeNamesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(feedData.getAttributes());
 		for (int i = 0; i < bulkOutputAttributeNames.length; i++) {
 			final String bulkOutputAttributeName = bulkOutputAttributeNames[i];
 			if (bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {

@@ -144,7 +144,7 @@ public class DimensionHandlerTest {
 			}
 
 			@Override
-			public void cache(final String naturalKey, final String surrogateKey) {
+			public void put(final String naturalKey, final String surrogateKey) {
 
 			}
 		};
