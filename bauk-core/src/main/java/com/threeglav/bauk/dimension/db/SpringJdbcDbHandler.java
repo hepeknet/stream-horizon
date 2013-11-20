@@ -18,7 +18,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -35,8 +35,8 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 		final DataSource ds = DataSourceProvider.getDataSource(config);
 		jdbcTemplate = new JdbcTemplate(ds);
-		warningThreshold = ConfigurationProperties.getSystemProperty(Constants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
-				Constants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
+		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
+				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		log.debug("Will report any sql execution taking longer than {}ms", warningThreshold);
 	}
 
@@ -55,7 +55,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		});
 		final long total = System.currentTimeMillis() - start;
 		if (total > warningThreshold) {
-			log.warn("Took {}ms to execute {}", total, statement);
+			log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 		}
 		if (query.size() == 1) {
 			final Long res = query.get(0);
@@ -87,7 +87,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		final Number num = holder.getKey();
 		final long total = System.currentTimeMillis() - start;
 		if (total > warningThreshold) {
-			log.warn("Took {}ms to execute {}", total, statement);
+			log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 		}
 		log.debug("Returned key after insertion is {}", num);
 		if (num == null) {
@@ -113,7 +113,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		});
 		final long total = System.currentTimeMillis() - start;
 		if (total > warningThreshold) {
-			log.warn("Took {}ms to execute {}", total, statement);
+			log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 		}
 		log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
 	}

@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.util.FileUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -35,7 +35,8 @@ public class CustomProcessorResolver<T> {
 			final String simpleClassName = StringUtil.getSimpleClassName(fullClassName);
 			final String appHome = ConfigurationProperties.getApplicationHome();
 			if (StringUtil.isEmpty(appHome)) {
-				log.error("Was not able to resolve application home. Please set {} system property", Constants.APP_HOME_SYS_PARAM_NAME);
+				log.error("Was not able to resolve application home. Please set {} system property",
+						SystemConfigurationConstants.APP_HOME_SYS_PARAM_NAME);
 				return null;
 			}
 			final String fullCustomProcessorFilePath = appHome + CUSTOMISATIONS_DIRECTORY_NAME + simpleClassName + ".java";

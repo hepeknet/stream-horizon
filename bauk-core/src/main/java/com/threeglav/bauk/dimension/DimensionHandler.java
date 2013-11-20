@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Counter;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.Constants;
-import com.threeglav.bauk.SystemConfigurationOptions;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Dimension;
@@ -258,9 +258,9 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 	}
 
 	private static int getDimensionLocalCacheSize() {
-		final String propertyValue = System.getProperty(SystemConfigurationOptions.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME);
+		final String propertyValue = System.getProperty(SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME);
 		if (StringUtil.isEmpty(propertyValue)) {
-			return SystemConfigurationOptions.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT;
+			return SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT;
 		}
 		return Integer.parseInt(propertyValue);
 	}

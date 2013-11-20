@@ -9,7 +9,9 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.codahale.metrics.Histogram;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
@@ -27,8 +29,7 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class TextFileReaderComponent extends ConfigAware {
 
-	public static final int DEFAULT_BUFFER_SIZE = 1024 * 1024 * 1;
-	private final int bufferSize = DEFAULT_BUFFER_SIZE;
+	private final int bufferSize;
 	private HeaderParser headerParser;
 	private final boolean processAndValidateFooter;
 	private final Histogram feedFileSizeHistogram;
@@ -56,6 +57,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (shouldProcessHeader) {
 			this.initializeHeaderProcessor();
 		}
+		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
+				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * Constants.ONE_MEGABYTE;
+		log.debug("Read buffer size is {}", bufferSize);
 	}
 
 	private boolean checkProcessHeader() {

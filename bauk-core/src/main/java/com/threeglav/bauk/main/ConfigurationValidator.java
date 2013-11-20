@@ -12,7 +12,7 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class ConfigurationValidator {
 
-	private final Logger log = LoggerFactory.getLogger(getClass());
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final Config config;
 
@@ -21,31 +21,30 @@ public class ConfigurationValidator {
 	}
 
 	public void validate() throws Exception {
-		final boolean sourceOk = getOrCreateDirectory(config.getSourceDirectory(), false);
+		final boolean sourceOk = this.getOrCreateDirectory(config.getSourceDirectory(), false);
 		if (!sourceOk) {
 			throw new IllegalStateException("Was not able to find folder where input feeds will be stored! Aborting!");
 		}
-		final boolean archiveOk = getOrCreateDirectory(config.getArchiveDirectory(), true);
+		final boolean archiveOk = this.getOrCreateDirectory(config.getArchiveDirectory(), true);
 		if (!archiveOk) {
 			log.warn("Was not able to find directory for storing archives. This feature will be disabled!");
 		}
-		final boolean errorOk = getOrCreateDirectory(config.getErrorDirectory(), true);
+		final boolean errorOk = this.getOrCreateDirectory(config.getErrorDirectory(), true);
 		if (!errorOk) {
 			throw new IllegalStateException("Was not able to find folder for storing corrupted/invalid data! Aborting!");
 		}
-		final boolean bulkOutOk = getOrCreateDirectory(config.getBulkOutputDirectory(), true);
+		final boolean bulkOutOk = this.getOrCreateDirectory(config.getBulkOutputDirectory(), true);
 		if (!bulkOutOk) {
 			throw new IllegalStateException("Was not able to find folder for storing bulk output data! Aborting!");
 		}
 		for (final FactFeed ff : config.getFactFeeds()) {
-			validateFactFeed(ff);
+			this.validateFactFeed(ff);
 		}
 	}
 
 	private void validateFactFeed(final FactFeed ff) {
 		if (!StringUtil.isEmpty(ff.getData().getEachLineStartsWithCharacter())) {
-			log.warn(
-					"Configuration for feed {} requires every data line to start with [{}]. This is mandatory for correct data interpretation!",
+			log.warn("Configuration for feed {} requires every data line to start with [{}]. This is mandatory for correct data interpretation!",
 					ff.getName(), ff.getData().getEachLineStartsWithCharacter());
 		}
 		if (ff.getType() == FactFeedType.REPETITIVE && ff.getRepetitionCount() <= 0) {
@@ -58,7 +57,7 @@ public class ConfigurationValidator {
 		if (StringUtil.isEmpty(directory)) {
 			return false;
 		}
-		log.debug("Checking if [{}] is valid", directory);
+		log.debug("Checking if [{}] is readable directory", directory);
 		final File dir = new File(directory);
 		if (dir.exists() && dir.canRead() && dir.isDirectory()) {
 			if (shouldWrite) {

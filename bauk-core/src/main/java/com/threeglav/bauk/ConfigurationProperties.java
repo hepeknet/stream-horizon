@@ -30,7 +30,7 @@ public abstract class ConfigurationProperties {
 	}
 
 	public static String getApplicationHome() {
-		final String home = System.getProperty(Constants.APP_HOME_SYS_PARAM_NAME);
+		final String home = System.getProperty(SystemConfigurationConstants.APP_HOME_SYS_PARAM_NAME);
 		LOG.debug("Application home is {}", home);
 		return home;
 	}

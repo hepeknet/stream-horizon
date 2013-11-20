@@ -5,6 +5,9 @@ import java.io.FileWriter;
 
 import org.apache.commons.io.IOUtils;
 
+import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
@@ -12,15 +15,19 @@ import com.threeglav.bauk.util.StringUtil;
 public class BulkFileWriter extends ConfigAware {
 
 	private BufferedWriter writer;
+	private final int bufferSize;
 
 	public BulkFileWriter(final FactFeed factFeed, final Config config) {
 		super(factFeed, config);
+		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
+				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * Constants.ONE_MEGABYTE;
+		log.debug("Write buffer size is {}", bufferSize);
 	}
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
 			log.debug("Creating writer to [{}]", outputFilePath);
-			writer = new BufferedWriter(new FileWriter(outputFilePath), TextFileReaderComponent.DEFAULT_BUFFER_SIZE);
+			writer = new BufferedWriter(new FileWriter(outputFilePath), bufferSize);
 			log.debug("Successfully created writer to [{}]", outputFilePath);
 		} catch (final Exception exc) {
 			log.error("Exception while creating writer", exc);
