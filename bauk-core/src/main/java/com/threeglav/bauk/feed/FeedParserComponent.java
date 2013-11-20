@@ -3,6 +3,7 @@ package com.threeglav.bauk.feed;
 import java.util.ArrayList;
 
 import com.codahale.metrics.Meter;
+import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.FactFeed;
@@ -22,6 +23,7 @@ public class FeedParserComponent extends ConfigAware {
 	private final boolean checkEveryLineValidity;
 	private final String firstStringInEveryLine;
 	private final int expectedTokensInEveryDataLine;
+	private FeedProcessor feedProcessor;
 
 	public FeedParserComponent(final FactFeed ff, final Config config, final String routeIdentifier) {
 		super(ff, config);
@@ -52,6 +54,20 @@ public class FeedParserComponent extends ConfigAware {
 		checkEveryLineValidity = isStrictCheckingRequired && !StringUtil.isEmpty(firstStringInEveryLine);
 		if (checkEveryLineValidity) {
 			log.debug("Will check validity of every line in feed by comparing it with {}", firstStringInEveryLine);
+		}
+		this.resolveFeedProcessor();
+	}
+
+	private void resolveFeedProcessor() {
+		final String dataMappingClassName = this.getFactFeed().getData().getDataMappingClassName();
+		if (!StringUtil.isEmpty(dataMappingClassName)) {
+			log.debug("Will try to resolve data mapper {}", dataMappingClassName);
+			final CustomProcessorResolver<FeedProcessor> headerParserInstanceResolver = new CustomProcessorResolver<>(dataMappingClassName,
+					FeedProcessor.class);
+			feedProcessor = headerParserInstanceResolver.resolveInstance();
+			log.debug("Found data mapper {}", feedParser);
+		} else {
+			log.debug("Will not use any data mapping");
 		}
 	}
 
@@ -102,6 +118,9 @@ public class FeedParserComponent extends ConfigAware {
 		}
 		if (parsedLinesMeter != null) {
 			parsedLinesMeter.mark();
+		}
+		if (feedProcessor != null) {
+			return feedProcessor.preProcess(parsed);
 		}
 		return parsed;
 	}

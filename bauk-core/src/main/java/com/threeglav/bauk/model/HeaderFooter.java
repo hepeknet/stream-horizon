@@ -19,6 +19,9 @@ public class HeaderFooter {
 	@XmlElement(required = true)
 	private String eachLineStartsWithCharacter;
 
+	@XmlElement(required = false)
+	private String headerParserClassName;
+
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")
 	private ArrayList<Attribute> attributes;
@@ -45,6 +48,14 @@ public class HeaderFooter {
 
 	public void setProcess(final HeaderFooterProcessType process) {
 		this.process = process;
+	}
+
+	public String getHeaderParserClassName() {
+		return headerParserClassName;
+	}
+
+	public void setHeaderParserClassName(final String headerParserClassName) {
+		this.headerParserClassName = headerParserClassName;
 	}
 
 }

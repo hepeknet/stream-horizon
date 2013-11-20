@@ -64,4 +64,15 @@ public abstract class StringUtil {
 		return path.replace("\\", "/");
 	}
 
+	public static String getSimpleClassName(final String fullClassName) {
+		if (StringUtil.isEmpty(fullClassName)) {
+			return fullClassName;
+		}
+		final int lastIndexOfDot = fullClassName.lastIndexOf('.');
+		if (lastIndexOfDot != -1) {
+			return fullClassName.substring(lastIndexOfDot + 1);
+		}
+		return fullClassName;
+	}
+
 }

@@ -29,4 +29,10 @@ public abstract class ConfigurationProperties {
 		return defaultValue;
 	}
 
+	public static String getApplicationHome() {
+		final String home = System.getProperty(Constants.APP_HOME_SYS_PARAM_NAME);
+		LOG.debug("Application home is {}", home);
+		return home;
+	}
+
 }

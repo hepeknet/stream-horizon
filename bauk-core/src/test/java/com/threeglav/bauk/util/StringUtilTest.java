@@ -36,4 +36,12 @@ public class StringUtilTest {
 		Assert.assertEquals("select 1 from 2", StringUtil.replaceAllAttributes("select ${a} from ${b}", attrs, null));
 	}
 
+	@Test
+	public void testGetSimpleClassName() {
+		Assert.assertNull(StringUtil.getSimpleClassName(null));
+		Assert.assertEquals(" ", StringUtil.getSimpleClassName(" "));
+		Assert.assertEquals("abc", StringUtil.getSimpleClassName("abc"));
+		Assert.assertEquals("StringUtilTest", StringUtil.getSimpleClassName(this.getClass().getName()));
+	}
+
 }

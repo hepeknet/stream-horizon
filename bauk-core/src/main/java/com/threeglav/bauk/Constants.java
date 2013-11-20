@@ -2,6 +2,8 @@ package com.threeglav.bauk;
 
 public interface Constants {
 
+	public static final String APP_HOME_SYS_PARAM_NAME = "bauk.home";
+
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH = "inputFeedFilePath";
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME = "inputFeedFileName";
 	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP = "inputFeedFileReceivedTimestamp";

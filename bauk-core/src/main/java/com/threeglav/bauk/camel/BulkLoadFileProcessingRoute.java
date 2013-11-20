@@ -29,7 +29,9 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 	}
 
 	private void validate() {
-
+		if (factFeed.getBulkDefinition() == null) {
+			throw new IllegalStateException("Was not able to find bulk definition in configuration file!");
+		}
 	}
 
 	@Override
@@ -43,8 +45,9 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 		String inputEndpoint = "file://" + config.getBulkOutputDirectory() + "?include=" + fullFileMask;
 		inputEndpoint += "&idempotent=true&readLock=changed&delete=true";
 		log.debug("Input endpoint is {}", inputEndpoint);
-		this.from(inputEndpoint).threads(bulkProcessingThreads).doTry().process(new BulkFileProcessor(factFeed, config)).doCatch(Exception.class)
-				.to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
+		this.from(inputEndpoint).routeId("BulkLoadFileProcessing").threads(bulkProcessingThreads).doTry()
+				.process(new BulkFileProcessor(factFeed, config)).doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
+				.simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_bulkLoad.fail"))
 				.to("file://" + config.getBulkOutputDirectory() + "/").end();
 	}

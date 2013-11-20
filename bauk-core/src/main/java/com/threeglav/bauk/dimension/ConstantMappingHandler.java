@@ -14,8 +14,8 @@ public class ConstantMappingHandler implements BulkLoadOutputValueHandler {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final String attributeName;
 	private String attributeNameWithoutPrefix;
-	private boolean isHeaderMapping;
-	private boolean isGlobalMapping;
+	private final boolean isHeaderMapping;
+	private final boolean isGlobalMapping;
 	private Map<String, String> latestUsedHeaderMap;
 	private String latestHeaderValue;
 	private Map<String, String> latestUsedGlobalMap;
@@ -27,30 +27,34 @@ public class ConstantMappingHandler implements BulkLoadOutputValueHandler {
 		}
 		this.attributeName = attributeName;
 		if (this.attributeName.startsWith(Constants.HEADER_ATTRIBUTE_PREFIX)) {
-			this.attributeNameWithoutPrefix = this.attributeName.replace(Constants.HEADER_ATTRIBUTE_PREFIX, "");
-			this.isHeaderMapping = true;
+			attributeNameWithoutPrefix = this.attributeName.replace(Constants.HEADER_ATTRIBUTE_PREFIX, "");
+			isHeaderMapping = true;
+			isGlobalMapping = false;
 		} else if (this.attributeName.startsWith(Constants.GLOBAL_ATTRIBUTE_PREFIX)) {
-			this.attributeNameWithoutPrefix = this.attributeName.replace(Constants.GLOBAL_ATTRIBUTE_PREFIX, "");
-			this.isGlobalMapping = true;
+			attributeNameWithoutPrefix = this.attributeName.replace(Constants.GLOBAL_ATTRIBUTE_PREFIX, "");
+			isGlobalMapping = true;
+			isHeaderMapping = false;
+		} else {
+			throw new IllegalArgumentException("Unsupported attribute name " + attributeName);
 		}
-		this.log.debug("Will look for attribute {}", attributeName);
+		log.debug("Will look for attribute {}", attributeName);
 	}
 
 	@Override
 	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> headerValues, final Map<String, String> globalValues) {
-		if (this.isHeaderMapping && headerValues != null) {
-			// no need to lookup more than once per feed, so we just compare reference
-			if (headerValues != this.latestUsedHeaderMap) {
-				this.latestUsedHeaderMap = headerValues;
-				this.latestHeaderValue = headerValues.get(this.attributeNameWithoutPrefix);
+		if (isHeaderMapping && headerValues != null) {
+			// no need to lookup more than once per feed, so we just compare the reference instead of doing map lookup
+			if (headerValues != latestUsedHeaderMap) {
+				latestUsedHeaderMap = headerValues;
+				latestHeaderValue = headerValues.get(attributeNameWithoutPrefix);
 			}
-			return this.latestHeaderValue;
-		} else if (this.isGlobalMapping && globalValues != null) {
-			if (globalValues != this.latestUsedGlobalMap) {
-				this.latestUsedGlobalMap = globalValues;
-				this.latestGlobalValue = globalValues.get(this.attributeNameWithoutPrefix);
+			return latestHeaderValue;
+		} else if (isGlobalMapping && globalValues != null) {
+			if (globalValues != latestUsedGlobalMap) {
+				latestUsedGlobalMap = globalValues;
+				latestGlobalValue = globalValues.get(attributeNameWithoutPrefix);
 			}
-			return this.latestGlobalValue;
+			return latestGlobalValue;
 		}
 		return null;
 	}

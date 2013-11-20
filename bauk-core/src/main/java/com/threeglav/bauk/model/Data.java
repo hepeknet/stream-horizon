@@ -19,6 +19,9 @@ public class Data {
 	@XmlElement(required = true)
 	private String eachLineStartsWithCharacter;
 
+	@XmlElement
+	private String dataMappingClassName;
+
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")
 	private ArrayList<Attribute> attributes;
@@ -45,6 +48,14 @@ public class Data {
 
 	public void setProcess(final HeaderFooterProcessType process) {
 		this.process = process;
+	}
+
+	public String getDataMappingClassName() {
+		return dataMappingClassName;
+	}
+
+	public void setDataMappingClassName(final String dataMappingClassName) {
+		this.dataMappingClassName = dataMappingClassName;
 	}
 
 }

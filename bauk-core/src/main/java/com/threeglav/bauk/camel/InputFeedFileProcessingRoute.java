@@ -49,8 +49,8 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 				+ "/${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}&include=" + fileMask;
 		inputEndpoint += "&idempotent=true&readLock=changed";
 		log.debug("Input endpoint is {}", inputEndpoint);
-		this.from(inputEndpoint).doTry().process(new FeedFileProcessor(factFeed, config, fileMask)).doCatch(Exception.class)
-				.to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
+		this.from(inputEndpoint).routeId("InputFeedProcessing (" + fileMask + ")").doTry().process(new FeedFileProcessor(factFeed, config, fileMask))
+				.doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
 				.to("file://" + config.getErrorDirectory() + "/").end();
 	}

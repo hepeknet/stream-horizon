@@ -19,11 +19,11 @@ public class BulkFileWriter extends ConfigAware {
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
-			this.log.debug("Creating writer to [{}]", outputFilePath);
-			this.writer = new BufferedWriter(new FileWriter(outputFilePath), TextFileReaderComponent.DEFAULT_BUFFER_SIZE);
-			this.log.debug("Successfully created writer to [{}]", outputFilePath);
+			log.debug("Creating writer to [{}]", outputFilePath);
+			writer = new BufferedWriter(new FileWriter(outputFilePath), TextFileReaderComponent.DEFAULT_BUFFER_SIZE);
+			log.debug("Successfully created writer to [{}]", outputFilePath);
 		} catch (final Exception exc) {
-			this.log.error("Exception while creating writer", exc);
+			log.error("Exception while creating writer", exc);
 			throw new RuntimeException(exc);
 		}
 	}
@@ -32,23 +32,23 @@ public class BulkFileWriter extends ConfigAware {
 		if (StringUtil.isEmpty(outputFilePath)) {
 			throw new IllegalArgumentException("input file must not be null or empty");
 		}
-		if (this.writer != null) {
-			throw new IllegalArgumentException("Writer is not null!");
+		if (writer != null) {
+			throw new IllegalArgumentException("Writer is not null! Unable to start writing unless previous writer has been closed!");
 		}
 		this.createFileWriter(outputFilePath);
 	}
 
 	public void write(final String line) {
 		try {
-			this.writer.write(line);
+			writer.write(line);
 		} catch (final Exception exc) {
-			this.log.error("Exception while writing data", exc);
+			log.error("Exception while writing data", exc);
 		}
 	}
 
 	public void closeResources() {
-		IOUtils.closeQuietly(this.writer);
-		this.writer = null;
+		IOUtils.closeQuietly(writer);
+		writer = null;
 	}
 
 }
