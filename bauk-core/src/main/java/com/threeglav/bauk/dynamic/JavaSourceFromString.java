@@ -3,7 +3,6 @@ package com.threeglav.bauk.dynamic;
 import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
-import javax.tools.JavaFileObject.Kind;
 
 class JavaSourceFromString extends SimpleJavaFileObject {
 
@@ -18,4 +17,5 @@ class JavaSourceFromString extends SimpleJavaFileObject {
 	public CharSequence getCharContent(final boolean ignoreEncodingErrors) {
 		return code;
 	}
+
 }
