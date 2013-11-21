@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.zip.ZipFile;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -149,13 +150,14 @@ class FeedFileProcessor implements Processor {
 
 	private Map<String, String> createImplicitGlobalAttributes(final Exchange exchange) {
 		final Map<String, String> attributes = new HashMap<String, String>();
-		final String fileNameOnly = (String) exchange.getIn().getHeader("CamelFileNameOnly");
-		attributes.put(com.threeglav.bauk.Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
-		attributes.put(com.threeglav.bauk.Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, (String) exchange.getIn()
-				.getHeader("CamelFileName"));
-		attributes.put(com.threeglav.bauk.Constants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP,
-				String.valueOf(exchange.getIn().getHeader("CamelFileLastModified")));
-		attributes.put(com.threeglav.bauk.Constants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP, "" + System.currentTimeMillis());
+		final Message exchangeIn = exchange.getIn();
+		final String fileNameOnly = (String) exchangeIn.getHeader("CamelFileNameOnly");
+		attributes.put(Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
+		attributes.put(Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, (String) exchangeIn.getHeader("CamelFileAbsolutePath"));
+		attributes
+				.put(Constants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, String.valueOf(exchangeIn.getHeader("CamelFileLastModified")));
+		attributes.put(Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(exchangeIn.getHeader("CamelFileLength")));
+		attributes.put(Constants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP, "" + System.currentTimeMillis());
 		attributes.put(Constants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
 		log.debug("Created global attributes {}", attributes);
 		return attributes;

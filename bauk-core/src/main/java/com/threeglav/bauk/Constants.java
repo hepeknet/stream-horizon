@@ -8,6 +8,7 @@ public interface Constants {
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME = "inputFeedFileName";
 	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP = "inputFeedFileReceivedTimestamp";
 	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP = "inputFeedFileProcessedTimestamp";
+	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE = "inputFeedFileSize";
 	public static final String IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH = "bulkLoadOutputFilePath";
 
 	public static final String HEADER_ATTRIBUTE_PREFIX = "header.";
