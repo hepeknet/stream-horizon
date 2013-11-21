@@ -169,7 +169,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			}
 			if (!footerParsedValues[0].equals(footerFirstString)) {
 				throw new IllegalStateException("First character of footer line " + footerParsedValues[0]
-						+ " does not match the one given in configuration file!");
+						+ " does not match the one given in configuration file " + footerFirstString);
 			}
 			try {
 				final Integer footerIntValue = Integer.parseInt(footerParsedValues[1]);
