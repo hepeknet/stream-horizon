@@ -12,8 +12,6 @@ import com.codahale.metrics.Histogram;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.Constants;
 import com.threeglav.bauk.SystemConfigurationConstants;
-import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
-import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.header.DefaultHeaderParser;
 import com.threeglav.bauk.header.HeaderParser;
@@ -33,21 +31,17 @@ public class TextFileReaderComponent extends ConfigAware {
 	private HeaderParser headerParser;
 	private final boolean processAndValidateFooter;
 	private final Histogram feedFileSizeHistogram;
-	private final BulkFileWriter bulkWriter;
-	private final BulkOutputValuesResolver bulkoutputResolver;
-	private final FeedParserComponent feedParserComponent;
 	private final FeedParser footerLineParser;
 	private final String footerFirstString;
 	private final String[] declaredHeaderAttributes;
 	private final boolean shouldProcessHeader;
+	private final FeedDataProcessor feedDataProcessor;
 
-	public TextFileReaderComponent(final FactFeed factFeed, final Config config, final DbHandler dbHandler,
-			final CacheInstanceManager cacheInstanceManager, final String routeIdentifier) {
+	public TextFileReaderComponent(final FactFeed factFeed, final Config config, final FeedDataProcessor feedDataProcessor,
+			final String routeIdentifier) {
 		super(factFeed, config);
 		this.validate();
-		bulkWriter = new BulkFileWriter(factFeed, config);
-		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, cacheInstanceManager, dbHandler, routeIdentifier);
-		feedParserComponent = new FeedParserComponent(factFeed, config, routeIdentifier);
+		this.feedDataProcessor = feedDataProcessor;
 		processAndValidateFooter = factFeed.getFooter().getProcess() != HeaderFooterProcessType.SKIP;
 		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines in feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
@@ -113,13 +107,13 @@ public class TextFileReaderComponent extends ConfigAware {
 			String line = br.readLine();
 			boolean processedHeader = false;
 			String footerLine = null;
-			bulkWriter.startWriting(globalAttributes.get(Constants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
 			Map<String, String> headerAttributes = null;
 			while (line != null) {
 				if (!processedHeader) {
 					if (shouldProcessHeader) {
 						headerAttributes = this.processHeader(line);
 					}
+					feedDataProcessor.startFeed(globalAttributes, headerAttributes);
 					processedHeader = true;
 					line = br.readLine();
 				} else {
@@ -128,12 +122,12 @@ public class TextFileReaderComponent extends ConfigAware {
 						if (processAndValidateFooter) {
 							footerLine = line;
 						} else {
-							this.processLine(line, headerAttributes, globalAttributes);
+							feedDataProcessor.processLine(line);
 							footerLine = null;
 						}
 						line = null;
 					} else {
-						this.processLine(line, headerAttributes, globalAttributes);
+						feedDataProcessor.processLine(line);
 						feedLinesNumber++;
 						line = nextLine;
 					}
@@ -143,7 +137,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (feedFileSizeHistogram != null) {
 				feedFileSizeHistogram.update(feedLinesNumber);
 			}
-			bulkWriter.closeResources();
+			feedDataProcessor.closeFeed(feedLinesNumber);
 			this.processFooter(feedLinesNumber, footerLine);
 			IOUtils.closeQuietly(br);
 		} catch (final IOException ie) {
@@ -151,13 +145,6 @@ public class TextFileReaderComponent extends ConfigAware {
 		} finally {
 			IOUtils.closeQuietly(fileInputStream);
 		}
-	}
-
-	private void processLine(final String line, final Map<String, String> headerAttributes, final Map<String, String> globalAttributes) {
-		final String[] parsedData = feedParserComponent.parseData(line);
-		final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, headerAttributes, globalAttributes);
-		bulkWriter.write(lineForOutput);
-		bulkWriter.write("\n");
 	}
 
 	private void processFooter(final int feedLinesNumber, final String footerLine) {
@@ -193,8 +180,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	public void process(final InputStream input, final Map<String, String> globalAttributes) {
-		final InputStream is = input;
-		this.readFile(is, globalAttributes);
+		this.readFile(input, globalAttributes);
 	}
 
 }

@@ -13,4 +13,7 @@ public interface SystemConfigurationConstants {
 	public static final int DEFAULT_READ_WRITE_BUFFER_SIZE_MB = 1;
 	public static final String READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME = "rw.buffer.size.mb";
 
+	public static final int DEFAULT_MAX_DRAINED_ELEMENTS = 1000;
+	public static final String MAX_DRAINED_ELEMENTS_SYS_PARAM_NAME = "max.drained.elements";
+
 }
