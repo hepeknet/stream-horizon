@@ -24,7 +24,7 @@ import com.threeglav.bauk.feed.FeedDataProcessor;
 import com.threeglav.bauk.feed.MultiThreadedFeedDataProcessor;
 import com.threeglav.bauk.feed.SingleThreadedFeedDataProcessor;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
-import com.threeglav.bauk.model.BulkDefinition;
+import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.MetricsUtil;
@@ -83,10 +83,11 @@ class FeedFileProcessor implements Processor {
 		if (StringUtil.isEmpty(config.getBulkOutputDirectory())) {
 			throw new IllegalStateException("Bulk output directory must not be null or empty!");
 		}
-		fileExtension = BulkDefinition.DEFAULT_BULK_OUTPUT_EXTENSION;
-		final BulkDefinition bulkDefinition = factFeed.getBulkDefinition();
-		if (bulkDefinition != null && !StringUtil.isEmpty(bulkDefinition.getBulkOutputExtension())) {
-			fileExtension = bulkDefinition.getBulkOutputExtension();
+		fileExtension = BulkLoadDefinition.DEFAULT_BULK_OUTPUT_EXTENSION;
+		final BulkLoadDefinition bulkDefinition = factFeed.getBulkLoadDefinition();
+		final String bulkLoadOutputExtension = bulkDefinition.getBulkLoadOutputExtension();
+		if (bulkDefinition != null && !StringUtil.isEmpty(bulkLoadOutputExtension)) {
+			fileExtension = bulkLoadOutputExtension;
 		}
 		if (!fileExtension.matches("[A-Za-z0-9]+")) {
 			throw new IllegalStateException("Bulk file extension must contain only alpha-numerical characters. Currently " + fileExtension);
@@ -95,27 +96,34 @@ class FeedFileProcessor implements Processor {
 
 	@Override
 	public void process(final Exchange exchange) throws Exception {
-		final String fullFilePath = (String) exchange.getIn().getHeader("CamelFileName");
+		final String fullFileName = (String) exchange.getIn().getHeader("CamelFileName");
 		final Long lastModified = (Long) exchange.getIn().getHeader("CamelFileLastModified");
 		final Long fileLength = (Long) exchange.getIn().getHeader("CamelFileLength");
-		final String lowerCaseFilePath = fullFilePath.toLowerCase();
+		final String lowerCaseFilePath = fullFileName.toLowerCase();
 		log.debug("Trying to process {}", lowerCaseFilePath);
 		if (lowerCaseFilePath.endsWith(".zip")) {
 			final File file = exchange.getIn().getBody(File.class);
 			final ZipFile zipFile = new ZipFile(file);
+			if (!zipFile.entries().hasMoreElements()) {
+				IOUtils.closeQuietly(zipFile);
+				throw new IllegalStateException("Did not find any entries inside " + fullFileName);
+			}
+			if (zipFile.size() > 1) {
+				log.error("Will process only one zipped entry inside {} and will skip all others. Found {} entries", fullFileName);
+			}
 			final InputStream inputStream = zipFile.getInputStream(zipFile.entries().nextElement());
-			this.processInputStream(exchange, inputStream, fullFilePath, lastModified, fileLength);
+			this.processInputStream(exchange, inputStream, fullFileName, lastModified, fileLength);
 			IOUtils.closeQuietly(zipFile);
 			IOUtils.closeQuietly(inputStream);
 		} else if (lowerCaseFilePath.endsWith(".gz")) {
 			final InputStream fileInputStream = exchange.getIn().getBody(InputStream.class);
 			final InputStream inputStream = StreamUtil.ungzipInputStream(fileInputStream);
-			this.processInputStream(exchange, inputStream, fullFilePath, lastModified, fileLength);
+			this.processInputStream(exchange, inputStream, fullFileName, lastModified, fileLength);
 			IOUtils.closeQuietly(inputStream);
 			IOUtils.closeQuietly(fileInputStream);
 		} else {
 			final InputStream inputStream = exchange.getIn().getBody(InputStream.class);
-			this.processInputStream(exchange, inputStream, fullFilePath, lastModified, fileLength);
+			this.processInputStream(exchange, inputStream, fullFileName, lastModified, fileLength);
 			IOUtils.closeQuietly(inputStream);
 		}
 		log.debug("Successfully processed {}", lowerCaseFilePath);

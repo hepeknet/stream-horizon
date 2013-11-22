@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractFeedParser implements FeedParser {
 
-	protected final Logger log = LoggerFactory.getLogger(getClass());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final int DEFAULT_EXPECTED_MEMBERS = 50;
 
@@ -47,15 +47,15 @@ public abstract class AbstractFeedParser implements FeedParser {
 	}
 
 	protected String[] splitLine(final String line) {
-		return splitLine(line, 0);
+		return this.splitLine(line, 0);
 	}
 
 	protected String[] splitLine(final String line, final int skipCharacters) {
 		try {
 			if (singleCharacterDelimiter != DEFAULT_NON_INIT_CHAR) {
-				return splitCharacterDelimiter(line, skipCharacters);
+				return this.splitCharacterDelimiter(line, skipCharacters);
 			} else {
-				return splitStringDelimiter(line, skipCharacters);
+				return this.splitStringDelimiter(line, skipCharacters);
 			}
 		} catch (final Exception exc) {
 			log.error("Exception while parsing line {}, skipCharacters {}, delimiter {}", line, skipCharacters, delimiter);

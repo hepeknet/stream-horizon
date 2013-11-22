@@ -100,15 +100,15 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 			int counter = 0;
 			while (listIterator.hasNext()) {
 				final String line = listIterator.next();
+				listIterator.remove();
 				final String[] parsedData = feedParserComponent.parseData(line);
 				final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, headerAttributes, globalAttributes);
 				outputLines[counter++] = lineForOutput;
-				listIterator.remove();
 			}
 			drainedElements.clear();
+			final int outputSize = outputLines.length;
+			log.debug("Will output {} lines", outputSize);
 			synchronized (bulkWriterLock) {
-				final int outputSize = outputLines.length;
-				log.debug("Will output {} lines", outputSize);
 				for (final String str : outputLines) {
 					bulkWriter.write(str);
 					bulkWriter.write("\n");

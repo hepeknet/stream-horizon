@@ -7,37 +7,37 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BulkDefinition {
+public class BulkLoadDefinition {
 
 	public static final String DEFAULT_BULK_OUTPUT_EXTENSION = "data";
 
 	@XmlElement(required = true)
-	private String bulkOutputExtension = DEFAULT_BULK_OUTPUT_EXTENSION;
+	private String bulkLoadOutputExtension = DEFAULT_BULK_OUTPUT_EXTENSION;
 
 	@XmlElement(required = true)
-	private BulkLoadFileDefinition bulkLoadFileDefinition;
+	private BulkLoadFormatDefinition bulkLoadFormatDefinition;
 
 	@XmlElement(required = true)
 	private String bulkLoadInsertStatement;
 
-	public BulkLoadFileDefinition getBulkLoadFileDefinition() {
-		return this.bulkLoadFileDefinition;
+	public BulkLoadFormatDefinition getBulkLoadFormatDefinition() {
+		return bulkLoadFormatDefinition;
 	}
 
-	public void setBulkLoadFileDefinition(final BulkLoadFileDefinition bulkLoadFileDefinition) {
-		this.bulkLoadFileDefinition = bulkLoadFileDefinition;
+	public void setBulkLoadFormatDefinition(final BulkLoadFormatDefinition bulkLoadFormatDefinition) {
+		this.bulkLoadFormatDefinition = bulkLoadFormatDefinition;
 	}
 
-	public String getBulkOutputExtension() {
-		return this.bulkOutputExtension;
+	public String getBulkLoadOutputExtension() {
+		return bulkLoadOutputExtension;
 	}
 
-	public void setBulkOutputExtension(final String bulkOutputExtension) {
-		this.bulkOutputExtension = bulkOutputExtension;
+	public void setBulkLoadOutputExtension(final String bulkLoadOutputExtension) {
+		this.bulkLoadOutputExtension = bulkLoadOutputExtension;
 	}
 
 	public String getBulkLoadInsertStatement() {
-		return this.bulkLoadInsertStatement;
+		return bulkLoadInsertStatement;
 	}
 
 	public void setBulkLoadInsertStatement(final String bulkLoadInsertStatement) {

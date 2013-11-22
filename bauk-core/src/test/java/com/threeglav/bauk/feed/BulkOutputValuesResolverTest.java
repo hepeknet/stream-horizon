@@ -55,7 +55,7 @@ public class BulkOutputValuesResolverTest {
 	@Test
 	public void testSimple() {
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
-		when(ff.getBulkDefinition().getBulkLoadFileDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
+		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(5));
 		when(ff.getDelimiterString()).thenReturn(",");
 		final Config conf = Mockito.mock(Config.class);
@@ -81,7 +81,7 @@ public class BulkOutputValuesResolverTest {
 	@Test
 	public void testSmallerFeed() {
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
-		when(ff.getBulkDefinition().getBulkLoadFileDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
+		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(4));
 		when(ff.getDelimiterString()).thenReturn(",");
 		final Config conf = Mockito.mock(Config.class);

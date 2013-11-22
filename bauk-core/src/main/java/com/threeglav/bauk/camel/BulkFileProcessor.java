@@ -29,27 +29,27 @@ public class BulkFileProcessor implements Processor {
 	public BulkFileProcessor(final FactFeed factFeed, final Config config) {
 		this.factFeed = factFeed;
 		this.config = config;
-		this.dbHandler = new SpringJdbcDbHandler(this.config);
-		this.successfullyLoadedBulkFilesMeter = MetricsUtil.createMeter("Successfully loaded bulk files");
+		dbHandler = new SpringJdbcDbHandler(this.config);
+		successfullyLoadedBulkFilesMeter = MetricsUtil.createMeter("Successfully loaded bulk files");
 	}
 
 	@Override
 	public void process(final Exchange exchange) throws Exception {
 		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
 		final String bulkLoadFilePath = globalAttributes.get(Constants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
-		this.log.debug("Processing {}", bulkLoadFilePath);
-		final String insertStatement = this.factFeed.getBulkDefinition().getBulkLoadInsertStatement();
+		log.debug("Processing {}", bulkLoadFilePath);
+		final String insertStatement = factFeed.getBulkLoadDefinition().getBulkLoadInsertStatement();
 		if (StringUtil.isEmpty(insertStatement)) {
-			this.log.info("Could not find insert statement for bulk loading files!");
+			log.info("Could not find insert statement for bulk loading files!");
 			return;
 		}
-		this.log.debug("Insert statement for bulk loading files is {}", insertStatement);
+		log.debug("Insert statement for bulk loading files is {}", insertStatement);
 		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, Constants.GLOBAL_ATTRIBUTE_PREFIX);
-		this.log.debug("Statement to execute is {}", replacedStatement);
-		this.dbHandler.executeInsertStatement(replacedStatement);
-		this.log.debug("Successfully executed statement {}", replacedStatement);
-		if (this.successfullyLoadedBulkFilesMeter != null) {
-			this.successfullyLoadedBulkFilesMeter.mark();
+		log.debug("Statement to execute is {}", replacedStatement);
+		dbHandler.executeInsertStatement(replacedStatement);
+		log.debug("Successfully executed statement {}", replacedStatement);
+		if (successfullyLoadedBulkFilesMeter != null) {
+			successfullyLoadedBulkFilesMeter.mark();
 		}
 	}
 
@@ -62,7 +62,7 @@ public class BulkFileProcessor implements Processor {
 		attributes.put(com.threeglav.bauk.Constants.IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_RECEIVED_TIMESTAMP,
 				String.valueOf(exchange.getIn().getHeader("CamelFileLastModified")));
 		attributes.put(com.threeglav.bauk.Constants.IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_PROCESSED_TIMESTAMP, "" + System.currentTimeMillis());
-		this.log.debug("Created global attributes {}", attributes);
+		log.debug("Created global attributes {}", attributes);
 		return attributes;
 	}
 

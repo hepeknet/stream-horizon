@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class BulkLoadFileDefinition {
+public class BulkLoadFormatDefinition {
 
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")

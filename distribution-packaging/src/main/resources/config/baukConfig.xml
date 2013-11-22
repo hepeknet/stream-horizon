@@ -40,10 +40,10 @@
             <footer process="strict">
                 <eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
             </footer>
-			<bulkDefinition>
-				<bulkOutputExtension>data</bulkOutputExtension>
+			<bulkLoadDefinition>
+				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<bulkLoadInsertStatement>LOAD DATA INFILE '${global.bulkFilePath}' INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY '\n'</bulkLoadInsertStatement>
-				<bulkLoadFileDefinition>
+				<bulkLoadFormatDefinition>
 					<attributes>
 						<attribute name="dimension.currency" />
 						<attribute name="feed.measure1" />
@@ -55,8 +55,8 @@
 						<attribute name="feed.measure4" />
 						<attribute name="dimension.currency" />
 					</attributes>
-				</bulkLoadFileDefinition>
-			</bulkDefinition>
+				</bulkLoadFormatDefinition>
+			</bulkLoadDefinition>
 			<threadPoolSizes>
 				<feedProcessingThreads>2</feedProcessingThreads>
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>

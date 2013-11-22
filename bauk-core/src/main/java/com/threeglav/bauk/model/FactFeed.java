@@ -46,13 +46,13 @@ public class FactFeed {
 	private HeaderFooter footer;
 
 	@XmlElement
-	private BulkDefinition bulkDefinition;
+	private BulkLoadDefinition bulkLoadDefinition;
 
 	@XmlElement
 	private ThreadPoolSizes threadPoolSizes;
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public void setName(final String name) {
@@ -60,7 +60,7 @@ public class FactFeed {
 	}
 
 	public FactFeedType getType() {
-		return this.type;
+		return type;
 	}
 
 	public void setType(final FactFeedType type) {
@@ -68,7 +68,7 @@ public class FactFeed {
 	}
 
 	public String getNullString() {
-		return this.nullString;
+		return nullString;
 	}
 
 	public void setNullString(final String nullString) {
@@ -76,7 +76,7 @@ public class FactFeed {
 	}
 
 	public String getDelimiterString() {
-		return this.delimiterString;
+		return delimiterString;
 	}
 
 	public void setDelimiterString(final String delimiterString) {
@@ -84,7 +84,7 @@ public class FactFeed {
 	}
 
 	public HeaderFooter getHeader() {
-		return this.header;
+		return header;
 	}
 
 	public void setHeader(final HeaderFooter header) {
@@ -92,7 +92,7 @@ public class FactFeed {
 	}
 
 	public HeaderFooter getFooter() {
-		return this.footer;
+		return footer;
 	}
 
 	public void setFooter(final HeaderFooter footer) {
@@ -100,7 +100,7 @@ public class FactFeed {
 	}
 
 	public Data getData() {
-		return this.data;
+		return data;
 	}
 
 	public void setData(final Data data) {
@@ -108,7 +108,7 @@ public class FactFeed {
 	}
 
 	public ArrayList<Attribute> getDerivedAttributes() {
-		return this.derivedAttributes;
+		return derivedAttributes;
 	}
 
 	public void setDerivedAttributes(final ArrayList<Attribute> derivedAttributes) {
@@ -116,23 +116,23 @@ public class FactFeed {
 	}
 
 	public int getRepetitionCount() {
-		return this.repetitionCount;
+		return repetitionCount;
 	}
 
 	public void setRepetitionCount(final int repetitionCount) {
 		this.repetitionCount = repetitionCount;
 	}
 
-	public BulkDefinition getBulkDefinition() {
-		return this.bulkDefinition;
+	public BulkLoadDefinition getBulkLoadDefinition() {
+		return bulkLoadDefinition;
 	}
 
-	public void setBulkDefinition(final BulkDefinition bulkDefinition) {
-		this.bulkDefinition = bulkDefinition;
+	public void setBulkLoadDefinition(final BulkLoadDefinition bulkLoadDefinition) {
+		this.bulkLoadDefinition = bulkLoadDefinition;
 	}
 
 	public ArrayList<String> getFileNameMasks() {
-		return this.fileNameMasks;
+		return fileNameMasks;
 	}
 
 	public void setFileNameMasks(final ArrayList<String> fileNameMasks) {
@@ -140,7 +140,7 @@ public class FactFeed {
 	}
 
 	public ThreadPoolSizes getThreadPoolSizes() {
-		return this.threadPoolSizes;
+		return threadPoolSizes;
 	}
 
 	public void setThreadPoolSizes(final ThreadPoolSizes threadPoolSizes) {

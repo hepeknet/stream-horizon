@@ -11,8 +11,8 @@ import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.model.BulkDefinition;
-import com.threeglav.bauk.model.BulkLoadFileDefinition;
+import com.threeglav.bauk.model.BulkLoadDefinition;
+import com.threeglav.bauk.model.BulkLoadFormatDefinition;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
@@ -46,7 +46,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 		this.dbHandler = dbHandler;
 		this.validate();
-		bulkOutputFileNumberOfValues = factFeed.getBulkDefinition().getBulkLoadFileDefinition().getAttributes().size();
+		bulkOutputFileNumberOfValues = factFeed.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes().size();
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
 		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
 		this.createOutputValueHandlers(routeIdentifier);
@@ -54,11 +54,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	private void validate() {
-		final BulkDefinition bulkDefinition = this.getFactFeed().getBulkDefinition();
+		final BulkLoadDefinition bulkDefinition = this.getFactFeed().getBulkLoadDefinition();
 		if (bulkDefinition == null) {
 			throw new IllegalArgumentException("Bulk definition not found in configuration");
 		}
-		final BulkLoadFileDefinition bulkLoadFileDefinition = bulkDefinition.getBulkLoadFileDefinition();
+		final BulkLoadFormatDefinition bulkLoadFileDefinition = bulkDefinition.getBulkLoadFormatDefinition();
 		if (bulkLoadFileDefinition == null) {
 			throw new IllegalArgumentException("Bulk load file definition not found in configuration file. Please check your configuration!");
 		}
@@ -68,8 +68,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	private void createOutputValueHandlers(final String routeIdentifier) {
-		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getBulkDefinition()
-				.getBulkLoadFileDefinition().getAttributes());
+		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getBulkLoadDefinition()
+				.getBulkLoadFormatDefinition().getAttributes());
 		if (log.isDebugEnabled()) {
 			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
 		}

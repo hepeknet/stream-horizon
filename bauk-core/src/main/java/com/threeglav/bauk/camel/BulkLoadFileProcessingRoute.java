@@ -29,7 +29,7 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 	}
 
 	private void validate() {
-		if (factFeed.getBulkDefinition() == null) {
+		if (factFeed.getBulkLoadDefinition() == null) {
 			throw new IllegalStateException("Was not able to find bulk definition in configuration file!");
 		}
 	}
@@ -40,7 +40,7 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 	}
 
 	private void createRoute() {
-		final String fullFileMask = ".*" + factFeed.getBulkDefinition().getBulkOutputExtension();
+		final String fullFileMask = ".*" + factFeed.getBulkLoadDefinition().getBulkLoadOutputExtension();
 		log.debug("Will process bulk files in {} with file mask {}", config.getBulkOutputDirectory(), fullFileMask);
 		String inputEndpoint = "file://" + config.getBulkOutputDirectory() + "?include=" + fullFileMask;
 		inputEndpoint += "&idempotent=true&readLock=changed&delete=true";
