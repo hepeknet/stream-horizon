@@ -1,6 +1,5 @@
 package com.threeglav.bauk.dynamic;
 
-import java.io.IOException;
 import java.security.SecureClassLoader;
 
 import javax.tools.FileObject;
@@ -29,8 +28,7 @@ public class ClassFileManager extends ForwardingJavaFileManager {
 	}
 
 	@Override
-	public JavaFileObject getJavaFileForOutput(final Location location, final String className, final Kind kind, final FileObject sibling)
-			throws IOException {
+	public JavaFileObject getJavaFileForOutput(final Location location, final String className, final Kind kind, final FileObject sibling) {
 		jclassObject = new JavaClassObject(className, kind);
 		return jclassObject;
 	}
