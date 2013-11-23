@@ -75,7 +75,7 @@ public class BulkOutputValuesResolverTest {
 		final BulkOutputValuesResolver bomhc = new BulkOutputValuesResolver(ff, conf, ch, dh, null);
 		final String latestValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, null, null);
 		Assert.assertNotNull(latestValue);
-		Assert.assertEquals("2,3,6,7", latestValue);
+		Assert.assertEquals("2,3,6,CONST_VAL", latestValue);
 	}
 
 	@Test
@@ -124,8 +124,11 @@ public class BulkOutputValuesResolverTest {
 			final Attribute at = new Attribute();
 			if (i % 2 == 0) {
 				at.setName("dimension.dim_" + i);
-			} else {
+			} else if (i != 3) {
 				at.setName("feed.at_" + i);
+			} else {
+				at.setName("");
+				at.setConstantValue("CONST_VAL");
 			}
 			attrs.add(at);
 		}

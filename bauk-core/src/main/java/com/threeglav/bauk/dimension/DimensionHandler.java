@@ -37,6 +37,7 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 	private final Counter dbAccessCounter;
 	private final int naturalKeyPositionOffset;
 	private final Counter localCacheClearCounter;
+	private boolean skipCaching;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance, final DbHandler dbHandler,
 			final int naturalKeyPositionOffset, final String routeIdentifier) {
@@ -70,7 +71,8 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 
 	private void validate() {
 		if (dimension.getNaturalKeys() == null || dimension.getNaturalKeys().isEmpty()) {
-			throw new IllegalArgumentException("Was not able to find any natural key definitions for " + dimension.getName());
+			skipCaching = true;
+			log.warn("Did not find any defined naturaly keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
 		}
 		if (dimension.getSqlStatements() == null) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
@@ -89,6 +91,9 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 	}
 
 	private void calculatePositionOfNaturalKeys() {
+		if (skipCaching) {
+			return;
+		}
 		final int numberOfNaturalKeys = dimension.getNaturalKeys().size();
 		naturalKeyNames = new String[numberOfNaturalKeys];
 		naturalKeyPositionsInFeed = new int[numberOfNaturalKeys];
@@ -118,14 +123,20 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 		if (parsedLine == null || parsedLine.length == 0) {
 			throw new IllegalArgumentException("Did not find any data in parsed line");
 		}
-		final String cacheKey = this.getNaturalKeyCacheKey(parsedLine);
-		String surrogateKey = this.getSurrogateKeyFromCache(cacheKey);
+		String surrogateKey = null;
+		String cacheKey = null;
+		if (!skipCaching) {
+			cacheKey = this.getNaturalKeyCacheKey(parsedLine);
+			surrogateKey = this.getSurrogateKeyFromCache(cacheKey);
+		}
 		if (surrogateKey == null) {
 			if (log.isTraceEnabled()) {
 				log.trace("Did not find surrogate key for {} in cache. Going to database", dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, headerAttributes, globalAttributes);
-			cacheInstance.put(cacheKey, surrogateKey);
+			if (!skipCaching) {
+				cacheInstance.put(cacheKey, surrogateKey);
+			}
 		}
 		return surrogateKey;
 	}
@@ -133,7 +144,7 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 	private String getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> headerAttributes,
 			final Map<String, String> globalAttributes) {
 		try {
-			return this.tryInsertstatement(parsedLine, headerAttributes, globalAttributes);
+			return this.tryInsertStatement(parsedLine, headerAttributes, globalAttributes);
 		} catch (final Exception exc) {
 			log.error("Failed inserting record {}. Will try to select value from database!", exc.getMessage());
 		}
@@ -157,7 +168,7 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 		return result.toString();
 	}
 
-	private String tryInsertstatement(final String[] parsedLine, final Map<String, String> headerAttributes,
+	private String tryInsertStatement(final String[] parsedLine, final Map<String, String> headerAttributes,
 			final Map<String, String> globalAttributes) {
 		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
 		if (StringUtil.isEmpty(insertStatement)) {
@@ -193,6 +204,9 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 	}
 
 	private String replaceAllNaturalKeys(final String statement, final String[] parsedLine) {
+		if (naturalKeyNames == null) {
+			return statement;
+		}
 		String replaced = statement;
 		for (int i = 0; i < naturalKeyNames.length; i++) {
 			final String nkPlacholder = Constants.STATEMENT_PLACEHOLDER_DELIMITER_START + naturalKeyNames[i]

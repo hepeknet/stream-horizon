@@ -80,8 +80,8 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testLookups() {
-		Assert.assertNull(this.lastRequiredFromCache);
-		Assert.assertNull(this.lastStatementToExecute);
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertNull(lastStatementToExecute);
 		final BulkLoadOutputValueHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 0, null);
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -89,14 +89,14 @@ public class DimensionHandlerTest {
 		Assert.assertEquals("100", key);
 		final String nkLookup = "c" + Constants.NATURAL_KEY_DELIMITER + "d" + Constants.NATURAL_KEY_DELIMITER + "g" + Constants.NATURAL_KEY_DELIMITER
 				+ "f" + Constants.NATURAL_KEY_DELIMITER + "a";
-		Assert.assertEquals(nkLookup, this.lastRequiredFromCache);
+		Assert.assertEquals(nkLookup, lastRequiredFromCache);
 		Assert.assertEquals(
 				"insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2'",
-				this.lastStatementToExecute);
-		this.lastRequiredFromCache = null;
-		this.lastStatementToExecute = null;
-		Assert.assertNull(this.lastRequiredFromCache);
-		Assert.assertNull(this.lastStatementToExecute);
+				lastStatementToExecute);
+		lastRequiredFromCache = null;
+		lastStatementToExecute = null;
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertNull(lastStatementToExecute);
 		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 0, null);
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -107,17 +107,17 @@ public class DimensionHandlerTest {
 		Assert.assertEquals("100", key1);
 		final String nkLookup1 = "c" + Constants.NATURAL_KEY_DELIMITER + "d" + Constants.NATURAL_KEY_DELIMITER + "g"
 				+ Constants.NATURAL_KEY_DELIMITER + "f" + Constants.NATURAL_KEY_DELIMITER + "a";
-		Assert.assertEquals(nkLookup1, this.lastRequiredFromCache);
+		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
 		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
-				this.lastStatementToExecute);
+				lastStatementToExecute);
 	}
 
 	@Test
 	public void testLookupsWithOffset() {
-		this.lastRequiredFromCache = null;
-		this.lastStatementToExecute = null;
-		Assert.assertNull(this.lastRequiredFromCache);
-		Assert.assertNull(this.lastStatementToExecute);
+		lastRequiredFromCache = null;
+		lastStatementToExecute = null;
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertNull(lastStatementToExecute);
 		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 1, null);
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -128,9 +128,29 @@ public class DimensionHandlerTest {
 		Assert.assertEquals("100", key1);
 		final String nkLookup1 = "d" + Constants.NATURAL_KEY_DELIMITER + "e" + Constants.NATURAL_KEY_DELIMITER + "h"
 				+ Constants.NATURAL_KEY_DELIMITER + "g" + Constants.NATURAL_KEY_DELIMITER + "b";
-		Assert.assertEquals(nkLookup1, this.lastRequiredFromCache);
+		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
 		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
-				this.lastStatementToExecute);
+				lastStatementToExecute);
+	}
+
+	@Test
+	public void testLookupNoNaturalKeys() {
+		lastRequiredFromCache = null;
+		lastStatementToExecute = null;
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertNull(lastStatementToExecute);
+		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(0), this.createFactFeed(), this.createCacheHandler(),
+				this.createDbHandler(), 1, null);
+		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
+		final Map<String, String> headerValues = new HashMap<String, String>();
+		headerValues.put("h1", "100");
+		headerValues.put("h2", "200");
+		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, null);
+		Assert.assertEquals("100", key1);
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertEquals(
+				"insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
+				lastStatementToExecute);
 	}
 
 	private CacheInstance createCacheHandler() {
@@ -139,7 +159,7 @@ public class DimensionHandlerTest {
 
 			@Override
 			public String getSurrogateKey(final String naturalKey) {
-				DimensionHandlerTest.this.lastRequiredFromCache = naturalKey;
+				lastRequiredFromCache = naturalKey;
 				return null;
 			}
 
@@ -155,13 +175,13 @@ public class DimensionHandlerTest {
 
 			@Override
 			public Long executeQueryStatementAndReturnKey(final String statement) {
-				DimensionHandlerTest.this.lastStatementToExecute = statement;
+				lastStatementToExecute = statement;
 				return 100l;
 			}
 
 			@Override
 			public Long executeInsertStatementAndReturnKey(final String statement) {
-				DimensionHandlerTest.this.lastStatementToExecute = statement;
+				lastStatementToExecute = statement;
 				return 100l;
 			}
 
@@ -172,11 +192,11 @@ public class DimensionHandlerTest {
 		};
 	}
 
-	private Dimension createDimension() {
+	private Dimension createDimension(final int naturalKeysCount) {
 		final Dimension dim = new Dimension();
 		dim.setName("dim1");
 		final ArrayList<NaturalKey> naturalKeys = new ArrayList<NaturalKey>();
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < naturalKeysCount; i++) {
 			final String nkName = "nk_" + i;
 			final NaturalKey nk = new NaturalKey();
 			nk.setName(nkName);
@@ -188,6 +208,10 @@ public class DimensionHandlerTest {
 				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2'");
 		dim.setSqlStatements(sqlStatements);
 		return dim;
+	}
+
+	private Dimension createDimension() {
+		return this.createDimension(5);
 	}
 
 	private FactFeed createFactFeed() {

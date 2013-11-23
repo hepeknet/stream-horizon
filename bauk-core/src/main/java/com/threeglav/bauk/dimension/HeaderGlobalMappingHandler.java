@@ -9,7 +9,7 @@ import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.Constants;
 import com.threeglav.bauk.util.StringUtil;
 
-public class ConstantMappingHandler implements BulkLoadOutputValueHandler {
+public class HeaderGlobalMappingHandler implements BulkLoadOutputValueHandler {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final String attributeName;
@@ -21,7 +21,7 @@ public class ConstantMappingHandler implements BulkLoadOutputValueHandler {
 	private Map<String, String> latestUsedGlobalMap;
 	private String latestGlobalValue;
 
-	public ConstantMappingHandler(final String attributeName) {
+	public HeaderGlobalMappingHandler(final String attributeName) {
 		if (StringUtil.isEmpty(attributeName)) {
 			throw new IllegalArgumentException("Attribute name must not be null or empty string");
 		}

@@ -10,17 +10,17 @@ public class ConstantMappingHandlerTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNull() {
-		new ConstantMappingHandler(null);
+		new HeaderGlobalMappingHandler(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testEmpty() {
-		new ConstantMappingHandler(" ");
+		new HeaderGlobalMappingHandler(" ");
 	}
 
 	@Test
 	public void testSimple() {
-		final ConstantMappingHandler cmh = new ConstantMappingHandler("header.h1");
+		final HeaderGlobalMappingHandler cmh = new HeaderGlobalMappingHandler("header.h1");
 		Map<String, String> hvalues = new HashMap<String, String>();
 		hvalues.put("h1", "a");
 		hvalues.put("h2", "b");
@@ -30,7 +30,7 @@ public class ConstantMappingHandlerTest {
 		hvalues.put("h2", "b");
 		Assert.assertEquals("c", cmh.getBulkLoadValue(null, hvalues, null));
 
-		final ConstantMappingHandler cmh1 = new ConstantMappingHandler("global.g1");
+		final HeaderGlobalMappingHandler cmh1 = new HeaderGlobalMappingHandler("global.g1");
 		Map<String, String> gvalues = new HashMap<String, String>();
 		gvalues.put("g1", "a");
 		gvalues.put("g2", "b");

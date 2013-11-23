@@ -1,16 +1,19 @@
 package com.threeglav.bauk.feed;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.Constants;
-import com.threeglav.bauk.dimension.ConstantMappingHandler;
+import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
+import com.threeglav.bauk.dimension.HeaderGlobalMappingHandler;
 import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
+import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadFormatDefinition;
 import com.threeglav.bauk.model.Config;
@@ -68,8 +71,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	private void createOutputValueHandlers(final String routeIdentifier) {
-		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getBulkLoadDefinition()
-				.getBulkLoadFormatDefinition().getAttributes());
+		final ArrayList<Attribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes();
+		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(bulkOutputAttributes);
 		if (log.isDebugEnabled()) {
 			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
 		}
@@ -116,9 +119,14 @@ public class BulkOutputValuesResolver extends ConfigAware {
 						i, foundPosition, feedAttributeNamesAndPositions.size());
 			} else if (bulkOutputAttributeName.startsWith(Constants.HEADER_ATTRIBUTE_PREFIX)
 					|| bulkOutputAttributeName.startsWith(Constants.GLOBAL_ATTRIBUTE_PREFIX)) {
-				final ConstantMappingHandler cmh = new ConstantMappingHandler(bulkOutputAttributeName);
+				final HeaderGlobalMappingHandler cmh = new HeaderGlobalMappingHandler(bulkOutputAttributeName);
 				outputValueHandlers[i] = cmh;
-				log.debug("Value at position {} in bulk output load will be constant value derived from {}", i, bulkOutputAttributeName);
+				log.debug("Value at position {} in bulk output load will be mapped value derived from {}", i, bulkOutputAttributeName);
+			} else if (StringUtil.isEmpty(bulkOutputAttributeName)) {
+				final Attribute attr = bulkOutputAttributes.get(i);
+				final String value = attr.getConstantValue();
+				outputValueHandlers[i] = new ConstantOutputValueHandler(value);
+				log.debug("Value at position {} in bulk output load will be constant value {}", value);
 			} else {
 				throw new IllegalArgumentException("Unknown type of bulk output attribute " + bulkOutputAttributeName
 						+ ". Must be either dimension. feed. header. global.");
