@@ -20,6 +20,9 @@ public class BulkLoadDefinition {
 	@XmlElement(required = true)
 	private String bulkLoadInsertStatement;
 
+	@XmlElement(required = false)
+	private OnBulkLoadSuccess onBulkLoadSuccess;
+
 	public BulkLoadFormatDefinition getBulkLoadFormatDefinition() {
 		return bulkLoadFormatDefinition;
 	}
@@ -42,6 +45,14 @@ public class BulkLoadDefinition {
 
 	public void setBulkLoadInsertStatement(final String bulkLoadInsertStatement) {
 		this.bulkLoadInsertStatement = bulkLoadInsertStatement;
+	}
+
+	public OnBulkLoadSuccess getOnBulkLoadSuccess() {
+		return onBulkLoadSuccess;
+	}
+
+	public void setOnBulkLoadSuccess(final OnBulkLoadSuccess onBulkLoadSuccess) {
+		this.onBulkLoadSuccess = onBulkLoadSuccess;
 	}
 
 }

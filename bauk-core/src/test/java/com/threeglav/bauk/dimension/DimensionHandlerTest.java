@@ -186,7 +186,7 @@ public class DimensionHandlerTest {
 			}
 
 			@Override
-			public void executeInsertStatement(final String statement) {
+			public void executeInsertOrUpdateStatement(final String statement) {
 
 			}
 		};

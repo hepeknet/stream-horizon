@@ -6,6 +6,6 @@ public interface DbHandler {
 
 	public Long executeInsertStatementAndReturnKey(final String statement);
 
-	public void executeInsertStatement(final String statement);
+	public void executeInsertOrUpdateStatement(final String statement);
 
 }

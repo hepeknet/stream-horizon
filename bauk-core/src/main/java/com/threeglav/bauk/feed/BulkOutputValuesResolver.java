@@ -87,7 +87,12 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		final Map<String, Integer> feedAttributeNamesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(feedData.getAttributes());
 		for (int i = 0; i < bulkOutputAttributeNames.length; i++) {
 			final String bulkOutputAttributeName = bulkOutputAttributeNames[i];
-			if (bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
+			if (StringUtil.isEmpty(bulkOutputAttributeName)) {
+				final Attribute attr = bulkOutputAttributes.get(i);
+				final String value = attr.getConstantValue();
+				outputValueHandlers[i] = new ConstantOutputValueHandler(value);
+				log.debug("Value at position {} in bulk output load will be constant value {}", value);
+			} else if (bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
 				final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
 				log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
 				final DimensionHandler cachedHandler = cachedDimensionHandlers.get(requiredDimensionName);
@@ -122,11 +127,6 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				final HeaderGlobalMappingHandler cmh = new HeaderGlobalMappingHandler(bulkOutputAttributeName);
 				outputValueHandlers[i] = cmh;
 				log.debug("Value at position {} in bulk output load will be mapped value derived from {}", i, bulkOutputAttributeName);
-			} else if (StringUtil.isEmpty(bulkOutputAttributeName)) {
-				final Attribute attr = bulkOutputAttributes.get(i);
-				final String value = attr.getConstantValue();
-				outputValueHandlers[i] = new ConstantOutputValueHandler(value);
-				log.debug("Value at position {} in bulk output load will be constant value {}", value);
 			} else {
 				throw new IllegalArgumentException("Unknown type of bulk output attribute " + bulkOutputAttributeName
 						+ ". Must be either dimension. feed. header. global.");

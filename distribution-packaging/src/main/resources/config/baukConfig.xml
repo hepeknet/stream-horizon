@@ -56,10 +56,16 @@
 						<attribute name="dimension.currency" />
 					</attributes>
 				</bulkLoadFormatDefinition>
+				<onBulkLoadSuccess>
+					<sqlStatements>
+						<sqlStatement>CALL simpleproc(@a)</sqlStatement>
+						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
+					</sqlStatements>
+				</onBulkLoadSuccess>
 			</bulkLoadDefinition>
 			<threadPoolSizes>
-				<feedProcessingThreads>2</feedProcessingThreads>
-				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
+				<feedProcessingThreads>4</feedProcessingThreads>
+				<bulkLoadProcessingThreads>1</bulkLoadProcessingThreads>
 			</threadPoolSizes>
         </factFeed>
     </factFeeds>

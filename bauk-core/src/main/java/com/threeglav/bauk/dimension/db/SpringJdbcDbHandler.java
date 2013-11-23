@@ -97,7 +97,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 	}
 
 	@Override
-	public void executeInsertStatement(final String statement) {
+	public void executeInsertOrUpdateStatement(final String statement) {
 		if (StringUtil.isEmpty(statement)) {
 			throw new IllegalArgumentException("Statement must not be null or empty!");
 		}

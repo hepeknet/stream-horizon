@@ -14,6 +14,7 @@ import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.dimension.db.SpringJdbcDbHandler;
 import com.threeglav.bauk.model.Config;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.model.OnBulkLoadSuccess;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -46,10 +47,26 @@ public class BulkFileProcessor implements Processor {
 		log.debug("Insert statement for bulk loading files is {}", insertStatement);
 		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, Constants.GLOBAL_ATTRIBUTE_PREFIX);
 		log.debug("Statement to execute is {}", replacedStatement);
-		dbHandler.executeInsertStatement(replacedStatement);
+		dbHandler.executeInsertOrUpdateStatement(replacedStatement);
 		log.debug("Successfully executed statement {}", replacedStatement);
+		this.executeOnSuccessBulkLoad(globalAttributes);
 		if (successfullyLoadedBulkFilesMeter != null) {
 			successfullyLoadedBulkFilesMeter.mark();
+		}
+	}
+
+	private void executeOnSuccessBulkLoad(final Map<String, String> globalAttributes) {
+		final OnBulkLoadSuccess onBulkLoadSuccess = factFeed.getBulkLoadDefinition().getOnBulkLoadSuccess();
+		if (onBulkLoadSuccess != null) {
+			if (onBulkLoadSuccess.getSqlStatements() != null) {
+				log.debug("Will execute on success sql actions. Global attributes {}", globalAttributes);
+				for (final String sqlStatement : onBulkLoadSuccess.getSqlStatements()) {
+					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, Constants.GLOBAL_ATTRIBUTE_PREFIX);
+					log.debug("Trying to execute statement [{}]", replaced);
+					dbHandler.executeInsertOrUpdateStatement(replaced);
+					log.debug("Successfully finished execution of [{}]", replaced);
+				}
+			}
 		}
 	}
 
