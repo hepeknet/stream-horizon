@@ -11,18 +11,14 @@
 
 	<properties>
 		<version.camel>2.12.1</version.camel>
-		<version.active.mq>5.5.1</version.active.mq>
 		<version.commons.io>2.4</version.commons.io>
 		<version.infinispan>5.3.0.Final</version.infinispan>
 		<version.spring.jdbc>3.2.4.RELEASE</version.spring.jdbc>
-		<version.commons.config>1.10</version.commons.config>
 		<version.commons.lang>2.6</version.commons.lang>
-		<version.commons.collections>3.2.1</version.commons.collections>
-		<version.disruptor>2.7</version.disruptor>
 	</properties>
 
 	<dependencies>
-	<dependency>
+		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bauk-api</artifactId>
 			<version>${project.version}</version>
@@ -40,21 +36,6 @@
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-spring</artifactId>
-			<version>${version.camel}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-zipfile</artifactId>
-			<version>${version.camel}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-stream</artifactId>
-			<version>${version.camel}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-jetty</artifactId>
 			<version>${version.camel}</version>
 		</dependency>
 		<dependency>
