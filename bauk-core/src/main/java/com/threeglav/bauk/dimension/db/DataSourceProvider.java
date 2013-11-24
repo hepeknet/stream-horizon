@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.ConnectionProperties;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -21,7 +21,7 @@ class DataSourceProvider {
 
 	}
 
-	DataSource createDataSource(final Config config) {
+	DataSource createDataSource(final BaukConfiguration config) {
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
@@ -60,7 +60,7 @@ class DataSourceProvider {
 		}
 	}
 
-	public static DataSource getDataSource(final Config config) {
+	public static DataSource getDataSource(final BaukConfiguration config) {
 		return INSTANCE.createDataSource(config);
 	}
 }

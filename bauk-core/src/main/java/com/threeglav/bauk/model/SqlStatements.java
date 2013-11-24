@@ -15,6 +15,9 @@ public class SqlStatements {
 	@XmlElement
 	private String selectSurrogateKey;
 
+	@XmlElement
+	private String preCacheKeys;
+
 	public String getInsertSingle() {
 		return insertSingle;
 	}
@@ -29,6 +32,14 @@ public class SqlStatements {
 
 	public void setSelectSurrogateKey(final String selectSurrogateKey) {
 		this.selectSurrogateKey = selectSurrogateKey;
+	}
+
+	public String getPreCacheKeys() {
+		return preCacheKeys;
+	}
+
+	public void setPreCacheKeys(final String preCacheKeys) {
+		this.preCacheKeys = preCacheKeys;
 	}
 
 }

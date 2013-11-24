@@ -3,6 +3,7 @@ package com.threeglav.bauk.dimension.db;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -19,7 +20,7 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.util.StringUtil;
 
 public class SpringJdbcDbHandler implements DbHandler {
@@ -29,7 +30,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 	private final JdbcTemplate jdbcTemplate;
 	private final int warningThreshold;
 
-	public SpringJdbcDbHandler(final Config config) {
+	public SpringJdbcDbHandler(final BaukConfiguration config) {
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
@@ -116,6 +117,43 @@ public class SpringJdbcDbHandler implements DbHandler {
 			log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 		}
 		log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
+	}
+
+	@Override
+	public List<String[]> queryForDimensionKeys(final String statement, final int numberOfNaturalKeyColumns) {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null");
+		}
+		final int expectedTotalValues = numberOfNaturalKeyColumns + 1;
+		final long start = System.currentTimeMillis();
+		log.debug("About to execute insert statement [{}]", statement);
+		log.info("Will expect in total {} results per row. First one should be surrogate key, others should be natural keys in appropriate order!",
+				expectedTotalValues);
+		final List<String[]> allRows = jdbcTemplate.query(statement, new RowMapper<String[]>() {
+
+			@Override
+			public String[] mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+				final ResultSetMetaData rsmd = rs.getMetaData();
+				final int columnsNumber = rsmd.getColumnCount();
+				if (columnsNumber != expectedTotalValues) {
+					throw new IllegalStateException("Statement should return surrogate key and all natural keys (in declared order) - in total "
+							+ expectedTotalValues + " columns, but it returned only " + columnsNumber);
+				}
+				final String[] values = new String[expectedTotalValues];
+				for (int i = 1; i <= expectedTotalValues; i++) {
+					values[i - 1] = rs.getString(i);
+				}
+				return values;
+			}
+
+		});
+		final int rowsReturned = allRows.size();
+		final long total = System.currentTimeMillis() - start;
+		if (total > warningThreshold) {
+			log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
+		}
+		log.debug("Successfully executed {}. Returned {} rows in total. In total took {}ms to execute", statement, rowsReturned, total);
+		return allRows;
 	}
 
 }

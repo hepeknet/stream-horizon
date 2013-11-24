@@ -10,12 +10,12 @@ import org.apache.commons.io.IOUtils;
 
 import com.codahale.metrics.Histogram;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.header.DefaultHeaderParser;
 import com.threeglav.bauk.header.HeaderParser;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.HeaderFooter;
 import com.threeglav.bauk.model.HeaderFooterProcessType;
@@ -37,7 +37,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final boolean shouldProcessHeader;
 	private final FeedDataProcessor feedDataProcessor;
 
-	public TextFileReaderComponent(final FactFeed factFeed, final Config config, final FeedDataProcessor feedDataProcessor,
+	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
 		super(factFeed, config);
 		this.validate();
@@ -52,7 +52,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			this.initializeHeaderProcessor();
 		}
 		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
-				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * Constants.ONE_MEGABYTE;
+				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
 		log.debug("Read buffer size is {}", bufferSize);
 	}
 

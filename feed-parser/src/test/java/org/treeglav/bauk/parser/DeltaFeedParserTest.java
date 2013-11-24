@@ -18,7 +18,7 @@ public class DeltaFeedParserTest {
 		Assert.assertEquals("cd", res[1]);
 		Assert.assertEquals("12", res[2]);
 		Assert.assertEquals("345", res[3]);
-		Assert.assertEquals("", res[4]);
+		Assert.assertNull(res[4]);
 
 		final String[] res1 = fp.parse("|^|^122|^|^ghj");
 		Assert.assertEquals(5, res1.length);

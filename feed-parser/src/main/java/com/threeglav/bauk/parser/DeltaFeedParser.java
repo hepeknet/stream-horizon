@@ -12,7 +12,7 @@ public final class DeltaFeedParser extends AbstractFeedParser {
 		final String[] currentLine = super.splitLine(line);
 		if (previousLine != null) {
 			for (int i = 0; i < currentLine.length; i++) {
-				if (isNullOrEmpty(currentLine[i])) {
+				if (isParsedValueNull(currentLine[i])) {
 					currentLine[i] = previousLine[i];
 				} else if (isNullStringValue(currentLine[i])) {
 					currentLine[i] = null;

@@ -6,9 +6,9 @@ import java.io.FileWriter;
 import org.apache.commons.io.IOUtils;
 
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.SystemConfigurationConstants;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -17,10 +17,10 @@ public class BulkFileWriter extends ConfigAware {
 	private BufferedWriter writer;
 	private final int bufferSize;
 
-	public BulkFileWriter(final FactFeed factFeed, final Config config) {
+	public BulkFileWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
-				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * Constants.ONE_MEGABYTE;
+				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
 		log.debug("Write buffer size is {}", bufferSize);
 	}
 

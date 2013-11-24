@@ -16,7 +16,7 @@ import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 
 public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
@@ -30,7 +30,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	private volatile AtomicInteger expectedLines;
 	private final int maxDrainedElements;
 
-	public MultiThreadedFeedDataProcessor(final FactFeed factFeed, final Config config, final String routeIdentifier, final DbHandler dbHandler,
+	public MultiThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier, final DbHandler dbHandler,
 			final CacheInstanceManager cacheInstanceManager, final int numberOfThreads) {
 		super(factFeed, config, routeIdentifier, dbHandler, cacheInstanceManager);
 		if (numberOfThreads < 1) {

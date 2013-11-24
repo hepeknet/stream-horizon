@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.HeaderGlobalMappingHandler;
@@ -16,7 +16,7 @@ import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadFormatDefinition;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
@@ -34,7 +34,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private final DbHandler dbHandler;
 	private final String outputDelimiter;
 
-	public BulkOutputValuesResolver(final FactFeed factFeed, final Config config, final CacheInstanceManager cacheInstanceManager,
+	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final CacheInstanceManager cacheInstanceManager,
 			final DbHandler dbHandler, final String routeIdentifier) {
 		super(factFeed, config);
 		if (config.getDimensions() == null || config.getDimensions().isEmpty()) {
@@ -105,7 +105,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 								+ requiredDimensionName + "]");
 					}
 					final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim
-							.getName()), dbHandler, feedDataLineOffset, routeIdentifier);
+							.getName()), dbHandler, feedDataLineOffset, routeIdentifier, this.getConfig());
 					cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 					outputValueHandlers[i] = dimHandler;
 				}
@@ -122,8 +122,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				log.debug(
 						"Value at position {} in bulk output load will be copied directly from value in feed at position {}. Every data line in feed must have {} values",
 						i, foundPosition, feedAttributeNamesAndPositions.size());
-			} else if (bulkOutputAttributeName.startsWith(Constants.HEADER_ATTRIBUTE_PREFIX)
-					|| bulkOutputAttributeName.startsWith(Constants.GLOBAL_ATTRIBUTE_PREFIX)) {
+			} else if (bulkOutputAttributeName.startsWith(BaukConstants.HEADER_ATTRIBUTE_PREFIX)
+					|| bulkOutputAttributeName.startsWith(BaukConstants.GLOBAL_ATTRIBUTE_PREFIX)) {
 				final HeaderGlobalMappingHandler cmh = new HeaderGlobalMappingHandler(bulkOutputAttributeName);
 				outputValueHandlers[i] = cmh;
 				log.debug("Value at position {} in bulk output load will be mapped value derived from {}", i, bulkOutputAttributeName);

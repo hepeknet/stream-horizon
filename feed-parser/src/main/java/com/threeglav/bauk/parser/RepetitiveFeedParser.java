@@ -34,7 +34,7 @@ public final class RepetitiveFeedParser extends AbstractFeedParser {
 		// else do one by one
 		final String[] currentLine = super.splitLine(line);
 		if (previousLine != null) {
-			if (isNullOrEmpty(currentLine[0])) {
+			if (isParsedValueNull(currentLine[0])) {
 				System.arraycopy(previousLine, 0, currentLine, 0, repetitionCount);
 			}
 		}

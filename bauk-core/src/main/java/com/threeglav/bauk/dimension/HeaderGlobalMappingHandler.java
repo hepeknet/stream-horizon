@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.util.StringUtil;
 
 public class HeaderGlobalMappingHandler implements BulkLoadOutputValueHandler {
@@ -26,12 +26,12 @@ public class HeaderGlobalMappingHandler implements BulkLoadOutputValueHandler {
 			throw new IllegalArgumentException("Attribute name must not be null or empty string");
 		}
 		this.attributeName = attributeName;
-		if (this.attributeName.startsWith(Constants.HEADER_ATTRIBUTE_PREFIX)) {
-			attributeNameWithoutPrefix = this.attributeName.replace(Constants.HEADER_ATTRIBUTE_PREFIX, "");
+		if (this.attributeName.startsWith(BaukConstants.HEADER_ATTRIBUTE_PREFIX)) {
+			attributeNameWithoutPrefix = this.attributeName.replace(BaukConstants.HEADER_ATTRIBUTE_PREFIX, "");
 			isHeaderMapping = true;
 			isGlobalMapping = false;
-		} else if (this.attributeName.startsWith(Constants.GLOBAL_ATTRIBUTE_PREFIX)) {
-			attributeNameWithoutPrefix = this.attributeName.replace(Constants.GLOBAL_ATTRIBUTE_PREFIX, "");
+		} else if (this.attributeName.startsWith(BaukConstants.GLOBAL_ATTRIBUTE_PREFIX)) {
+			attributeNameWithoutPrefix = this.attributeName.replace(BaukConstants.GLOBAL_ATTRIBUTE_PREFIX, "");
 			isGlobalMapping = true;
 			isHeaderMapping = false;
 		} else {

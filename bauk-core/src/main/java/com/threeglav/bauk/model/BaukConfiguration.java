@@ -10,9 +10,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+@XmlRootElement(name = "config")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Config {
+public class BaukConfiguration {
 
 	@XmlElement(required = true)
 	private String sourceDirectory;
@@ -28,6 +28,9 @@ public class Config {
 
 	@XmlElement(required = true)
 	private ConnectionProperties connectionProperties;
+
+	@XmlElement(required = true)
+	private String databaseStringLiteral;
 
 	@XmlElementWrapper(required = true)
 	@XmlElement(name = "factFeed")
@@ -94,6 +97,14 @@ public class Config {
 
 	public void setErrorDirectory(final String errorDirectory) {
 		this.errorDirectory = errorDirectory;
+	}
+
+	public String getDatabaseStringLiteral() {
+		return databaseStringLiteral;
+	}
+
+	public void setDatabaseStringLiteral(final String databaseStringLiteral) {
+		this.databaseStringLiteral = databaseStringLiteral;
 	}
 
 	public synchronized Map<String, Dimension> getDimensionMap() {

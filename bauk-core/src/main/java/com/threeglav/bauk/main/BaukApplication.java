@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.camel.BulkLoadFileProcessingRoute;
 import com.threeglav.bauk.camel.InputFeedFileProcessingRoute;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -30,7 +30,7 @@ public class BaukApplication {
 
 	public static void main(final String[] args) throws Exception {
 		LOG.info("Starting application");
-		final Config conf = findConfiguration();
+		final BaukConfiguration conf = findConfiguration();
 		if (conf != null) {
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
 			configValidator.validate();
@@ -45,7 +45,7 @@ public class BaukApplication {
 		}
 	}
 
-	private static void createCamelRoutes(final Config config) throws Exception {
+	private static void createCamelRoutes(final BaukConfiguration config) throws Exception {
 		LOG.debug("Starting camel routes...");
 		for (final FactFeed feed : config.getFactFeeds()) {
 			LOG.trace("Creating route for {}", feed);
@@ -58,7 +58,7 @@ public class BaukApplication {
 				}
 				LOG.debug("Successfully added routes for {}", feed);
 			} catch (final Exception exc) {
-				LOG.error("Exception while starting route. Existing application!", exc);
+				LOG.error("Exception while starting route. Exiting application!", exc);
 				System.exit(-1);
 				throw exc;
 			}
@@ -68,7 +68,7 @@ public class BaukApplication {
 		LOG.debug("Successfully started camel context");
 	}
 
-	private static final Config findConfiguration() {
+	private static final BaukConfiguration findConfiguration() {
 		final String configFile = System.getProperty(CONFIG_FILE_PROP_NAME);
 		InputStream is = null;
 		if (StringUtil.isEmpty(configFile)) {
@@ -92,9 +92,9 @@ public class BaukApplication {
 		}
 		try {
 			LOG.debug("Trying to load configuration from xml file");
-			final JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
+			final JAXBContext jaxbContext = JAXBContext.newInstance(BaukConfiguration.class);
 			final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			final Config config = (Config) jaxbUnmarshaller.unmarshal(is);
+			final BaukConfiguration config = (BaukConfiguration) jaxbUnmarshaller.unmarshal(is);
 			LOG.info("Successfully loaded configuration");
 			return config;
 		} catch (final Exception exc) {

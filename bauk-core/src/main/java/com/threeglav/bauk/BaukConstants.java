@@ -1,6 +1,6 @@
 package com.threeglav.bauk;
 
-public interface Constants {
+public interface BaukConstants {
 
 	public static final int ONE_MEGABYTE = 1024 * 1024;
 

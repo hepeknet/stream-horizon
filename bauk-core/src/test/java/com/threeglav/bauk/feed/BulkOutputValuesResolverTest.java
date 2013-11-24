@@ -17,7 +17,7 @@ import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Attribute;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.NaturalKey;
@@ -28,7 +28,7 @@ public class BulkOutputValuesResolverTest {
 	@Test
 	public void testNull() {
 		try {
-			new BulkOutputValuesResolver(null, Mockito.mock(Config.class), Mockito.mock(CacheInstanceManager.class), Mockito.mock(DbHandler.class),
+			new BulkOutputValuesResolver(null, Mockito.mock(BaukConfiguration.class), Mockito.mock(CacheInstanceManager.class), Mockito.mock(DbHandler.class),
 					null);
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
@@ -40,12 +40,12 @@ public class BulkOutputValuesResolverTest {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(Config.class), null, Mockito.mock(DbHandler.class), null);
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null, Mockito.mock(DbHandler.class), null);
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(Config.class), Mockito.mock(CacheInstanceManager.class), null,
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), Mockito.mock(CacheInstanceManager.class), null,
 					null);
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
@@ -58,7 +58,7 @@ public class BulkOutputValuesResolverTest {
 		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(5));
 		when(ff.getDelimiterString()).thenReturn(",");
-		final Config conf = Mockito.mock(Config.class);
+		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(5));
 		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(5));
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);
@@ -84,7 +84,7 @@ public class BulkOutputValuesResolverTest {
 		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(4));
 		when(ff.getDelimiterString()).thenReturn(",");
-		final Config conf = Mockito.mock(Config.class);
+		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(4));
 		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(4));
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);

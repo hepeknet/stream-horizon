@@ -4,7 +4,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.ThreadPoolSizes;
 
@@ -12,10 +12,10 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final FactFeed factFeed;
-	private final Config config;
+	private final BaukConfiguration config;
 	private int bulkProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
 
-	public BulkLoadFileProcessingRoute(final FactFeed factFeed, final Config config) {
+	public BulkLoadFileProcessingRoute(final FactFeed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
 		this.config = config;
 		this.validate();

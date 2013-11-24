@@ -6,7 +6,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 import com.threeglav.bauk.model.Attribute;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.DimensionType;
@@ -18,7 +18,7 @@ import com.threeglav.bauk.model.SqlStatements;
 public class TestJaxb {
 
 	public static void main(final String[] args) throws Exception {
-		final Config c = new Config();
+		final BaukConfiguration c = new BaukConfiguration();
 		c.setSourceDirectory("c:/a/b/c/");
 		c.setArchiveDirectory("d:/a/b/c/");
 		final ArrayList<Dimension> dims = new ArrayList<Dimension>();
@@ -72,7 +72,7 @@ public class TestJaxb {
 		feeds.add(ff);
 		c.setFactFeeds(feeds);
 
-		final JAXBContext jaxbContext = JAXBContext.newInstance(Config.class);
+		final JAXBContext jaxbContext = JAXBContext.newInstance(BaukConfiguration.class);
 		final Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
 		// output pretty printed

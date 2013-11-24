@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.threeglav.bauk.model.Attribute;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
 import com.threeglav.bauk.model.HeaderFooterProcessType;
@@ -23,14 +23,14 @@ public class FeedParserComponentTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullDelimiter() {
-		final Config config = Mockito.mock(Config.class);
+		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		final FactFeed ff = Mockito.mock(FactFeed.class);
 		new FeedParserComponent(ff, config, null);
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testNullFeedType() {
-		final Config config = Mockito.mock(Config.class);
+		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		final FactFeed ff = Mockito.mock(FactFeed.class);
 		when(ff.getDelimiterString()).thenReturn(",");
 		new FeedParserComponent(ff, config, null);
@@ -38,7 +38,7 @@ public class FeedParserComponentTest {
 
 	@Test
 	public void testFirstValueNoCheck() {
-		final Config config = Mockito.mock(Config.class);
+		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
@@ -51,7 +51,7 @@ public class FeedParserComponentTest {
 
 	@Test
 	public void testFirstValueCheck() {
-		final Config config = Mockito.mock(Config.class);
+		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(HeaderFooterProcessType.STRICT);
@@ -72,7 +72,7 @@ public class FeedParserComponentTest {
 
 	@Test(expected = IllegalStateException.class)
 	public void testFirstValueNotSetButStrictRequired() {
-		final Config config = Mockito.mock(Config.class);
+		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(HeaderFooterProcessType.STRICT);
@@ -93,7 +93,7 @@ public class FeedParserComponentTest {
 
 	@Test
 	public void testFirstValueNotSet() {
-		final Config config = Mockito.mock(Config.class);
+		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(HeaderFooterProcessType.NORMAL);

@@ -1,11 +1,16 @@
 package com.threeglav.bauk.dimension.cache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.threeglav.bauk.util.StringUtil;
 
 public class HazelcastCacheInstance implements CacheInstance {
+
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final IMap<String, String> cache;
 	private static final HazelcastInstance HAZELCAST_INSTANCE = Hazelcast.newHazelcastInstance();
@@ -25,6 +30,7 @@ public class HazelcastCacheInstance implements CacheInstance {
 	@Override
 	public void put(final String naturalKey, final String surrogateKey) {
 		cache.put(naturalKey, surrogateKey);
+		log.debug("Cached [{}] -> [{}]", naturalKey, surrogateKey);
 	}
 
 }

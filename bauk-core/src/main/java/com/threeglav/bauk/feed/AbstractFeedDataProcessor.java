@@ -2,10 +2,10 @@ package com.threeglav.bauk.feed;
 
 import java.util.Map;
 
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 
 public abstract class AbstractFeedDataProcessor extends ConfigAware implements FeedDataProcessor {
@@ -17,7 +17,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	protected Map<String, String> globalAttributes;
 	protected Map<String, String> headerAttributes;
 
-	public AbstractFeedDataProcessor(final FactFeed factFeed, final Config config, final String routeIdentifier, final DbHandler dbHandler,
+	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier, final DbHandler dbHandler,
 			final CacheInstanceManager cacheInstanceManager) {
 		super(factFeed, config);
 		bulkWriter = new BulkFileWriter(factFeed, config);
@@ -29,7 +29,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	public void startFeed(final Map<String, String> globalAttributes, final Map<String, String> headerAttributes) {
 		this.globalAttributes = globalAttributes;
 		this.headerAttributes = headerAttributes;
-		bulkWriter.startWriting(globalAttributes.get(Constants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
+		bulkWriter.startWriting(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
 	}
 
 	@Override

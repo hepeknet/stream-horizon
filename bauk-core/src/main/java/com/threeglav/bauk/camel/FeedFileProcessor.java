@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
-import com.threeglav.bauk.Constants;
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
@@ -25,7 +25,7 @@ import com.threeglav.bauk.feed.MultiThreadedFeedDataProcessor;
 import com.threeglav.bauk.feed.SingleThreadedFeedDataProcessor;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.model.BulkLoadDefinition;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StreamUtil;
@@ -36,14 +36,14 @@ class FeedFileProcessor implements Processor {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final FactFeed factFeed;
-	private final Config config;
+	private final BaukConfiguration config;
 	private final Meter inputFeedsProcessed;
 	private final Histogram inputFeedProcessingTime;
 	private final TextFileReaderComponent textFileReaderComponent;
 	private final FeedDataProcessor feedDataProcessor;
 	private String fileExtension;
 
-	public FeedFileProcessor(final FactFeed factFeed, final Config config, final String fileMask) {
+	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}
@@ -160,13 +160,13 @@ class FeedFileProcessor implements Processor {
 		final Map<String, String> attributes = new HashMap<String, String>();
 		final Message exchangeIn = exchange.getIn();
 		final String fileNameOnly = (String) exchangeIn.getHeader("CamelFileNameOnly");
-		attributes.put(Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
-		attributes.put(Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, (String) exchangeIn.getHeader("CamelFileAbsolutePath"));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, (String) exchangeIn.getHeader("CamelFileAbsolutePath"));
 		attributes
-				.put(Constants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, String.valueOf(exchangeIn.getHeader("CamelFileLastModified")));
-		attributes.put(Constants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(exchangeIn.getHeader("CamelFileLength")));
-		attributes.put(Constants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP, "" + System.currentTimeMillis());
-		attributes.put(Constants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
+				.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, String.valueOf(exchangeIn.getHeader("CamelFileLastModified")));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(exchangeIn.getHeader("CamelFileLength")));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP, "" + System.currentTimeMillis());
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
 		log.debug("Created global attributes {}", attributes);
 		return attributes;
 	}

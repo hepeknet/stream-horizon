@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.model.Attribute;
-import com.threeglav.bauk.model.Config;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
 import com.threeglav.bauk.model.HeaderFooterProcessType;
@@ -25,7 +25,7 @@ public class FeedParserComponent extends ConfigAware {
 	private final int expectedTokensInEveryDataLine;
 	private FeedProcessor feedProcessor;
 
-	public FeedParserComponent(final FactFeed ff, final Config config, final String routeIdentifier) {
+	public FeedParserComponent(final FactFeed ff, final BaukConfiguration config, final String routeIdentifier) {
 		super(ff, config);
 		final FactFeedType fft = ff.getType();
 		final String delimiter = ff.getDelimiterString();

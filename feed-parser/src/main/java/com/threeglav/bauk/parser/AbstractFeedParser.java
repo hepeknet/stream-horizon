@@ -9,7 +9,6 @@ public abstract class AbstractFeedParser implements FeedParser {
 
 	private static final int DEFAULT_EXPECTED_MEMBERS = 50;
 
-	private static final String EMPTY_STRING = "";
 	protected final String delimiter;
 	private int expectedTokens = DEFAULT_EXPECTED_MEMBERS;
 	private String nullString;
@@ -38,15 +37,15 @@ public abstract class AbstractFeedParser implements FeedParser {
 		nullString = nullStr;
 	}
 
-	protected boolean isNullStringValue(final String value) {
+	protected final boolean isNullStringValue(final String value) {
 		return value.equals(nullString);
 	}
 
-	protected boolean isNullOrEmpty(final String val) {
-		return val == null || EMPTY_STRING.equals(val);
+	protected final boolean isParsedValueNull(final String val) {
+		return val == null || val.isEmpty();
 	}
 
-	protected String[] splitLine(final String line) {
+	protected final String[] splitLine(final String line) {
 		return this.splitLine(line, 0);
 	}
 
@@ -70,11 +69,21 @@ public abstract class AbstractFeedParser implements FeedParser {
 		int fromIndex = skipCharacters;
 		int count = 0;
 		while (indexOfDelimiter != -1 && count < (expectedTokens - 1)) {
-			lines[count++] = line.substring(fromIndex, indexOfDelimiter);
+			final String val = line.substring(fromIndex, indexOfDelimiter);
+			if (this.isParsedValueNull(val)) {
+				lines[count++] = null;
+			} else {
+				lines[count++] = val;
+			}
 			fromIndex = indexOfDelimiter + delimiterLenght;
 			indexOfDelimiter = line.indexOf(delimiter, fromIndex);
 		}
-		lines[count++] = line.substring(fromIndex, line.length());
+		final String val = line.substring(fromIndex, line.length());
+		if (this.isParsedValueNull(val)) {
+			lines[count++] = null;
+		} else {
+			lines[count++] = val;
+		}
 		final String[] finalLines = new String[count];
 		System.arraycopy(lines, 0, finalLines, 0, count);
 		return finalLines;

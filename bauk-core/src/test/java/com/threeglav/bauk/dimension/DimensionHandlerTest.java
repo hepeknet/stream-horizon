@@ -1,19 +1,23 @@
 package com.threeglav.bauk.dimension;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
-import com.threeglav.bauk.Constants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
@@ -28,25 +32,25 @@ public class DimensionHandlerTest {
 	@Test
 	public void testNulls() {
 		try {
-			new DimensionHandler(null, this.createFactFeed(), this.createCacheHandler(), this.createDbHandler(), 0, null);
+			new DimensionHandler(null, this.createFactFeed(), this.createCacheHandler(), this.createDbHandler(), 0, null, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new DimensionHandler(this.createDimension(), null, this.createCacheHandler(), this.createDbHandler(), 0, null);
+			new DimensionHandler(this.createDimension(), null, this.createCacheHandler(), this.createDbHandler(), 0, null, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new DimensionHandler(this.createDimension(), this.createFactFeed(), null, this.createDbHandler(), 0, null);
+			new DimensionHandler(this.createDimension(), this.createFactFeed(), null, this.createDbHandler(), 0, null, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), null, 0, null);
+			new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), null, 0, null, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
@@ -56,7 +60,7 @@ public class DimensionHandlerTest {
 	@Test
 	public void testSimple() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null);
+				this.createDbHandler(), 0, null, this.createConfig());
 		Assert.assertEquals(5, dh.getNaturalKeyPositions().length);
 		Assert.assertEquals(5, dh.getNaturalKeyNames().length);
 		Assert.assertEquals("nk_2", dh.getNaturalKeyNames()[2]);
@@ -67,14 +71,14 @@ public class DimensionHandlerTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullParsedLine() {
 		final BulkLoadOutputValueHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null);
+				this.createDbHandler(), 0, null, this.createConfig());
 		dh.getBulkLoadValue(null, null, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSmallParsedLine() {
 		final BulkLoadOutputValueHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null);
+				this.createDbHandler(), 0, null, this.createConfig());
 		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null, null);
 	}
 
@@ -83,12 +87,12 @@ public class DimensionHandlerTest {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final BulkLoadOutputValueHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null);
+				this.createDbHandler(), 0, null, this.createConfig());
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final String key = dh.getBulkLoadValue(parsedLine, null, null);
 		Assert.assertEquals("100", key);
-		final String nkLookup = "c" + Constants.NATURAL_KEY_DELIMITER + "d" + Constants.NATURAL_KEY_DELIMITER + "g" + Constants.NATURAL_KEY_DELIMITER
-				+ "f" + Constants.NATURAL_KEY_DELIMITER + "a";
+		final String nkLookup = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
+				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
 		Assert.assertEquals(nkLookup, lastRequiredFromCache);
 		Assert.assertEquals(
 				"insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2'",
@@ -98,15 +102,15 @@ public class DimensionHandlerTest {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null);
+				this.createDbHandler(), 0, null, this.createConfig());
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
 		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, null);
 		Assert.assertEquals("100", key1);
-		final String nkLookup1 = "c" + Constants.NATURAL_KEY_DELIMITER + "d" + Constants.NATURAL_KEY_DELIMITER + "g"
-				+ Constants.NATURAL_KEY_DELIMITER + "f" + Constants.NATURAL_KEY_DELIMITER + "a";
+		final String nkLookup1 = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
+				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
 		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
 		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
 				lastStatementToExecute);
@@ -119,15 +123,15 @@ public class DimensionHandlerTest {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 1, null);
+				this.createDbHandler(), 1, null, this.createConfig());
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
 		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, null);
 		Assert.assertEquals("100", key1);
-		final String nkLookup1 = "d" + Constants.NATURAL_KEY_DELIMITER + "e" + Constants.NATURAL_KEY_DELIMITER + "h"
-				+ Constants.NATURAL_KEY_DELIMITER + "g" + Constants.NATURAL_KEY_DELIMITER + "b";
+		final String nkLookup1 = "d" + BaukConstants.NATURAL_KEY_DELIMITER + "e" + BaukConstants.NATURAL_KEY_DELIMITER + "h"
+				+ BaukConstants.NATURAL_KEY_DELIMITER + "g" + BaukConstants.NATURAL_KEY_DELIMITER + "b";
 		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
 		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
 				lastStatementToExecute);
@@ -140,7 +144,7 @@ public class DimensionHandlerTest {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(0), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 1, null);
+				this.createDbHandler(), 1, null, this.createConfig());
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
@@ -170,6 +174,12 @@ public class DimensionHandlerTest {
 		};
 	}
 
+	private BaukConfiguration createConfig() {
+		final BaukConfiguration bc = Mockito.mock(BaukConfiguration.class);
+		when(bc.getDatabaseStringLiteral()).thenReturn("'");
+		return bc;
+	}
+
 	private DbHandler createDbHandler() {
 		return new DbHandler() {
 
@@ -188,6 +198,11 @@ public class DimensionHandlerTest {
 			@Override
 			public void executeInsertOrUpdateStatement(final String statement) {
 
+			}
+
+			@Override
+			public List<String[]> queryForDimensionKeys(final String statement, final int numberOfNaturalKeyColumns) {
+				return null;
 			}
 		};
 	}

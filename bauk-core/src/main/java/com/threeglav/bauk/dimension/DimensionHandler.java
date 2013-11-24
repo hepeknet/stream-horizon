@@ -2,17 +2,21 @@ package com.threeglav.bauk.dimension;
 
 import gnu.trove.map.hash.THashMap;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Counter;
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
-import com.threeglav.bauk.Constants;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.db.DbHandler;
+import com.threeglav.bauk.feed.ConfigAware;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.NaturalKey;
@@ -20,7 +24,7 @@ import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public class DimensionHandler implements BulkLoadOutputValueHandler {
+public class DimensionHandler extends ConfigAware implements BulkLoadOutputValueHandler {
 
 	private static final int MAX_ELEMENTS_LOCAL_MAP = getDimensionLocalCacheSize();
 
@@ -40,7 +44,8 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 	private boolean skipCaching;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance, final DbHandler dbHandler,
-			final int naturalKeyPositionOffset, final String routeIdentifier) {
+			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
+		super(factFeed, config);
 		if (dimension == null) {
 			throw new IllegalArgumentException("Dimension must not be null");
 		}
@@ -67,6 +72,7 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 				.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName() + "] - total database access times");
 		localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
 				+ "] - local cache clear times");
+		this.preCacheAllKeys();
 	}
 
 	private void validate() {
@@ -118,25 +124,56 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 		}
 	}
 
+	private void preCacheAllKeys() {
+		if (skipCaching) {
+			log.info("Instructed to skip caching. Will not precache any key values for {}!", dimension.getName());
+			return;
+		}
+		final String preCacheStatement = dimension.getSqlStatements().getPreCacheKeys();
+		if (!StringUtil.isEmpty(preCacheStatement)) {
+			log.debug("Statement for pre-caching is {}", preCacheStatement);
+			int numberOfRows = 0;
+			final List<String[]> retrievedValues = dbHandler.queryForDimensionKeys(preCacheStatement, naturalKeyNames.length);
+			if (retrievedValues != null) {
+				numberOfRows = retrievedValues.size();
+				final Iterator<String[]> iter = retrievedValues.iterator();
+				while (iter.hasNext()) {
+					final String[] row = iter.next();
+					iter.remove();
+					final String surrogateKeyValue = row[0];
+					final String[] naturalKeyValues = new String[row.length - 1];
+					System.arraycopy(row, 1, naturalKeyValues, 0, row.length - 1);
+					final String naturalKeyValue = StringUtil.getNaturalKeyCacheKey(naturalKeyValues);
+					cacheInstance.put(naturalKeyValue, surrogateKeyValue);
+				}
+			}
+			log.debug("Pre cached {} keys for {}", numberOfRows, dimension.getName());
+		} else {
+			log.info("Could not find pre cache sql statement!");
+		}
+	}
+
 	@Override
 	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> headerAttributes, final Map<String, String> globalAttributes) {
 		if (parsedLine == null || parsedLine.length == 0) {
 			throw new IllegalArgumentException("Did not find any data in parsed line");
 		}
 		String surrogateKey = null;
-		String cacheKey = null;
+		String naturalCacheKey = null;
 		if (!skipCaching) {
-			cacheKey = this.getNaturalKeyCacheKey(parsedLine);
-			surrogateKey = this.getSurrogateKeyFromCache(cacheKey);
+			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine);
+			surrogateKey = this.getSurrogateKeyFromCache(naturalCacheKey);
 		}
 		if (surrogateKey == null) {
 			if (log.isTraceEnabled()) {
-				log.trace("Did not find surrogate key for {} in cache. Going to database", dimension.getName());
+				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, headerAttributes, globalAttributes);
 			if (!skipCaching) {
-				cacheInstance.put(cacheKey, surrogateKey);
+				cacheInstance.put(naturalCacheKey, surrogateKey);
 			}
+		} else {
+			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
 		return surrogateKey;
 	}
@@ -189,16 +226,17 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 	private String prepareStatement(final String statement, final String[] parsedLine, final Map<String, String> headerAttributes,
 			final Map<String, String> globalAttributes) {
 		if (log.isDebugEnabled()) {
-			final String placeHolderFormat = Constants.STATEMENT_PLACEHOLDER_DELIMITER_START + "ATTRIBUTE_NAME"
-					+ Constants.STATEMENT_PLACEHOLDER_DELIMITER_END;
+			final String placeHolderFormat = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + "ATTRIBUTE_NAME"
+					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			log.debug("Will prepare statement {}. Replacing all placeholders {} with their real values (from feed or header)", statement,
 					placeHolderFormat);
 		}
 		String stat = this.replaceAllNaturalKeys(statement, parsedLine);
 		log.debug("Replacing all global attributes {}", globalAttributes);
-		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, Constants.GLOBAL_ATTRIBUTE_PREFIX);
+		final String dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
+		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX, dbStringLiteral);
 		log.debug("Replacing all header attributes {}", headerAttributes);
-		stat = StringUtil.replaceAllAttributes(stat, headerAttributes, Constants.HEADER_ATTRIBUTE_PREFIX);
+		stat = StringUtil.replaceAllAttributes(stat, headerAttributes, BaukConstants.HEADER_ATTRIBUTE_PREFIX, dbStringLiteral);
 		log.debug("Final statement is {}", stat);
 		return stat;
 	}
@@ -209,8 +247,8 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 		}
 		String replaced = statement;
 		for (int i = 0; i < naturalKeyNames.length; i++) {
-			final String nkPlacholder = Constants.STATEMENT_PLACEHOLDER_DELIMITER_START + naturalKeyNames[i]
-					+ Constants.STATEMENT_PLACEHOLDER_DELIMITER_END;
+			final String nkPlacholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + naturalKeyNames[i]
+					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			final int nkValuePosition = naturalKeyPositionsInFeed[i];
 			if (parsedLine.length < nkValuePosition) {
 				throw new IllegalArgumentException("Parsed line has less values than needed " + nkValuePosition);
@@ -242,19 +280,16 @@ public class DimensionHandler implements BulkLoadOutputValueHandler {
 		}
 	}
 
-	private String getNaturalKeyCacheKey(final String[] parsedLine) {
-		final StringBuilder sb = new StringBuilder();
+	private String buildNaturalKeyForCacheLookup(final String[] parsedLine) {
+		final String[] naturalKeyValues = new String[naturalKeyNames.length];
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			final int key = naturalKeyPositionsInFeed[i];
 			if (parsedLine.length <= key) {
 				throw new IllegalArgumentException("Parsed line has less values than needed " + key);
 			}
-			if (i != 0) {
-				sb.append(Constants.NATURAL_KEY_DELIMITER);
-			}
-			sb.append(parsedLine[key]);
+			naturalKeyValues[i] = parsedLine[key];
 		}
-		return sb.toString();
+		return StringUtil.getNaturalKeyCacheKey(naturalKeyValues);
 	}
 
 	/*
