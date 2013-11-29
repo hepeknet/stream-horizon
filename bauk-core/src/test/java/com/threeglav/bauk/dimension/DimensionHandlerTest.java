@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.threeglav.bauk.BaukConstants;
-import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Attribute;
@@ -21,7 +20,7 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
-import com.threeglav.bauk.model.NaturalKey;
+import com.threeglav.bauk.model.MappedColumn;
 import com.threeglav.bauk.model.SqlStatements;
 
 public class DimensionHandlerTest {
@@ -61,23 +60,83 @@ public class DimensionHandlerTest {
 	public void testSimple() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 0, null, this.createConfig());
-		Assert.assertEquals(5, dh.getNaturalKeyPositions().length);
+		Assert.assertEquals(5, dh.getMappedColumnPositions().length);
+		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
+		Assert.assertEquals(5, dh.getMappedColumnNames().length);
 		Assert.assertEquals(5, dh.getNaturalKeyNames().length);
+		Assert.assertEquals("nk_2", dh.getMappedColumnNames()[2]);
+		Assert.assertEquals(6, dh.getMappedColumnPositions()[2]);
+		Assert.assertEquals(3, dh.getMappedColumnPositions()[1]);
 		Assert.assertEquals("nk_2", dh.getNaturalKeyNames()[2]);
-		Assert.assertEquals(6, dh.getNaturalKeyPositions()[2]);
-		Assert.assertEquals(3, dh.getNaturalKeyPositions()[1]);
+		Assert.assertEquals(6, dh.getNaturalKeyPositionsInFeed()[2]);
+		Assert.assertEquals(3, dh.getNaturalKeyPositionsInFeed()[1]);
+	}
+
+	@Test
+	public void testNaturalKeyMappedToHeader() {
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(10), this.createFactFeed(), this.createCacheHandler(),
+				this.createDbHandler(), 0, null, this.createConfig());
+		Assert.assertEquals(10, dh.getMappedColumnPositions().length);
+		Assert.assertEquals(10, dh.getNaturalKeyPositionsInFeed().length);
+		Assert.assertEquals(10, dh.getMappedColumnNames().length);
+		Assert.assertEquals(10, dh.getNaturalKeyNames().length);
+		Assert.assertEquals("nk_2", dh.getMappedColumnNames()[2]);
+		Assert.assertEquals(6, dh.getMappedColumnPositions()[2]);
+		Assert.assertEquals(3, dh.getMappedColumnPositions()[1]);
+		Assert.assertEquals("nk_2", dh.getNaturalKeyNames()[2]);
+		Assert.assertEquals(6, dh.getNaturalKeyPositionsInFeed()[2]);
+		Assert.assertEquals(3, dh.getNaturalKeyPositionsInFeed()[1]);
+
+		Assert.assertEquals("nk_9", dh.getMappedColumnNames()[9]);
+		Assert.assertEquals(-1, dh.getMappedColumnPositions()[9]);
+		Assert.assertEquals("nk_9", dh.getNaturalKeyNames()[9]);
+		Assert.assertEquals(-1, dh.getNaturalKeyPositionsInFeed()[9]);
+	}
+
+	@Test
+	public void testNaturalAndMapped() {
+		final DimensionHandler dh = new DimensionHandler(this.createDimensionNaturalAndMapped(5), this.createFactFeed(), this.createCacheHandler(),
+				this.createDbHandler(), 0, null, this.createConfig());
+		Assert.assertEquals(7, dh.getMappedColumnPositions().length);
+		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
+		Assert.assertEquals(7, dh.getMappedColumnNames().length);
+		Assert.assertEquals(5, dh.getNaturalKeyNames().length);
+		Assert.assertEquals("nk_2", dh.getMappedColumnNames()[2]);
+		Assert.assertEquals(6, dh.getMappedColumnPositions()[2]);
+		Assert.assertEquals("mapped1", dh.getMappedColumnNames()[5]);
+		Assert.assertEquals(7, dh.getMappedColumnPositions()[5]);
+		Assert.assertEquals("mapped2", dh.getMappedColumnNames()[6]);
+		Assert.assertEquals(9, dh.getMappedColumnPositions()[6]);
+		Assert.assertEquals(3, dh.getMappedColumnPositions()[1]);
+		Assert.assertEquals("nk_2", dh.getNaturalKeyNames()[2]);
+		Assert.assertEquals(6, dh.getNaturalKeyPositionsInFeed()[2]);
+		Assert.assertEquals(3, dh.getNaturalKeyPositionsInFeed()[1]);
+
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertNull(lastStatementToExecute);
+		final String[] parsedLine = { "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj" };
+		final String key = dh.getBulkLoadValue(parsedLine, null, null);
+		Assert.assertEquals("100", key);
+		final String nkLookup = "cc" + BaukConstants.NATURAL_KEY_DELIMITER + "dd" + BaukConstants.NATURAL_KEY_DELIMITER + "gg"
+				+ BaukConstants.NATURAL_KEY_DELIMITER + "ff" + BaukConstants.NATURAL_KEY_DELIMITER + "aa";
+		Assert.assertEquals(nkLookup, lastRequiredFromCache);
+		Assert.assertEquals(
+				"insert into dim where nk_0=cc and nk_4=aa and nk_2=gg and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2' and mapped1='hh' or mapped2>'jj'",
+				lastStatementToExecute);
+		lastRequiredFromCache = null;
+		lastStatementToExecute = null;
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullParsedLine() {
-		final BulkLoadOutputValueHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 0, null, this.createConfig());
 		dh.getBulkLoadValue(null, null, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSmallParsedLine() {
-		final BulkLoadOutputValueHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 0, null, this.createConfig());
 		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null, null);
 	}
@@ -86,7 +145,7 @@ public class DimensionHandlerTest {
 	public void testLookups() {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final BulkLoadOutputValueHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 0, null, this.createConfig());
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final String key = dh.getBulkLoadValue(parsedLine, null, null);
@@ -101,7 +160,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
+		final DimensionHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 0, null, this.createConfig());
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -122,7 +181,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
+		final DimensionHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 1, null, this.createConfig());
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -143,7 +202,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final BulkLoadOutputValueHandler dh1 = new DimensionHandler(this.createDimension(0), this.createFactFeed(), this.createCacheHandler(),
+		final DimensionHandler dh1 = new DimensionHandler(this.createDimension(0), this.createFactFeed(), this.createCacheHandler(),
 				this.createDbHandler(), 1, null, this.createConfig());
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -210,17 +269,43 @@ public class DimensionHandlerTest {
 	private Dimension createDimension(final int naturalKeysCount) {
 		final Dimension dim = new Dimension();
 		dim.setName("dim1");
-		final ArrayList<NaturalKey> naturalKeys = new ArrayList<NaturalKey>();
+		final ArrayList<MappedColumn> naturalKeys = new ArrayList<MappedColumn>();
 		for (int i = 0; i < naturalKeysCount; i++) {
 			final String nkName = "nk_" + i;
-			final NaturalKey nk = new NaturalKey();
+			final MappedColumn nk = new MappedColumn();
 			nk.setName(nkName);
+			nk.setNaturalKey(true);
 			naturalKeys.add(nk);
 		}
-		dim.setNaturalKeys(naturalKeys);
+		dim.setMappedColumns(naturalKeys);
 		final SqlStatements sqlStatements = new SqlStatements();
 		sqlStatements
 				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2'");
+		dim.setSqlStatements(sqlStatements);
+		return dim;
+	}
+
+	private Dimension createDimensionNaturalAndMapped(final int naturalKeysCount) {
+		final Dimension dim = new Dimension();
+		dim.setName("dim1");
+		final ArrayList<MappedColumn> naturalKeys = new ArrayList<MappedColumn>();
+		for (int i = 0; i < naturalKeysCount; i++) {
+			final String nkName = "nk_" + i;
+			final MappedColumn nk = new MappedColumn();
+			nk.setName(nkName);
+			nk.setNaturalKey(true);
+			naturalKeys.add(nk);
+		}
+		final MappedColumn m1 = new MappedColumn();
+		m1.setName("mapped1");
+		naturalKeys.add(m1);
+		final MappedColumn m2 = new MappedColumn();
+		m2.setName("mapped2");
+		naturalKeys.add(m2);
+		dim.setMappedColumns(naturalKeys);
+		final SqlStatements sqlStatements = new SqlStatements();
+		sqlStatements
+				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2' and mapped1='${mapped1}' or mapped2>'${mapped2}'");
 		dim.setSqlStatements(sqlStatements);
 		return dim;
 	}
@@ -262,6 +347,19 @@ public class DimensionHandlerTest {
 		final Attribute atr6 = new Attribute();
 		atr6.setName("nk_2");
 		attributes.add(atr6);
+
+		final Attribute mapped1 = new Attribute();
+		mapped1.setName("mapped1");
+		attributes.add(mapped1);
+
+		final Attribute mapped3 = new Attribute();
+		mapped3.setName("mapped3");
+		attributes.add(mapped3);
+
+		final Attribute mapped2 = new Attribute();
+		mapped2.setName("mapped2");
+		attributes.add(mapped2);
+
 		data.setAttributes(attributes);
 		ff.setData(data);
 		return ff;

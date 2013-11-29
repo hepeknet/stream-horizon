@@ -20,8 +20,8 @@ public class Dimension {
 	private DimensionType type;
 
 	@XmlElementWrapper
-	@XmlElement(name = "naturalKey")
-	private ArrayList<NaturalKey> naturalKeys;
+	@XmlElement(name = "mappedColumn")
+	private ArrayList<MappedColumn> mappedColumns;
 
 	@XmlElement
 	private SqlStatements sqlStatements;
@@ -42,12 +42,12 @@ public class Dimension {
 		this.type = type;
 	}
 
-	public ArrayList<NaturalKey> getNaturalKeys() {
-		return naturalKeys;
+	public ArrayList<MappedColumn> getMappedColumns() {
+		return mappedColumns;
 	}
 
-	public void setNaturalKeys(final ArrayList<NaturalKey> naturalKeys) {
-		this.naturalKeys = naturalKeys;
+	public void setMappedColumns(final ArrayList<MappedColumn> mappedColumns) {
+		this.mappedColumns = mappedColumns;
 	}
 
 	public SqlStatements getSqlStatements() {

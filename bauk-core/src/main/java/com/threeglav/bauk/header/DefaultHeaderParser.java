@@ -29,15 +29,16 @@ public class DefaultHeaderParser implements HeaderParser {
 		if (expectedCharacter == null) {
 			throw new IllegalStateException("Expected character for header not set");
 		}
-		this.log.debug("Expected character is [{}]", expectedCharacter);
+		log.debug("Expected character is [{}]", expectedCharacter);
 		if (!expectedCharacter.equals(parsed[0])) {
 			throw new IllegalStateException("First header character [" + parsed[0] + "] does not match expected character [" + expectedCharacter
 					+ "]");
 		}
 		final int declaredAttributesSize = declaredAttributeNames.length;
-		if ((parsed.length - 1) != declaredAttributesSize) {
+		final int parsedLength = parsed.length - 1;
+		if (parsedLength != declaredAttributesSize) {
 			throw new IllegalStateException("Number of defined header attributes " + declaredAttributesSize
-					+ " is different than number of parsed items from " + Arrays.toString(parsed));
+					+ " is different than number of parsed items " + parsedLength + " from " + Arrays.toString(parsed));
 		}
 		for (int i = 1; i < parsed.length; i++) {
 			headerValues.put(declaredAttributeNames[i - 1], parsed[i]);

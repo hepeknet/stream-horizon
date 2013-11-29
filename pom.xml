@@ -21,6 +21,9 @@
 		<version.trove>3.0.3</version.trove>
 		<version.oracle.jdbc>11.2.0.4</version.oracle.jdbc>
 		<version.mssql.jdbc.driver>4.0</version.mssql.jdbc.driver>
+		<version.camel>2.12.1</version.camel>
+		<version.commons.io>2.4</version.commons.io>
+		<version.commons.lang>2.6</version.commons.lang>
 	</properties>
 
 	<dependencies>
@@ -107,5 +110,6 @@
 		<module>distribution-packaging</module>
 		<module>bauk-core</module>
 		<module>bauk-api</module>
+		<module>integration-tests</module>
 	</modules>
 </project>

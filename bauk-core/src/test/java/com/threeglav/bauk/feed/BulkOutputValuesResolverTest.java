@@ -20,7 +20,7 @@ import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
-import com.threeglav.bauk.model.NaturalKey;
+import com.threeglav.bauk.model.MappedColumn;
 import com.threeglav.bauk.model.SqlStatements;
 
 public class BulkOutputValuesResolverTest {
@@ -28,8 +28,8 @@ public class BulkOutputValuesResolverTest {
 	@Test
 	public void testNull() {
 		try {
-			new BulkOutputValuesResolver(null, Mockito.mock(BaukConfiguration.class), Mockito.mock(CacheInstanceManager.class), Mockito.mock(DbHandler.class),
-					null);
+			new BulkOutputValuesResolver(null, Mockito.mock(BaukConfiguration.class), Mockito.mock(CacheInstanceManager.class),
+					Mockito.mock(DbHandler.class), null);
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
@@ -40,13 +40,14 @@ public class BulkOutputValuesResolverTest {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null, Mockito.mock(DbHandler.class), null);
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null, Mockito.mock(DbHandler.class),
+					null);
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), Mockito.mock(CacheInstanceManager.class), null,
-					null);
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class),
+					Mockito.mock(CacheInstanceManager.class), null, null);
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
@@ -61,6 +62,7 @@ public class BulkOutputValuesResolverTest {
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(5));
 		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(5));
+		when(conf.getDatabaseStringLiteral()).thenReturn("'");
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);
 		final CacheInstance cacheInstance = Mockito.mock(CacheInstance.class);
 		when(ch.getCacheInstance(Matchers.<String> any())).thenReturn(cacheInstance);
@@ -87,6 +89,7 @@ public class BulkOutputValuesResolverTest {
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(4));
 		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(4));
+		when(conf.getDatabaseStringLiteral()).thenReturn("'");
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);
 		final CacheInstance cacheInstance = Mockito.mock(CacheInstance.class);
 		when(ch.getCacheInstance(Matchers.<String> any())).thenReturn(cacheInstance);
@@ -149,13 +152,15 @@ public class BulkOutputValuesResolverTest {
 		for (int i = 0; i < num; i++) {
 			final Dimension d = new Dimension();
 			d.setName("dim_" + i);
-			final ArrayList<NaturalKey> nat = new ArrayList<NaturalKey>();
-			final NaturalKey nk = new NaturalKey();
+			final ArrayList<MappedColumn> nat = new ArrayList<MappedColumn>();
+			final MappedColumn nk = new MappedColumn();
 			nk.setName("nk" + i);
+			nk.setNaturalKey(true);
 			nat.add(nk);
-			d.setNaturalKeys(nat);
+			d.setMappedColumns(nat);
 			dims.add(d);
 			final SqlStatements ss = new SqlStatements();
+			ss.setSelectSurrogateKey("select 1");
 			d.setSqlStatements(ss);
 		}
 		return dims;

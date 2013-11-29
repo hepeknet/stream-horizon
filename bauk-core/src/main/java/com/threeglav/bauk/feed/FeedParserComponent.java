@@ -67,14 +67,15 @@ public class FeedParserComponent extends ConfigAware {
 			feedProcessor = headerParserInstanceResolver.resolveInstance();
 			log.debug("Found data mapper {}", feedParser);
 		} else {
-			log.debug("Will not use any data mapping");
+			log.info("Will not use any custom data mapping logic");
 		}
 	}
 
 	private void validate(final boolean strictCheckingRequired) {
 		final HeaderFooterProcessType dataProcessType = this.getFactFeed().getData().getProcess();
 		if (dataProcessType == HeaderFooterProcessType.NO_HEADER || dataProcessType == HeaderFooterProcessType.SKIP) {
-			throw new IllegalStateException("Invalid value " + dataProcessType + ". Not valid for feed data processing!");
+			throw new IllegalStateException("Invalid value " + dataProcessType + ". Not valid for feed data processing! Valid are "
+					+ HeaderFooterProcessType.NORMAL + " and " + HeaderFooterProcessType.SKIP);
 		}
 		if (strictCheckingRequired && StringUtil.isEmpty(firstStringInEveryLine)) {
 			throw new IllegalStateException(

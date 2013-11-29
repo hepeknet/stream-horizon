@@ -48,7 +48,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 		log.debug("About to execute query statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
 		final long start = System.currentTimeMillis();
-		final List<Long> query = jdbcTemplate.query(statement, new RowMapper<Long>() {
+		final List<Long> queryResults = jdbcTemplate.query(statement, new RowMapper<Long>() {
 			@Override
 			public Long mapRow(final ResultSet resultSet, final int i) throws SQLException {
 				return resultSet.getLong(1);
@@ -58,15 +58,18 @@ public class SpringJdbcDbHandler implements DbHandler {
 		if (total > warningThreshold) {
 			log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 		}
-		if (query.size() == 1) {
-			final Long res = query.get(0);
+		log.debug("Successfully executed {}. Results {}", statement, queryResults);
+		if (queryResults.size() == 1) {
+			final Long res = queryResults.get(0);
 			log.debug("Returned result is {}", res);
 			return res;
-		}
-		if (query.isEmpty()) {
+		} else if (queryResults.isEmpty()) {
+			log.debug("Could not find any results after executing {}", statement);
+			return null;
+		} else {
+			log.warn("Found results {} after executing {}. Unable to process!", queryResults, statement);
 			return null;
 		}
-		return null;
 	}
 
 	@Override
@@ -81,7 +84,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 
 			@Override
 			public PreparedStatement createPreparedStatement(final Connection connection) throws SQLException {
-				return connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
+				return connection.prepareStatement(statement, new int[] { 1 });
 			}
 
 		}, holder);
@@ -103,7 +106,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 			throw new IllegalArgumentException("Statement must not be null or empty!");
 		}
 		final long start = System.currentTimeMillis();
-		log.debug("About to execute insert statement [{}]");
+		log.debug("About to execute insert/update statement [{}]");
 		final int res = jdbcTemplate.update(new PreparedStatementCreator() {
 
 			@Override
@@ -126,8 +129,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 		final int expectedTotalValues = numberOfNaturalKeyColumns + 1;
 		final long start = System.currentTimeMillis();
-		log.debug("About to execute insert statement [{}]", statement);
-		log.info("Will expect in total {} results per row. First one should be surrogate key, others should be natural keys in appropriate order!",
+		log.debug("About to execute query statement [{}]", statement);
+		log.info(
+				"Will expect in total {} results per row. First one should be surrogate key, others should be natural keys in order as defined in configuration!",
 				expectedTotalValues);
 		final List<String[]> allRows = jdbcTemplate.query(statement, new RowMapper<String[]>() {
 

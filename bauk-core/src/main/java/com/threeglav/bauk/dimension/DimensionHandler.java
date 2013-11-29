@@ -19,12 +19,14 @@ import com.threeglav.bauk.feed.ConfigAware;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
-import com.threeglav.bauk.model.NaturalKey;
+import com.threeglav.bauk.model.MappedColumn;
 import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public class DimensionHandler extends ConfigAware implements BulkLoadOutputValueHandler {
+
+	private static final int NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION = -1;
 
 	private static final int MAX_ELEMENTS_LOCAL_MAP = getDimensionLocalCacheSize();
 
@@ -34,13 +36,16 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	private final Dimension dimension;
 	private final FactFeed factFeed;
+	private String[] mappedColumnNames;
+	private int[] mappedColumnsPositionsInFeed;
 	private String[] naturalKeyNames;
 	private int[] naturalKeyPositionsInFeed;
 	private final CacheInstance cacheInstance;
 	private final DbHandler dbHandler;
 	private final Counter dbAccessCounter;
-	private final int naturalKeyPositionOffset;
+	private final int mappedColumnsPositionOffset;
 	private final Counter localCacheClearCounter;
+	private final String dbStringLiteral;
 	private boolean skipCaching;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance, final DbHandler dbHandler,
@@ -65,9 +70,11 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
+		dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
 		this.validate();
-		this.naturalKeyPositionOffset = naturalKeyPositionOffset;
-		this.calculatePositionOfNaturalKeys();
+		mappedColumnsPositionOffset = naturalKeyPositionOffset;
+		this.calculatePositionOfMappedColumnValues();
+		this.calculatePositionOfNaturalKeyValues();
 		dbAccessCounter = MetricsUtil
 				.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName() + "] - total database access times");
 		localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
@@ -76,9 +83,13 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private void validate() {
-		if (dimension.getNaturalKeys() == null || dimension.getNaturalKeys().isEmpty()) {
+		if (dimension.getMappedColumns() == null || dimension.getMappedColumns().isEmpty()) {
+			log.warn("Did not find any mapped columns for {}!", dimension.getName());
+		}
+		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
+		if (numberOfNaturalKeys == 0) {
 			skipCaching = true;
-			log.warn("Did not find any defined naturaly keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
+			log.warn("Did not find any defined natural keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
 		}
 		if (dimension.getSqlStatements() == null) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
@@ -90,43 +101,94 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (factFeed.getData().getAttributes() == null || factFeed.getData().getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any attributes defined in feed " + factFeed.getName());
 		}
-		if (dimension.getNaturalKeys().size() > factFeed.getData().getAttributes().size()) {
+		if (numberOfNaturalKeys > factFeed.getData().getAttributes().size()) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " has more defined natural keys than there are attributes in feed " + factFeed.getName());
 		}
 	}
 
-	private void calculatePositionOfNaturalKeys() {
+	private int getNumberOfNaturalKeys() {
+		int num = 0;
+		if (dimension.getMappedColumns() != null && !dimension.getMappedColumns().isEmpty()) {
+			for (final MappedColumn mp : dimension.getMappedColumns()) {
+				if (mp.isNaturalKey()) {
+					num++;
+				}
+			}
+		}
+		return num;
+	}
+
+	private void calculatePositionOfNaturalKeyValues() {
 		if (skipCaching) {
 			return;
 		}
-		final int numberOfNaturalKeys = dimension.getNaturalKeys().size();
+		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		naturalKeyNames = new String[numberOfNaturalKeys];
 		naturalKeyPositionsInFeed = new int[numberOfNaturalKeys];
-		log.debug("Calculating natural key position values. Will use offset {}", naturalKeyPositionOffset);
+		log.debug("Calculating natural keys position values. Will use offset {}", mappedColumnsPositionOffset);
 		int i = 0;
 		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil
 				.getAttributeNamesAndPositions(factFeed.getData().getAttributes());
-		for (final NaturalKey nk : dimension.getNaturalKeys()) {
-			final String nkName = nk.getName();
-			naturalKeyNames[i] = nkName;
-			log.debug("Trying to find position in feed for natural key {} for dimension {}", nkName, dimension.getName());
-			final Integer attrPosition = dataAttributesAndPositions.get(nkName);
-			if (attrPosition == null) {
-				throw new IllegalArgumentException("Was not able to find natural key " + nkName + " in feed " + factFeed.getName());
+		for (final MappedColumn nk : dimension.getMappedColumns()) {
+			if (!nk.isNaturalKey()) {
+				continue;
 			}
-			final int naturalKeyPositionValue = attrPosition + naturalKeyPositionOffset;
+			final String mappedColumnName = nk.getName();
+			naturalKeyNames[i] = mappedColumnName;
+			log.debug("Trying to find position in feed for natural key {} for dimension {}", mappedColumnName, dimension.getName());
+			final Integer attrPosition = dataAttributesAndPositions.get(mappedColumnName);
+			int naturalKeyPositionValue;
+			if (attrPosition == null) {
+				naturalKeyPositionValue = NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION;
+				log.debug("Was not able to find mapping for {}.{} in feed. Will expect this value to be found in header/global attributes",
+						dimension.getName(), mappedColumnName);
+			} else {
+				naturalKeyPositionValue = attrPosition + mappedColumnsPositionOffset;
+			}
 			naturalKeyPositionsInFeed[i++] = naturalKeyPositionValue;
 			if (log.isDebugEnabled()) {
-				log.debug("Natural key [{}] for dimension {} will be read from feed position {}", new Object[] { nkName, dimension.getName(),
-						naturalKeyPositionValue });
+				log.debug("Mapped column [{}] for dimension {} will be read from feed position {}",
+						new Object[] { mappedColumnName, dimension.getName(), naturalKeyPositionValue });
+			}
+		}
+	}
+
+	private void calculatePositionOfMappedColumnValues() {
+		if (skipCaching) {
+			return;
+		}
+		final int numberOfMappedColumns = dimension.getMappedColumns().size();
+		mappedColumnNames = new String[numberOfMappedColumns];
+		mappedColumnsPositionsInFeed = new int[numberOfMappedColumns];
+		log.debug("Calculating mapped columns position values. Will use offset {}", mappedColumnsPositionOffset);
+		int i = 0;
+		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil
+				.getAttributeNamesAndPositions(factFeed.getData().getAttributes());
+		for (final MappedColumn nk : dimension.getMappedColumns()) {
+			final String mappedColumnName = nk.getName();
+			int mappedColumnPositionValue;
+			mappedColumnNames[i] = mappedColumnName;
+			log.debug("Trying to find position in feed for mapped column {} for dimension {}", mappedColumnName, dimension.getName());
+			final Integer attrPosition = dataAttributesAndPositions.get(mappedColumnName);
+			if (attrPosition == null) {
+				log.debug("Could not find mapping for {}.{} in feed. Will expect this value to be mapped from header or global!",
+						dimension.getName(), mappedColumnName);
+				mappedColumnPositionValue = NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION;
+			} else {
+				mappedColumnPositionValue = attrPosition + mappedColumnsPositionOffset;
+			}
+			mappedColumnsPositionsInFeed[i++] = mappedColumnPositionValue;
+			if (log.isDebugEnabled()) {
+				log.debug("Mapped column [{}] for dimension {} will be read from feed position {}",
+						new Object[] { mappedColumnName, dimension.getName(), mappedColumnPositionValue });
 			}
 		}
 	}
 
 	private void preCacheAllKeys() {
 		if (skipCaching) {
-			log.info("Instructed to skip caching. Will not precache any key values for {}!", dimension.getName());
+			log.info("Configured to skip caching. Will not precache any key values for {}!", dimension.getName());
 			return;
 		}
 		final String preCacheStatement = dimension.getSqlStatements().getPreCacheKeys();
@@ -149,7 +211,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			}
 			log.debug("Pre cached {} keys for {}", numberOfRows, dimension.getName());
 		} else {
-			log.info("Could not find pre cache sql statement!");
+			log.info("Could not find pre cache sql statement for {}!", dimension.getName());
 		}
 	}
 
@@ -161,20 +223,23 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		String surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!skipCaching) {
-			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine);
-			surrogateKey = this.getSurrogateKeyFromCache(naturalCacheKey);
+			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, headerAttributes);
+			if (naturalCacheKey != null) {
+				surrogateKey = this.getSurrogateKeyFromCache(naturalCacheKey);
+			}
 		}
 		if (surrogateKey == null) {
 			if (log.isTraceEnabled()) {
 				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, headerAttributes, globalAttributes);
-			if (!skipCaching) {
+			if (!skipCaching && naturalCacheKey != null) {
 				cacheInstance.put(naturalCacheKey, surrogateKey);
 			}
 		} else {
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
+		log.debug("Resolved surrogate key is {}", surrogateKey);
 		return surrogateKey;
 	}
 
@@ -183,7 +248,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		try {
 			return this.tryInsertStatement(parsedLine, headerAttributes, globalAttributes);
 		} catch (final Exception exc) {
-			log.error("Failed inserting record {}. Will try to select value from database!", exc.getMessage());
+			log.error("Failed inserting record into database. Will try to select value from database!", exc);
 		}
 		return this.trySelectStatement(parsedLine, headerAttributes, globalAttributes);
 	}
@@ -231,7 +296,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.debug("Will prepare statement {}. Replacing all placeholders {} with their real values (from feed or header)", statement,
 					placeHolderFormat);
 		}
-		String stat = this.replaceAllNaturalKeys(statement, parsedLine);
+		String stat = this.replaceAllMappedColumnValues(statement, parsedLine);
 		log.debug("Replacing all global attributes {}", globalAttributes);
 		final String dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
 		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX, dbStringLiteral);
@@ -241,21 +306,25 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return stat;
 	}
 
-	private String replaceAllNaturalKeys(final String statement, final String[] parsedLine) {
-		if (naturalKeyNames == null) {
+	private String replaceAllMappedColumnValues(final String statement, final String[] parsedLine) {
+		if (mappedColumnNames == null) {
 			return statement;
 		}
 		String replaced = statement;
-		for (int i = 0; i < naturalKeyNames.length; i++) {
-			final String nkPlacholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + naturalKeyNames[i]
+		for (int i = 0; i < mappedColumnNames.length; i++) {
+			final String mappedColumnNamePlaceholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + mappedColumnNames[i]
 					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
-			final int nkValuePosition = naturalKeyPositionsInFeed[i];
-			if (parsedLine.length < nkValuePosition) {
-				throw new IllegalArgumentException("Parsed line has less values than needed " + nkValuePosition);
+			final int mappedColumnValuePositionInFeed = mappedColumnsPositionsInFeed[i];
+			if (mappedColumnValuePositionInFeed == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
+				// will be replaced by header/global values
+				continue;
 			}
-			final String value = parsedLine[nkValuePosition];
-			log.debug("Replacing {} with {}", nkPlacholder, value);
-			replaced = replaced.replace(nkPlacholder, value);
+			if (parsedLine.length < mappedColumnValuePositionInFeed) {
+				throw new IllegalArgumentException("Parsed line has less values than needed " + mappedColumnValuePositionInFeed);
+			}
+			final String value = parsedLine[mappedColumnValuePositionInFeed];
+			log.debug("Replacing {} with {}", mappedColumnNamePlaceholder, value);
+			replaced = StringUtil.replaceSingleAttribute(replaced, mappedColumnNamePlaceholder, value, dbStringLiteral);
 		}
 		return replaced;
 	}
@@ -280,30 +349,30 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 	}
 
-	private String buildNaturalKeyForCacheLookup(final String[] parsedLine) {
+	private String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> headerAttributes) {
 		final String[] naturalKeyValues = new String[naturalKeyNames.length];
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			final int key = naturalKeyPositionsInFeed[i];
 			if (parsedLine.length <= key) {
 				throw new IllegalArgumentException("Parsed line has less values than needed " + key);
 			}
-			naturalKeyValues[i] = parsedLine[key];
+			String value = null;
+			if (key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
+				final String attributeName = naturalKeyNames[i];
+				if (attributeName != null) {
+					final String headerAttribute = headerAttributes.get(attributeName);
+					if (log.isDebugEnabled()) {
+						log.debug("Natural key {}.{} is not mapped to feed attributes. Found value {} in header attributes", dimension.getName(),
+								attributeName, headerAttribute);
+					}
+					value = headerAttribute;
+				}
+			} else {
+				value = parsedLine[key];
+			}
+			naturalKeyValues[i] = value;
 		}
 		return StringUtil.getNaturalKeyCacheKey(naturalKeyValues);
-	}
-
-	/*
-	 * used for testing
-	 */
-	String[] getNaturalKeyNames() {
-		return naturalKeyNames;
-	}
-
-	/*
-	 * used for testing
-	 */
-	int[] getNaturalKeyPositions() {
-		return naturalKeyPositionsInFeed;
 	}
 
 	private static int getDimensionLocalCacheSize() {
@@ -312,6 +381,26 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			return SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT;
 		}
 		return Integer.parseInt(propertyValue);
+	}
+
+	/*
+	 * used for testing
+	 */
+
+	String[] getMappedColumnNames() {
+		return mappedColumnNames;
+	}
+
+	int[] getMappedColumnPositions() {
+		return mappedColumnsPositionsInFeed;
+	}
+
+	String[] getNaturalKeyNames() {
+		return naturalKeyNames;
+	}
+
+	int[] getNaturalKeyPositionsInFeed() {
+		return naturalKeyPositionsInFeed;
 	}
 
 }

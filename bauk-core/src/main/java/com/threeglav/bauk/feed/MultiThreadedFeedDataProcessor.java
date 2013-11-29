@@ -30,8 +30,8 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	private volatile AtomicInteger expectedLines;
 	private final int maxDrainedElements;
 
-	public MultiThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier, final DbHandler dbHandler,
-			final CacheInstanceManager cacheInstanceManager, final int numberOfThreads) {
+	public MultiThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
+			final DbHandler dbHandler, final CacheInstanceManager cacheInstanceManager, final int numberOfThreads) {
 		super(factFeed, config, routeIdentifier, dbHandler, cacheInstanceManager);
 		if (numberOfThreads < 1) {
 			throw new IllegalArgumentException("Number of threads must not be non-positive integer!");
@@ -57,6 +57,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	@Override
 	public void closeFeed(final int expected) {
 		expectedLines = new AtomicInteger(expected);
+		log.debug("Closing feed. Expected lines {}", expected);
 		try {
 			allDone.await();
 		} catch (final InterruptedException e) {

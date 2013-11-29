@@ -57,17 +57,24 @@ public abstract class StringUtil {
 		for (final String key : attributes.keySet()) {
 			final String placeHolder = prefix + key + BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			final String value = attributes.get(key);
-			if (value == null) {
-				// also try to replace '${abc}' with NULL
-				final String stringEnclosedPlaceHolder = dbStringLiteral + placeHolder + dbStringLiteral;
-				LOG.debug("Trying to replace {} with {}", stringEnclosedPlaceHolder, NULL_VALUE);
-				replaced = replaced.replace(stringEnclosedPlaceHolder, NULL_VALUE);
-				LOG.debug("Trying to replace {} with {}", placeHolder, NULL_VALUE);
-				replaced = replaced.replace(placeHolder, NULL_VALUE);
-			} else {
-				LOG.trace("Replacing {} with {}", placeHolder, value);
-				replaced = replaced.replace(placeHolder, value);
-			}
+			replaced = replaceSingleAttribute(replaced, placeHolder, value, dbStringLiteral);
+		}
+		return replaced;
+	}
+
+	public static String replaceSingleAttribute(final String statement, final String attributeName, final String attributeValue,
+			final String dbStringLiteral) {
+		String replaced = statement;
+		if (attributeValue == null) {
+			// also try to replace '${abc}' with NULL
+			final String stringEnclosedPlaceHolder = dbStringLiteral + attributeName + dbStringLiteral;
+			LOG.debug("Trying to replace {} with {}", stringEnclosedPlaceHolder, NULL_VALUE);
+			replaced = replaced.replace(stringEnclosedPlaceHolder, NULL_VALUE);
+			LOG.debug("Trying to replace {} with {}", attributeName, NULL_VALUE);
+			replaced = replaced.replace(attributeName, NULL_VALUE);
+		} else {
+			LOG.trace("Replacing {} with {}", attributeName, attributeValue);
+			replaced = replaced.replace(attributeName, attributeValue);
 		}
 		return replaced;
 	}

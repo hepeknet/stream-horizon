@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.HeaderGlobalMappingHandler;
@@ -14,9 +14,9 @@ import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadFormatDefinition;
-import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
@@ -91,7 +91,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				final Attribute attr = bulkOutputAttributes.get(i);
 				final String value = attr.getConstantValue();
 				outputValueHandlers[i] = new ConstantOutputValueHandler(value);
-				log.debug("Value at position {} in bulk output load will be constant value {}", value);
+				log.debug("Value at position {} in bulk output load will be constant value {}", i, value);
 			} else if (bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
 				final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
 				log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
@@ -102,7 +102,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 					final Dimension dim = this.getConfig().getDimensionMap().get(requiredDimensionName);
 					if (dim == null) {
 						throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name ["
-								+ requiredDimensionName + "]");
+								+ requiredDimensionName + "]. This dimension is used to create bulk output! Please check your configuration!");
 					}
 					final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim
 							.getName()), dbHandler, feedDataLineOffset, routeIdentifier, this.getConfig());
@@ -129,7 +129,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				log.debug("Value at position {} in bulk output load will be mapped value derived from {}", i, bulkOutputAttributeName);
 			} else {
 				throw new IllegalArgumentException("Unknown type of bulk output attribute " + bulkOutputAttributeName
-						+ ". Must be either dimension. feed. header. global.");
+						+ ". Must be one of: dimension. feed. header. global.");
 			}
 		}
 	}

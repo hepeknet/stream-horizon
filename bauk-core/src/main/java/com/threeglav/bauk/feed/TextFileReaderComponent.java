@@ -9,8 +9,8 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.codahale.metrics.Histogram;
-import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.header.DefaultHeaderParser;
@@ -46,10 +46,13 @@ public class TextFileReaderComponent extends ConfigAware {
 		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines in feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
-		declaredHeaderAttributes = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getHeader().getAttributes());
 		shouldProcessHeader = this.checkProcessHeader();
 		if (shouldProcessHeader) {
+			log.debug("Extracting header attributes for {}", factFeed.getName());
+			declaredHeaderAttributes = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getHeader().getAttributes());
 			this.initializeHeaderProcessor();
+		} else {
+			declaredHeaderAttributes = null;
 		}
 		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
