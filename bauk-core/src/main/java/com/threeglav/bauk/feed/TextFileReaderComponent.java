@@ -113,11 +113,13 @@ public class TextFileReaderComponent extends ConfigAware {
 			Map<String, String> headerAttributes = null;
 			while (line != null) {
 				if (!processedHeader) {
-					if (shouldProcessHeader) {
-						headerAttributes = this.processHeader(line);
-					}
 					feedDataProcessor.startFeed(globalAttributes, headerAttributes);
 					processedHeader = true;
+					if (shouldProcessHeader) {
+						headerAttributes = this.processHeader(line);
+					} else {
+						feedDataProcessor.processLine(line);
+					}
 					line = br.readLine();
 				} else {
 					final String nextLine = br.readLine();

@@ -10,29 +10,23 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
-import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.dimension.db.SpringJdbcDbHandler;
+import com.threeglav.bauk.feed.ConfigAware;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.OnBulkLoadSuccess;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public class BulkFileProcessor implements Processor {
+public class BulkFileProcessor extends ConfigAware implements Processor {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final FactFeed factFeed;
-	private final BaukConfiguration config;
-	private final DbHandler dbHandler;
 	private final Meter successfullyLoadedBulkFilesMeter;
 	private final String dbStringLiteral;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
-		this.factFeed = factFeed;
-		this.config = config;
-		dbHandler = new SpringJdbcDbHandler(this.config);
-		dbStringLiteral = this.config.getDatabaseStringLiteral();
+		super(factFeed, config);
+		dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
 		successfullyLoadedBulkFilesMeter = MetricsUtil.createMeter("Successfully loaded bulk files");
 	}
 
@@ -41,7 +35,7 @@ public class BulkFileProcessor implements Processor {
 		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
 		final String bulkLoadFilePath = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
 		log.debug("Processing {}", bulkLoadFilePath);
-		final String insertStatement = factFeed.getBulkLoadDefinition().getBulkLoadInsertStatement();
+		final String insertStatement = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsertStatement();
 		if (StringUtil.isEmpty(insertStatement)) {
 			log.info("Could not find insert statement for bulk loading files!");
 			return;
@@ -50,7 +44,7 @@ public class BulkFileProcessor implements Processor {
 		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX,
 				dbStringLiteral);
 		log.debug("Statement to execute is {}", replacedStatement);
-		dbHandler.executeInsertOrUpdateStatement(replacedStatement);
+		this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement);
 		log.debug("Successfully executed statement {}", replacedStatement);
 		this.executeOnSuccessBulkLoad(globalAttributes);
 		if (successfullyLoadedBulkFilesMeter != null) {
@@ -59,7 +53,7 @@ public class BulkFileProcessor implements Processor {
 	}
 
 	private void executeOnSuccessBulkLoad(final Map<String, String> globalAttributes) {
-		final OnBulkLoadSuccess onBulkLoadSuccess = factFeed.getBulkLoadDefinition().getOnBulkLoadSuccess();
+		final OnBulkLoadSuccess onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadSuccess();
 		if (onBulkLoadSuccess != null) {
 			if (onBulkLoadSuccess.getSqlStatements() != null) {
 				log.debug("Will execute on success sql actions. Global attributes {}", globalAttributes);
@@ -67,7 +61,7 @@ public class BulkFileProcessor implements Processor {
 					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX,
 							dbStringLiteral);
 					log.debug("Trying to execute statement [{}]", replaced);
-					dbHandler.executeInsertOrUpdateStatement(replaced);
+					this.getDbHandler().executeInsertOrUpdateStatement(replaced);
 					log.debug("Successfully finished execution of [{}]", replaced);
 				}
 			}

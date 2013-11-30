@@ -14,7 +14,6 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
-import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.feed.ConfigAware;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
@@ -35,38 +34,28 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final Dimension dimension;
-	private final FactFeed factFeed;
 	private String[] mappedColumnNames;
 	private int[] mappedColumnsPositionsInFeed;
 	private String[] naturalKeyNames;
 	private int[] naturalKeyPositionsInFeed;
 	private final CacheInstance cacheInstance;
-	private final DbHandler dbHandler;
 	private final Counter dbAccessCounter;
 	private final int mappedColumnsPositionOffset;
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
 	private boolean skipCaching;
 
-	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance, final DbHandler dbHandler,
+	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
 		super(factFeed, config);
 		if (dimension == null) {
 			throw new IllegalArgumentException("Dimension must not be null");
 		}
 		this.dimension = dimension;
-		if (factFeed == null) {
-			throw new IllegalArgumentException("Fact feed must not be null");
-		}
-		this.factFeed = factFeed;
 		if (cacheInstance == null) {
 			throw new IllegalArgumentException("Cache handler must not be null");
 		}
 		this.cacheInstance = cacheInstance;
-		if (dbHandler == null) {
-			throw new IllegalArgumentException("DB handler must not be null");
-		}
-		this.dbHandler = dbHandler;
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
@@ -95,15 +84,15 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " did not define any sql statements! Check your configuration file!");
 		}
-		if (factFeed.getData() == null) {
-			throw new IllegalArgumentException("Was not able to find definition of data for feed " + factFeed.getName());
+		if (this.getFactFeed().getData() == null) {
+			throw new IllegalArgumentException("Was not able to find definition of data for feed " + this.getFactFeed().getName());
 		}
-		if (factFeed.getData().getAttributes() == null || factFeed.getData().getAttributes().isEmpty()) {
-			throw new IllegalArgumentException("Was not able to find any attributes defined in feed " + factFeed.getName());
+		if (this.getFactFeed().getData().getAttributes() == null || this.getFactFeed().getData().getAttributes().isEmpty()) {
+			throw new IllegalArgumentException("Was not able to find any attributes defined in feed " + this.getFactFeed().getName());
 		}
-		if (numberOfNaturalKeys > factFeed.getData().getAttributes().size()) {
+		if (numberOfNaturalKeys > this.getFactFeed().getData().getAttributes().size()) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
-					+ " has more defined natural keys than there are attributes in feed " + factFeed.getName());
+					+ " has more defined natural keys than there are attributes in feed " + this.getFactFeed().getName());
 		}
 	}
 
@@ -128,8 +117,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		naturalKeyPositionsInFeed = new int[numberOfNaturalKeys];
 		log.debug("Calculating natural keys position values. Will use offset {}", mappedColumnsPositionOffset);
 		int i = 0;
-		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil
-				.getAttributeNamesAndPositions(factFeed.getData().getAttributes());
+		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed().getData()
+				.getAttributes());
 		for (final MappedColumn nk : dimension.getMappedColumns()) {
 			if (!nk.isNaturalKey()) {
 				continue;
@@ -163,8 +152,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		mappedColumnsPositionsInFeed = new int[numberOfMappedColumns];
 		log.debug("Calculating mapped columns position values. Will use offset {}", mappedColumnsPositionOffset);
 		int i = 0;
-		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil
-				.getAttributeNamesAndPositions(factFeed.getData().getAttributes());
+		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed().getData()
+				.getAttributes());
 		for (final MappedColumn nk : dimension.getMappedColumns()) {
 			final String mappedColumnName = nk.getName();
 			int mappedColumnPositionValue;
@@ -195,7 +184,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (!StringUtil.isEmpty(preCacheStatement)) {
 			log.debug("Statement for pre-caching is {}", preCacheStatement);
 			int numberOfRows = 0;
-			final List<String[]> retrievedValues = dbHandler.queryForDimensionKeys(preCacheStatement, naturalKeyNames.length);
+			final List<String[]> retrievedValues = this.getDbHandler().queryForDimensionKeys(preCacheStatement, naturalKeyNames.length);
 			if (retrievedValues != null) {
 				numberOfRows = retrievedValues.size();
 				final Iterator<String[]> iter = retrievedValues.iterator();
@@ -239,7 +228,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		} else {
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
-		log.debug("Resolved surrogate key is {}", surrogateKey);
+		log.trace("Resolved surrogate key is {}", surrogateKey);
 		return surrogateKey;
 	}
 
@@ -259,7 +248,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			throw new IllegalArgumentException("Dimension select surrogate key statement is null or empty");
 		}
 		final String preparedStatement = this.prepareStatement(selectSurrogateKey, parsedLine, headerValues, globalAttributes);
-		final Long result = dbHandler.executeQueryStatementAndReturnKey(preparedStatement);
+		final Long result = this.getDbHandler().executeQueryStatementAndReturnKey(preparedStatement);
 		if (dbAccessCounter != null) {
 			dbAccessCounter.inc();
 		}
@@ -274,10 +263,11 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			final Map<String, String> globalAttributes) {
 		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
 		if (StringUtil.isEmpty(insertStatement)) {
-			throw new IllegalArgumentException("Dimension insert statement is null or empty");
+			throw new IllegalArgumentException("Insert statement for dimension " + dimension.getName()
+					+ " is null or empty. Unable to try inserting value into database.");
 		}
 		final String preparedStatement = this.prepareStatement(insertStatement, parsedLine, headerAttributes, globalAttributes);
-		final Long result = dbHandler.executeInsertStatementAndReturnKey(preparedStatement);
+		final Long result = this.getDbHandler().executeInsertStatementAndReturnKey(preparedStatement);
 		if (dbAccessCounter != null) {
 			dbAccessCounter.inc();
 		}

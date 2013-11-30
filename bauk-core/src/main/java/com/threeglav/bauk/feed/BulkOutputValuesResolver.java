@@ -12,7 +12,6 @@ import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.HeaderGlobalMappingHandler;
 import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
-import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
@@ -30,25 +29,20 @@ public class BulkOutputValuesResolver extends ConfigAware {
 
 	private final int bulkOutputFileNumberOfValues;
 	private final BulkLoadOutputValueHandler[] outputValueHandlers;
-	private final CacheInstanceManager cacheInstanceManager;
-	private final DbHandler dbHandler;
 	private final String outputDelimiter;
+	private final CacheInstanceManager cacheInstanceManager;
 
-	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final CacheInstanceManager cacheInstanceManager,
-			final DbHandler dbHandler, final String routeIdentifier) {
+	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
+			final CacheInstanceManager cacheInstanceManager) {
 		super(factFeed, config);
 		if (config.getDimensions() == null || config.getDimensions().isEmpty()) {
 			throw new IllegalArgumentException("Did not find any dimensions defined! Check your configuration file");
 		}
 		if (cacheInstanceManager == null) {
-			throw new IllegalArgumentException("Cache handler must not be null");
+			throw new IllegalArgumentException("Cache instance manager must not be null");
 		}
-		this.cacheInstanceManager = cacheInstanceManager;
-		if (dbHandler == null) {
-			throw new IllegalArgumentException("DbHandler must not be null");
-		}
-		this.dbHandler = dbHandler;
 		this.validate();
+		this.cacheInstanceManager = cacheInstanceManager;
 		bulkOutputFileNumberOfValues = factFeed.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes().size();
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
 		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
@@ -59,11 +53,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private void validate() {
 		final BulkLoadDefinition bulkDefinition = this.getFactFeed().getBulkLoadDefinition();
 		if (bulkDefinition == null) {
-			throw new IllegalArgumentException("Bulk definition not found in configuration");
+			throw new IllegalArgumentException("Bulk definition not found in configuration for feed " + this.getFactFeed().getName());
 		}
 		final BulkLoadFormatDefinition bulkLoadFileDefinition = bulkDefinition.getBulkLoadFormatDefinition();
 		if (bulkLoadFileDefinition == null) {
-			throw new IllegalArgumentException("Bulk load file definition not found in configuration file. Please check your configuration!");
+			throw new IllegalArgumentException("Bulk load format definition not found in configuration file. Please check your configuration!");
 		}
 		if (bulkLoadFileDefinition.getAttributes() == null || bulkLoadFileDefinition.getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
@@ -105,7 +99,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 								+ requiredDimensionName + "]. This dimension is used to create bulk output! Please check your configuration!");
 					}
 					final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim
-							.getName()), dbHandler, feedDataLineOffset, routeIdentifier, this.getConfig());
+							.getName()), feedDataLineOffset, routeIdentifier, this.getConfig());
 					cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 					outputValueHandlers[i] = dimHandler;
 				}

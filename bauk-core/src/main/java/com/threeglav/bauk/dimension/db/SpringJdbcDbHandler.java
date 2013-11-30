@@ -106,7 +106,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 			throw new IllegalArgumentException("Statement must not be null or empty!");
 		}
 		final long start = System.currentTimeMillis();
-		log.debug("About to execute insert/update statement [{}]");
+		log.debug("About to execute insert/update statement [{}]", statement);
 		final int res = jdbcTemplate.update(new PreparedStatementCreator() {
 
 			@Override

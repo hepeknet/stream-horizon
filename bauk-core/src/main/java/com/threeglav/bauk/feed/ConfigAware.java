@@ -3,6 +3,8 @@ package com.threeglav.bauk.feed;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.dimension.db.DbHandler;
+import com.threeglav.bauk.dimension.db.SpringJdbcDbHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 
@@ -12,6 +14,7 @@ public class ConfigAware {
 
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
+	private DbHandler dbHandler;
 
 	public ConfigAware(final FactFeed factFeed, final BaukConfiguration config) {
 		if (factFeed == null) {
@@ -25,11 +28,18 @@ public class ConfigAware {
 	}
 
 	protected FactFeed getFactFeed() {
-		return this.factFeed;
+		return factFeed;
 	}
 
 	protected BaukConfiguration getConfig() {
-		return this.config;
+		return config;
+	}
+
+	public DbHandler getDbHandler() {
+		if (dbHandler == null) {
+			dbHandler = new SpringJdbcDbHandler(config);
+		}
+		return dbHandler;
 	}
 
 }

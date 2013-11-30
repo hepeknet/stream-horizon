@@ -18,19 +18,20 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 	public BulkLoadFileProcessingRoute(final FactFeed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
 		this.config = config;
-		this.validate();
 		if (factFeed.getThreadPoolSizes() != null) {
 			bulkProcessingThreads = factFeed.getThreadPoolSizes().getBulkLoadProcessingThreads();
 		}
 		log.debug("Will use {} threads to process bulk load files for {}", bulkProcessingThreads, factFeed.getName());
 		if (bulkProcessingThreads <= 0) {
-			log.info("Bulk processing set to use non-positive number of threads. Will not be started!");
+			log.info("For feed {} bulk processing set to use non-positive number of threads. Will not be started!", factFeed.getName());
 		}
+		this.validate();
 	}
 
 	private void validate() {
-		if (factFeed.getBulkLoadDefinition() == null) {
-			throw new IllegalStateException("Was not able to find bulk definition in configuration file!");
+		if (factFeed.getBulkLoadDefinition() == null && bulkProcessingThreads > 0) {
+			throw new IllegalStateException(
+					"Was not able to find bulk definition in configuration file but bulk processing threads set to positive value!");
 		}
 	}
 

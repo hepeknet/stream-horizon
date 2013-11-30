@@ -1,6 +1,8 @@
 package com.threeglav.bauk.dimension;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -31,25 +33,19 @@ public class DimensionHandlerTest {
 	@Test
 	public void testNulls() {
 		try {
-			new DimensionHandler(null, this.createFactFeed(), this.createCacheHandler(), this.createDbHandler(), 0, null, this.createConfig());
+			new DimensionHandler(null, this.createFactFeed(), this.createCacheHandler(), 0, null, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new DimensionHandler(this.createDimension(), null, this.createCacheHandler(), this.createDbHandler(), 0, null, this.createConfig());
+			new DimensionHandler(this.createDimension(), null, this.createCacheHandler(), 0, null, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new DimensionHandler(this.createDimension(), this.createFactFeed(), null, this.createDbHandler(), 0, null, this.createConfig());
-			fail("Should fail");
-		} catch (final IllegalArgumentException ok) {
-			Assert.assertTrue(true);
-		}
-		try {
-			new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), null, 0, null, this.createConfig());
+			new DimensionHandler(this.createDimension(), this.createFactFeed(), null, 0, null, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
@@ -58,8 +54,8 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testSimple() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null, this.createConfig());
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
+				this.createConfig());
 		Assert.assertEquals(5, dh.getMappedColumnPositions().length);
 		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(5, dh.getMappedColumnNames().length);
@@ -74,8 +70,8 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testNaturalKeyMappedToHeader() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(10), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null, this.createConfig());
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(10), this.createFactFeed(), this.createCacheHandler(), 0, null,
+				this.createConfig());
 		Assert.assertEquals(10, dh.getMappedColumnPositions().length);
 		Assert.assertEquals(10, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(10, dh.getMappedColumnNames().length);
@@ -95,8 +91,9 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testNaturalAndMapped() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimensionNaturalAndMapped(5), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null, this.createConfig());
+		final DimensionHandler dh = spy(new DimensionHandler(this.createDimensionNaturalAndMapped(5), this.createFactFeed(),
+				this.createCacheHandler(), 0, null, this.createConfig()));
+		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		Assert.assertEquals(7, dh.getMappedColumnPositions().length);
 		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(7, dh.getMappedColumnNames().length);
@@ -129,15 +126,15 @@ public class DimensionHandlerTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullParsedLine() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null, this.createConfig());
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
+				this.createConfig());
 		dh.getBulkLoadValue(null, null, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSmallParsedLine() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null, this.createConfig());
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
+				this.createConfig());
 		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null, null);
 	}
 
@@ -145,8 +142,9 @@ public class DimensionHandlerTest {
 	public void testLookups() {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null, this.createConfig());
+		final DimensionHandler dh = spy(new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
+				this.createConfig()));
+		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final String key = dh.getBulkLoadValue(parsedLine, null, null);
 		Assert.assertEquals("100", key);
@@ -160,8 +158,9 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 0, null, this.createConfig());
+		final DimensionHandler dh1 = spy(new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
+				this.createConfig()));
+		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
@@ -181,8 +180,9 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 1, null, this.createConfig());
+		final DimensionHandler dh1 = spy(new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 1, null,
+				this.createConfig()));
+		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
@@ -202,8 +202,9 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = new DimensionHandler(this.createDimension(0), this.createFactFeed(), this.createCacheHandler(),
-				this.createDbHandler(), 1, null, this.createConfig());
+		final DimensionHandler dh1 = Mockito.spy(new DimensionHandler(this.createDimension(0), this.createFactFeed(), this.createCacheHandler(), 1,
+				null, this.createConfig()));
+		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");

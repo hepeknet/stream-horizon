@@ -1,5 +1,6 @@
 package com.threeglav.bauk.feed;
 
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -15,7 +16,6 @@ import org.mockito.stubbing.Answer;
 
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
-import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
@@ -28,26 +28,20 @@ public class BulkOutputValuesResolverTest {
 	@Test
 	public void testNull() {
 		try {
-			new BulkOutputValuesResolver(null, Mockito.mock(BaukConfiguration.class), Mockito.mock(CacheInstanceManager.class),
-					Mockito.mock(DbHandler.class), null);
+			new BulkOutputValuesResolver(null, Mockito.mock(BaukConfiguration.class), null, Mockito.mock(CacheInstanceManager.class));
+			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), null, Mockito.mock(CacheInstanceManager.class), Mockito.mock(DbHandler.class),
-					null);
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), null, null, Mockito.mock(CacheInstanceManager.class));
+			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null, Mockito.mock(DbHandler.class),
-					null);
-		} catch (final IllegalArgumentException ok) {
-			Assert.assertTrue(true);
-		}
-		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class),
-					Mockito.mock(CacheInstanceManager.class), null, null);
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null, null);
+			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
@@ -73,8 +67,7 @@ public class BulkOutputValuesResolverTest {
 				return (String) args[0];
 			}
 		});
-		final DbHandler dh = Mockito.mock(DbHandler.class);
-		final BulkOutputValuesResolver bomhc = new BulkOutputValuesResolver(ff, conf, ch, dh, null);
+		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
 		final String latestValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, null, null);
 		Assert.assertNotNull(latestValue);
 		Assert.assertEquals("2,3,6,CONST_VAL", latestValue);
@@ -100,8 +93,7 @@ public class BulkOutputValuesResolverTest {
 				return (String) args[0];
 			}
 		});
-		final DbHandler dh = Mockito.mock(DbHandler.class);
-		final BulkOutputValuesResolver bomhc = new BulkOutputValuesResolver(ff, conf, ch, dh, null);
+		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
 		final String latestReceivedValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
 				"14", "15", "16" }, null, null);
 		Assert.assertNotNull(latestReceivedValue);
