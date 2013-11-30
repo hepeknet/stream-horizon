@@ -206,9 +206,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	@Override
 	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> headerAttributes, final Map<String, String> globalAttributes) {
-		if (parsedLine == null || parsedLine.length == 0) {
-			throw new IllegalArgumentException("Did not find any data in parsed line");
-		}
 		String surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!skipCaching) {
@@ -288,7 +285,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 		String stat = this.replaceAllMappedColumnValues(statement, parsedLine);
 		log.debug("Replacing all global attributes {}", globalAttributes);
-		final String dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
 		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX, dbStringLiteral);
 		log.debug("Replacing all header attributes {}", headerAttributes);
 		stat = StringUtil.replaceAllAttributes(stat, headerAttributes, BaukConstants.HEADER_ATTRIBUTE_PREFIX, dbStringLiteral);
@@ -302,8 +298,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 		String replaced = statement;
 		for (int i = 0; i < mappedColumnNames.length; i++) {
-			final String mappedColumnNamePlaceholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + mappedColumnNames[i]
-					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			final int mappedColumnValuePositionInFeed = mappedColumnsPositionsInFeed[i];
 			if (mappedColumnValuePositionInFeed == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
 				// will be replaced by header/global values
@@ -313,6 +307,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				throw new IllegalArgumentException("Parsed line has less values than needed " + mappedColumnValuePositionInFeed);
 			}
 			final String value = parsedLine[mappedColumnValuePositionInFeed];
+			final String mappedColumnNamePlaceholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + mappedColumnNames[i]
+					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			log.debug("Replacing {} with {}", mappedColumnNamePlaceholder, value);
 			replaced = StringUtil.replaceSingleAttribute(replaced, mappedColumnNamePlaceholder, value, dbStringLiteral);
 		}

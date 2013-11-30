@@ -48,7 +48,7 @@ public class BaukApplication {
 	private static void createCamelRoutes(final BaukConfiguration config) throws Exception {
 		LOG.debug("Starting camel routes...");
 		for (final FactFeed feed : config.getFactFeeds()) {
-			LOG.trace("Creating route for {}", feed);
+			LOG.trace("Creating routes for feed [{}]", feed.getName());
 			final InputFeedFileProcessingRoute fpr = new InputFeedFileProcessingRoute(feed, config);
 			final BulkLoadFileProcessingRoute blfp = new BulkLoadFileProcessingRoute(feed, config);
 			try {
@@ -56,7 +56,7 @@ public class BaukApplication {
 				if (blfp.shouldStartRoute()) {
 					camelContext.addRoutes(blfp);
 				}
-				LOG.debug("Successfully added routes for {}", feed);
+				LOG.debug("Successfully added routes for feed [{}]", feed.getName());
 			} catch (final Exception exc) {
 				LOG.error("Exception while starting route. Exiting application!", exc);
 				System.exit(-1);

@@ -124,7 +124,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = NullPointerException.class)
 	public void testNullParsedLine() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
 				this.createConfig());
