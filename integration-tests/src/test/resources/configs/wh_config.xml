@@ -5,7 +5,7 @@
 	<errorDirectory>d:/projects/test/error</errorDirectory>
 	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
 	<connectionProperties>
-		<jdbcUrl>jdbc:oracle:thin:@192.168.52.131:1521:orcl</jdbcUrl>
+		<jdbcUrl>jdbc:oracle:thin:@192.168.52.132:1521:orcl</jdbcUrl>
 		<jdbcUserName>warehouse</jdbcUserName>
 		<jdbcPassword>warehouse</jdbcPassword>
 	</connectionProperties>
@@ -35,7 +35,9 @@
 			<footer process="skip" />
 			<bulkLoadDefinition>
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
-				<bulkLoadInsertStatement>select 1 from dual</bulkLoadInsertStatement>
+				<bulkLoadInsertStatement>LOAD DATA INFILE '${global.bulkFilePath}'
+					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
+					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
 					<attributes>
 						<attribute name="feed.casparGuid" />
@@ -43,14 +45,20 @@
 				</bulkLoadFormatDefinition>
 				<onBulkLoadSuccess>
 					<sqlStatements>
-						<sqlStatement>insert into RWHSTG_ETL_BATCH( FILE_ID, FILE_NAME, FILE_TYPE, FILE_CREATED_TIMESTAMP, BUSINESS_DATE, NUMBER_OF_ROWS, CASPAR_GUID) 
-						 VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, '${casparGuid}')</sqlStatement>
+						<sqlStatement>CALL simpleproc(@a)</sqlStatement>
+						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
 					</sqlStatements>
 				</onBulkLoadSuccess>
 			</bulkLoadDefinition>
+			<onFeedProcessingCompletion>
+				<sqlStatement>
+				insert into RWHSTG_ETL_BATCH( FILE_ID, FILE_NAME, FILE_TYPE, FILE_CREATED_TIMESTAMP, BUSINESS_DATE, CASPAR_GUID, NUMBER_OF_ROWS, FILE_VALIDATION_FLAG, ERROR_DESCRIPTION) 
+				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${casparGuid}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
+				</sqlStatement>
+			</onFeedProcessingCompletion>
 			<threadPoolSizes>
 				<feedProcessingThreads>1</feedProcessingThreads>
-				<bulkLoadProcessingThreads>1</bulkLoadProcessingThreads>
+				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
 			</threadPoolSizes>
 		</factFeed>
 		<factFeed name="dataFeed" type="full">
