@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.StringUtil;
 
 public class FeedCompletionProcessor extends ConfigAware {
 
@@ -12,7 +13,16 @@ public class FeedCompletionProcessor extends ConfigAware {
 	}
 
 	public void process(final Map<String, String> globalAttributes, final Map<String, String> completionAttributes) {
-
+		log.debug("Global attributes {}, completion attributes {}", globalAttributes, completionAttributes);
+		for (final String sqlStatement : this.getFactFeed().getOnFeedProcessingCompletion()) {
+			log.debug("About to execute on-completion statement {} for feed {}. First will prepare it...", sqlStatement, this.getFactFeed().getName());
+			String stat = sqlStatement;
+			stat = StringUtil.replaceAllAttributes(stat, globalAttributes, null, this.getConfig().getDatabaseStringLiteral());
+			stat = StringUtil.replaceAllAttributes(stat, completionAttributes, null, this.getConfig().getDatabaseStringLiteral());
+			log.debug("Executing on-completions statement {}", stat);
+			this.getDbHandler().executeInsertOrUpdateStatement(stat);
+			log.debug("Successfully executed {}", stat);
+		}
 	}
 
 }

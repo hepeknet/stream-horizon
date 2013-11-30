@@ -103,7 +103,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	public void readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
+	public int readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		try {
 			int feedLinesNumber = 0;
@@ -145,8 +145,9 @@ public class TextFileReaderComponent extends ConfigAware {
 			feedDataProcessor.closeFeed(feedLinesNumber);
 			this.processFooter(feedLinesNumber, footerLine);
 			IOUtils.closeQuietly(br);
+			return feedLinesNumber;
 		} catch (final IOException ie) {
-			log.error("IOException {}", ie.getMessage());
+			throw new IllegalStateException(ie);
 		} finally {
 			IOUtils.closeQuietly(fileInputStream);
 		}
@@ -184,8 +185,8 @@ public class TextFileReaderComponent extends ConfigAware {
 		return parsedHeaderValues;
 	}
 
-	public void process(final InputStream input, final Map<String, String> globalAttributes) {
-		this.readFile(input, globalAttributes);
+	public int process(final InputStream input, final Map<String, String> globalAttributes) {
+		return this.readFile(input, globalAttributes);
 	}
 
 }

@@ -142,11 +142,14 @@ class FeedFileProcessor implements Processor {
 	private void processStreamWithCompletion(final InputStream inputStream, final Map<String, String> globalAttributes) {
 		final Map<String, String> completionAttributes = new HashMap<>();
 		try {
-			textFileReaderComponent.process(inputStream, globalAttributes);
-			// add all success attributes
+			final int numberOfLineProcessed = textFileReaderComponent.process(inputStream, globalAttributes);
+			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED, String.valueOf(numberOfLineProcessed));
+			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "S");
 		} catch (final Exception exc) {
-			// add all failure attributes
+			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, exc.getMessage());
+			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "F");
 		}
+		log.debug("Completion attributes for {} are {}", factFeed.getName(), completionAttributes);
 		feedCompletionProcessor.process(globalAttributes, completionAttributes);
 	}
 
