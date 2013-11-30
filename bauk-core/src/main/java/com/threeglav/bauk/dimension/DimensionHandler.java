@@ -182,7 +182,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 		final String preCacheStatement = dimension.getSqlStatements().getPreCacheKeys();
 		if (!StringUtil.isEmpty(preCacheStatement)) {
-			log.debug("Statement for pre-caching is {}", preCacheStatement);
+			log.debug("For dimension {} statement for pre-caching is {}", dimension.getName(), preCacheStatement);
 			int numberOfRows = 0;
 			final List<String[]> retrievedValues = this.getDbHandler().queryForDimensionKeys(preCacheStatement, naturalKeyNames.length);
 			if (retrievedValues != null) {
@@ -196,11 +196,12 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 					System.arraycopy(row, 1, naturalKeyValues, 0, row.length - 1);
 					final String naturalKeyValue = StringUtil.getNaturalKeyCacheKey(naturalKeyValues);
 					cacheInstance.put(naturalKeyValue, surrogateKeyValue);
+					this.putInLocalCache(naturalKeyValue, surrogateKeyValue);
 				}
 			}
-			log.debug("Pre cached {} keys for {}", numberOfRows, dimension.getName());
+			log.debug("Pre-cached {} keys for {}", numberOfRows, dimension.getName());
 		} else {
-			log.info("Could not find pre cache sql statement for {}!", dimension.getName());
+			log.info("Could not find pre-cache sql statement for {}!", dimension.getName());
 		}
 	}
 
@@ -221,6 +222,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, headerAttributes, globalAttributes);
 			if (!skipCaching && naturalCacheKey != null) {
 				cacheInstance.put(naturalCacheKey, surrogateKey);
+				this.putInLocalCache(naturalCacheKey, surrogateKey);
 			}
 		} else {
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
@@ -322,17 +324,21 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		} else {
 			final String cachedValue = cacheInstance.getSurrogateKey(cacheKey);
 			if (cachedValue != null) {
-				if (localCache.size() > MAX_ELEMENTS_LOCAL_MAP) {
-					log.debug("Local cache has more than {} elements. Have to clear it!", MAX_ELEMENTS_LOCAL_MAP);
-					localCache.clear();
-					if (localCacheClearCounter != null) {
-						localCacheClearCounter.inc();
-					}
-				}
-				localCache.put(cacheKey, cachedValue);
+				this.putInLocalCache(cacheKey, cachedValue);
 			}
 			return cachedValue;
 		}
+	}
+
+	private void putInLocalCache(final String cacheKey, final String cachedValue) {
+		if (localCache.size() > MAX_ELEMENTS_LOCAL_MAP) {
+			log.debug("Local cache has more than {} elements. Have to clear it!", MAX_ELEMENTS_LOCAL_MAP);
+			localCache.clear();
+			if (localCacheClearCounter != null) {
+				localCacheClearCounter.inc();
+			}
+		}
+		localCache.put(cacheKey, cachedValue);
 	}
 
 	private String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> headerAttributes) {

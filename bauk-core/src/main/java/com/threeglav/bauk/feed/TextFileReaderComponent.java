@@ -34,8 +34,8 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final FeedParser footerLineParser;
 	private final String footerFirstString;
 	private final String[] declaredHeaderAttributes;
-	private final boolean shouldProcessHeader;
 	private final FeedDataProcessor feedDataProcessor;
+	private final HeaderFooterProcessType headerProcessingType;
 
 	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
@@ -46,7 +46,8 @@ public class TextFileReaderComponent extends ConfigAware {
 		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines in feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
-		shouldProcessHeader = this.checkProcessHeader();
+		headerProcessingType = this.getFactFeed().getHeader().getProcess();
+		final boolean shouldProcessHeader = this.checkProcessHeader();
 		if (shouldProcessHeader) {
 			log.debug("Extracting header attributes for {}", factFeed.getName());
 			declaredHeaderAttributes = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getHeader().getAttributes());
@@ -111,14 +112,21 @@ public class TextFileReaderComponent extends ConfigAware {
 			boolean processedHeader = false;
 			String footerLine = null;
 			Map<String, String> headerAttributes = null;
+			final boolean headerExists = headerProcessingType != HeaderFooterProcessType.NO_HEADER;
+			final boolean skipHeader = headerProcessingType == HeaderFooterProcessType.SKIP;
 			while (line != null) {
 				if (!processedHeader) {
 					feedDataProcessor.startFeed(globalAttributes, headerAttributes);
 					processedHeader = true;
-					if (shouldProcessHeader) {
-						headerAttributes = this.processHeader(line);
+					if (headerExists) {
+						if (!skipHeader) {
+							headerAttributes = this.processHeader(line);
+						} else {
+							log.debug("Skipping header line {}", line);
+						}
 					} else {
 						feedDataProcessor.processLine(line);
+						feedLinesNumber++;
 					}
 					line = br.readLine();
 				} else {

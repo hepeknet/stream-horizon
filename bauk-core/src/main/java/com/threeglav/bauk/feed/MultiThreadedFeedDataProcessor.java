@@ -10,6 +10,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.threeglav.bauk.ConfigurationProperties;
@@ -84,18 +85,22 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 				final int totalDrained = lineQueue.drainTo(drainedElements, maxDrainedElements);
 				if (totalDrained > 0) {
 					log.debug("In total drained {} elements", totalDrained);
-					this.processAllDrainedElements(drainedElements, totalDrained);
+					this.processAllDrainedElements(drainedElements);
 				} else {
-					final String singleLine = lineQueue.take();
-					drainedElements.add(singleLine);
-					this.processAllDrainedElements(drainedElements, 1);
+					final String singleLine = lineQueue.poll(100, TimeUnit.MILLISECONDS);
+					if (singleLine != null) {
+						drainedElements.add(singleLine);
+						this.processAllDrainedElements(drainedElements);
+					} else {
+						this.processAllDrainedElements(drainedElements);
+					}
 				}
 			}
 		}
 
-		private void processAllDrainedElements(final List<String> drainedElements, final int totalDrained) {
+		private void processAllDrainedElements(final List<String> drainedElements) {
 			final Iterator<String> listIterator = drainedElements.iterator();
-			final String[] outputLines = new String[totalDrained];
+			final String[] outputLines = new String[drainedElements.size()];
 			int counter = 0;
 			while (listIterator.hasNext()) {
 				final String line = listIterator.next();
@@ -106,17 +111,17 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 			}
 			drainedElements.clear();
 			final int outputSize = outputLines.length;
-			log.debug("Will output {} lines", outputSize);
+			log.trace("Will output {} lines", outputSize);
 			synchronized (bulkWriterLock) {
 				for (final String str : outputLines) {
 					bulkWriter.write(str);
 					bulkWriter.write("\n");
 				}
 				final int value = totalLinesOutputCounter.addAndGet(outputSize);
-				log.debug("In total output {} lines so far", value);
+				log.trace("In total output {} lines so far. Current expected value is {}", value, expectedLines);
 				if (expectedLines != null) {
 					if (value == expectedLines.get()) {
-						log.debug("Processed all required {} lines. Notifying!", value);
+						log.debug("Processed all required {} lines. Notifying to close output file!", value);
 						allDone.countDown();
 					}
 				}
