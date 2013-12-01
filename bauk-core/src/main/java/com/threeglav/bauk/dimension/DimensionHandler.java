@@ -43,7 +43,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final int mappedColumnsPositionOffset;
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
-	private boolean skipCaching;
+	private final boolean skipCaching;
+
+	// used for caching per feed value (SK) for dimension
 	private final boolean cachePerFeedEnabled;
 	private String keyValueCachedPerFeed;
 
@@ -72,16 +74,19 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				+ "] - local cache clear times");
 		this.preCacheAllKeys();
 		cachePerFeedEnabled = !StringUtil.isEmpty(dimension.getCacheKeyPerFeedInto());
+		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
+		if (numberOfNaturalKeys == 0) {
+			skipCaching = true;
+			log.warn("Did not find any defined natural keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
+		} else {
+			skipCaching = false;
+			log.debug("Caching for {} is enabled", dimension.getName());
+		}
 	}
 
 	private void validate() {
 		if (dimension.getMappedColumns() == null || dimension.getMappedColumns().isEmpty()) {
 			log.warn("Did not find any mapped columns for {}!", dimension.getName());
-		}
-		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
-		if (numberOfNaturalKeys == 0) {
-			skipCaching = true;
-			log.warn("Did not find any defined natural keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
 		}
 		if (dimension.getSqlStatements() == null) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
@@ -93,6 +98,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (this.getFactFeed().getData().getAttributes() == null || this.getFactFeed().getData().getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any attributes defined in feed " + this.getFactFeed().getName());
 		}
+		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys > this.getFactFeed().getData().getAttributes().size()) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " has more defined natural keys than there are attributes in feed " + this.getFactFeed().getName());

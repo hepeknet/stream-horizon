@@ -1,7 +1,8 @@
 package com.threeglav.bauk.util;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.threeglav.bauk.model.Attribute;
@@ -23,7 +24,7 @@ public abstract class AttributeParsingUtil {
 		if (attributes == null) {
 			throw new IllegalArgumentException("Attributes must not be null");
 		}
-		final Map<String, Integer> attrs = new HashMap<>();
+		final Map<String, Integer> attrs = new THashMap<>();
 		int counter = 0;
 		for (final Attribute at : attributes) {
 			attrs.put(at.getName(), counter++);

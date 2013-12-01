@@ -1,9 +1,11 @@
 package com.threeglav.bauk.camel;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.io.File;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipFile;
 
 import org.apache.camel.Exchange;
@@ -35,6 +37,8 @@ import com.threeglav.bauk.util.StringUtil;
 class FeedFileProcessor implements Processor {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	private static final AtomicInteger COUNTER = new AtomicInteger(0);
 
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
@@ -68,6 +72,7 @@ class FeedFileProcessor implements Processor {
 		inputFeedsProcessed = MetricsUtil.createMeter("Input feeds (" + cleanFileMask + ") - processed files count");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("Input feeds (" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
+		log.info("Number of instances is {}", COUNTER.incrementAndGet());
 	}
 
 	private FeedDataProcessor createFeedDataProcessor(final String routeId) {
@@ -173,7 +178,7 @@ class FeedFileProcessor implements Processor {
 	}
 
 	private void processStreamWithCompletion(final InputStream inputStream, final Map<String, String> globalAttributes) {
-		final Map<String, String> completionAttributes = new HashMap<>();
+		final Map<String, String> completionAttributes = new THashMap<>();
 		try {
 			final int numberOfLineProcessed = textFileReaderComponent.process(inputStream, globalAttributes);
 			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED, String.valueOf(numberOfLineProcessed));
@@ -222,7 +227,7 @@ class FeedFileProcessor implements Processor {
 	}
 
 	private Map<String, String> createImplicitGlobalAttributes(final Exchange exchange) {
-		final Map<String, String> attributes = new HashMap<String, String>();
+		final Map<String, String> attributes = new THashMap<String, String>();
 		final Message exchangeIn = exchange.getIn();
 		final String fileNameOnly = (String) exchangeIn.getHeader("CamelFileNameOnly");
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);

@@ -1,6 +1,7 @@
 package com.threeglav.bauk.camel;
 
-import java.util.HashMap;
+import gnu.trove.map.hash.THashMap;
+
 import java.util.Map;
 
 import org.apache.camel.Exchange;
@@ -69,7 +70,7 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 	}
 
 	private Map<String, String> createImplicitGlobalAttributes(final Exchange exchange) {
-		final Map<String, String> attributes = new HashMap<String, String>();
+		final Map<String, String> attributes = new THashMap<String, String>();
 		final String fileNameOnly = (String) exchange.getIn().getHeader("CamelFileNameOnly");
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
 		final String inputFileAbsolutePath = (String) exchange.getIn().getHeader("CamelFileAbsolutePath");

@@ -1,5 +1,7 @@
 package com.threeglav.bauk.header;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +21,7 @@ public class DefaultHeaderParser implements HeaderParser {
 		if (headerLine == null) {
 			return new HashMap<String, String>();
 		}
-		final Map<String, String> headerValues = new HashMap<String, String>();
+		final Map<String, String> headerValues = new THashMap<String, String>();
 		final FullFeedParser ffp = new FullFeedParser(delimiter);
 		final String[] parsed = ffp.parse(headerLine);
 		if (parsed == null || parsed.length == 0) {

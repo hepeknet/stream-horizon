@@ -1,6 +1,7 @@
 package com.threeglav.bauk.feed;
 
-import java.util.HashMap;
+import gnu.trove.map.hash.THashMap;
+
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -16,7 +17,7 @@ public class DefaultFeedFileNameProcessor implements FeedFileNameProcessor {
 
 	@Override
 	public Map<String, String> parseFeedFileName(final String feedFileName) {
-		final Map<String, String> parsedFeedFileNameAttributes = new HashMap<String, String>();
+		final Map<String, String> parsedFeedFileNameAttributes = new THashMap<String, String>();
 		log.debug("Parsing {} into attributes", feedFileName);
 		if (!StringUtil.isEmpty(feedFileName)) {
 			final String[] parsedName = feedFileName.split(DELIMITER);

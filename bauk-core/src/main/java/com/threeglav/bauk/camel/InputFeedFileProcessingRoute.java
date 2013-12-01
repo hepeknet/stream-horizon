@@ -39,18 +39,19 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 	private void createRouteForAllFileMasks() {
 		for (final String fileMask : factFeed.getFileNameMasks()) {
 			log.debug("Creating route for {}", fileMask);
-			this.createRoute(fileMask);
+			final FeedFileProcessor feedFileProcessor = new FeedFileProcessor(factFeed, config, fileMask);
+			this.createRoute(fileMask, feedFileProcessor);
 			log.debug("Created route for {}", fileMask);
 		}
 	}
 
-	private void createRoute(final String fileMask) {
+	private void createRoute(final String fileMask, final FeedFileProcessor feedFileProcessor) {
 		String inputEndpoint = "file://" + config.getSourceDirectory() + "?move=" + config.getArchiveDirectory()
 				+ "/${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}&include=" + fileMask;
 		inputEndpoint += "&idempotent=true&readLock=changed";
 		log.debug("Input endpoint is {}", inputEndpoint);
-		this.from(inputEndpoint).routeId("InputFeedProcessing (" + fileMask + ")").doTry().process(new FeedFileProcessor(factFeed, config, fileMask))
-				.doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
+		this.from(inputEndpoint).routeId("InputFeedProcessing (" + fileMask + ")").doTry().process(feedFileProcessor).doCatch(Exception.class)
+				.to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
 				.to("file://" + config.getErrorDirectory() + "/").end();
 	}

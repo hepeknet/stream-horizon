@@ -1,5 +1,7 @@
 package com.threeglav.bauk.util;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +40,7 @@ public class StringUtilTest {
 
 	@Test
 	public void testReplaceAttributesNullValues() {
-		final Map<String, String> attrs = new HashMap<String, String>();
+		final Map<String, String> attrs = new THashMap<String, String>();
 		attrs.put("a", "1");
 		attrs.put("b", "2");
 		attrs.put("c", null);
