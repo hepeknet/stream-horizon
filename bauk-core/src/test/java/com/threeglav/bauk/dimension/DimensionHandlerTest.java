@@ -264,6 +264,11 @@ public class DimensionHandlerTest {
 			public List<String[]> queryForDimensionKeys(final String statement, final int numberOfNaturalKeyColumns) {
 				return null;
 			}
+
+			@Override
+			public Map<String, String> executeSelectStatement(final String statement) {
+				return null;
+			}
 		};
 	}
 

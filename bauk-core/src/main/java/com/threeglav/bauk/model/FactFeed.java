@@ -21,6 +21,9 @@ public class FactFeed {
 	@XmlElement(name = "fileNameMask")
 	private ArrayList<String> fileNameMasks;
 
+	@XmlElement(required = false)
+	private String fileNameProcessorClassName;
+
 	@XmlAttribute(required = true)
 	private FactFeedType type;
 
@@ -49,9 +52,13 @@ public class FactFeed {
 	@XmlElement
 	private BulkLoadDefinition bulkLoadDefinition;
 
-	@XmlElementWrapper(name = "onFeedProcessingCompletion")
+	@XmlElementWrapper(name = "afterFeedProcessingCompletion")
 	@XmlElement(name = "sqlStatement")
-	private List<String> onFeedProcessingCompletion;
+	private List<String> afterFeedProcessingCompletion;
+
+	@XmlElementWrapper(name = "beforeFeedProcessing")
+	@XmlElement(name = "sqlStatement")
+	private List<MappedResultsSQLStatement> beforeFeedProcessing;
 
 	@XmlElement
 	private ThreadPoolSizes threadPoolSizes;
@@ -152,12 +159,28 @@ public class FactFeed {
 		this.threadPoolSizes = threadPoolSizes;
 	}
 
-	public List<String> getOnFeedProcessingCompletion() {
-		return onFeedProcessingCompletion;
+	public List<String> getAfterFeedProcessingCompletion() {
+		return afterFeedProcessingCompletion;
 	}
 
-	public void setOnFeedProcessingCompletion(final List<String> onFeedProcessingCompletion) {
-		this.onFeedProcessingCompletion = onFeedProcessingCompletion;
+	public void setAfterFeedProcessingCompletion(final List<String> afterFeedProcessingCompletion) {
+		this.afterFeedProcessingCompletion = afterFeedProcessingCompletion;
+	}
+
+	public List<MappedResultsSQLStatement> getBeforeFeedProcessing() {
+		return beforeFeedProcessing;
+	}
+
+	public void setBeforeFeedProcessing(final List<MappedResultsSQLStatement> beforeFeedProcessing) {
+		this.beforeFeedProcessing = beforeFeedProcessing;
+	}
+
+	public String getFileNameProcessorClassName() {
+		return fileNameProcessorClassName;
+	}
+
+	public void setFileNameProcessorClassName(final String fileNameProcessorClassName) {
+		this.fileNameProcessorClassName = fileNameProcessorClassName;
 	}
 
 }

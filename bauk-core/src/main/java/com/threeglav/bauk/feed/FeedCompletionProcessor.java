@@ -14,7 +14,7 @@ public class FeedCompletionProcessor extends ConfigAware {
 
 	public void process(final Map<String, String> globalAttributes, final Map<String, String> completionAttributes) {
 		log.debug("Global attributes {}, completion attributes {}", globalAttributes, completionAttributes);
-		for (final String sqlStatement : this.getFactFeed().getOnFeedProcessingCompletion()) {
+		for (final String sqlStatement : this.getFactFeed().getAfterFeedProcessingCompletion()) {
 			log.debug("About to execute on-completion statement {} for feed {}. First will prepare it...", sqlStatement, this.getFactFeed().getName());
 			String stat = sqlStatement;
 			stat = StringUtil.replaceAllAttributes(stat, globalAttributes, null, this.getConfig().getDatabaseStringLiteral());

@@ -16,8 +16,12 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.dynamic.CustomProcessorResolver;
+import com.threeglav.bauk.feed.BeforeFeedProcessingProcessor;
+import com.threeglav.bauk.feed.DefaultFeedFileNameProcessor;
 import com.threeglav.bauk.feed.FeedCompletionProcessor;
 import com.threeglav.bauk.feed.FeedDataProcessor;
+import com.threeglav.bauk.feed.FeedFileNameProcessor;
 import com.threeglav.bauk.feed.MultiThreadedFeedDataProcessor;
 import com.threeglav.bauk.feed.SingleThreadedFeedDataProcessor;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
@@ -39,6 +43,8 @@ class FeedFileProcessor implements Processor {
 	private final TextFileReaderComponent textFileReaderComponent;
 	private final FeedDataProcessor feedDataProcessor;
 	private final FeedCompletionProcessor feedCompletionProcessor;
+	private final BeforeFeedProcessingProcessor beforeFeedProcessingProcessor;
+	private FeedFileNameProcessor feedFileNameProcessor;
 	private String fileExtension;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
@@ -58,8 +64,10 @@ class FeedFileProcessor implements Processor {
 		feedDataProcessor = this.createFeedDataProcessor(cleanFileMask);
 		textFileReaderComponent = new TextFileReaderComponent(this.factFeed, this.config, feedDataProcessor, cleanFileMask);
 		feedCompletionProcessor = this.createFeedCompletionProcessor();
+		beforeFeedProcessingProcessor = this.createBeforeFeedProcessingProcessor();
 		inputFeedsProcessed = MetricsUtil.createMeter("Input feeds (" + cleanFileMask + ") - processed files count");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("Input feeds (" + cleanFileMask + ") - processing time (millis)");
+		this.initializeFeedFileNameProcessor();
 	}
 
 	private FeedDataProcessor createFeedDataProcessor(final String routeId) {
@@ -74,6 +82,31 @@ class FeedFileProcessor implements Processor {
 			log.debug("Will use multi threaded feed data processing - thread number {}", numberOfInputThreads);
 			return new MultiThreadedFeedDataProcessor(factFeed, config, routeId, numberOfInputThreads);
 		}
+	}
+
+	private BeforeFeedProcessingProcessor createBeforeFeedProcessingProcessor() {
+		BeforeFeedProcessingProcessor processor = null;
+		if (factFeed.getBeforeFeedProcessing() != null && !factFeed.getBeforeFeedProcessing().isEmpty()) {
+			log.debug("Will perform before feed processing for {}", factFeed.getName());
+			processor = new BeforeFeedProcessingProcessor(factFeed, config);
+		} else {
+			log.debug("Will not perform any before feed processing for {}", factFeed.getName());
+		}
+		return processor;
+	}
+
+	private void initializeFeedFileNameProcessor() {
+		String feedFileNameProcessorClassName = DefaultFeedFileNameProcessor.class.getName();
+		final String configuredFileProcessorClass = factFeed.getFileNameProcessorClassName();
+		if (!StringUtil.isEmpty(configuredFileProcessorClass)) {
+			feedFileNameProcessorClassName = configuredFileProcessorClass;
+			log.debug("Will try to use custom feed file name processor class {}", configuredFileProcessorClass);
+		} else {
+			log.debug("Will use default feed file name processor class {}", feedFileNameProcessorClassName);
+		}
+		final CustomProcessorResolver<FeedFileNameProcessor> feedFileNameProcessorInstanceResolver = new CustomProcessorResolver<>(
+				feedFileNameProcessorClassName, FeedFileNameProcessor.class);
+		feedFileNameProcessor = feedFileNameProcessorInstanceResolver.resolveInstance();
 	}
 
 	private void validate() {
@@ -95,8 +128,8 @@ class FeedFileProcessor implements Processor {
 
 	private FeedCompletionProcessor createFeedCompletionProcessor() {
 		final FeedCompletionProcessor processor = null;
-		if (factFeed.getOnFeedProcessingCompletion() != null && !factFeed.getOnFeedProcessingCompletion().isEmpty()) {
-			log.debug("Found {} to be executed on feed completion for {}", factFeed.getOnFeedProcessingCompletion(), factFeed.getName());
+		if (factFeed.getAfterFeedProcessingCompletion() != null && !factFeed.getAfterFeedProcessingCompletion().isEmpty()) {
+			log.debug("Found {} to be executed on feed completion for {}", factFeed.getAfterFeedProcessingCompletion(), factFeed.getName());
 			return new FeedCompletionProcessor(factFeed, config);
 		} else {
 			log.debug("Did not find anything to execute on feed completion for feed {}", factFeed.getName());
@@ -160,6 +193,9 @@ class FeedFileProcessor implements Processor {
 			final long start = System.currentTimeMillis();
 			log.debug("Received filePath={}, lastModified={}, fileLength={}", fullFilePath, lastModified, fileLength);
 			final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
+			if (beforeFeedProcessingProcessor != null) {
+				beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
+			}
 			if (feedCompletionProcessor == null) {
 				textFileReaderComponent.process(inputStream, globalAttributes);
 			} else {
@@ -190,6 +226,12 @@ class FeedFileProcessor implements Processor {
 		final Message exchangeIn = exchange.getIn();
 		final String fileNameOnly = (String) exchangeIn.getHeader("CamelFileNameOnly");
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
+		final Map<String, String> parsedAttributesFromFeedFileName = feedFileNameProcessor.parseFeedFileName(fileNameOnly);
+		if (parsedAttributesFromFeedFileName != null && !parsedAttributesFromFeedFileName.isEmpty()) {
+			attributes.putAll(parsedAttributesFromFeedFileName);
+		} else {
+			log.info("Null or empty attributes returned by feed file name parser!");
+		}
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, (String) exchangeIn.getHeader("CamelFileAbsolutePath"));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP,
 				String.valueOf(exchangeIn.getHeader("CamelFileLastModified")));

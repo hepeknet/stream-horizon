@@ -5,7 +5,7 @@
 	<errorDirectory>d:/projects/test/error</errorDirectory>
 	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
 	<connectionProperties>
-		<jdbcUrl>jdbc:oracle:thin:@192.168.52.132:1521:orcl</jdbcUrl>
+		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
 		<jdbcUserName>warehouse</jdbcUserName>
 		<jdbcPassword>warehouse</jdbcPassword>
 	</connectionProperties>
@@ -50,12 +50,17 @@
 					</sqlStatements>
 				</onBulkLoadSuccess>
 			</bulkLoadDefinition>
-			<onFeedProcessingCompletion>
+			<beforeFeedProcessing>
+				<sqlStatement type="select">
+					select 'borisa' as B from dual
+				</sqlStatement>
+			</beforeFeedProcessing>
+			<afterFeedProcessingCompletion>
 				<sqlStatement>
 				insert into RWHSTG_ETL_BATCH( FILE_ID, FILE_NAME, FILE_TYPE, FILE_CREATED_TIMESTAMP, BUSINESS_DATE, CASPAR_GUID, NUMBER_OF_ROWS, FILE_VALIDATION_FLAG, ERROR_DESCRIPTION) 
-				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${casparGuid}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
+				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${B}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
 				</sqlStatement>
-			</onFeedProcessingCompletion>
+			</afterFeedProcessingCompletion>
 			<threadPoolSizes>
 				<feedProcessingThreads>1</feedProcessingThreads>
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
@@ -300,6 +305,19 @@
 				</insertSingle>
 				<selectSurrogateKey>select deal_dim_wid from rwh_deal_dim where sourceName='${sourceName}' and deal_type='${dealType}' and deal_id='${dealId}' and deal_version='${dealVersion}' and DEAL_WHATIF_UID='${dealWhatIfUID}' and component_code='${componentCode}'</selectSurrogateKey>
 				<preCacheKeys>select deal_dim_wid, sourceName, deal_type, deal_id, deal_version, DEAL_WHATIF_UID, component_code from rwh_deal_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="casparGuid" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID) 
+					values (rwh_request_notification_seq.nextval, sysdate,'R', '${casparGuid}', '${casparGuid}')
+				</insertSingle>
+				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${casparGuid}'</selectSurrogateKey>
+				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 	</dimensions>

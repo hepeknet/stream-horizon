@@ -87,7 +87,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 					log.debug("In total drained {} elements", totalDrained);
 					this.processAllDrainedElements(drainedElements);
 				} else {
-					final String singleLine = lineQueue.poll(100, TimeUnit.MILLISECONDS);
+					final String singleLine = lineQueue.poll(300, TimeUnit.MILLISECONDS);
 					if (singleLine != null) {
 						drainedElements.add(singleLine);
 						this.processAllDrainedElements(drainedElements);

@@ -6,7 +6,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.sql.DataSource;
 
@@ -158,6 +161,29 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 		log.debug("Successfully executed {}. Returned {} rows in total. In total took {}ms to execute", statement, rowsReturned, total);
 		return allRows;
+	}
+
+	@Override
+	public Map<String, String> executeSelectStatement(final String statement) {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
+		log.debug("About to execute query statement [{}], Will return all results as string values", statement);
+		final long start = System.currentTimeMillis();
+		final Map<String, Object> queryResults = jdbcTemplate.queryForMap(statement);
+		final long total = System.currentTimeMillis() - start;
+		if (total > warningThreshold) {
+			log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
+		}
+		log.debug("Successfully executed {}. Results {}", statement, queryResults);
+		if (queryResults == null) {
+			return null;
+		}
+		final Map<String, String> finalResults = new HashMap<String, String>();
+		for (final Entry<String, Object> entry : queryResults.entrySet()) {
+			finalResults.put(entry.getKey(), String.valueOf(entry.getValue()));
+		}
+		return finalResults;
 	}
 
 }
