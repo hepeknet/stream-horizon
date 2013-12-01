@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 
-public class PositionalMappingHandler implements BulkLoadOutputValueHandler {
+public final class PositionalMappingHandler implements BulkLoadOutputValueHandler {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 

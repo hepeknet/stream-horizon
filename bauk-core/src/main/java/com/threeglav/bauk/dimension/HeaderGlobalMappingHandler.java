@@ -9,7 +9,7 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.util.StringUtil;
 
-public class HeaderGlobalMappingHandler implements BulkLoadOutputValueHandler {
+public final class HeaderGlobalMappingHandler implements BulkLoadOutputValueHandler {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final String attributeName;

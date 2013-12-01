@@ -9,25 +9,24 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
+import com.threeglav.bauk.SystemConfigurationConstants;
 
 public abstract class MetricsUtil {
 
-	private static final String METRICS_OFF_SYS_PARAM_NAME = "metrics.off";
-
 	private static final Map<String, AtomicInteger> USED_NAMES = new HashMap<String, AtomicInteger>();
 
-	private static boolean metricsOff;
+	private static final boolean metricsOff;
 
-	private static MetricRegistry registry;
+	private static final MetricRegistry registry;
 
 	static {
-		metricsOff = "true".equals(System.getProperty(METRICS_OFF_SYS_PARAM_NAME));
+		metricsOff = "true".equals(System.getProperty(SystemConfigurationConstants.METRICS_OFF_SYS_PARAM_NAME));
 		registry = new MetricRegistry();
 		final JmxReporter reporter = JmxReporter.forRegistry(registry).build();
 		reporter.start();
 	}
 
-	public static boolean isMetricsOff() {
+	public static final boolean isMetricsOff() {
 		return metricsOff;
 	}
 

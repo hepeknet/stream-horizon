@@ -8,11 +8,11 @@ import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 
-public class ClassFileManager extends ForwardingJavaFileManager {
+class ClassFileManager extends ForwardingJavaFileManager {
 
 	private JavaClassObject jclassObject;
 
-	public ClassFileManager(final StandardJavaFileManager standardManager) {
+	ClassFileManager(final StandardJavaFileManager standardManager) {
 		super(standardManager);
 	}
 

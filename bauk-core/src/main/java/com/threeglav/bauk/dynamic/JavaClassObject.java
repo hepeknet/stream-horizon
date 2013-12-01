@@ -7,15 +7,15 @@ import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
 
-public class JavaClassObject extends SimpleJavaFileObject {
+class JavaClassObject extends SimpleJavaFileObject {
 
 	private final ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-	public JavaClassObject(final String name, final Kind kind) {
+	JavaClassObject(final String name, final Kind kind) {
 		super(URI.create("string:///" + name.replace('.', '/') + kind.extension), kind);
 	}
 
-	public byte[] getBytes() {
+	byte[] getBytes() {
 		return bos.toByteArray();
 	}
 

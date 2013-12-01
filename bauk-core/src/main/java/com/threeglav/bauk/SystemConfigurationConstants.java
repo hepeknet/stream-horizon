@@ -16,4 +16,6 @@ public interface SystemConfigurationConstants {
 	public static final int DEFAULT_MAX_DRAINED_ELEMENTS = 1000;
 	public static final String MAX_DRAINED_ELEMENTS_SYS_PARAM_NAME = "max.drained.elements";
 
+	public static final String METRICS_OFF_SYS_PARAM_NAME = "metrics.off";
+
 }

@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 
-public class ConstantOutputValueHandler implements BulkLoadOutputValueHandler {
+public final class ConstantOutputValueHandler implements BulkLoadOutputValueHandler {
 
 	private final String constantValue;
 
