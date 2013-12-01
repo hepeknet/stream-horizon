@@ -17,4 +17,9 @@ public class ConstantOutputValueHandler implements BulkLoadOutputValueHandler {
 		return constantValue;
 	}
 
+	@Override
+	public void closeCurrentFeed() {
+
+	}
+
 }

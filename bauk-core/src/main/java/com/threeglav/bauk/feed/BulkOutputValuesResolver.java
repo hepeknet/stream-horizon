@@ -140,4 +140,12 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		return sb.toString();
 	}
 
+	public void closeCurrentFeed() {
+		if (outputValueHandlers != null) {
+			for (int i = 0; i < outputValueHandlers.length; i++) {
+				outputValueHandlers[i].closeCurrentFeed();
+			}
+		}
+	}
+
 }

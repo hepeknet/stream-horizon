@@ -41,24 +41,28 @@
 				<bulkLoadFormatDefinition>
 					<attributes>
 						<attribute name="feed.casparGuid" />
+						<attribute name="dimension.REQUESTNOTIFICATION" />
 					</attributes>
 				</bulkLoadFormatDefinition>
 				<onBulkLoadSuccess>
 					<sqlStatements>
-						<sqlStatement>CALL simpleproc(@a)</sqlStatement>
 						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
 					</sqlStatements>
 				</onBulkLoadSuccess>
 			</bulkLoadDefinition>
 			<beforeFeedProcessing>
 				<sqlStatement type="select">
-					select 'borisa' as B from dual
+					select RWHSTG_ETL_BATCH_seq.nextval as etlBatchSk from dual
 				</sqlStatement>
 			</beforeFeedProcessing>
 			<afterFeedProcessingCompletion>
 				<sqlStatement>
 				insert into RWHSTG_ETL_BATCH( FILE_ID, FILE_NAME, FILE_TYPE, FILE_CREATED_TIMESTAMP, BUSINESS_DATE, CASPAR_GUID, NUMBER_OF_ROWS, FILE_VALIDATION_FLAG, ERROR_DESCRIPTION) 
-				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${B}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
+				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${casparGuid}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
+				</sqlStatement>
+				<sqlStatement>
+				update REQUESTNOTIFICATION set
+  				UNIQUENAME = '${casparGuid}', ANALYTICSREQUESTGUID = '${casparGuid}', PERSISTSTATUS = 'S' where NOTIFICATIONID = ${notificationSk}
 				</sqlStatement>
 			</afterFeedProcessingCompletion>
 			<threadPoolSizes>
@@ -307,14 +311,14 @@
 				<preCacheKeys>select deal_dim_wid, sourceName, deal_type, deal_id, deal_version, DEAL_WHATIF_UID, component_code from rwh_deal_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY">
+		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
 			<mappedColumns>
 				<mappedColumn name="casparGuid" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID) 
-					values (rwh_request_notification_seq.nextval, sysdate,'R', '${casparGuid}', '${casparGuid}')
+					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE) 
+					values (rwh_request_notification_seq.nextval, sysdate,'R', '${casparGuid}', '${casparGuid}', substr('${inputFeedFileName}',1,7))
 				</insertSingle>
 				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${casparGuid}'</selectSurrogateKey>
 				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>

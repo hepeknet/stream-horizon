@@ -40,4 +40,9 @@ public class PositionalMappingHandler implements BulkLoadOutputValueHandler {
 		}
 	}
 
+	@Override
+	public void closeCurrentFeed() {
+
+	}
+
 }

@@ -26,6 +26,9 @@ public class Dimension {
 	@XmlElement
 	private SqlStatements sqlStatements;
 
+	@XmlAttribute(required = false)
+	private String cacheKeyPerFeedInto;
+
 	public String getName() {
 		return name;
 	}
@@ -56,6 +59,14 @@ public class Dimension {
 
 	public void setSqlStatements(final SqlStatements sqlStatements) {
 		this.sqlStatements = sqlStatements;
+	}
+
+	public String getCacheKeyPerFeedInto() {
+		return cacheKeyPerFeedInto;
+	}
+
+	public void setCacheKeyPerFeedInto(final String cacheKeyPerFeedInto) {
+		this.cacheKeyPerFeedInto = cacheKeyPerFeedInto;
 	}
 
 }

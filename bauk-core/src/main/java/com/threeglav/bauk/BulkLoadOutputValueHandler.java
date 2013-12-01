@@ -4,6 +4,8 @@ import java.util.Map;
 
 public interface BulkLoadOutputValueHandler {
 
-	public abstract String getBulkLoadValue(String[] parsedLine, Map<String, String> headerValues, Map<String, String> globalValues);
+	String getBulkLoadValue(String[] parsedLine, Map<String, String> headerValues, Map<String, String> globalValues);
+
+	void closeCurrentFeed();
 
 }

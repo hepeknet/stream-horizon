@@ -8,7 +8,7 @@ import com.threeglav.bauk.dimension.db.SpringJdbcDbHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 
-public class ConfigAware {
+public abstract class ConfigAware {
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 

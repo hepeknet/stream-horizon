@@ -5,8 +5,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.util.StringUtil;
 
 public class HeaderGlobalMappingHandler implements BulkLoadOutputValueHandler {
@@ -57,6 +57,11 @@ public class HeaderGlobalMappingHandler implements BulkLoadOutputValueHandler {
 			return latestGlobalValue;
 		}
 		return null;
+	}
+
+	@Override
+	public void closeCurrentFeed() {
+
 	}
 
 }
