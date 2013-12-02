@@ -58,11 +58,12 @@
 			<afterFeedProcessingCompletion>
 				<sqlStatement>
 				insert into RWHSTG_ETL_BATCH( FILE_ID, FILE_NAME, FILE_TYPE, FILE_CREATED_TIMESTAMP, BUSINESS_DATE, CASPAR_GUID, NUMBER_OF_ROWS, FILE_VALIDATION_FLAG, ERROR_DESCRIPTION) 
-				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${casparGuid}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
+				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${ffn[1]}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
 				</sqlStatement>
 				<sqlStatement>
 				update REQUESTNOTIFICATION set
-  				UNIQUENAME = '${casparGuid}', ANALYTICSREQUESTGUID = '${casparGuid}', PERSISTSTATUS = 'S' where NOTIFICATIONID = ${notificationSk}
+  				UNIQUENAME = '${feed.guid}', ANALYTICSREQUESTGUID = '${feed.guid}', PERSISTSTATUS = 'S', NUMBEROFTASKS = ${feed.taskCount}, NUMBEROFFILES = ${feed.fileCount}, NUMBEROFPERSISTEDTASKS = ${feed.persistedTaskCount} 
+  				where NOTIFICATIONID = ${notificationSk}
 				</sqlStatement>
 			</afterFeedProcessingCompletion>
 			<threadPoolSizes>
@@ -72,7 +73,7 @@
 		</factFeed>
 		<factFeed name="dataFeed" type="full">
 			<fileNameMasks>
-				<fileNameMask>.*done</fileNameMask>
+				<fileNameMask>.*FEED.*done</fileNameMask>
 			</fileNameMasks>
 			<delimiterString>^$</delimiterString>
 			<header process="strict">
@@ -313,14 +314,14 @@
 		</dimension>
 		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
 			<mappedColumns>
-				<mappedColumn name="guid" naturalKey="true" />
+				<mappedColumn name="ffn[1]" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
 					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE) 
-					values (rwh_request_notification_seq.nextval, sysdate,'R', '${guid}', '${guid}', substr('${inputFeedFileName}',1,7))
+					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${inputFeedFileName}',1,7))
 				</insertSingle>
-				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${casparGuid}'</selectSurrogateKey>
+				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffAttr_1}'</selectSurrogateKey>
 				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>
 			</sqlStatements>
 		</dimension>
