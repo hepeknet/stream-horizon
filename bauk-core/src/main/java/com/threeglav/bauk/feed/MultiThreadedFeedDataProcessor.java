@@ -44,11 +44,11 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	}
 
 	@Override
-	public void startFeed(final Map<String, String> globalAttributes, final Map<String, String> headerAttributes) {
+	public void startFeed(final Map<String, String> globalAttributes) {
 		if (totalLinesOutputCounter.get() != 0) {
 			throw new IllegalStateException("Expected counter to be 0 but is " + totalLinesOutputCounter.get());
 		}
-		super.startFeed(globalAttributes, headerAttributes);
+		super.startFeed(globalAttributes);
 		allDone = new CountDownLatch(1);
 		expectedLines = null;
 	}
@@ -106,7 +106,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 				final String line = listIterator.next();
 				listIterator.remove();
 				final String[] parsedData = feedParserComponent.parseData(line);
-				final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, headerAttributes, globalAttributes);
+				final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, globalAttributes);
 				outputLines[counter++] = lineForOutput;
 			}
 			drainedElements.clear();

@@ -111,16 +111,19 @@ public class TextFileReaderComponent extends ConfigAware {
 			String line = br.readLine();
 			boolean processedHeader = false;
 			String footerLine = null;
-			Map<String, String> headerAttributes = null;
 			final boolean headerExists = headerProcessingType != HeaderFooterProcessType.NO_HEADER;
 			final boolean skipHeader = headerProcessingType == HeaderFooterProcessType.SKIP;
+			log.debug("For {} header process={}", this.getFactFeed().getName(), headerProcessingType);
 			while (line != null) {
 				if (!processedHeader) {
-					feedDataProcessor.startFeed(globalAttributes, headerAttributes);
+					feedDataProcessor.startFeed(globalAttributes);
 					processedHeader = true;
 					if (headerExists) {
 						if (!skipHeader) {
-							headerAttributes = this.processHeader(line);
+							final Map<String, String> headerAttributes = this.processHeader(line);
+							if (headerAttributes != null) {
+								globalAttributes.putAll(headerAttributes);
+							}
 						} else {
 							log.debug("Skipping header line {}", line);
 						}

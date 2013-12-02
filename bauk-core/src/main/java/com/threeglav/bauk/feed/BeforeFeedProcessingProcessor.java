@@ -29,7 +29,7 @@ public class BeforeFeedProcessingProcessor extends ConfigAware {
 
 	private Map<String, String> processMappedStatement(final MappedResultsSQLStatement mrss, final Map<String, String> globalAttrs) {
 		String statement = mrss.getSqlStatement();
-		statement = StringUtil.replaceAllAttributes(statement, globalAttrs, null, this.getConfig().getDatabaseStringLiteral());
+		statement = StringUtil.replaceAllAttributes(statement, globalAttrs, this.getConfig().getDatabaseStringLiteral());
 		log.debug("Statement to execute is {}", statement);
 		if (mrss.getType() == SqlStatementType.SELECT) {
 			return this.getDbHandler().executeSelectStatement(statement);

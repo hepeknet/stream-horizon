@@ -29,7 +29,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	private static final int MAX_ELEMENTS_LOCAL_MAP = getDimensionLocalCacheSize();
 
-	private final THashMap<String, String> localCache = new THashMap<>();
+	private final Map<String, String> localCache = new THashMap<>();
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -72,7 +72,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName() + "] - total database access times");
 		localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
 				+ "] - local cache clear times");
-		this.preCacheAllKeys();
 		cachePerFeedEnabled = !StringUtil.isEmpty(dimension.getCacheKeyPerFeedInto());
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
@@ -82,6 +81,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			skipCaching = false;
 			log.debug("Caching for {} is enabled", dimension.getName());
 		}
+		this.preCacheAllKeys();
 	}
 
 	private void validate() {
@@ -220,14 +220,14 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> headerAttributes, final Map<String, String> globalAttributes) {
+	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		if (cachePerFeedEnabled && !StringUtil.isEmpty(keyValueCachedPerFeed)) {
 			return keyValueCachedPerFeed;
 		}
 		String surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!skipCaching) {
-			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, headerAttributes);
+			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes);
 			if (naturalCacheKey != null) {
 				surrogateKey = this.getSurrogateKeyFromCache(naturalCacheKey);
 			}
@@ -236,7 +236,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			if (log.isTraceEnabled()) {
 				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
 			}
-			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, headerAttributes, globalAttributes);
+			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes);
 			if (!skipCaching && naturalCacheKey != null) {
 				cacheInstance.put(naturalCacheKey, surrogateKey);
 				this.putInLocalCache(naturalCacheKey, surrogateKey);
@@ -256,22 +256,21 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return surrogateKey;
 	}
 
-	private String getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> headerAttributes,
-			final Map<String, String> globalAttributes) {
+	private String getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		try {
-			return this.tryInsertStatement(parsedLine, headerAttributes, globalAttributes);
+			return this.tryInsertStatement(parsedLine, globalAttributes);
 		} catch (final Exception exc) {
 			log.error("Failed inserting record into database. Will try to select value from database!", exc);
 		}
-		return this.trySelectStatement(parsedLine, headerAttributes, globalAttributes);
+		return this.trySelectStatement(parsedLine, globalAttributes);
 	}
 
-	private String trySelectStatement(final String[] parsedLine, final Map<String, String> headerValues, final Map<String, String> globalAttributes) {
+	private String trySelectStatement(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		final String selectSurrogateKey = dimension.getSqlStatements().getSelectSurrogateKey();
 		if (StringUtil.isEmpty(selectSurrogateKey)) {
 			throw new IllegalArgumentException("Dimension select surrogate key statement is null or empty");
 		}
-		final String preparedStatement = this.prepareStatement(selectSurrogateKey, parsedLine, headerValues, globalAttributes);
+		final String preparedStatement = this.prepareStatement(selectSurrogateKey, parsedLine, globalAttributes);
 		final Long result = this.getDbHandler().executeQueryStatementAndReturnKey(preparedStatement);
 		if (dbAccessCounter != null) {
 			dbAccessCounter.inc();
@@ -283,14 +282,13 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return result.toString();
 	}
 
-	private String tryInsertStatement(final String[] parsedLine, final Map<String, String> headerAttributes,
-			final Map<String, String> globalAttributes) {
+	private String tryInsertStatement(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
 		if (StringUtil.isEmpty(insertStatement)) {
 			throw new IllegalArgumentException("Insert statement for dimension " + dimension.getName()
 					+ " is null or empty. Unable to try inserting value into database.");
 		}
-		final String preparedStatement = this.prepareStatement(insertStatement, parsedLine, headerAttributes, globalAttributes);
+		final String preparedStatement = this.prepareStatement(insertStatement, parsedLine, globalAttributes);
 		final Long result = this.getDbHandler().executeInsertStatementAndReturnKey(preparedStatement);
 		if (dbAccessCounter != null) {
 			dbAccessCounter.inc();
@@ -302,8 +300,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return result.toString();
 	}
 
-	private String prepareStatement(final String statement, final String[] parsedLine, final Map<String, String> headerAttributes,
-			final Map<String, String> globalAttributes) {
+	private String prepareStatement(final String statement, final String[] parsedLine, final Map<String, String> globalAttributes) {
 		if (log.isDebugEnabled()) {
 			final String placeHolderFormat = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + "ATTRIBUTE_NAME"
 					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
@@ -312,9 +309,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 		String stat = this.replaceAllMappedColumnValues(statement, parsedLine);
 		log.debug("Replacing all global attributes {}", globalAttributes);
-		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX, dbStringLiteral);
-		log.debug("Replacing all header attributes {}", headerAttributes);
-		stat = StringUtil.replaceAllAttributes(stat, headerAttributes, BaukConstants.HEADER_ATTRIBUTE_PREFIX, dbStringLiteral);
+		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, dbStringLiteral);
 		log.debug("Final statement is {}", stat);
 		return stat;
 	}

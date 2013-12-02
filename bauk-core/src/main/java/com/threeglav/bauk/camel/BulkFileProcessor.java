@@ -42,8 +42,7 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 			return;
 		}
 		log.debug("Insert statement for bulk loading files is {}", insertStatement);
-		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX,
-				dbStringLiteral);
+		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, dbStringLiteral);
 		log.debug("Statement to execute is {}", replacedStatement);
 		this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement);
 		log.debug("Successfully executed statement {}", replacedStatement);
@@ -57,10 +56,9 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		final OnBulkLoadSuccess onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadSuccess();
 		if (onBulkLoadSuccess != null) {
 			if (onBulkLoadSuccess.getSqlStatements() != null) {
-				log.debug("Will execute on success sql actions. Global attributes {}", globalAttributes);
+				log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
 				for (final String sqlStatement : onBulkLoadSuccess.getSqlStatements()) {
-					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, BaukConstants.GLOBAL_ATTRIBUTE_PREFIX,
-							dbStringLiteral);
+					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, dbStringLiteral);
 					log.debug("Trying to execute statement [{}]", replaced);
 					this.getDbHandler().executeInsertOrUpdateStatement(replaced);
 					log.debug("Successfully finished execution of [{}]", replaced);
@@ -77,7 +75,8 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH, StringUtil.fixFilePath(inputFileAbsolutePath));
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_RECEIVED_TIMESTAMP,
 				String.valueOf(exchange.getIn().getHeader("CamelFileLastModified")));
-		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_PROCESSED_TIMESTAMP, "" + System.currentTimeMillis());
+		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_PROCESSED_TIMESTAMP,
+				String.valueOf(System.currentTimeMillis()));
 		log.debug("Created global attributes {}", attributes);
 		return attributes;
 	}

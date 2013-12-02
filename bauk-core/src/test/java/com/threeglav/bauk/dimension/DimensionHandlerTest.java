@@ -112,13 +112,13 @@ public class DimensionHandlerTest {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final String[] parsedLine = { "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj" };
-		final String key = dh.getBulkLoadValue(parsedLine, null, null);
+		final String key = dh.getBulkLoadValue(parsedLine, null);
 		Assert.assertEquals("100", key);
 		final String nkLookup = "cc" + BaukConstants.NATURAL_KEY_DELIMITER + "dd" + BaukConstants.NATURAL_KEY_DELIMITER + "gg"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "ff" + BaukConstants.NATURAL_KEY_DELIMITER + "aa";
 		Assert.assertEquals(nkLookup, lastRequiredFromCache);
 		Assert.assertEquals(
-				"insert into dim where nk_0=cc and nk_4=aa and nk_2=gg and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2' and mapped1='hh' or mapped2>'jj'",
+				"insert into dim where nk_0=cc and nk_4=aa and nk_2=gg and a='b' and nk_100=${nk_100} or p='${h1}' or p1='h2' and mapped1='hh' or mapped2>'jj'",
 				lastStatementToExecute);
 		lastRequiredFromCache = null;
 		lastStatementToExecute = null;
@@ -128,14 +128,14 @@ public class DimensionHandlerTest {
 	public void testNullParsedLine() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
 				this.createConfig());
-		dh.getBulkLoadValue(null, null, null);
+		dh.getBulkLoadValue(null, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSmallParsedLine() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
 				this.createConfig());
-		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null, null);
+		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null);
 	}
 
 	@Test
@@ -146,13 +146,12 @@ public class DimensionHandlerTest {
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
-		final String key = dh.getBulkLoadValue(parsedLine, null, null);
+		final String key = dh.getBulkLoadValue(parsedLine, null);
 		Assert.assertEquals("100", key);
 		final String nkLookup = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
 		Assert.assertEquals(nkLookup, lastRequiredFromCache);
-		Assert.assertEquals(
-				"insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2'",
+		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='${h1}' or p1='h2'",
 				lastStatementToExecute);
 		lastRequiredFromCache = null;
 		lastStatementToExecute = null;
@@ -165,12 +164,12 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
-		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, null);
+		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues);
 		Assert.assertEquals("100", key1);
 		final String nkLookup1 = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
 		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
-		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
+		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -187,12 +186,12 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
-		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, null);
+		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues);
 		Assert.assertEquals("100", key1);
 		final String nkLookup1 = "d" + BaukConstants.NATURAL_KEY_DELIMITER + "e" + BaukConstants.NATURAL_KEY_DELIMITER + "h"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "g" + BaukConstants.NATURAL_KEY_DELIMITER + "b";
 		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
-		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
+		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -209,11 +208,11 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
-		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, null);
+		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues);
 		Assert.assertEquals("100", key1);
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertEquals(
-				"insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='100' or p1='header.h2'",
+				"insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -286,7 +285,7 @@ public class DimensionHandlerTest {
 		dim.setMappedColumns(naturalKeys);
 		final SqlStatements sqlStatements = new SqlStatements();
 		sqlStatements
-				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2'");
+				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${h1}' or p1='h2'");
 		dim.setSqlStatements(sqlStatements);
 		return dim;
 	}
@@ -311,7 +310,7 @@ public class DimensionHandlerTest {
 		dim.setMappedColumns(naturalKeys);
 		final SqlStatements sqlStatements = new SqlStatements();
 		sqlStatements
-				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${header.h1}' or p1='header.h2' and mapped1='${mapped1}' or mapped2>'${mapped2}'");
+				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${h1}' or p1='h2' and mapped1='${mapped1}' or mapped2>'${mapped2}'");
 		dim.setSqlStatements(sqlStatements);
 		return dim;
 	}

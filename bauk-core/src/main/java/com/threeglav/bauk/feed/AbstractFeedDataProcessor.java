@@ -14,7 +14,6 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	protected final FeedParserComponent feedParserComponent;
 
 	protected Map<String, String> globalAttributes;
-	protected Map<String, String> headerAttributes;
 
 	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier) {
 		super(factFeed, config);
@@ -24,9 +23,8 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	}
 
 	@Override
-	public void startFeed(final Map<String, String> globalAttributes, final Map<String, String> headerAttributes) {
+	public void startFeed(final Map<String, String> globalAttributes) {
 		this.globalAttributes = globalAttributes;
-		this.headerAttributes = headerAttributes;
 		bulkWriter.startWriting(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
 	}
 

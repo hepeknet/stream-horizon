@@ -17,8 +17,8 @@ public class FeedCompletionProcessor extends ConfigAware {
 		for (final String sqlStatement : this.getFactFeed().getAfterFeedProcessingCompletion()) {
 			log.debug("About to execute on-completion statement {} for feed {}. First will prepare it...", sqlStatement, this.getFactFeed().getName());
 			String stat = sqlStatement;
-			stat = StringUtil.replaceAllAttributes(stat, globalAttributes, null, this.getConfig().getDatabaseStringLiteral());
-			stat = StringUtil.replaceAllAttributes(stat, completionAttributes, null, this.getConfig().getDatabaseStringLiteral());
+			stat = StringUtil.replaceAllAttributes(stat, globalAttributes, this.getConfig().getDatabaseStringLiteral());
+			stat = StringUtil.replaceAllAttributes(stat, completionAttributes, this.getConfig().getDatabaseStringLiteral());
 			log.debug("Executing on-completions statement {}", stat);
 			this.getDbHandler().executeInsertOrUpdateStatement(stat);
 			log.debug("Successfully executed {}", stat);

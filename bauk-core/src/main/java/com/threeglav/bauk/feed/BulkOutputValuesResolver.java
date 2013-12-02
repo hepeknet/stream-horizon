@@ -5,11 +5,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
-import com.threeglav.bauk.dimension.HeaderGlobalMappingHandler;
+import com.threeglav.bauk.dimension.GlobalAttributeMappingHandler;
 import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.bauk.model.Attribute;
@@ -116,25 +115,21 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				log.debug(
 						"Value at position {} in bulk output load will be copied directly from value in feed at position {}. Every data line in feed must have {} values",
 						i, foundPosition, feedAttributeNamesAndPositions.size());
-			} else if (bulkOutputAttributeName.startsWith(BaukConstants.HEADER_ATTRIBUTE_PREFIX)
-					|| bulkOutputAttributeName.startsWith(BaukConstants.GLOBAL_ATTRIBUTE_PREFIX)) {
-				final HeaderGlobalMappingHandler cmh = new HeaderGlobalMappingHandler(bulkOutputAttributeName);
+			} else {
+				final GlobalAttributeMappingHandler cmh = new GlobalAttributeMappingHandler(bulkOutputAttributeName);
 				outputValueHandlers[i] = cmh;
 				log.debug("Value at position {} in bulk output load will be mapped value derived from {}", i, bulkOutputAttributeName);
-			} else {
-				throw new IllegalArgumentException("Unknown type of bulk output attribute " + bulkOutputAttributeName
-						+ ". Must be one of: dimension. feed. header. global.");
 			}
 		}
 	}
 
-	public String resolveValues(final String[] inputValues, final Map<String, String> headerData, final Map<String, String> globalData) {
+	public String resolveValues(final String[] inputValues, final Map<String, String> globalData) {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
 			if (i != 0) {
 				sb.append(outputDelimiter);
 			}
-			final String val = outputValueHandlers[i].getBulkLoadValue(inputValues, headerData, globalData);
+			final String val = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
 			sb.append(val);
 		}
 		return sb.toString();

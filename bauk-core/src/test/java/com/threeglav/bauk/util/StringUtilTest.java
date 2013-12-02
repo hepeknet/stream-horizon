@@ -28,28 +28,28 @@ public class StringUtilTest {
 
 	@Test
 	public void testReplaceAllAttributes() {
-		Assert.assertNull(StringUtil.replaceAllAttributes(null, null, null, "'"));
-		Assert.assertEquals(" ", StringUtil.replaceAllAttributes(" ", null, null, "'"));
-		Assert.assertEquals("select 1", StringUtil.replaceAllAttributes("select 1", null, null, "'"));
+		Assert.assertNull(StringUtil.replaceAllAttributes(null, null, "'"));
+		Assert.assertEquals(" ", StringUtil.replaceAllAttributes(" ", null, "'"));
+		Assert.assertEquals("select 1", StringUtil.replaceAllAttributes("select 1", null, "'"));
 		final Map<String, String> attrs = new HashMap<String, String>();
-		attrs.put("a", "1");
-		attrs.put("b", "2");
-		Assert.assertEquals("select 1 from 2", StringUtil.replaceAllAttributes("select ${h.a} from ${h.b}", attrs, "h.", "'"));
-		Assert.assertEquals("select 1 from 2", StringUtil.replaceAllAttributes("select ${a} from ${b}", attrs, null, "'"));
+		attrs.put("h.a", "1");
+		attrs.put("h.b", "2");
+		Assert.assertEquals("select 1 from 2", StringUtil.replaceAllAttributes("select ${h.a} from ${h.b}", attrs, "'"));
+		Assert.assertEquals("select ${a} from ${b}", StringUtil.replaceAllAttributes("select ${a} from ${b}", attrs, "'"));
 	}
 
 	@Test
 	public void testReplaceAttributesNullValues() {
 		final Map<String, String> attrs = new THashMap<String, String>();
-		attrs.put("a", "1");
-		attrs.put("b", "2");
-		attrs.put("c", null);
+		attrs.put("h.a", "1");
+		attrs.put("h.b", "2");
+		attrs.put("h.c", null);
 		Assert.assertEquals("select '1' from '2' where t=NULL",
-				StringUtil.replaceAllAttributes("select '${h.a}' from '${h.b}' where t='${h.c}'", attrs, "h.", "'"));
+				StringUtil.replaceAllAttributes("select '${h.a}' from '${h.b}' where t='${h.c}'", attrs, "'"));
 		Assert.assertEquals("select \"1\" from \"2\" where t=NULL and NULL",
-				StringUtil.replaceAllAttributes("select \"${h.a}\" from \"${h.b}\" where t=\"${h.c}\" and ${h.c}", attrs, "h.", "\""));
+				StringUtil.replaceAllAttributes("select \"${h.a}\" from \"${h.b}\" where t=\"${h.c}\" and ${h.c}", attrs, "\""));
 		Assert.assertEquals("call proc('1') from IS_NULL(2) where t=NULL and p = 'NULL'",
-				StringUtil.replaceAllAttributes("call proc('${h.a}') from IS_NULL(${h.b}) where t='${h.c}' and p = ''${h.c}''", attrs, "h.", "'"));
+				StringUtil.replaceAllAttributes("call proc('${h.a}') from IS_NULL(${h.b}) where t='${h.c}' and p = ''${h.c}''", attrs, "'"));
 	}
 
 	@Test

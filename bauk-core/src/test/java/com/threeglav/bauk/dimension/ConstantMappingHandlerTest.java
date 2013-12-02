@@ -10,35 +10,35 @@ public class ConstantMappingHandlerTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNull() {
-		new HeaderGlobalMappingHandler(null);
+		new GlobalAttributeMappingHandler(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testEmpty() {
-		new HeaderGlobalMappingHandler(" ");
+		new GlobalAttributeMappingHandler(" ");
 	}
 
 	@Test
 	public void testSimple() {
-		final HeaderGlobalMappingHandler cmh = new HeaderGlobalMappingHandler("header.h1");
+		final GlobalAttributeMappingHandler cmh = new GlobalAttributeMappingHandler("h1");
 		Map<String, String> hvalues = new HashMap<String, String>();
 		hvalues.put("h1", "a");
 		hvalues.put("h2", "b");
-		Assert.assertEquals("a", cmh.getBulkLoadValue(null, hvalues, null));
+		Assert.assertEquals("a", cmh.getBulkLoadValue(null, hvalues));
 		hvalues = new HashMap<String, String>();
 		hvalues.put("h1", "c");
 		hvalues.put("h2", "b");
-		Assert.assertEquals("c", cmh.getBulkLoadValue(null, hvalues, null));
+		Assert.assertEquals("c", cmh.getBulkLoadValue(null, hvalues));
 
-		final HeaderGlobalMappingHandler cmh1 = new HeaderGlobalMappingHandler("global.g1");
+		final GlobalAttributeMappingHandler cmh1 = new GlobalAttributeMappingHandler("g1");
 		Map<String, String> gvalues = new HashMap<String, String>();
 		gvalues.put("g1", "a");
 		gvalues.put("g2", "b");
-		Assert.assertEquals("a", cmh1.getBulkLoadValue(null, null, gvalues));
+		Assert.assertEquals("a", cmh1.getBulkLoadValue(null, gvalues));
 		gvalues = new HashMap<String, String>();
 		gvalues.put("g1", "c");
 		gvalues.put("g2", "b");
-		Assert.assertEquals("c", cmh1.getBulkLoadValue(null, null, gvalues));
+		Assert.assertEquals("c", cmh1.getBulkLoadValue(null, gvalues));
 	}
 
 }

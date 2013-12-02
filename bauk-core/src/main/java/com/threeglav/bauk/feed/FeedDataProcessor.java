@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface FeedDataProcessor {
 
-	void startFeed(final Map<String, String> globalAttributes, Map<String, String> headerAttributes);
+	void startFeed(final Map<String, String> globalAttributes);
 
 	void processLine(final String line);
 

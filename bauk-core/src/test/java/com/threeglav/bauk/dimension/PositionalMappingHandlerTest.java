@@ -29,7 +29,7 @@ public class PositionalMappingHandlerTest {
 		}
 		try {
 			final PositionalMappingHandler pmh = new PositionalMappingHandler(2, 3);
-			pmh.getBulkLoadValue(new String[] { "1" }, null, null);
+			pmh.getBulkLoadValue(new String[] { "1" }, null);
 			fail("nok");
 		} catch (final IllegalArgumentException iae) {
 			Assert.assertTrue(true);
@@ -39,7 +39,7 @@ public class PositionalMappingHandlerTest {
 	@Test
 	public void testSimple() {
 		final PositionalMappingHandler pmh = new PositionalMappingHandler(2, 4);
-		Assert.assertEquals("c", pmh.getBulkLoadValue(new String[] { "a", "b", "c", "d" }, null, null));
+		Assert.assertEquals("c", pmh.getBulkLoadValue(new String[] { "a", "b", "c", "d" }, null));
 	}
 
 }

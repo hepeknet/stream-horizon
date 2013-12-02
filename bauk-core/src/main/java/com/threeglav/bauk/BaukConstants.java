@@ -11,9 +11,6 @@ public interface BaukConstants {
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE = "inputFeedFileSize";
 	public static final String IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH = "bulkLoadOutputFilePath";
 
-	public static final String HEADER_ATTRIBUTE_PREFIX = "header.";
-	public static final String GLOBAL_ATTRIBUTE_PREFIX = "global.";
-
 	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH = "bulkFilePath";
 	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME = "bulkFileName";
 	public static final String IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_RECEIVED_TIMESTAMP = "bulkFileReceivedTimestamp";

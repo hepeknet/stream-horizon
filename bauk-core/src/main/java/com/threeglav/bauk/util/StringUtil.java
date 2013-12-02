@@ -35,8 +35,7 @@ public abstract class StringUtil {
 		return fileName;
 	}
 
-	public static String replaceAllAttributes(final String statement, final Map<String, String> attributes, final String attributePrefix,
-			final String dbStringLiteral) {
+	public static String replaceAllAttributes(final String statement, final Map<String, String> attributes, final String dbStringLiteral) {
 		if (StringUtil.isEmpty(dbStringLiteral)) {
 			throw new IllegalArgumentException("String literal must not be null or empty!");
 		}
@@ -49,10 +48,7 @@ public abstract class StringUtil {
 			return statement;
 		}
 		LOG.debug("Replacing all attributes {} in [{}]", attributes, statement);
-		String prefix = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START;
-		if (!isEmpty(attributePrefix)) {
-			prefix = prefix + attributePrefix;
-		}
+		final String prefix = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START;
 		String replaced = statement;
 		for (final String key : attributes.keySet()) {
 			final String placeHolder = prefix + key + BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;

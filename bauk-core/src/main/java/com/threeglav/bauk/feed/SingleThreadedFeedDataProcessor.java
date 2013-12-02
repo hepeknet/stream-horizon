@@ -12,7 +12,7 @@ public class SingleThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	@Override
 	public void processLine(final String line) {
 		final String[] parsedData = feedParserComponent.parseData(line);
-		final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, headerAttributes, globalAttributes);
+		final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, globalAttributes);
 		bulkWriter.write(lineForOutput);
 		bulkWriter.write("\n");
 	}
