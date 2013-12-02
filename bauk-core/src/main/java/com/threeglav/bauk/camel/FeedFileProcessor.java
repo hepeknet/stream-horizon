@@ -178,18 +178,17 @@ class FeedFileProcessor implements Processor {
 	}
 
 	private void processStreamWithCompletion(final InputStream inputStream, final Map<String, String> globalAttributes) {
-		final Map<String, String> completionAttributes = new THashMap<>();
 		try {
 			final int numberOfLineProcessed = textFileReaderComponent.process(inputStream, globalAttributes);
-			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED, String.valueOf(numberOfLineProcessed));
-			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "S");
-			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, "");
+			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED, String.valueOf(numberOfLineProcessed));
+			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "S");
+			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, "");
 		} catch (final Exception exc) {
-			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, exc.getMessage());
-			completionAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "F");
+			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, exc.getMessage());
+			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "F");
 		}
-		log.debug("Completion attributes for {} are {}", factFeed.getName(), completionAttributes);
-		feedCompletionProcessor.process(globalAttributes, completionAttributes);
+		log.debug("Global attributes (including completion attributes) for {} are {}", factFeed.getName(), globalAttributes);
+		feedCompletionProcessor.process(globalAttributes);
 	}
 
 	private void processInputStream(final Exchange exchange, final InputStream inputStream, final String fullFilePath, final Long lastModified,

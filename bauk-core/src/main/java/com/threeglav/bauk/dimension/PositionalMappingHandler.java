@@ -45,4 +45,9 @@ public final class PositionalMappingHandler implements BulkLoadOutputValueHandle
 
 	}
 
+	@Override
+	public void calculatePerFeedValues(final Map<String, String> globalValues) {
+
+	}
+
 }

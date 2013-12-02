@@ -22,4 +22,9 @@ public final class ConstantOutputValueHandler implements BulkLoadOutputValueHand
 
 	}
 
+	@Override
+	public void calculatePerFeedValues(final Map<String, String> globalValues) {
+
+	}
+
 }

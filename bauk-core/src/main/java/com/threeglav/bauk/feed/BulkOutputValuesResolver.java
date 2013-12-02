@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
+import com.threeglav.bauk.dimension.CachedPerFeedDimensionHandler;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.GlobalAttributeMappingHandler;
@@ -97,8 +98,15 @@ public class BulkOutputValuesResolver extends ConfigAware {
 						throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name ["
 								+ requiredDimensionName + "]. This dimension is used to create bulk output! Please check your configuration!");
 					}
-					final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim
-							.getName()), feedDataLineOffset, routeIdentifier, this.getConfig());
+					final boolean cachePerFeedDimension = !StringUtil.isEmpty(dim.getCacheKeyPerFeedInto());
+					DimensionHandler dimHandler = null;
+					if (cachePerFeedDimension) {
+						dimHandler = new CachedPerFeedDimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
+								feedDataLineOffset, routeIdentifier, this.getConfig());
+					} else {
+						dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
+								feedDataLineOffset, routeIdentifier, this.getConfig());
+					}
 					cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 					outputValueHandlers[i] = dimHandler;
 				}
@@ -121,6 +129,14 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				log.debug("Value at position {} in bulk output load will be mapped value derived from {}", i, bulkOutputAttributeName);
 			}
 		}
+	}
+
+	public void startFeed(final Map<String, String> globalData) {
+		log.debug("Starting feed with attributes {}", globalData);
+		for (int i = 0; i < outputValueHandlers.length; i++) {
+			outputValueHandlers[i].calculatePerFeedValues(globalData);
+		}
+		log.debug("Started feed. In total {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
 	}
 
 	public String resolveValues(final String[] inputValues, final Map<String, String> globalData) {

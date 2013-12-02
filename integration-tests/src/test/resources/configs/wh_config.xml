@@ -20,7 +20,7 @@
 			<data process="normal">
 				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
 				<attributes>
-					<attribute name="casparGuid" />
+					<attribute name="guid" />
 					<attribute name="runGuid" />
 					<attribute name="taskCount" />
 					<attribute name="fileCount" />
@@ -40,7 +40,7 @@
 					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
 					<attributes>
-						<attribute name="feed.casparGuid" />
+						<attribute name="feed.guid" />
 						<attribute name="dimension.REQUESTNOTIFICATION" />
 					</attributes>
 				</bulkLoadFormatDefinition>
@@ -313,12 +313,12 @@
 		</dimension>
 		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
 			<mappedColumns>
-				<mappedColumn name="casparGuid" naturalKey="true" />
+				<mappedColumn name="guid" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
 					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE) 
-					values (rwh_request_notification_seq.nextval, sysdate,'R', '${casparGuid}', '${casparGuid}', substr('${inputFeedFileName}',1,7))
+					values (rwh_request_notification_seq.nextval, sysdate,'R', '${guid}', '${guid}', substr('${inputFeedFileName}',1,7))
 				</insertSingle>
 				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${casparGuid}'</selectSurrogateKey>
 				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>

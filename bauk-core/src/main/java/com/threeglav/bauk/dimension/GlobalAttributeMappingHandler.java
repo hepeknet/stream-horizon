@@ -37,4 +37,9 @@ public final class GlobalAttributeMappingHandler implements BulkLoadOutputValueH
 
 	}
 
+	@Override
+	public void calculatePerFeedValues(final Map<String, String> globalValues) {
+
+	}
+
 }

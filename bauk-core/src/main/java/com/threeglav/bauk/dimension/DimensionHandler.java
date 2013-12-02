@@ -31,9 +31,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	private final Map<String, String> localCache = new THashMap<>();
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final Dimension dimension;
+	protected final Dimension dimension;
 	private String[] mappedColumnNames;
 	private int[] mappedColumnsPositionsInFeed;
 	private String[] naturalKeyNames;
@@ -44,10 +44,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
 	private final boolean skipCaching;
-
-	// used for caching per feed value (SK) for dimension
-	private final boolean cachePerFeedEnabled;
-	private String keyValueCachedPerFeed;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
@@ -72,7 +68,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName() + "] - total database access times");
 		localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
 				+ "] - local cache clear times");
-		cachePerFeedEnabled = !StringUtil.isEmpty(dimension.getCacheKeyPerFeedInto());
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
 			skipCaching = true;
@@ -144,7 +139,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			int naturalKeyPositionValue;
 			if (attrPosition == null) {
 				naturalKeyPositionValue = NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION;
-				log.debug("Was not able to find mapping for {}.{} in feed. Will expect this value to be found in header/global attributes",
+				log.debug("Was not able to find mapping for {}.{} in feed. Will expect this value to be found in global attributes",
 						dimension.getName(), mappedColumnName);
 			} else {
 				naturalKeyPositionValue = attrPosition + mappedColumnsPositionOffset;
@@ -175,7 +170,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.debug("Trying to find position in feed for mapped column {} for dimension {}", mappedColumnName, dimension.getName());
 			final Integer attrPosition = dataAttributesAndPositions.get(mappedColumnName);
 			if (attrPosition == null) {
-				log.debug("Could not find mapping for {}.{} in feed. Will expect this value to be mapped from header or global!",
+				log.debug("Could not find mapping for {}.{} in feed. Will expect this value to be mapped from global attributes!",
 						dimension.getName(), mappedColumnName);
 				mappedColumnPositionValue = NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION;
 			} else {
@@ -221,9 +216,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	@Override
 	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		if (cachePerFeedEnabled && !StringUtil.isEmpty(keyValueCachedPerFeed)) {
-			return keyValueCachedPerFeed;
-		}
 		String surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!skipCaching) {
@@ -245,14 +237,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
 		log.trace("Resolved surrogate key is {}", surrogateKey);
-		if (cachePerFeedEnabled) {
-			log.debug("Cached surrogate key {} for dimension {} for feed", surrogateKey, dimension.getName());
-			keyValueCachedPerFeed = surrogateKey;
-			if (keyValueCachedPerFeed != null) {
-				globalAttributes.put(dimension.getCacheKeyPerFeedInto(), keyValueCachedPerFeed);
-				log.trace("After caching per feed global attributes are {}", globalAttributes);
-			}
-		}
 		return surrogateKey;
 	}
 
@@ -315,7 +299,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private String replaceAllMappedColumnValues(final String statement, final String[] parsedLine) {
-		if (mappedColumnNames == null) {
+		if (mappedColumnNames == null || parsedLine == null) {
 			return statement;
 		}
 		String replaced = statement;
@@ -361,23 +345,23 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		localCache.put(cacheKey, cachedValue);
 	}
 
-	private String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> headerAttributes) {
+	private String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		final String[] naturalKeyValues = new String[naturalKeyNames.length];
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			final int key = naturalKeyPositionsInFeed[i];
-			if (parsedLine.length <= key) {
+			if (parsedLine != null && parsedLine.length <= key) {
 				throw new IllegalArgumentException("Parsed line has less values than needed " + key);
 			}
 			String value = null;
-			if (key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
+			if (parsedLine == null || key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
 				final String attributeName = naturalKeyNames[i];
 				if (attributeName != null) {
-					final String headerAttribute = headerAttributes.get(attributeName);
+					final String globalAttributeValue = globalAttributes.get(attributeName);
 					if (log.isDebugEnabled()) {
-						log.debug("Natural key {}.{} is not mapped to feed attributes. Found value {} in header attributes", dimension.getName(),
-								attributeName, headerAttribute);
+						log.debug("Natural key {}.{} is not mapped to feed attributes. Found value [{}] in global attributes", dimension.getName(),
+								attributeName, globalAttributeValue);
 					}
-					value = headerAttribute;
+					value = globalAttributeValue;
 				}
 			} else {
 				value = parsedLine[key];
@@ -417,9 +401,10 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	@Override
 	public void closeCurrentFeed() {
-		if (cachePerFeedEnabled) {
-			keyValueCachedPerFeed = null;
-		}
+	}
+
+	@Override
+	public void calculatePerFeedValues(final Map<String, String> globalValues) {
 	}
 
 }
