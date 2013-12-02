@@ -358,8 +358,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				if (attributeName != null) {
 					final String globalAttributeValue = globalAttributes.get(attributeName);
 					if (log.isDebugEnabled()) {
-						log.debug("Natural key {}.{} is not mapped to feed attributes. Found value [{}] in global attributes", dimension.getName(),
-								attributeName, globalAttributeValue);
+						log.debug("Natural key {}.{} is not mapped to any of declared feed attributes. Found value [{}] in global attributes",
+								dimension.getName(), attributeName, globalAttributeValue);
 					}
 					value = globalAttributeValue;
 				}

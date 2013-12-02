@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -15,8 +16,10 @@ import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.header.DefaultHeaderParser;
 import com.threeglav.bauk.header.HeaderParser;
+import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.model.FactFeedType;
 import com.threeglav.bauk.model.HeaderFooter;
 import com.threeglav.bauk.model.HeaderFooterProcessType;
 import com.threeglav.bauk.parser.FeedParser;
@@ -36,6 +39,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final String[] declaredHeaderAttributes;
 	private final FeedDataProcessor feedDataProcessor;
 	private final HeaderFooterProcessType headerProcessingType;
+	private final boolean isControlFeed;
 
 	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
@@ -58,6 +62,10 @@ public class TextFileReaderComponent extends ConfigAware {
 		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
 		log.debug("Read buffer size is {}", bufferSize);
+		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
+		if (isControlFeed) {
+			log.info("Feed {} will be treated as control feed", this.getFactFeed().getName());
+		}
 	}
 
 	private boolean checkProcessHeader() {
@@ -131,10 +139,19 @@ public class TextFileReaderComponent extends ConfigAware {
 						feedDataProcessor.processLine(line);
 						feedLinesNumber++;
 					}
-					line = br.readLine();
+					final String nextLine = br.readLine();
+					if (nextLine == null) {
+						if (isControlFeed) {
+							this.exposeFeedDataAsAttributes(line, globalAttributes);
+						}
+					}
+					line = nextLine;
 				} else {
 					final String nextLine = br.readLine();
 					if (nextLine == null) {
+						if (isControlFeed) {
+							this.exposeFeedDataAsAttributes(line, globalAttributes);
+						}
 						if (processAndValidateFooter) {
 							footerLine = line;
 						} else {
@@ -162,6 +179,30 @@ public class TextFileReaderComponent extends ConfigAware {
 		} finally {
 			IOUtils.closeQuietly(fileInputStream);
 		}
+	}
+
+	private void exposeFeedDataAsAttributes(final String feedDataLine, final Map<String, String> globalAttributes) {
+		final String ffName = this.getFactFeed().getName();
+		if (StringUtil.isEmpty(feedDataLine)) {
+			throw new IllegalStateException("Last line for control feed " + ffName + " is null or empty!");
+		}
+		log.debug("Exposing last line {} as global attributes for control feed {}", feedDataLine, ffName);
+		final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
+		final String[] splitLine = feedParser.parse(feedDataLine);
+		final ArrayList<Attribute> ffDataAttrs = this.getFactFeed().getData().getAttributes();
+		if (splitLine.length != ffDataAttrs.size()) {
+			log.error("Control feed " + ffName + " declared " + ffDataAttrs.size() + " data attributes but last line only has " + splitLine.length
+					+ " values!");
+			throw new IllegalStateException("Control feed " + ffName + " declared " + ffDataAttrs.size() + " data attributes but last line only has "
+					+ splitLine.length + " values!");
+		}
+		for (int i = 0; i < ffDataAttrs.size(); i++) {
+			final Attribute attr = ffDataAttrs.get(i);
+			final String attrName = attr.getName();
+			globalAttributes.put(attrName, splitLine[i]);
+			log.debug("Added {}={} to global attributes for control feed {}", attrName, splitLine[i], ffName);
+		}
+		log.trace("After adding control attributes {}", globalAttributes);
 	}
 
 	private void processFooter(final int feedLinesNumber, final String footerLine) {

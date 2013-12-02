@@ -34,7 +34,7 @@ public class FeedParserComponent extends ConfigAware {
 		}
 		if (fft == FactFeedType.DELTA) {
 			feedParser = new DeltaFeedParser(delimiter);
-		} else if (fft == FactFeedType.FULL) {
+		} else if (fft == FactFeedType.FULL || fft == FactFeedType.CONTROL) {
 			feedParser = new FullFeedParser(delimiter);
 		} else if (fft == FactFeedType.REPETITIVE) {
 			feedParser = new RepetitiveFeedParser(delimiter, 0);

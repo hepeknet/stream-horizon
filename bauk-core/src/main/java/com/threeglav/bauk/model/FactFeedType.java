@@ -15,6 +15,13 @@ public enum FactFeedType {
 	REPETITIVE,
 
 	@XmlEnumValue("delta")
-	DELTA;
+	DELTA,
+
+	/**
+	 * For this feed type we make row values available to post completion statements. Also, bulk output is not required
+	 * for this type of feeds
+	 */
+	@XmlEnumValue("control")
+	CONTROL;
 
 }

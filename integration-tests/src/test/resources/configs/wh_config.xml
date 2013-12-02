@@ -11,7 +11,7 @@
 	</connectionProperties>
 	<databaseStringLiteral>'</databaseStringLiteral>
 	<factFeeds>
-		<factFeed name="NOTIF" type="full">
+		<factFeed name="NOTIF" type="control">
 			<fileNameMasks>
 				<fileNameMask>.*NOTIF.*</fileNameMask>
 			</fileNameMasks>
@@ -62,7 +62,7 @@
 				</sqlStatement>
 				<sqlStatement>
 				update REQUESTNOTIFICATION set
-  				UNIQUENAME = '${feed.guid}', ANALYTICSREQUESTGUID = '${feed.guid}', PERSISTSTATUS = 'S', NUMBEROFTASKS = ${feed.taskCount}, NUMBEROFFILES = ${feed.fileCount}, NUMBEROFPERSISTEDTASKS = ${feed.persistedTaskCount} 
+  				UNIQUENAME = '${guid}', ANALYTICSREQUESTGUID = '${guid}', PERSISTSTATUS = 'S', NUMBEROFTASKS = ${taskCount}, NUMBEROFFILES = ${fileCount}, NUMBEROFPERSISTEDTASKS = ${persistedTaskCount} 
   				where NOTIFICATIONID = ${notificationSk}
 				</sqlStatement>
 			</afterFeedProcessingCompletion>
@@ -321,7 +321,7 @@
 					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE) 
 					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${inputFeedFileName}',1,7))
 				</insertSingle>
-				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffAttr_1}'</selectSurrogateKey>
+				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffn[1]}'</selectSurrogateKey>
 				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>
 			</sqlStatements>
 		</dimension>
