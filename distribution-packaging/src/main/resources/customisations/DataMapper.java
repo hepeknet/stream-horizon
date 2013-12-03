@@ -1,8 +1,8 @@
-import com.threeglav.bauk.feed.FeedProcessor;
+import com.threeglav.bauk.feed.FeedDataLineProcessor;
 
-public class DataMapper implements FeedProcessor {
+public class DataMapper implements FeedDataLineProcessor {
 
-	public String[] preProcess(String[] parsedDataLine){
+	public String[] preProcessDataLine(String[] parsedDataLine){
 		for(int i=0;i<parsedDataLine.length;i++){
 			parsedDataLine[i] = "Some new value";
 		}
