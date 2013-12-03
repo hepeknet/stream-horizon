@@ -1,6 +1,8 @@
 package com.threeglav.bauk.util;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,6 +107,31 @@ public abstract class StringUtil {
 			return fullClassName.substring(lastIndexOfDot + 1);
 		}
 		return fullClassName;
+	}
+
+	public static Set<String> collectAllAttributesFromString(final String str) {
+		if (StringUtil.isEmpty(str)) {
+			return null;
+		}
+		final Set<String> attributes = new HashSet<>();
+		int fromIndex = 0;
+		while (true) {
+			final int indexOfPlaceholderStart = str.indexOf(BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START, fromIndex);
+			if (indexOfPlaceholderStart != -1) {
+				final int indexOfPlaceHolderEnd = str.indexOf(BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END, indexOfPlaceholderStart);
+				if (indexOfPlaceHolderEnd != -1) {
+					final String attributeName = str.substring(
+							indexOfPlaceholderStart + BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START.length(), indexOfPlaceHolderEnd);
+					attributes.add(attributeName);
+					fromIndex = indexOfPlaceHolderEnd;
+				} else {
+					break;
+				}
+			} else {
+				break;
+			}
+		}
+		return attributes;
 	}
 
 }

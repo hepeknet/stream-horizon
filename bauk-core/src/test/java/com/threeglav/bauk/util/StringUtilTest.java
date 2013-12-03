@@ -4,6 +4,7 @@ import gnu.trove.map.hash.THashMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,6 +59,36 @@ public class StringUtilTest {
 		Assert.assertEquals(" ", StringUtil.getSimpleClassName(" "));
 		Assert.assertEquals("abc", StringUtil.getSimpleClassName("abc"));
 		Assert.assertEquals("StringUtilTest", StringUtil.getSimpleClassName(this.getClass().getName()));
+	}
+
+	@Test
+	public void testCollectAllAttributes() {
+		Assert.assertNull(StringUtil.collectAllAttributesFromString(null));
+		Assert.assertNull(StringUtil.collectAllAttributesFromString(" "));
+		Assert.assertTrue(StringUtil.collectAllAttributesFromString("select 1 from 2").isEmpty());
+		Assert.assertTrue(StringUtil.collectAllAttributesFromString("select ${1 from 2").isEmpty());
+		Assert.assertTrue(StringUtil.collectAllAttributesFromString("select $1 from 2").isEmpty());
+		Assert.assertTrue(StringUtil.collectAllAttributesFromString("select $1 from 2}").isEmpty());
+		Assert.assertTrue(StringUtil.collectAllAttributesFromString("select ${ {1{ from 2").isEmpty());
+		final Set<String> res = StringUtil.collectAllAttributesFromString("${a} ${b} ${c} {kk} ${ee}");
+		Assert.assertEquals(4, res.size());
+		Assert.assertTrue(res.contains("a"));
+		Assert.assertTrue(res.contains("b"));
+		Assert.assertTrue(res.contains("c"));
+		Assert.assertTrue(res.contains("ee"));
+
+		final Set<String> res1 = StringUtil.collectAllAttributesFromString("abc def ${{ a} ${b}} ${cc$} {kk}$ ${${ee}");
+		Assert.assertEquals(4, res1.size());
+		Assert.assertTrue(res1.contains("{ a"));
+		Assert.assertTrue(res1.contains("b"));
+		Assert.assertTrue(res1.contains("cc$"));
+		Assert.assertTrue(res1.contains("${ee"));
+
+		final Set<String> res2 = StringUtil.collectAllAttributesFromString("abc def ${abc");
+		Assert.assertEquals(0, res2.size());
+
+		final Set<String> res3 = StringUtil.collectAllAttributesFromString("abc def ${");
+		Assert.assertEquals(0, res3.size());
 	}
 
 }

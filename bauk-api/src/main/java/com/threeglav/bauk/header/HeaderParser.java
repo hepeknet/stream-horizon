@@ -14,7 +14,7 @@ public interface HeaderParser {
 	 * Method to parse header line and returning all parsed, individual header attributes, used later.
 	 * 
 	 * @param headerLine
-	 *            full, unparsed header line
+	 *            full, unparsed header line. Might start with control character.
 	 * @param declaredHeaderAttributeNames
 	 *            all declared header attributes (as in configuration)
 	 * @param configuredHeaderStartsWithString
