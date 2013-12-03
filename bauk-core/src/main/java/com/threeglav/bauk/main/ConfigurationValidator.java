@@ -9,6 +9,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
@@ -66,6 +67,8 @@ public class ConfigurationValidator {
 
 	private void checkValidityOfAttributes() {
 		log.info("Checking validity of declared attributes in configuration");
+		final List<String> implicitlyDeclaredAttributes = this.getImplicitDeclaredAttributes();
+		log.info("Implicit attributes are {}", implicitlyDeclaredAttributes);
 		final Set<String> attributesUsedInConfiguration = this.getAllUsedAttributes();
 		final Set<String> attributesDeclaredInConfiguration = this.getAllDeclaredAttributes();
 		final int sizeUsed = attributesUsedInConfiguration.size();
@@ -246,6 +249,26 @@ public class ConfigurationValidator {
 				}
 			}
 		}
+		return attrs;
+	}
+
+	private List<String> getImplicitDeclaredAttributes() {
+		final List<String> attrs = new LinkedList<>();
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE);
+
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP);
+
+		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG);
+		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED);
+		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION);
 		return attrs;
 	}
 

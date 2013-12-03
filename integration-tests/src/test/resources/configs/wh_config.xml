@@ -35,7 +35,7 @@
 			<footer process="skip" />
 			<bulkLoadDefinition>
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
-				<bulkLoadInsertStatement>LOAD DATA INFILE '${global.bulkFilePath}'
+				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}'
 					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
 					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
@@ -225,9 +225,9 @@
 			<sqlStatements>
 				<insertSingle>
 					insert into rwh_portfolio_dim(portfolio_dim_wid, portfolio_name)
-    				values (rwh_portfolio_seq.nextval, '${header.portfolio}')
+    				values (rwh_portfolio_seq.nextval, '${portfolio}')
 				</insertSingle>
-				<selectSurrogateKey>select portfolio_dim_wid from rwh_portfolio_dim where portfolio_name='${header.portfolio}'</selectSurrogateKey>
+				<selectSurrogateKey>select portfolio_dim_wid from rwh_portfolio_dim where portfolio_name='${portfolio}'</selectSurrogateKey>
 				<preCacheKeys>select portfolio_dim_wid, portfolio_name from rwh_portfolio_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>

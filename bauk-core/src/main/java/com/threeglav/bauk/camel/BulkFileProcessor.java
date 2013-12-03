@@ -73,9 +73,9 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
 		final String inputFileAbsolutePath = (String) exchange.getIn().getHeader("CamelFileAbsolutePath");
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH, StringUtil.fixFilePath(inputFileAbsolutePath));
-		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_RECEIVED_TIMESTAMP,
+		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP,
 				String.valueOf(exchange.getIn().getHeader("CamelFileLastModified")));
-		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_FILE_BULK_FILE_PROCESSED_TIMESTAMP,
+		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP,
 				String.valueOf(System.currentTimeMillis()));
 		log.debug("Created global attributes {}", attributes);
 		return attributes;
