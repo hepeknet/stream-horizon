@@ -17,6 +17,7 @@
   </appender>
   
   <logger name="com.threeglav" level="WARN"/>
+  <logger name="com.hazelcast" level="WARN"/>
         
   <root level="WARN">
     <appender-ref ref="FILE" />

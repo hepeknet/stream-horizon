@@ -79,13 +79,10 @@ public class ClassResolver<T> {
 		final CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 		final boolean success = task.call();
 		for (final Diagnostic diagnostic : diagnostics.getDiagnostics()) {
-			log.error(diagnostic.getCode());
-			log.error("" + diagnostic.getKind());
-			log.error("" + diagnostic.getPosition());
-			log.error("" + diagnostic.getStartPosition());
-			log.error("" + diagnostic.getEndPosition());
-			log.error("" + diagnostic.getSource());
-			log.error(diagnostic.getMessage(null));
+			log.error("cd code: {}, cd: kind {}", diagnostic.getCode(), diagnostic.getKind());
+			log.error("cd position: {}, start {}, end {}", diagnostic.getPosition(), diagnostic.getStartPosition(), diagnostic.getEndPosition());
+			log.error("cd source {}", diagnostic.getSource());
+			log.error("cd message: {}", diagnostic.getMessage(null));
 		}
 		if (success) {
 			log.debug("Successfully compiled {}", sourceCode);

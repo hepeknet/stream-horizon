@@ -12,7 +12,7 @@ set "JAVA_OPTS=-server -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseString
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000"
 set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.home=%RESOLVED_HOME% -Dbauk.config=d:/projects/test/baukConfig.xml"
 
-set CONFIG_OPTIONS="-Dlogback.configurationFile=%RESOLVED_HOME%\config\logback.xml"
+set "CONFIG_OPTIONS=-Dlogback.configurationFile=%RESOLVED_HOME%\config\logback.xml -Dhazelcast.config=%RESOLVED_HOME%\config\bauk-hazelcast-config.xml"
 
 set JAVA_CP="%RESOLVED_HOME%\lib\*;%RESOLVED_HOME%\extras\*;%RESOLVED_HOME%\config\baukConfig.xml"
 
