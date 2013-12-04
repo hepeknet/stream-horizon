@@ -1,12 +1,14 @@
-package com.threeglav.bauk.feed;
+package com.threeglav.bauk.feed.processing;
 
 import java.util.Map;
 
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
-import com.threeglav.bauk.feed.bulk.writer.BulkFileWriter;
+import com.threeglav.bauk.feed.BulkOutputValuesResolver;
+import com.threeglav.bauk.feed.FeedParserComponent;
 import com.threeglav.bauk.feed.bulk.writer.BulkOutputWriter;
+import com.threeglav.bauk.feed.bulk.writer.FileBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.NullBulkOutputWriter;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
@@ -25,7 +27,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		final BulkLoadDefinitionOutputType outputType = factFeed.getBulkLoadDefinition().getOutputType();
 		if (outputType == BulkLoadDefinitionOutputType.FILE) {
 			log.info("Will output bulk output results for feed {} to file", factFeed.getName());
-			bulkOutputWriter = new BulkFileWriter(factFeed, config);
+			bulkOutputWriter = new FileBulkOutputWriter(factFeed, config);
 		} else if (outputType == BulkLoadDefinitionOutputType.NONE) {
 			log.info("Will not output any bulk output results for feed {}", factFeed.getName());
 			bulkOutputWriter = new NullBulkOutputWriter();
@@ -39,14 +41,16 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	@Override
 	public void startFeed(final Map<String, String> globalAttributes) {
 		this.globalAttributes = globalAttributes;
+		log.debug("Starting new feed with global attributes {}", globalAttributes);
 		bulkoutputResolver.startFeed(globalAttributes);
-		bulkOutputWriter.startWriting(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
+		bulkOutputWriter.initialize(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
 	}
 
 	@Override
 	public void closeFeed(final int expectedResults) {
 		bulkOutputWriter.closeResources();
 		bulkoutputResolver.closeCurrentFeed();
+		log.debug("Closed feed. Expected results {}", expectedResults);
 	}
 
 }

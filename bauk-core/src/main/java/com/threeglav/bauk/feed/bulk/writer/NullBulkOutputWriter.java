@@ -3,11 +3,11 @@ package com.threeglav.bauk.feed.bulk.writer;
 public final class NullBulkOutputWriter implements BulkOutputWriter {
 
 	@Override
-	public void startWriting(final String outputFilePath) {
+	public void initialize(final String outputFilePath) {
 	}
 
 	@Override
-	public void write(final String line) {
+	public void doOutput(final String line) {
 	}
 
 	@Override

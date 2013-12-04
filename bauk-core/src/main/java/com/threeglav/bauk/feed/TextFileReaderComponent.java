@@ -15,6 +15,7 @@ import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
+import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.header.DefaultHeaderParser;
 import com.threeglav.bauk.header.HeaderParser;
 import com.threeglav.bauk.model.Attribute;

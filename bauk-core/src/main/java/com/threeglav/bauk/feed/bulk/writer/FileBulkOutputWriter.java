@@ -13,12 +13,12 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
 
-public class BulkFileWriter extends ConfigAware implements BulkOutputWriter {
+public class FileBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
 
 	private BufferedWriter writer;
 	private final int bufferSize;
 
-	public BulkFileWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public FileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
@@ -37,7 +37,7 @@ public class BulkFileWriter extends ConfigAware implements BulkOutputWriter {
 	}
 
 	@Override
-	public void startWriting(final String outputFilePath) {
+	public void initialize(final String outputFilePath) {
 		if (StringUtil.isEmpty(outputFilePath)) {
 			throw new IllegalArgumentException("input file must not be null or empty");
 		}
@@ -48,7 +48,7 @@ public class BulkFileWriter extends ConfigAware implements BulkOutputWriter {
 	}
 
 	@Override
-	public void write(final String line) {
+	public void doOutput(final String line) {
 		try {
 			writer.write(line);
 		} catch (final Exception exc) {

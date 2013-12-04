@@ -1,4 +1,4 @@
-package com.threeglav.bauk.feed;
+package com.threeglav.bauk.feed.processing;
 
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
@@ -13,8 +13,8 @@ public class SingleThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	public void processLine(final String line) {
 		final String[] parsedData = feedParserComponent.parseData(line);
 		final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes);
-		bulkOutputWriter.write(lineForOutput);
-		bulkOutputWriter.write("\n");
+		bulkOutputWriter.doOutput(lineForOutput);
+		bulkOutputWriter.doOutput("\n");
 	}
 
 }

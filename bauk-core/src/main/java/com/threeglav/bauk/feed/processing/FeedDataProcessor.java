@@ -1,4 +1,4 @@
-package com.threeglav.bauk.feed;
+package com.threeglav.bauk.feed.processing;
 
 import java.util.Map;
 

@@ -1,4 +1,4 @@
-package com.threeglav.bauk.feed;
+package com.threeglav.bauk.feed.processing;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -114,8 +114,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 			log.trace("Will output {} lines", outputSize);
 			synchronized (bulkWriterLock) {
 				for (final String str : outputLines) {
-					bulkOutputWriter.write(str);
-					bulkOutputWriter.write("\n");
+					bulkOutputWriter.doOutput(str + "\n");
 				}
 				final int value = totalLinesOutputCounter.addAndGet(outputSize);
 				log.trace("In total output {} lines so far. Current expected value is {}", value, expectedLines);
