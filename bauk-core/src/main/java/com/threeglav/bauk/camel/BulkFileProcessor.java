@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
-import com.threeglav.bauk.feed.ConfigAware;
+import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.OnBulkLoadSuccess;

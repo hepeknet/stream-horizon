@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
+import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.dimension.CachedPerFeedDimensionHandler;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
@@ -139,7 +140,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		log.debug("Started feed. In total {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
 	}
 
-	public String resolveValues(final String[] inputValues, final Map<String, String> globalData) {
+	public String resolveValuesAsSingleLine(final String[] inputValues, final Map<String, String> globalData) {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
 			if (i != 0) {
@@ -149,6 +150,14 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			sb.append(val);
 		}
 		return sb.toString();
+	}
+
+	public String[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
+		final String[] output = new String[bulkOutputFileNumberOfValues];
+		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
+			output[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+		}
+		return output;
 	}
 
 	public void closeCurrentFeed() {

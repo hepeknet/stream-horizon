@@ -11,6 +11,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.codahale.metrics.Histogram;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;

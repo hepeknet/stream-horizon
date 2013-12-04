@@ -33,14 +33,9 @@
 				</attributes>
 			</data>
 			<footer process="skip" />
-			<bulkLoadDefinition>
-				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
-				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}'
-					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
-					'\n'</bulkLoadInsertStatement>
+			<bulkLoadDefinition outputType="none">
 				<bulkLoadFormatDefinition>
 					<attributes>
-						<attribute name="feed.guid" />
 						<attribute name="dimension.REQUESTNOTIFICATION" />
 					</attributes>
 				</bulkLoadFormatDefinition>
@@ -58,7 +53,7 @@
 			<afterFeedProcessingCompletion>
 				<sqlStatement>
 				insert into RWHSTG_ETL_BATCH( FILE_ID, FILE_NAME, FILE_TYPE, FILE_CREATED_TIMESTAMP, BUSINESS_DATE, CASPAR_GUID, NUMBER_OF_ROWS, FILE_VALIDATION_FLAG, ERROR_DESCRIPTION) 
-				VALUES (rwh_request_notification_seq.nextval, '${inputFeedFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${ffn[1]}', ${numberOfRowsInFeed}, '${feedProcessingSuccessFailureFlag}', '${feedProcessingErrorDescription}')
+				VALUES (rwh_request_notification_seq.nextval, '${feedInputFileName}', 'CSRISKFEED', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '${ffn[1]}', ${completionNumberOfRowsInFeed}, '${completionFeedProcessingSuccessFailureFlag}', '${completionFeedProcessingErrorDescription}')
 				</sqlStatement>
 				<sqlStatement>
 				update REQUESTNOTIFICATION set
@@ -144,7 +139,7 @@
 			</footer>
 			<bulkLoadDefinition>
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
-				<bulkLoadInsertStatement>LOAD DATA INFILE '${global.bulkFilePath}'
+				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}'
 					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
 					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
@@ -319,7 +314,7 @@
 			<sqlStatements>
 				<insertSingle>
 					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE) 
-					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${inputFeedFileName}',1,7))
+					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${feedInputFileName}',1,7))
 				</insertSingle>
 				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffn[1]}'</selectSurrogateKey>
 				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>

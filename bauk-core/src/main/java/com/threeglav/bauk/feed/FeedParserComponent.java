@@ -3,6 +3,7 @@ package com.threeglav.bauk.feed;
 import java.util.ArrayList;
 
 import com.codahale.metrics.Meter;
+import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BaukConfiguration;

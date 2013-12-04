@@ -134,17 +134,23 @@ public class SpringJdbcDbHandler implements DbHandler {
 		final long start = System.currentTimeMillis();
 		log.debug("About to execute query statement [{}]", statement);
 		log.info(
-				"Will expect in total {} results per row. First one should be surrogate key, others should be natural keys in order as defined in configuration!",
+				"Will expect in exactly {} results per row. First one should be surrogate key, others should be natural keys in order as defined in configuration!",
 				expectedTotalValues);
 		final List<String[]> allRows = jdbcTemplate.query(statement, new RowMapper<String[]>() {
 
+			private boolean alreadyCheckedForColumnNumber = false;
+
 			@Override
 			public String[] mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-				final ResultSetMetaData rsmd = rs.getMetaData();
-				final int columnsNumber = rsmd.getColumnCount();
-				if (columnsNumber != expectedTotalValues) {
-					throw new IllegalStateException("Statement should return surrogate key and all natural keys (in declared order) - in total "
-							+ expectedTotalValues + " columns, but it returned only " + columnsNumber);
+				if (!alreadyCheckedForColumnNumber) {
+					final ResultSetMetaData rsmd = rs.getMetaData();
+					final int columnsNumber = rsmd.getColumnCount();
+					if (columnsNumber != expectedTotalValues) {
+						throw new IllegalStateException(
+								"Statement should return surrogate key and all natural keys (in order as declared in configuration). In total expected "
+										+ expectedTotalValues + " columns, but database query returned only " + columnsNumber + " values!");
+					}
+					alreadyCheckedForColumnNumber = true;
 				}
 				final String[] values = new String[expectedTotalValues];
 				for (int i = 1; i <= expectedTotalValues; i++) {

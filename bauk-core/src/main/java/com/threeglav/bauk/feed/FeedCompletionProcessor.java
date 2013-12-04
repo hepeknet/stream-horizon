@@ -2,6 +2,7 @@ package com.threeglav.bauk.feed;
 
 import java.util.Map;
 
+import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;

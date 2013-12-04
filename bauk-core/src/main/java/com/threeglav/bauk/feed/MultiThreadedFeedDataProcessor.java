@@ -106,7 +106,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 				final String line = listIterator.next();
 				listIterator.remove();
 				final String[] parsedData = feedParserComponent.parseData(line);
-				final String lineForOutput = bulkoutputResolver.resolveValues(parsedData, globalAttributes);
+				final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes);
 				outputLines[counter++] = lineForOutput;
 			}
 			drainedElements.clear();
@@ -114,8 +114,8 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 			log.trace("Will output {} lines", outputSize);
 			synchronized (bulkWriterLock) {
 				for (final String str : outputLines) {
-					bulkWriter.write(str);
-					bulkWriter.write("\n");
+					bulkOutputWriter.write(str);
+					bulkOutputWriter.write("\n");
 				}
 				final int value = totalLinesOutputCounter.addAndGet(outputSize);
 				log.trace("In total output {} lines so far. Current expected value is {}", value, expectedLines);

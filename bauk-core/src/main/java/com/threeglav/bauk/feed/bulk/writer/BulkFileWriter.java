@@ -1,10 +1,11 @@
-package com.threeglav.bauk.feed;
+package com.threeglav.bauk.feed.bulk.writer;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
 import org.apache.commons.io.IOUtils;
 
+import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.SystemConfigurationConstants;
@@ -12,7 +13,7 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
 
-public class BulkFileWriter extends ConfigAware {
+public class BulkFileWriter extends ConfigAware implements BulkOutputWriter {
 
 	private BufferedWriter writer;
 	private final int bufferSize;
@@ -35,6 +36,7 @@ public class BulkFileWriter extends ConfigAware {
 		}
 	}
 
+	@Override
 	public void startWriting(final String outputFilePath) {
 		if (StringUtil.isEmpty(outputFilePath)) {
 			throw new IllegalArgumentException("input file must not be null or empty");
@@ -45,6 +47,7 @@ public class BulkFileWriter extends ConfigAware {
 		this.createFileWriter(outputFilePath);
 	}
 
+	@Override
 	public void write(final String line) {
 		try {
 			writer.write(line);
@@ -53,6 +56,7 @@ public class BulkFileWriter extends ConfigAware {
 		}
 	}
 
+	@Override
 	public void closeResources() {
 		IOUtils.closeQuietly(writer);
 		writer = null;

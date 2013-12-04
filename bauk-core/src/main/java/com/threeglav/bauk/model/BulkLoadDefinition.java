@@ -2,6 +2,7 @@ package com.threeglav.bauk.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -22,6 +23,9 @@ public class BulkLoadDefinition {
 
 	@XmlElement(required = false)
 	private OnBulkLoadSuccess onBulkLoadSuccess;
+
+	@XmlAttribute(required = false)
+	private BulkLoadDefinitionOutputType outputType = BulkLoadDefinitionOutputType.FILE;
 
 	public BulkLoadFormatDefinition getBulkLoadFormatDefinition() {
 		return bulkLoadFormatDefinition;
@@ -53,6 +57,14 @@ public class BulkLoadDefinition {
 
 	public void setOnBulkLoadSuccess(final OnBulkLoadSuccess onBulkLoadSuccess) {
 		this.onBulkLoadSuccess = onBulkLoadSuccess;
+	}
+
+	public BulkLoadDefinitionOutputType getOutputType() {
+		return outputType;
+	}
+
+	public void setOutputType(final BulkLoadDefinitionOutputType outputType) {
+		this.outputType = outputType;
 	}
 
 }
