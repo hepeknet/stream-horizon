@@ -25,6 +25,8 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class DimensionHandler extends ConfigAware implements BulkLoadOutputValueHandler {
 
+	private static final String DIMENSION_SK_SUFFIX = ".sk";
+
 	private static final int NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION = -1;
 
 	private static final int MAX_ELEMENTS_LOCAL_MAP = getDimensionLocalCacheSize();
@@ -33,6 +35,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
+	private final String dimensionLastLineSKAttributeName;
 	protected final Dimension dimension;
 	private String[] mappedColumnNames;
 	private int[] mappedColumnsPositionsInFeed;
@@ -76,6 +79,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			skipCaching = false;
 			log.debug("Caching for {} is enabled", dimension.getName());
 		}
+		dimensionLastLineSKAttributeName = dimension.getName() + DIMENSION_SK_SUFFIX;
+		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
+				dimensionLastLineSKAttributeName);
 		this.preCacheAllKeys();
 	}
 
@@ -215,7 +221,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes, final boolean isLastLine) {
 		String surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!skipCaching) {
@@ -237,6 +243,10 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
 		log.trace("Resolved surrogate key is {}", surrogateKey);
+		if (isLastLine && globalAttributes != null) {
+			globalAttributes.put(dimensionLastLineSKAttributeName, surrogateKey);
+			log.trace("Saved last line value {}={}", dimensionLastLineSKAttributeName, surrogateKey);
+		}
 		return surrogateKey;
 	}
 

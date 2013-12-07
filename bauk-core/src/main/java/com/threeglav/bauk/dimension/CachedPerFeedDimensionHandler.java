@@ -21,11 +21,11 @@ public class CachedPerFeedDimensionHandler extends DimensionHandler {
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes, final boolean isLastLine) {
 		if (!StringUtil.isEmpty(keyValueCachedPerFeed)) {
 			return keyValueCachedPerFeed;
 		}
-		final String surrogateKey = super.getBulkLoadValue(parsedLine, globalAttributes);
+		final String surrogateKey = super.getBulkLoadValue(parsedLine, globalAttributes, isLastLine);
 		log.debug("Cached surrogate key {} for dimension {} for feed", surrogateKey, dimension.getName());
 		keyValueCachedPerFeed = surrogateKey;
 		if (keyValueCachedPerFeed != null) {
@@ -43,7 +43,7 @@ public class CachedPerFeedDimensionHandler extends DimensionHandler {
 	@Override
 	public void calculatePerFeedValues(final Map<String, String> globalValues) {
 		log.debug("Global attributes before per-feed calculation {}", globalValues);
-		this.getBulkLoadValue(null, globalValues);
+		this.getBulkLoadValue(null, globalValues, false);
 		log.debug("Global attributes after per-feed calculation {}", globalValues);
 	}
 

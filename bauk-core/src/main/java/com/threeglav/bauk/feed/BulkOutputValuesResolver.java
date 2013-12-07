@@ -140,22 +140,22 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		log.debug("Started feed. In total have {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
 	}
 
-	public String resolveValuesAsSingleLine(final String[] inputValues, final Map<String, String> globalData) {
+	public String resolveValuesAsSingleLine(final String[] inputValues, final Map<String, String> globalData, final boolean isLastLine) {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
 			if (i != 0) {
 				sb.append(outputDelimiter);
 			}
-			final String val = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+			final String val = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData, isLastLine);
 			sb.append(val);
 		}
 		return sb.toString();
 	}
 
-	public String[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
+	public String[] resolveValues(final String[] inputValues, final Map<String, String> globalData, final boolean isLastLine) {
 		final String[] output = new String[bulkOutputFileNumberOfValues];
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-			output[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+			output[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData, isLastLine);
 		}
 		return output;
 	}

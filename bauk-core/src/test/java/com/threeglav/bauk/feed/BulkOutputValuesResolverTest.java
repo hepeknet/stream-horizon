@@ -68,7 +68,7 @@ public class BulkOutputValuesResolverTest {
 			}
 		});
 		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
-		final String latestValue = bomhc.resolveValuesAsSingleLine(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, null);
+		final String latestValue = bomhc.resolveValuesAsSingleLine(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, null, true);
 		Assert.assertNotNull(latestValue);
 		Assert.assertEquals("2,3,6,CONST_VAL", latestValue);
 	}
@@ -94,8 +94,8 @@ public class BulkOutputValuesResolverTest {
 			}
 		});
 		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
-		final String latestReceivedValue = bomhc.resolveValuesAsSingleLine(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
-				"14", "15", "16" }, null);
+		final String latestReceivedValue = bomhc.resolveValuesAsSingleLine(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
+				"12", "13", "14", "15", "16" }, null, true);
 		Assert.assertNotNull(latestReceivedValue);
 		Assert.assertEquals("2", latestReceivedValue);
 	}

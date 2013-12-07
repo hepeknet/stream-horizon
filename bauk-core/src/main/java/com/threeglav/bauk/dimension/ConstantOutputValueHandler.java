@@ -13,7 +13,7 @@ public final class ConstantOutputValueHandler implements BulkLoadOutputValueHand
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
+	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues, final boolean isLastLine) {
 		return constantValue;
 	}
 

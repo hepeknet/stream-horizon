@@ -128,6 +128,8 @@ public class TextFileReaderComponent extends ConfigAware {
 				if (!processedHeader) {
 					feedDataProcessor.startFeed(globalAttributes);
 					processedHeader = true;
+					final String nextLine = br.readLine();
+					final boolean isLastLine = nextLine == null;
 					if (headerExists) {
 						if (!skipHeader) {
 							final Map<String, String> headerAttributes = this.processHeader(line);
@@ -138,11 +140,10 @@ public class TextFileReaderComponent extends ConfigAware {
 							log.debug("Skipping header line {}", line);
 						}
 					} else {
-						feedDataProcessor.processLine(line, globalAttributes);
+						feedDataProcessor.processLine(line, globalAttributes, isLastLine);
 						feedLinesNumber++;
 					}
-					final String nextLine = br.readLine();
-					if (nextLine == null) {
+					if (isLastLine) {
 						if (isControlFeed) {
 							this.exposeFeedDataAsAttributes(line, globalAttributes);
 						}
@@ -157,12 +158,12 @@ public class TextFileReaderComponent extends ConfigAware {
 						if (processAndValidateFooter) {
 							footerLine = line;
 						} else {
-							feedDataProcessor.processLine(line, globalAttributes);
+							feedDataProcessor.processLine(line, globalAttributes, true);
 							footerLine = null;
 						}
 						line = null;
 					} else {
-						feedDataProcessor.processLine(line, globalAttributes);
+						feedDataProcessor.processLine(line, globalAttributes, false);
 						feedLinesNumber++;
 						line = nextLine;
 					}

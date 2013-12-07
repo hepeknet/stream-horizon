@@ -27,7 +27,7 @@ public final class PositionalMappingHandler implements BulkLoadOutputValueHandle
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes, final boolean isLastLine) {
 		if (parsedLine.length < expectedFeedAttributes) {
 			throw new IllegalArgumentException("Provided feed line has less than expected " + expectedFeedAttributes
 					+ " values. Check your configuration or input data!");

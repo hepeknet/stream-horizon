@@ -71,7 +71,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	}
 
 	@Override
-	public void processLine(final String line, final Map<String, String> globalAttributes) {
+	public void processLine(final String line, final Map<String, String> globalAttributes, final boolean isLastLine) {
 		final boolean added = lineQueue.add(line);
 		if (!added) {
 			throw new IllegalStateException("Was not able to add line to queue! Switch to single threaded implementation!");
@@ -108,7 +108,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 				final String line = listIterator.next();
 				listIterator.remove();
 				final String[] parsedData = feedParserComponent.parseData(line);
-				final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes);
+				final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes, true);
 				outputLines[counter++] = lineForOutput;
 			}
 			drainedElements.clear();

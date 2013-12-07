@@ -39,11 +39,6 @@
 						<attribute name="dimension.REQUESTNOTIFICATION" />
 					</attributes>
 				</bulkLoadFormatDefinition>
-				<onBulkLoadSuccess>
-					<sqlStatements>
-						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
-					</sqlStatements>
-				</onBulkLoadSuccess>
 			</bulkLoadDefinition>
 			<beforeFeedProcessing>
 				<sqlStatement type="select">
@@ -82,7 +77,7 @@
 					<attribute name="rerunVersion" />
 					<attribute name="curveType" />
 					<attribute name="parisRequestId" />
-					<attribute name="casparGuid" />
+					<attribute name="guid" />
 					<attribute name="rerunGuid" />
 					<attribute name="requestTimestamp" />
 					<attribute name="requestGuid" />
@@ -126,9 +121,6 @@
 					<attribute name="curveType" />
 				</attributes>
 			</data>
-			<derivedAttributes>
-				<attribute name="abc">1</attribute>
-			</derivedAttributes>
 			<footer process="strict">
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 			</footer>
@@ -159,6 +151,17 @@
 					</sqlStatements>
 				</onBulkLoadSuccess>
 			</bulkLoadDefinition>
+			<!--
+			<afterFeedProcessingCompletion>
+				<sqlStatement>
+					CALL warehouse.dataFeed('${guid}' , 'analyticsRequestGuid', '${runTag}',/* businessDate*/ trunc(to_date('03/07/2008','mm/dd/yyyy')),
+                                           '${rerunGuid}','requestName','batchType','${portfolio}' , 3/*portfolioDimSK*/ ,${completionNumberOfRowsInFeed},/*file persisted to disk timestamp*/to_timestamp ('10-Sep-02 14:10:10.123000', 'DD-Mon-RR HH24:MI:SS.FF'),
+                                           'CS' /*f filename is CSRISKFEED >source<  are first two characters of it */, '${intradayName}', '${guid}','RISK',
+                                           'RISK_fileName',/*etlStartTimestamp*/ trunc(to_date('03/07/2008','mm/dd/yyyy')), '${fileUserName}','${location}','${qlVersion}','${completionFeedProcessingSuccessFailureFlag}',
+                                           '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')
+				</sqlStatement>
+			</afterFeedProcessingCompletion>
+			-->
 			<threadPoolSizes>
 				<feedProcessingThreads>1</feedProcessingThreads>
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>

@@ -112,7 +112,7 @@ public class DimensionHandlerTest {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final String[] parsedLine = { "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj" };
-		final String key = dh.getBulkLoadValue(parsedLine, null);
+		final String key = dh.getBulkLoadValue(parsedLine, null, false);
 		Assert.assertEquals("100", key);
 		final String nkLookup = "cc" + BaukConstants.NATURAL_KEY_DELIMITER + "dd" + BaukConstants.NATURAL_KEY_DELIMITER + "gg"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "ff" + BaukConstants.NATURAL_KEY_DELIMITER + "aa";
@@ -128,14 +128,14 @@ public class DimensionHandlerTest {
 	public void testNullParsedLine() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
 				this.createConfig());
-		dh.getBulkLoadValue(null, null);
+		dh.getBulkLoadValue(null, null, false);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSmallParsedLine() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
 				this.createConfig());
-		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null);
+		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null, false);
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class DimensionHandlerTest {
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
-		final String key = dh.getBulkLoadValue(parsedLine, null);
+		final String key = dh.getBulkLoadValue(parsedLine, null, true);
 		Assert.assertEquals("100", key);
 		final String nkLookup = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
@@ -164,7 +164,9 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
-		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues);
+		Assert.assertEquals(2, headerValues.size());
+		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, false);
+		Assert.assertEquals(2, headerValues.size());
 		Assert.assertEquals("100", key1);
 		final String nkLookup1 = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
@@ -186,7 +188,10 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
-		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues);
+		Assert.assertEquals(2, headerValues.size());
+		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, true);
+		Assert.assertEquals(3, headerValues.size());
+		Assert.assertEquals("100", headerValues.get("dim1.sk"));
 		Assert.assertEquals("100", key1);
 		final String nkLookup1 = "d" + BaukConstants.NATURAL_KEY_DELIMITER + "e" + BaukConstants.NATURAL_KEY_DELIMITER + "h"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "g" + BaukConstants.NATURAL_KEY_DELIMITER + "b";
@@ -208,7 +213,8 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
-		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues);
+		final String key1 = dh1.getBulkLoadValue(parsedLine1, headerValues, true);
+		Assert.assertEquals(key1, headerValues.get("dim1.sk"));
 		Assert.assertEquals("100", key1);
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertEquals(
