@@ -42,9 +42,9 @@ public class CachedPerFeedDimensionHandler extends DimensionHandler {
 
 	@Override
 	public void calculatePerFeedValues(final Map<String, String> globalValues) {
-		log.debug("Global attributes before {}", globalValues);
+		log.debug("Global attributes before per-feed calculation {}", globalValues);
 		this.getBulkLoadValue(null, globalValues);
-		log.debug("Global attributes after {}", globalValues);
+		log.debug("Global attributes after per-feed calculation {}", globalValues);
 	}
 
 }

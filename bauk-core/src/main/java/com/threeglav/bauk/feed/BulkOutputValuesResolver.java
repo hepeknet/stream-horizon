@@ -137,7 +137,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		for (int i = 0; i < outputValueHandlers.length; i++) {
 			outputValueHandlers[i].calculatePerFeedValues(globalData);
 		}
-		log.debug("Started feed. In total {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
+		log.debug("Started feed. In total have {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
 	}
 
 	public String resolveValuesAsSingleLine(final String[] inputValues, final Map<String, String> globalData) {

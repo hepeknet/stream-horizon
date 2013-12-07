@@ -138,7 +138,7 @@ public class TextFileReaderComponent extends ConfigAware {
 							log.debug("Skipping header line {}", line);
 						}
 					} else {
-						feedDataProcessor.processLine(line);
+						feedDataProcessor.processLine(line, globalAttributes);
 						feedLinesNumber++;
 					}
 					final String nextLine = br.readLine();
@@ -157,12 +157,12 @@ public class TextFileReaderComponent extends ConfigAware {
 						if (processAndValidateFooter) {
 							footerLine = line;
 						} else {
-							feedDataProcessor.processLine(line);
+							feedDataProcessor.processLine(line, globalAttributes);
 							footerLine = null;
 						}
 						line = null;
 					} else {
-						feedDataProcessor.processLine(line);
+						feedDataProcessor.processLine(line, globalAttributes);
 						feedLinesNumber++;
 						line = nextLine;
 					}
@@ -172,7 +172,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (feedFileSizeHistogram != null) {
 				feedFileSizeHistogram.update(feedLinesNumber);
 			}
-			feedDataProcessor.closeFeed(feedLinesNumber);
+			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
 			this.processFooter(feedLinesNumber, footerLine);
 			IOUtils.closeQuietly(br);
 			return feedLinesNumber;

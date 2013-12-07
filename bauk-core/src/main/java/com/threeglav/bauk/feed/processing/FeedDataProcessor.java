@@ -6,8 +6,8 @@ public interface FeedDataProcessor {
 
 	void startFeed(final Map<String, String> globalAttributes);
 
-	void processLine(final String line);
+	void processLine(final String line, final Map<String, String> globalAttributes);
 
-	void closeFeed(int expectedResults);
+	void closeFeed(int expectedResults, final Map<String, String> globalAttributes);
 
 }

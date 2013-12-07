@@ -299,3 +299,121 @@ CREATE TABLE WAREHOUSE.REQUESTNOTIFICATION--this is control table and dimension 
   PORTFOLIODIMWID                 INTEGER,-- portfoio dim wid
   NOTUSED1                        INTEGER
 );
+
+create sequence s_batch_id  start with 1 maxvalue 999999999999999999999999999 minvalue 1 nocycle cache 20 noorder;
+create sequence s_notification_id start with 1 maxvalue 999999999999999999999999999 minvalue 1 nocycle cache 20 noorder;
+
+CREATE OR REPLACE function warehouse.notifFeed(casparGuid varchar2, runGuid varchar2,taskCnt integer,fileCnt integer,
+persistedTaskCnt integer,persistedTradesCnt integer,persistedValidValuesCnt integer,persistedInvalidValuesCnt integer,notPersistedTaskCnt integer,notPersistedTradesCnt integer,
+fileName varchar2,etlExceptionString varchar2,requestTimestamp varchar2,etlStartTimestamp varchar2,filePersistedToDiskTimestamp timestamp,source varchar2,fileType varchar2) return varchar2 
+is
+notifiId integer;
+fileId integer;
+begin
+      begin
+          insert into requestNotification (
+          notificationId, source, uniqueName, analyticsRequestGuid,
+          numberOfTasks, numberOfFiles, numberOfPersistedTasks, numberOfPersistedTrades, numberOfPersistedValidValues, 
+          numberOfPersistedInvalidValues, numberOfNotPersistedTasks, numberOfNotPersistedTrades,
+          persistStatus, persistStartTimestamp, persistEndtimestamp,
+          loadIncrFiles, loadIncrRows) values (s_notification_id.nextval,notifFeed.source||':'||notifFeed.fileType, notifFeed.casparGuid, notifFeed.casparGuid,
+           notifFeed.taskCnt, notifFeed.fileCnt, notifFeed.persistedTaskCnt, notifFeed.persistedTradesCnt, notifFeed.persistedValidValuesCnt, 
+           notifFeed.persistedInvalidValuesCnt, notifFeed.notPersistedTaskCnt, notifFeed.notPersistedTradesCnt,
+           case when notifFeed.fileCnt=0 then 'Y' else 'n' end, systimestamp, case when notifFeed.fileCnt=0 then systimestamp else null end,
+           0, 0) returning notificationId into notifiId;
+      exception
+        when dup_val_on_index then 
+            begin
+                  select notificationId into notifiId from requestNotification where uniqueName= notifFeed.casparGuid;
+            exception 
+                when no_data_found then    
+                          --p_log('Could not insert notification (duplication) and could not find it. INTERNAL ERROR. Processing: '||fileName, 'ERROR'); -- to get full error stack of the exact error.
+                          raise_application_error(-20000, 'Could not insert notification (duplication) and could not find it. INTERNAL ERROR. Processing: [filename]:'||notifFeed.fileName||'  [guid]:'||notifFeed.casparGuid);                    
+            end;            
+             update requestNotification 
+             set persistStatus = decode(loadIncrRows,numberofpersistedvalidvalues, 'Y', persistStatus),
+              persistEndTimestamp = case when decode(loadIncrRows,numberofpersistedvalidvalues, 'Y', persistStatus) in ('Y', 'E') then systimestamp else persistEndTimestamp end,
+              numberOfTasks = notifFeed.taskCnt,
+              numberOfFiles = notifFeed.fileCnt,
+              numberOfPersistedTasks = notifFeed.persistedTaskCnt,
+              numberOfPersistedTrades = notifFeed.persistedTradesCnt,
+              numberOfPersistedValidValues = notifFeed.persistedValidValuesCnt,
+              numberOfPersistedInvalidValues = notifFeed.persistedInvalidValuesCnt,
+              numberOfNotPersistedTasks = notifFeed.notPersistedTaskCnt,
+              numberOfNotPersistedTrades = notifFeed.notPersistedTradesCnt
+              where notificationId = notifiId;             
+      end;
+   insert into rwhstg_etl_batch(file_id, file_name, file_type, file_created_timestamp, start_timestamp,caspar_guid,
+                                                       fact_load_flag, end_timestamp, error_description,request_timestamp                                                                  
+                                                       )
+   values (s_batch_id.nextval, notifFeed.fileName, notifFeed.fileType, to_date(to_char(notifFeed.filePersistedToDiskTimestamp,'dd-Mon-yyyy HH24:MI:SS'),'dd-Mon-yyyy HH24:MI:SS'), notifFeed.etlStartTimestamp,notifFeed.casparGuid,
+                                                       null ,systimestamp,notifFeed.etlExceptionString,notifFeed.requestTimestamp
+                                            )
+   return file_id into fileId;              
+ commit;      
+ return to_char(notifiId)||'_'||to_char(fileId);                  
+end;
+/
+
+CREATE OR REPLACE function warehouse.dataFeed(uniqueName varchar2, analyticsRequestGuid varchar2, runTag varchar2, businessDate date,
+rerunGuid varchar2, requestName varchar2, batchType varchar2,portfolio varchar2, portfolioDimSK integer,numberOfRows integer,filePersistedToDiskTimestamp timestamp,
+source varchar2, intradayName varchar2, casparGuid varchar2, fileType varchar2,
+fileName varchar2,etlStartTimestamp varchar2, fileUserName varchar2,location varchar2, qlVersion varchar2,fileValid varchar2, /* if number of lines equals numberOfRows from footer than S else F */
+etlExceptionString varchar2/* java processing exception string */,EODflag varchar2, requestTimestamp varchar2,rerunVersion varchar2
+) return varchar2 
+is
+notifiId integer;
+fileId integer;
+begin
+      begin
+           insert into requestNotification (
+            notificationId,source,uniqueName,analyticsRequestGuid,usernamerequested,
+            runTag, businessDate, rerunGuid, requestName, batchType,
+            portfolio, portfolioDimWid,rerunVersion,
+            persistStatus, persistStartTimestamp, persistEndtimestamp,
+            loadIncrFiles, loadIncrRows)
+         values (
+             s_notification_id.nextval, dataFeed.source||':'||dataFeed.fileType, dataFeed.uniqueName, dataFeed.analyticsRequestGuid,dataFeed.fileUserName,
+             dataFeed.runTag, dataFeed.businessDate, dataFeed.rerunGuid, dataFeed.intradayName, dataFeed.batchType,
+             dataFeed.portfolio, dataFeed.portfolioDimSK,dataFeed.rerunVersion,
+             'n', dataFeed.filePersistedToDiskTimestamp, systimestamp,
+             1, dataFeed.numberOfRows)
+         returning notificationId into notifiId;
+      exception
+        when dup_val_on_index then 
+            begin
+                  select notificationId into notifiId from requestNotification where uniqueName= dataFeed.uniqueName;
+            exception 
+                when no_data_found then    
+                          --p_log('Could not insert notification (duplication) and could not find it. INTERNAL ERROR. Processing: '||fileName, 'ERROR'); -- to get full error stack of the exact error.
+                          raise_application_error(-20000, 'Could not insert notification (duplication) and could not find it. INTERNAL ERROR. Processing: [filename]:'||dataFeed.fileName||'  [guid]:'||dataFeed.uniqueName);                    
+            end;
+              update requestNotification set           
+              loadIncrFiles = loadIncrFiles+1,
+              loadIncrRows = loadIncrRows+dataFeed.numberOfRows,
+              persistStatus = decode((loadIncrRows+dataFeed.numberOfRows), numberofpersistedvalidvalues, 'Y', persistStatus),
+              persistEndTimestamp = systimestamp,
+              usernamerequested = dataFeed.fileUserName,
+              runTag = dataFeed.runTag,
+              businessDate = dataFeed.businessDate, 
+              rerunGuid = dataFeed.rerunGuid, 
+              requestName = dataFeed.intradayName, 
+              batchType = dataFeed.batchType,
+              portfolio = dataFeed.portfolio,
+              portfolioDimWid = dataFeed.portfolioDimSK,
+              rerunVersion = dataFeed.rerunVersion
+              where notificationId = notifiId;        
+      end;
+   insert into rwhstg_etl_batch(file_id, file_name, file_type, file_created_timestamp, start_timestamp,
+                                                       business_date,number_of_rows,username_requested,location,ql_version,caspar_guid,rerun_guid,
+                                                       file_validation_flag, fact_load_flag, end_timestamp, error_description, eod_flag  ,request_timestamp,run_tag                                                                  
+                                                       )
+                                            values (s_batch_id.nextval, dataFeed.fileName, dataFeed.fileType, to_date(to_char(dataFeed.filePersistedToDiskTimestamp,'dd-Mon-yyyy HH24:MI:SS'),'dd-Mon-yyyy HH24:MI:SS'), dataFeed.etlStartTimestamp,
+                                                        dataFeed.businessDate,dataFeed.numberOfRows,dataFeed.fileUserName,dataFeed.location,dataFeed.qlVersion,dataFeed.uniqueName,dataFeed.rerunGuid,
+                                                        dataFeed.fileValid,null /* not known at this point, need be set by external table routine */,systimestamp,dataFeed.etlExceptionString,dataFeed.EODflag,dataFeed.requestTimestamp,dataFeed.runTag
+                                            )
+   return file_id into fileId;              
+ commit;      
+ return to_char(notifiId)||'_'||to_char(fileId);                  
+end;
+/

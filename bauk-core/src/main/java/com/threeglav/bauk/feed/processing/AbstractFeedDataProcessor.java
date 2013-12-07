@@ -20,14 +20,13 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	protected final BulkOutputValuesResolver bulkoutputResolver;
 	protected final FeedParserComponent feedParserComponent;
 
-	protected Map<String, String> globalAttributes;
-
 	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier) {
 		super(factFeed, config);
 		final BulkLoadDefinitionOutputType outputType = factFeed.getBulkLoadDefinition().getOutputType();
 		if (outputType == BulkLoadDefinitionOutputType.FILE) {
 			log.info("Will output bulk output results for feed {} to file", factFeed.getName());
 			bulkOutputWriter = new FileBulkOutputWriter(factFeed, config);
+			// bulkOutputWriter = new NIOFileBulkOutputWriter(factFeed, config);
 		} else if (outputType == BulkLoadDefinitionOutputType.NONE) {
 			log.info("Will not output any bulk output results for feed {}", factFeed.getName());
 			bulkOutputWriter = new NullBulkOutputWriter();
@@ -40,14 +39,13 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 
 	@Override
 	public void startFeed(final Map<String, String> globalAttributes) {
-		this.globalAttributes = globalAttributes;
 		log.debug("Starting new feed with global attributes {}", globalAttributes);
 		bulkoutputResolver.startFeed(globalAttributes);
 		bulkOutputWriter.initialize(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
 	}
 
 	@Override
-	public void closeFeed(final int expectedResults) {
+	public void closeFeed(final int expectedResults, final Map<String, String> globalAttributes) {
 		bulkOutputWriter.closeResources();
 		bulkoutputResolver.closeCurrentFeed();
 		log.debug("Closed feed. Expected results {}", expectedResults);

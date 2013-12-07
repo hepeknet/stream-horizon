@@ -28,6 +28,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	private CountDownLatch allDone;
 	private volatile AtomicInteger expectedLines;
 	private final int maxDrainedElements;
+	private Map<String, String> globalAttributes;
 
 	public MultiThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
 			final int numberOfThreads) {
@@ -54,7 +55,8 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	}
 
 	@Override
-	public void closeFeed(final int expected) {
+	public void closeFeed(final int expected, final Map<String, String> globalAttributes) {
+		this.globalAttributes = globalAttributes;
 		expectedLines = new AtomicInteger(expected);
 		log.debug("Closing feed. Expected lines {}", expected);
 		try {
@@ -65,11 +67,11 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		log.debug("Successfully processed all {} lines", expectedLines);
 		totalLinesOutputCounter.set(0);
 		allDone = null;
-		super.closeFeed(expected);
+		super.closeFeed(expected, globalAttributes);
 	}
 
 	@Override
-	public void processLine(final String line) {
+	public void processLine(final String line, final Map<String, String> globalAttributes) {
 		final boolean added = lineQueue.add(line);
 		if (!added) {
 			throw new IllegalStateException("Was not able to add line to queue! Switch to single threaded implementation!");
