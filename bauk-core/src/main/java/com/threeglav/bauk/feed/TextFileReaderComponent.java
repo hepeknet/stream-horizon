@@ -226,7 +226,9 @@ public class TextFileReaderComponent extends ConfigAware {
 				feedFileSizeHistogram.update(feedLinesNumber);
 			}
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
-			this.processFooter(feedLinesNumber, footerLine);
+			if (processAndValidateFooter) {
+				this.processFooter(feedLinesNumber, footerLine);
+			}
 			IOUtils.closeQuietly(br);
 			return feedLinesNumber;
 		} catch (final IOException ie) {
@@ -261,25 +263,24 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	private void processFooter(final int feedLinesNumber, final String footerLine) {
-		if (processAndValidateFooter) {
-			log.debug("Validating footer. Processed in total {} lines, comparing with values in footer line {}", feedLinesNumber, footerLine);
-			final String[] footerParsedValues = footerLineParser.parse(footerLine);
-			if (footerParsedValues.length > 2) {
-				throw new IllegalStateException("Found " + footerParsedValues.length + " values in footer. Expected at most 2!");
+		log.debug("Validating footer for {}. Processed in total {} lines, comparing with values in footer line {}", this.getFactFeed().getName(),
+				feedLinesNumber, footerLine);
+		final String[] footerParsedValues = footerLineParser.parse(footerLine);
+		if (footerParsedValues.length > 2) {
+			throw new IllegalStateException("Found " + footerParsedValues.length + " values in footer. Expected at most 2!");
+		}
+		if (!footerParsedValues[0].equals(footerFirstString)) {
+			throw new IllegalStateException("First character of footer line " + footerParsedValues[0]
+					+ " does not match the one given in configuration file " + footerFirstString);
+		}
+		try {
+			final Integer footerIntValue = Integer.parseInt(footerParsedValues[1]);
+			if (feedLinesNumber != footerIntValue) {
+				throw new IllegalStateException("Footer value " + footerIntValue + " does not match with total number of processed lines "
+						+ feedLinesNumber);
 			}
-			if (!footerParsedValues[0].equals(footerFirstString)) {
-				throw new IllegalStateException("First character of footer line " + footerParsedValues[0]
-						+ " does not match the one given in configuration file " + footerFirstString);
-			}
-			try {
-				final Integer footerIntValue = Integer.parseInt(footerParsedValues[1]);
-				if (feedLinesNumber != footerIntValue) {
-					throw new IllegalStateException("Footer value " + footerIntValue + " does not match with total number of processed lines "
-							+ feedLinesNumber);
-				}
-			} catch (final NumberFormatException nfe) {
-				throw new IllegalStateException("Footer value [" + footerParsedValues[1] + "] can not be converted to integer value!");
-			}
+		} catch (final NumberFormatException nfe) {
+			throw new IllegalStateException("Footer value [" + footerParsedValues[1] + "] can not be converted to integer value!");
 		}
 	}
 
