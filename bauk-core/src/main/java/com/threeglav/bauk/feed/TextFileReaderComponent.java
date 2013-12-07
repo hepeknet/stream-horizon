@@ -189,8 +189,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			int feedLinesNumber = 0;
 			boolean finishedProcessingHeader = false;
 			String footerLine = null;
-			log.debug("For feed {}, header process type={}", this.getFactFeed().getName(), headerProcessingType);
-			final int READ_AHEAD_LINES = 3;
+			final int READ_AHEAD_LINES = 16;
 			final ArrayDeque<String> lineQueue = new ArrayDeque<>(READ_AHEAD_LINES);
 			while (true) {
 				for (int i = 0; i < READ_AHEAD_LINES; i++) {
@@ -199,6 +198,8 @@ public class TextFileReaderComponent extends ConfigAware {
 						if (line != null) {
 							lineQueue.add(line);
 						}
+					} else {
+						break;
 					}
 				}
 				if (!finishedProcessingHeader) {

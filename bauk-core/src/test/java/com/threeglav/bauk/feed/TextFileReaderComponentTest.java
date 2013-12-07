@@ -168,7 +168,6 @@ public class TextFileReaderComponentTest {
 		@Override
 		public void processLine(final String line, final Map<String, String> globalAttributes, final boolean isLastLine) {
 			lines.add(line);
-			System.out.println("Line number " + lineCounter + " isLast " + isLastLine);
 			if (isLastLine) {
 				lastLineNumber = lineCounter;
 			}
