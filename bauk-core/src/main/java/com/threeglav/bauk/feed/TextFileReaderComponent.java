@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final FeedDataProcessor feedDataProcessor;
 	private final HeaderFooterProcessType headerProcessingType;
 	private final boolean isControlFeed;
+	private final boolean headerShouldExist;
+	private final boolean skipHeader;
 
 	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
@@ -65,9 +68,18 @@ public class TextFileReaderComponent extends ConfigAware {
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
 		log.debug("Read buffer size is {}", bufferSize);
 		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
+		headerShouldExist = headerProcessingType != HeaderFooterProcessType.NO_HEADER;
+		if (isControlFeed && headerShouldExist) {
+			throw new IllegalStateException("Control feed " + factFeed.getName() + " must not have header!");
+		}
+		if (isControlFeed && processAndValidateFooter) {
+			throw new IllegalStateException("Control feed " + factFeed.getName() + " must not have footer!");
+		}
 		if (isControlFeed) {
 			log.info("Feed {} will be treated as control feed", this.getFactFeed().getName());
 		}
+		skipHeader = headerProcessingType == HeaderFooterProcessType.SKIP;
+		log.debug("For feed {} footer processing is {}", this.getFactFeed().getName(), factFeed.getFooter().getProcess());
 	}
 
 	private boolean checkProcessHeader() {
@@ -114,58 +126,97 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
+	private void processFirstLine(final ArrayDeque<String> lines, final Map<String, String> globalAttributes) {
+		feedDataProcessor.startFeed(globalAttributes);
+		if (headerShouldExist) {
+			final String line = lines.poll();
+			if (!skipHeader) {
+				final Map<String, String> headerAttributes = this.processHeader(line);
+				if (headerAttributes != null) {
+					globalAttributes.putAll(headerAttributes);
+					if (log.isTraceEnabled()) {
+						log.trace(
+								"Added all attributes {} from header to global attributes. All attributes, before starting to process body for feed {} are {}",
+								headerAttributes, this.getFactFeed().getName(), globalAttributes);
+					}
+				}
+			} else {
+				log.debug("Skipping header line {} for feed {}", line, this.getFactFeed().getName());
+			}
+		}
+	}
+
+	private boolean hasMoreDataLines(final ArrayDeque<String> lines) {
+		if (processAndValidateFooter) {
+			return lines.size() > 1;
+		} else {
+			return lines.size() > 0;
+		}
+	}
+
+	private boolean hasAnyOtherLines(final ArrayDeque<String> lines) {
+		return !lines.isEmpty();
+	}
+
+	enum FeedProcessingPhase {
+		STOP, ONLY_FOOTER_LEFT, PROCESSED_DATA_LINE;
+	}
+
+	private FeedProcessingPhase processLine(final ArrayDeque<String> lines, final Map<String, String> globalAttributes) {
+		final String line = lines.poll();
+		final boolean hasMoreDataLines = this.hasMoreDataLines(lines);
+		final boolean hasAnyOtherLines = this.hasAnyOtherLines(lines);
+		if (!hasAnyOtherLines) {
+			if (isControlFeed) {
+				this.exposeControlFeedDataAsAttributes(line, globalAttributes);
+				return FeedProcessingPhase.STOP;
+			} else if (processAndValidateFooter) {
+				lines.offer(line);
+				return FeedProcessingPhase.ONLY_FOOTER_LEFT;
+			} else {
+				feedDataProcessor.processLine(line, globalAttributes, true);
+				return FeedProcessingPhase.STOP;
+			}
+		} else {
+			feedDataProcessor.processLine(line, globalAttributes, !hasMoreDataLines);
+			return FeedProcessingPhase.PROCESSED_DATA_LINE;
+		}
+	}
+
 	public int readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		try {
 			int feedLinesNumber = 0;
-			String line = br.readLine();
-			boolean processedHeader = false;
+			boolean finishedProcessingHeader = false;
 			String footerLine = null;
-			final boolean headerExists = headerProcessingType != HeaderFooterProcessType.NO_HEADER;
-			final boolean skipHeader = headerProcessingType == HeaderFooterProcessType.SKIP;
-			log.debug("For {} header process={}", this.getFactFeed().getName(), headerProcessingType);
-			while (line != null) {
-				if (!processedHeader) {
-					feedDataProcessor.startFeed(globalAttributes);
-					processedHeader = true;
-					final String nextLine = br.readLine();
-					final boolean isLastLine = nextLine == null;
-					if (headerExists) {
-						if (!skipHeader) {
-							final Map<String, String> headerAttributes = this.processHeader(line);
-							if (headerAttributes != null) {
-								globalAttributes.putAll(headerAttributes);
-							}
-						} else {
-							log.debug("Skipping header line {}", line);
-						}
-					} else {
-						feedDataProcessor.processLine(line, globalAttributes, isLastLine);
-						feedLinesNumber++;
-					}
-					if (isLastLine) {
-						if (isControlFeed) {
-							this.exposeFeedDataAsAttributes(line, globalAttributes);
+			log.debug("For feed {}, header process type={}", this.getFactFeed().getName(), headerProcessingType);
+			final int READ_AHEAD_LINES = 3;
+			final ArrayDeque<String> lineQueue = new ArrayDeque<>(READ_AHEAD_LINES);
+			while (true) {
+				for (int i = 0; i < READ_AHEAD_LINES; i++) {
+					if (lineQueue.size() < READ_AHEAD_LINES) {
+						final String line = br.readLine();
+						if (line != null) {
+							lineQueue.add(line);
 						}
 					}
-					line = nextLine;
+				}
+				if (!finishedProcessingHeader) {
+					this.processFirstLine(lineQueue, globalAttributes);
+					finishedProcessingHeader = true;
 				} else {
-					final String nextLine = br.readLine();
-					if (nextLine == null) {
-						if (isControlFeed) {
-							this.exposeFeedDataAsAttributes(line, globalAttributes);
+					final FeedProcessingPhase fpp = this.processLine(lineQueue, globalAttributes);
+					if (fpp == FeedProcessingPhase.STOP) {
+						break;
+					} else if (fpp == FeedProcessingPhase.ONLY_FOOTER_LEFT) {
+						footerLine = lineQueue.poll();
+						if (!lineQueue.isEmpty()) {
+							throw new IllegalStateException("Only footer should be here. Found " + lineQueue.size() + " elements left!");
 						}
-						if (processAndValidateFooter) {
-							footerLine = line;
-						} else {
-							feedDataProcessor.processLine(line, globalAttributes, true);
-							footerLine = null;
-						}
-						line = null;
-					} else {
-						feedDataProcessor.processLine(line, globalAttributes, false);
+						break;
+					} else if (fpp == FeedProcessingPhase.PROCESSED_DATA_LINE) {
 						feedLinesNumber++;
-						line = nextLine;
+						continue;
 					}
 				}
 			}
@@ -184,7 +235,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	private void exposeFeedDataAsAttributes(final String feedDataLine, final Map<String, String> globalAttributes) {
+	private void exposeControlFeedDataAsAttributes(final String feedDataLine, final Map<String, String> globalAttributes) {
 		final String ffName = this.getFactFeed().getName();
 		if (StringUtil.isEmpty(feedDataLine)) {
 			throw new IllegalStateException("Last line for control feed " + ffName + " is null or empty!");

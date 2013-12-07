@@ -18,7 +18,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 
 	public AbstractFeedParser(final String delimiter) {
 		if (delimiter == null || delimiter.trim().isEmpty()) {
-			throw new IllegalArgumentException("Delimiter must not be null or empty");
+			throw new IllegalArgumentException("Value delimiter must not be null or empty. Check your configuration!");
 		}
 		this.delimiter = delimiter;
 		delimiterLenght = delimiter.length();
