@@ -174,7 +174,6 @@ class FeedFileProcessor implements Processor {
 			this.processInputStream(exchange, inputStream, fullFileName, lastModified, fileLength);
 			IOUtils.closeQuietly(inputStream);
 		}
-		log.debug("Successfully processed {}", lowerCaseFilePath);
 	}
 
 	private void processStreamWithCompletion(final InputStream inputStream, final Map<String, String> globalAttributes) {
