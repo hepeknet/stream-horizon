@@ -33,6 +33,8 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class TextFileReaderComponent extends ConfigAware {
 
+	private static final int READ_AHEAD_LINES = 16;
+
 	private final int bufferSize;
 	private HeaderParser headerParser;
 	private final boolean processAndValidateFooter;
@@ -127,7 +129,6 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	private void processFirstLine(final ArrayDeque<String> lines, final Map<String, String> globalAttributes) {
-		feedDataProcessor.startFeed(globalAttributes);
 		if (headerShouldExist) {
 			final String line = lines.poll();
 			if (!skipHeader) {
@@ -159,7 +160,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	enum FeedProcessingPhase {
-		STOP, ONLY_FOOTER_LEFT, PROCESSED_DATA_LINE;
+		STOP_AND_COUNT, STOP, ONLY_FOOTER_LEFT, PROCESSED_DATA_LINE;
 	}
 
 	private FeedProcessingPhase processLine(final ArrayDeque<String> lines, final Map<String, String> globalAttributes) {
@@ -175,7 +176,7 @@ public class TextFileReaderComponent extends ConfigAware {
 				return FeedProcessingPhase.ONLY_FOOTER_LEFT;
 			} else {
 				feedDataProcessor.processLine(line, globalAttributes, true);
-				return FeedProcessingPhase.STOP;
+				return FeedProcessingPhase.STOP_AND_COUNT;
 			}
 		} else {
 			feedDataProcessor.processLine(line, globalAttributes, !hasMoreDataLines);
@@ -187,38 +188,28 @@ public class TextFileReaderComponent extends ConfigAware {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		try {
 			int feedLinesNumber = 0;
-			boolean finishedProcessingHeader = false;
 			String footerLine = null;
-			final int READ_AHEAD_LINES = 16;
 			final ArrayDeque<String> lineQueue = new ArrayDeque<>(READ_AHEAD_LINES);
+			feedDataProcessor.startFeed(globalAttributes);
+			this.fillArrayQueue(br, lineQueue);
+			this.processFirstLine(lineQueue, globalAttributes);
 			while (true) {
-				for (int i = 0; i < READ_AHEAD_LINES; i++) {
-					if (lineQueue.size() < READ_AHEAD_LINES) {
-						final String line = br.readLine();
-						if (line != null) {
-							lineQueue.add(line);
-						}
-					} else {
-						break;
+				this.fillArrayQueue(br, lineQueue);
+				final FeedProcessingPhase fpp = this.processLine(lineQueue, globalAttributes);
+				if (fpp == FeedProcessingPhase.STOP) {
+					break;
+				} else if (fpp == FeedProcessingPhase.STOP_AND_COUNT) {
+					feedLinesNumber++;
+					break;
+				} else if (fpp == FeedProcessingPhase.ONLY_FOOTER_LEFT) {
+					footerLine = lineQueue.poll();
+					if (!lineQueue.isEmpty()) {
+						throw new IllegalStateException("Only footer should be here. Found " + lineQueue.size() + " elements left!");
 					}
-				}
-				if (!finishedProcessingHeader) {
-					this.processFirstLine(lineQueue, globalAttributes);
-					finishedProcessingHeader = true;
-				} else {
-					final FeedProcessingPhase fpp = this.processLine(lineQueue, globalAttributes);
-					if (fpp == FeedProcessingPhase.STOP) {
-						break;
-					} else if (fpp == FeedProcessingPhase.ONLY_FOOTER_LEFT) {
-						footerLine = lineQueue.poll();
-						if (!lineQueue.isEmpty()) {
-							throw new IllegalStateException("Only footer should be here. Found " + lineQueue.size() + " elements left!");
-						}
-						break;
-					} else if (fpp == FeedProcessingPhase.PROCESSED_DATA_LINE) {
-						feedLinesNumber++;
-						continue;
-					}
+					break;
+				} else if (fpp == FeedProcessingPhase.PROCESSED_DATA_LINE) {
+					feedLinesNumber++;
+					continue;
 				}
 			}
 			log.debug("Successfully processed {} lines in file", feedLinesNumber);
@@ -235,6 +226,19 @@ public class TextFileReaderComponent extends ConfigAware {
 			throw new IllegalStateException(ie);
 		} finally {
 			IOUtils.closeQuietly(fileInputStream);
+		}
+	}
+
+	private void fillArrayQueue(final BufferedReader br, final ArrayDeque<String> lineQueue) throws IOException {
+		for (int i = 0; i < READ_AHEAD_LINES; i++) {
+			if (lineQueue.size() < READ_AHEAD_LINES) {
+				final String line = br.readLine();
+				if (line != null) {
+					lineQueue.add(line);
+				}
+			} else {
+				break;
+			}
 		}
 	}
 

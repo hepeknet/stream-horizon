@@ -34,9 +34,10 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(5, true, 0);
-		tfrc.process(is, null);
+		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(5, tfdp.lastLineNumber);
+		Assert.assertEquals(5, lineNum);
 	}
 
 	@Test
@@ -47,9 +48,10 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(5, false, 0);
-		tfrc.process(is, null);
+		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(5, tfdp.lastLineNumber);
+		Assert.assertEquals(5, lineNum);
 	}
 
 	@Test
@@ -60,9 +62,10 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(5, false, 0);
-		tfrc.process(is, null);
+		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(4, tfdp.lines.size());
 		Assert.assertEquals(4, tfdp.lastLineNumber);
+		Assert.assertEquals(4, lineNum);
 	}
 
 	@Test
@@ -73,9 +76,10 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(4, true, 1);
-		tfrc.process(is, null);
+		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(3, tfdp.lines.size());
 		Assert.assertEquals(3, tfdp.lastLineNumber);
+		Assert.assertEquals(3, lineNum);
 	}
 
 	@Test(expected = IllegalStateException.class)
