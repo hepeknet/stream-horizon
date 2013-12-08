@@ -2,20 +2,21 @@ package com.threeglav.bauk.feed.bulk.writer;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-import com.threeglav.bauk.ConfigAware;
-import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
 
-public class FileBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
+public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private BufferedWriter writer;
+	private String currentBulkOutputFilePath;
 	private final int bufferSize;
 
 	public FileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
@@ -27,6 +28,7 @@ public class FileBulkOutputWriter extends ConfigAware implements BulkOutputWrite
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
+			currentBulkOutputFilePath = outputFilePath;
 			log.debug("Creating writer to [{}]", outputFilePath);
 			writer = new BufferedWriter(new FileWriter(outputFilePath), bufferSize);
 			log.debug("Successfully created writer to [{}]", outputFilePath);
@@ -57,9 +59,11 @@ public class FileBulkOutputWriter extends ConfigAware implements BulkOutputWrite
 	}
 
 	@Override
-	public void closeResources() {
+	public void closeResources(final Map<String, String> globalAttributes) {
 		IOUtils.closeQuietly(writer);
 		writer = null;
+		this.renameOutputFile(currentBulkOutputFilePath, globalAttributes);
+		currentBulkOutputFilePath = null;
 	}
 
 }

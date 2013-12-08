@@ -3,6 +3,7 @@ package com.threeglav.bauk.feed.bulk.writer;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
@@ -65,7 +66,7 @@ public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWr
 	}
 
 	@Override
-	public void closeResources() {
+	public void closeResources(final Map<String, String> globalAttributes) {
 		IOUtils.closeQuietly(rwChannel);
 		rwChannel = null;
 	}

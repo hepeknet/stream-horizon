@@ -27,6 +27,9 @@ public class BulkLoadDefinition {
 	@XmlAttribute(required = false)
 	private BulkLoadDefinitionOutputType outputType = BulkLoadDefinitionOutputType.FILE;
 
+	@XmlElement(name = "output-file-name-pattern", required = false)
+	private String outputFileNamePattern;
+
 	public BulkLoadFormatDefinition getBulkLoadFormatDefinition() {
 		return bulkLoadFormatDefinition;
 	}
@@ -65,6 +68,14 @@ public class BulkLoadDefinition {
 
 	public void setOutputType(final BulkLoadDefinitionOutputType outputType) {
 		this.outputType = outputType;
+	}
+
+	public String getOutputFileNamePattern() {
+		return outputFileNamePattern;
+	}
+
+	public void setOutputFileNamePattern(final String outputFileNamePattern) {
+		this.outputFileNamePattern = outputFileNamePattern;
 	}
 
 }

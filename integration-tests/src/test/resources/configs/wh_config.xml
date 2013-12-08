@@ -144,6 +144,7 @@
 						<attribute name="feed.riskValue" />
 					</attributes>
 				</bulkLoadFormatDefinition>
+				<output-file-name-pattern></output-file-name-pattern>
 				<onBulkLoadSuccess>
 					<sqlStatements>
 						<sqlStatement>CALL simpleproc(@a)</sqlStatement>

@@ -1,5 +1,7 @@
 package com.threeglav.bauk.feed.bulk.writer;
 
+import java.util.Map;
+
 public final class NullBulkOutputWriter implements BulkOutputWriter {
 
 	@Override
@@ -11,7 +13,7 @@ public final class NullBulkOutputWriter implements BulkOutputWriter {
 	}
 
 	@Override
-	public void closeResources() {
+	public void closeResources(final Map<String, String> globalAttributes) {
 	}
 
 }
