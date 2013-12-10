@@ -53,6 +53,7 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void doOutput(final String line) {
 		try {
 			writer.write(line);
+			writer.newLine();
 		} catch (final Exception exc) {
 			log.error("Exception while writing data", exc);
 		}

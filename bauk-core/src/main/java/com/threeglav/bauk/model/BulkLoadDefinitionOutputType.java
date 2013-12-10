@@ -11,6 +11,9 @@ public enum BulkLoadDefinitionOutputType {
 	@XmlEnumValue("file")
 	FILE,
 
+	@XmlEnumValue("nio")
+	NIO,
+
 	@XmlEnumValue("none")
 	NONE;
 

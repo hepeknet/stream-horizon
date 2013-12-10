@@ -1,7 +1,6 @@
 package com.threeglav.bauk.feed.processing;
 
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -10,23 +9,27 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.BaukThreadFactory;
 
 public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 
-	private final Object bulkWriterLock = new Object();
+	private final Lock writeLock = new ReentrantLock();
 
 	private final BlockingQueue<String> lineQueue = new LinkedBlockingQueue<>();
 	private final ExecutorService executorService;
 	private final AtomicInteger totalLinesOutputCounter = new AtomicInteger(0);
 	private CountDownLatch allDone;
-	private volatile AtomicInteger expectedLines;
+	private AtomicInteger expectedLines;
 	private final int maxDrainedElements;
 	private Map<String, String> globalAttributes;
 
@@ -36,7 +39,8 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		if (numberOfThreads < 1) {
 			throw new IllegalArgumentException("Number of threads must not be non-positive integer!");
 		}
-		executorService = Executors.newFixedThreadPool(numberOfThreads);
+		final ThreadFactory threadFactory = new BaukThreadFactory("bauk-app", "feed-processing");
+		executorService = Executors.newFixedThreadPool(numberOfThreads, threadFactory);
 		for (int i = 0; i < numberOfThreads; i++) {
 			executorService.submit(new FeedDataProcessingTask());
 		}
@@ -82,7 +86,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 
 		@Override
 		public Void call() throws Exception {
-			final List<String> drainedElements = new LinkedList<>();
+			final List<String> drainedElements = new ArrayList<>(maxDrainedElements);
 			while (true) {
 				final int totalDrained = lineQueue.drainTo(drainedElements, maxDrainedElements);
 				if (totalDrained > 0) {
@@ -101,24 +105,21 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		}
 
 		private void processAllDrainedElements(final List<String> drainedElements) {
-			final Iterator<String> listIterator = drainedElements.iterator();
-			final String[] outputLines = new String[drainedElements.size()];
-			int counter = 0;
-			while (listIterator.hasNext()) {
-				final String line = listIterator.next();
-				listIterator.remove();
+			final int elementCount = drainedElements.size();
+			for (int i = 0; i < elementCount; i++) {
+				final String line = drainedElements.get(i);
 				final String[] parsedData = feedParserComponent.parseData(line);
 				final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes, true);
-				outputLines[counter++] = lineForOutput;
+				drainedElements.set(i, lineForOutput);
 			}
-			drainedElements.clear();
-			final int outputSize = outputLines.length;
-			log.trace("Will output {} lines", outputSize);
-			synchronized (bulkWriterLock) {
-				for (final String str : outputLines) {
-					bulkOutputWriter.doOutput(str + "\n");
+			log.trace("Will output {} lines", elementCount);
+			try {
+				writeLock.lock();
+				for (int i = 0; i < elementCount; i++) {
+					final String line = drainedElements.get(i);
+					bulkOutputWriter.doOutput(line);
 				}
-				final int value = totalLinesOutputCounter.addAndGet(outputSize);
+				final int value = totalLinesOutputCounter.addAndGet(elementCount);
 				log.trace("In total output {} lines so far. Current expected value is {}", value, expectedLines);
 				if (expectedLines != null) {
 					if (value == expectedLines.get()) {
@@ -126,6 +127,9 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 						allDone.countDown();
 					}
 				}
+			} finally {
+				drainedElements.clear();
+				writeLock.unlock();
 			}
 		}
 	}

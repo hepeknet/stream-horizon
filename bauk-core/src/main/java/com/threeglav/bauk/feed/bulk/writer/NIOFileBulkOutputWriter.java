@@ -1,5 +1,6 @@
 package com.threeglav.bauk.feed.bulk.writer;
 
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -17,10 +18,10 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
 
+	private static final byte[] NEW_LINE_BYTES = "\n".getBytes();
 	private FileChannel rwChannel;
 	private final int bufferSize;
 	private ByteBuffer wrBuf;
-	private int position;
 
 	public NIOFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -32,8 +33,7 @@ public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWr
 	private void createFileWriter(final String outputFilePath) {
 		try {
 			rwChannel = new RandomAccessFile(outputFilePath, "rw").getChannel();
-			position = 0;
-			wrBuf = rwChannel.map(FileChannel.MapMode.READ_WRITE, position, bufferSize);
+			wrBuf = rwChannel.map(FileChannel.MapMode.READ_WRITE, 0, bufferSize);
 		} catch (final Exception exc) {
 			log.error("Exception while creating writer", exc);
 			throw new RuntimeException(exc);
@@ -54,12 +54,15 @@ public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWr
 	@Override
 	public void doOutput(final String line) {
 		try {
-			if (!wrBuf.hasRemaining()) {
-				wrBuf = rwChannel.map(FileChannel.MapMode.READ_WRITE, position, bufferSize);
-			}
 			final byte[] bytes = line.getBytes();
-			position += bytes.length;
+			final int bytesLen = bytes.length + NEW_LINE_BYTES.length;
+			if (wrBuf.remaining() < bytesLen) {
+				wrBuf.flip();
+				rwChannel.write(wrBuf);
+				wrBuf.clear();
+			}
 			wrBuf.put(bytes);
+			wrBuf.put(NEW_LINE_BYTES);
 		} catch (final Exception exc) {
 			log.error("Exception while writing data", exc);
 		}
@@ -67,6 +70,16 @@ public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWr
 
 	@Override
 	public void closeResources(final Map<String, String> globalAttributes) {
+		try {
+			if (wrBuf.hasRemaining()) {
+				wrBuf.flip();
+				rwChannel.write(wrBuf);
+				rwChannel.force(true);
+			}
+		} catch (final IOException ie) {
+			log.error("Exception while writing data to file", ie);
+		}
+		wrBuf.clear();
 		IOUtils.closeQuietly(rwChannel);
 		rwChannel = null;
 	}
