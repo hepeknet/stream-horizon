@@ -4,6 +4,9 @@ import gnu.trove.map.hash.THashMap;
 
 import java.io.File;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipFile;
@@ -225,6 +228,8 @@ class FeedFileProcessor implements Processor {
 	}
 
 	private Map<String, String> createImplicitGlobalAttributes(final Exchange exchange) {
+		final DateFormat dateFormat = new SimpleDateFormat(BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
+		log.info("All date/time values will be in format {}", BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
 		final Map<String, String> attributes = new THashMap<String, String>();
 		final Message exchangeIn = exchange.getIn();
 		final String fileNameOnly = (String) exchangeIn.getHeader("CamelFileNameOnly");
@@ -236,10 +241,15 @@ class FeedFileProcessor implements Processor {
 			log.info("Null or empty attributes returned by feed file name parser!");
 		}
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, (String) exchangeIn.getHeader("CamelFileAbsolutePath"));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP,
-				String.valueOf(exchangeIn.getHeader("CamelFileLastModified")));
+		final Long lastModifiedFeedFile = (Long) exchangeIn.getHeader("CamelFileLastModified");
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, "" + lastModifiedFeedFile);
+		final Date lastModifiedFileDate = new Date();
+		lastModifiedFileDate.setTime(lastModifiedFeedFile);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME, dateFormat.format(lastModifiedFileDate));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(exchangeIn.getHeader("CamelFileLength")));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP, "" + System.currentTimeMillis());
+		final Date now = new Date();
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getTime());
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, dateFormat.format(now));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
 		log.debug("Created global attributes {}", attributes);
 		return attributes;

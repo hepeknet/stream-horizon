@@ -2,12 +2,16 @@ package com.threeglav.bauk;
 
 public interface BaukConstants {
 
+	public static final String TIMESTAMP_TO_DATE_FORMAT = "dd/MM/yyyy hh:mm:ss.SSS";
+
 	public static final int ONE_MEGABYTE = 1024 * 1024;
 
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH = "feedInputFilePath";
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME = "feedInputFileName";
 	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP = "feedInputFileReceivedTimestamp";
-	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSED_TIMESTAMP = "feedInputFileProcessedTimestamp";
+	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME = "feedInputfileReceivedDateTime";
+	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP = "feedInputFileProcessingStartedTimestamp";
+	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME = "feedInputfileProcessingStartedDateTime";
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE = "feedInputFileSize";
 	public static final String IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH = "feedBulkLoadOutputFilePath";
 

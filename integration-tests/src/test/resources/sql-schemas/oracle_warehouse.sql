@@ -357,8 +357,7 @@ CREATE OR REPLACE procedure warehouse.dataFeed(uniqueName varchar2, analyticsReq
 rerunGuid varchar2, requestName varchar2, batchType varchar2,portfolio varchar2, portfolioDimSK integer,numberOfRows integer,filePersistedToDiskTimestamp timestamp,
 source varchar2, intradayName varchar2, casparGuid varchar2, fileType varchar2,
 fileName varchar2,etlStartTimestamp varchar2, fileUserName varchar2,location varchar2, qlVersion varchar2,fileValid varchar2, /* if number of lines equals numberOfRows from footer than S else F */
-etlExceptionString varchar2/* java processing exception string */,EODflag varchar2, requestTimestamp varchar2,rerunVersion varchar2
-) 
+etlExceptionString varchar2/* java processing exception string */,EODflag varchar2, requestTimestamp varchar2,rerunVersion varchar2) 
 is
 notifiId integer;
 fileId integer;
@@ -404,12 +403,10 @@ begin
       end;
    insert into rwhstg_etl_batch(file_id, file_name, file_type, file_created_timestamp, start_timestamp,
                                                        business_date,number_of_rows,username_requested,location,ql_version,caspar_guid,rerun_guid,
-                                                       file_validation_flag, fact_load_flag, end_timestamp, error_description, eod_flag  ,request_timestamp,run_tag                                                                  
-                                                       )
+                                                       file_validation_flag, fact_load_flag, end_timestamp, error_description, eod_flag  ,request_timestamp,run_tag)
                                             values (s_batch_id.nextval, dataFeed.fileName, dataFeed.fileType, to_date(to_char(dataFeed.filePersistedToDiskTimestamp,'dd-Mon-yyyy HH24:MI:SS'),'dd-Mon-yyyy HH24:MI:SS'), dataFeed.etlStartTimestamp,
                                                         dataFeed.businessDate,dataFeed.numberOfRows,dataFeed.fileUserName,dataFeed.location,dataFeed.qlVersion,dataFeed.uniqueName,dataFeed.rerunGuid,
-                                                        dataFeed.fileValid,null /* not known at this point, need be set by external table routine */,systimestamp,dataFeed.etlExceptionString,dataFeed.EODflag,dataFeed.requestTimestamp,dataFeed.runTag
-                                            )
+                                                        dataFeed.fileValid,null /* not known at this point, need be set by external table routine */,systimestamp,dataFeed.etlExceptionString,dataFeed.EODflag,dataFeed.requestTimestamp,dataFeed.runTag);
  commit;                        
 end;
 /

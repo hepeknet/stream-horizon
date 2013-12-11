@@ -155,8 +155,8 @@
 			</bulkLoadDefinition>
 			<afterFeedProcessingCompletion>
 				<sqlStatement>
-					CALL warehouse.DATAFEED('${guid}', 'analyticsRequestGuid', '${runTag}', trunc(to_date('${businessDate}','mm/dd/yyyy')), '${rerunGuid}','requestName','batchType','${portfolio}', ${RWH_PORTFOLIO_DIM.sk}, ${completionNumberOfRowsInFeed},to_timestamp('10-Sep-02 14:10:10.123000', 'DD-Mon-RR HH24:MI:SS.FF'),
-                      'CS', '${intradayName}', '${guid}','RISK', 'RISK_fileName', trunc(to_date('03/07/2008','mm/dd/yyyy')), '${fileUserName}','${location}','${qlVersion}','${completionFeedProcessingSuccessFailureFlag}',
+					CALL warehouse.DATAFEED('${guid}', 'analyticsRequestGuid', '${runTag}', trunc(to_date('${businessDate}','DD/MM/YYYY')), '${rerunGuid}','requestName','batchType','${portfolio}', ${RWH_PORTFOLIO_DIM.sk}, ${completionNumberOfRowsInFeed},to_timestamp('${feedInputfileReceivedDateTime}', 'DD/MM/YYYY HH24:MI:SS.FF3'),
+                      'CS', '${intradayName}', '${guid}','RISK', 'RISK_fileName', trunc(to_timestamp('${feedInputfileProcessingStartedDateTime}','DD/MM/YYYY HH24:MI:SS.FF3')), '${fileUserName}','${location}','${qlVersion}','${completionFeedProcessingSuccessFailureFlag}',
                       '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')
 				</sqlStatement>
 			</afterFeedProcessingCompletion>
