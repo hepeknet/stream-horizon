@@ -70,10 +70,7 @@
 					<attribute name="eodFlag" />
 					<attribute name="location" />
 					<attribute name="intradayName" />
-					<attribute name="notUsed1" />
-					<attribute name="notUsed2" />
 					<attribute name="businessDate" />
-					<attribute name="notUsed3" />
 					<attribute name="rerunVersion" />
 					<attribute name="curveType" />
 					<attribute name="parisRequestId" />
@@ -132,13 +129,17 @@
 				<bulkLoadFormatDefinition>
 					<attributes>
 						<attribute name="dimension.RWH_DEAL_DIM" />
-						<attribute name="dimension.RWH_UNDERLYING_DIM" />
-						<attribute name="dimension.RWH_RISK_STATUS_DIM" />
 						<attribute name="dimension.RWH_PRODUCT_DIM" />
-						<attribute name="dimension.RWH_PORTFOLIO_DIM" />
-						<attribute name="dimension.RWH_PARTY_DIM" />
-						<attribute name="dimension.RWH_CURRENCY_DIM" />
+						<attribute name="dimension.RWH_UNDERLYING_DIM" />
 						<attribute name="dimension.RWH_CURVETYPE_DIM" />
+						<attribute name="dimension.RWH_DATE_DIM" />
+						<attribute name="dimension.RWH_CURRENCY_DIM" />
+						<attribute name="dimension.RWH_PARTY_DIM" />
+						<attribute name="dimension.RWH_PORTFOLIO_DIM" />
+						<attribute name="dimension.RWH_RISK_STATUS_DIM" />
+						<attribute>-1</attribute>
+						<attribute>'Y'</attribute>
+						<attribute>'N'</attribute>
 						<attribute name="feed.localValue" />
 						<attribute name="feed.baseValue" />
 						<attribute name="feed.riskValue" />
@@ -152,17 +153,13 @@
 					</sqlStatements>
 				</onBulkLoadSuccess>
 			</bulkLoadDefinition>
-			<!--
 			<afterFeedProcessingCompletion>
 				<sqlStatement>
-					CALL warehouse.dataFeed('${guid}' , 'analyticsRequestGuid', '${runTag}',/* businessDate*/ trunc(to_date('03/07/2008','mm/dd/yyyy')),
-                                           '${rerunGuid}','requestName','batchType','${portfolio}' , 3/*portfolioDimSK*/ ,${completionNumberOfRowsInFeed},/*file persisted to disk timestamp*/to_timestamp ('10-Sep-02 14:10:10.123000', 'DD-Mon-RR HH24:MI:SS.FF'),
-                                           'CS' /*f filename is CSRISKFEED >source<  are first two characters of it */, '${intradayName}', '${guid}','RISK',
-                                           'RISK_fileName',/*etlStartTimestamp*/ trunc(to_date('03/07/2008','mm/dd/yyyy')), '${fileUserName}','${location}','${qlVersion}','${completionFeedProcessingSuccessFailureFlag}',
-                                           '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')
+					CALL warehouse.DATAFEED('${guid}', 'analyticsRequestGuid', '${runTag}', trunc(to_date('${businessDate}','mm/dd/yyyy')), '${rerunGuid}','requestName','batchType','${portfolio}', ${RWH_PORTFOLIO_DIM.sk}, ${completionNumberOfRowsInFeed},to_timestamp('10-Sep-02 14:10:10.123000', 'DD-Mon-RR HH24:MI:SS.FF'),
+                      'CS', '${intradayName}', '${guid}','RISK', 'RISK_fileName', trunc(to_date('03/07/2008','mm/dd/yyyy')), '${fileUserName}','${location}','${qlVersion}','${completionFeedProcessingSuccessFailureFlag}',
+                      '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')
 				</sqlStatement>
 			</afterFeedProcessingCompletion>
-			-->
 			<threadPoolSizes>
 				<feedProcessingThreads>1</feedProcessingThreads>
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
@@ -269,15 +266,15 @@
 		</dimension>
 		<dimension name="RWH_DATE_DIM" type="T1_INSERT_ONLY">
 			<mappedColumns>
-				<mappedColumn name="businessDate" />
+				<mappedColumn name="businessDate" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
 					insert into WAREHOUSE.RWH_DATE_DIM(DATE_DIM_WID, BUSINESS_DATE)
-					values (TO_NUMBER(TO_CHAR(TO_TIMESTAMP('${businessDate}', 'DD/MM/YYYY HH24:MI:SS'), 'YYYYMMDD')), TO_TIMESTAMP('${businessDate}', 'DD/MM/YYYY HH24:MI:SS'))
+					values (TO_NUMBER(TO_CHAR(TO_TIMESTAMP('${businessDate}', 'DD/MM/YYYY'), 'YYYYMMDD')), TO_TIMESTAMP('${businessDate}', 'DD/MM/YYYY'))
 				</insertSingle>
-				<selectSurrogateKey>select DATE_DIM_WID from RWH_DATE_DIM where BUSINESS_DATE=TO_TIMESTAMP('${businessDate}', 'DD/MM/YYYY HH24:MI:SS')</selectSurrogateKey>
-				<preCacheKeys>select DATE_DIM_WID, BUSINESS_DATE from RWH_DATE_DIM</preCacheKeys>
+				<selectSurrogateKey>select DATE_DIM_WID from RWH_DATE_DIM where BUSINESS_DATE=TO_TIMESTAMP('${businessDate}', 'DD/MM/YYYY')</selectSurrogateKey>
+				<preCacheKeys>select DATE_DIM_WID, TO_CHAR(BUSINESS_DATE, 'DD/MM/YYYY') from RWH_DATE_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 		<dimension name="RWH_DEAL_DIM" type="T1_INSERT_ONLY">
@@ -299,8 +296,8 @@
 				<insertSingle>
 					insert into rwh_deal_dim(deal_dim_wid, sourceName, deal_type, deal_id, deal_version, deal_Whatif_uid, component_code,
        					deal_date, deal_amended, deal_state, deal_structure_CD, deal_additional_info, maturity_date, deal_additional_info_cube, dealInCubeGeneration)
-    				values (rwh_deal_seq.nextval, '${sourceName}', '${dealType}', '${dealId}', ${dealVersion}, '${dealWhatIfUID}', '${componentCode}', TO_DATE('${dealDate}', 'DD/MM/YYYY'), TO_DATE('${dealAmended}', 'DD/MM/YYYY'),
-    				'${dealState}', '${structureCd}', '${trade_tds}', TO_DATE('${maturityDate}', 'DD/MM/YYYY'), '${trade_tds}', NULL)
+    				values (rwh_deal_seq.nextval, '${sourceName}', '${dealType}', '${dealId}', ${dealVersion}, '${dealWhatIfUID}', '${componentCode}', TO_DATE('${dealDate}', 'DD/MM/YYYY HH24:MI:SS'), TO_DATE('${dealAmended}', 'DD/MM/YYYY HH24:MI:SS'),
+    				'${dealState}', '${structureCd}', '${trade_tds}', TO_DATE('${maturityDate}', 'DD/MM/YYYY HH24:MI:SS'), '${trade_tds}', NULL)
 				</insertSingle>
 				<selectSurrogateKey>select deal_dim_wid from rwh_deal_dim where sourceName='${sourceName}' and deal_type='${dealType}' and deal_id='${dealId}' and deal_version='${dealVersion}' and DEAL_WHATIF_UID='${dealWhatIfUID}' and component_code='${componentCode}'</selectSurrogateKey>
 				<preCacheKeys>select deal_dim_wid, sourceName, deal_type, deal_id, deal_version, DEAL_WHATIF_UID, component_code from rwh_deal_dim</preCacheKeys>

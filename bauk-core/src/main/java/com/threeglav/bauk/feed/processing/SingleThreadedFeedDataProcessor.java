@@ -16,7 +16,6 @@ public class SingleThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		final String[] parsedData = feedParserComponent.parseData(line);
 		final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes, isLastLine);
 		bulkOutputWriter.doOutput(lineForOutput);
-		bulkOutputWriter.doOutput("\n");
 	}
 
 }

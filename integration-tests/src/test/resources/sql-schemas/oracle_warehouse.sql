@@ -303,9 +303,9 @@ CREATE TABLE WAREHOUSE.REQUESTNOTIFICATION--this is control table and dimension 
 create sequence s_batch_id  start with 1 maxvalue 999999999999999999999999999 minvalue 1 nocycle cache 20 noorder;
 create sequence s_notification_id start with 1 maxvalue 999999999999999999999999999 minvalue 1 nocycle cache 20 noorder;
 
-CREATE OR REPLACE function warehouse.notifFeed(casparGuid varchar2, runGuid varchar2,taskCnt integer,fileCnt integer,
+CREATE OR REPLACE procedure warehouse.notifFeed(casparGuid varchar2, runGuid varchar2,taskCnt integer,fileCnt integer,
 persistedTaskCnt integer,persistedTradesCnt integer,persistedValidValuesCnt integer,persistedInvalidValuesCnt integer,notPersistedTaskCnt integer,notPersistedTradesCnt integer,
-fileName varchar2,etlExceptionString varchar2,requestTimestamp varchar2,etlStartTimestamp varchar2,filePersistedToDiskTimestamp timestamp,source varchar2,fileType varchar2) return varchar2 
+fileName varchar2,etlExceptionString varchar2,requestTimestamp varchar2,etlStartTimestamp varchar2,filePersistedToDiskTimestamp timestamp,source varchar2,fileType varchar2)
 is
 notifiId integer;
 fileId integer;
@@ -348,19 +348,17 @@ begin
                                                        )
    values (s_batch_id.nextval, notifFeed.fileName, notifFeed.fileType, to_date(to_char(notifFeed.filePersistedToDiskTimestamp,'dd-Mon-yyyy HH24:MI:SS'),'dd-Mon-yyyy HH24:MI:SS'), notifFeed.etlStartTimestamp,notifFeed.casparGuid,
                                                        null ,systimestamp,notifFeed.etlExceptionString,notifFeed.requestTimestamp
-                                            )
-   return file_id into fileId;              
- commit;      
- return to_char(notifiId)||'_'||to_char(fileId);                  
+                                            )        
+ commit;                   
 end;
 /
 
-CREATE OR REPLACE function warehouse.dataFeed(uniqueName varchar2, analyticsRequestGuid varchar2, runTag varchar2, businessDate date,
+CREATE OR REPLACE procedure warehouse.dataFeed(uniqueName varchar2, analyticsRequestGuid varchar2, runTag varchar2, businessDate date,
 rerunGuid varchar2, requestName varchar2, batchType varchar2,portfolio varchar2, portfolioDimSK integer,numberOfRows integer,filePersistedToDiskTimestamp timestamp,
 source varchar2, intradayName varchar2, casparGuid varchar2, fileType varchar2,
 fileName varchar2,etlStartTimestamp varchar2, fileUserName varchar2,location varchar2, qlVersion varchar2,fileValid varchar2, /* if number of lines equals numberOfRows from footer than S else F */
 etlExceptionString varchar2/* java processing exception string */,EODflag varchar2, requestTimestamp varchar2,rerunVersion varchar2
-) return varchar2 
+) 
 is
 notifiId integer;
 fileId integer;
@@ -412,8 +410,6 @@ begin
                                                         dataFeed.businessDate,dataFeed.numberOfRows,dataFeed.fileUserName,dataFeed.location,dataFeed.qlVersion,dataFeed.uniqueName,dataFeed.rerunGuid,
                                                         dataFeed.fileValid,null /* not known at this point, need be set by external table routine */,systimestamp,dataFeed.etlExceptionString,dataFeed.EODflag,dataFeed.requestTimestamp,dataFeed.runTag
                                             )
-   return file_id into fileId;              
- commit;      
- return to_char(notifiId)||'_'||to_char(fileId);                  
+ commit;                        
 end;
 /
