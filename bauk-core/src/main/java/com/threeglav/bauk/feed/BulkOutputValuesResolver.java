@@ -141,7 +141,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	public String resolveValuesAsSingleLine(final String[] inputValues, final Map<String, String> globalData, final boolean isLastLine) {
-		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
 			if (i != 0) {
 				sb.append(outputDelimiter);

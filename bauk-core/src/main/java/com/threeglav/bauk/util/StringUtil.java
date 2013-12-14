@@ -11,6 +11,8 @@ import com.threeglav.bauk.BaukConstants;
 
 public abstract class StringUtil {
 
+	public static final int DEFAULT_STRING_BUILDER_CAPACITY = 100;
+
 	private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 
 	private static final String NULL_VALUE = "NULL";
@@ -81,7 +83,7 @@ public abstract class StringUtil {
 		if (values == null) {
 			throw new IllegalArgumentException("Unable to build cache key from null!");
 		}
-		final StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder(DEFAULT_STRING_BUILDER_CAPACITY);
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);

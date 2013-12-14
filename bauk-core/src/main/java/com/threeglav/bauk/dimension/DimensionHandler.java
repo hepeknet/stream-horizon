@@ -47,6 +47,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
 	private final boolean skipCaching;
+	private final boolean isTracingEnabled;
+	private final boolean isDebugEnabled;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
@@ -83,6 +85,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
 				dimensionLastLineSKAttributeName);
 		this.preCacheAllKeys();
+		// help JIT remove code if not enabled
+		isTracingEnabled = log.isTraceEnabled();
+		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	private void validate() {
@@ -231,7 +236,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			}
 		}
 		if (surrogateKey == null) {
-			if (log.isTraceEnabled()) {
+			if (isTracingEnabled) {
 				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes);
@@ -239,13 +244,17 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				cacheInstance.put(naturalCacheKey, surrogateKey);
 				this.putInLocalCache(naturalCacheKey, surrogateKey);
 			}
-		} else {
+		} else if (isTracingEnabled) {
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
-		log.trace("Resolved surrogate key is {}", surrogateKey);
+		if (isTracingEnabled) {
+			log.trace("Resolved surrogate key is {}", surrogateKey);
+		}
 		if (isLastLine && globalAttributes != null) {
 			globalAttributes.put(dimensionLastLineSKAttributeName, surrogateKey);
-			log.trace("Saved last line value {}={}", dimensionLastLineSKAttributeName, surrogateKey);
+			if (isTracingEnabled) {
+				log.trace("Saved last line value {}={}", dimensionLastLineSKAttributeName, surrogateKey);
+			}
 		}
 		return surrogateKey;
 	}
@@ -272,7 +281,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (result == null) {
 			throw new IllegalStateException("Was not able to retrieve surrogate key by using select surrogate key statement " + preparedStatement);
 		}
-		log.debug("Retrieved surrogate key {} for {}", result, preparedStatement);
+		if (isTracingEnabled) {
+			log.trace("Retrieved surrogate key {} for {}", result, preparedStatement);
+		}
 		return result.toString();
 	}
 
@@ -367,7 +378,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				final String attributeName = naturalKeyNames[i];
 				if (attributeName != null) {
 					final String globalAttributeValue = globalAttributes.get(attributeName);
-					if (log.isDebugEnabled()) {
+					if (isDebugEnabled) {
 						log.debug(
 								"Natural key {}.{} is not mapped to any of declared feed attributes. Will use value [{}] found in global attributes",
 								dimension.getName(), attributeName, globalAttributeValue);
