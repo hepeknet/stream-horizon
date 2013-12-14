@@ -63,6 +63,9 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		if (bulkLoadFileDefinition.getAttributes() == null || bulkLoadFileDefinition.getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
 		}
+		if (this.getFactFeed().getData() == null) {
+			throw new IllegalArgumentException("Did not find any data definition for feed " + this.getFactFeed().getName());
+		}
 	}
 
 	private void createOutputValueHandlers(final String routeIdentifier) {

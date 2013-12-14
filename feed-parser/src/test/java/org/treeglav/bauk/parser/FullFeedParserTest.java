@@ -44,4 +44,11 @@ public class FullFeedParserTest {
 		Assert.assertNull(res2[4]);
 	}
 
+	@Test
+	public void testSingle() {
+		final FeedParser fp = new FullFeedParser(",");
+		final String[] res = fp.parse("abc,def,abc");
+		Assert.assertEquals(3, res.length);
+	}
+
 }

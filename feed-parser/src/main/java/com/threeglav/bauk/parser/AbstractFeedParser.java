@@ -57,7 +57,8 @@ public abstract class AbstractFeedParser implements FeedParser {
 				return this.splitStringDelimiter(line, skipCharacters);
 			}
 		} catch (final Exception exc) {
-			log.error("Exception while parsing line {}, skipCharacters {}, delimiter {}", line, skipCharacters, delimiter);
+			log.error("Exception while parsing line [{}], skipCharacters {}, delimiter {}, expectedTokens {}", new Object[] { line, skipCharacters,
+					delimiter, expectedTokens });
 			log.error("Details", exc);
 			return null;
 		}
@@ -94,7 +95,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 		int indexOfDelimiter = line.indexOf(singleCharacterDelimiter, skipCharacters);
 		int fromIndex = skipCharacters;
 		int count = 0;
-		while (indexOfDelimiter != -1) {
+		while (indexOfDelimiter != -1 && count < lines.length - 1) {
 			lines[count++] = line.substring(fromIndex, indexOfDelimiter);
 			fromIndex = indexOfDelimiter + 1;
 			indexOfDelimiter = line.indexOf(singleCharacterDelimiter, fromIndex);

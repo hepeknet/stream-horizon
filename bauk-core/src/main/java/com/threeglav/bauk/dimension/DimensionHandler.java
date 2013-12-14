@@ -13,6 +13,7 @@ import com.codahale.metrics.Counter;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.ConfigAware;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -29,7 +30,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	private static final int NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION = -1;
 
-	private static final int MAX_ELEMENTS_LOCAL_MAP = getDimensionLocalCacheSize();
+	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
+			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
 
 	private final Map<String, String> localCache = new THashMap<>();
 
@@ -85,7 +87,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
 				dimensionLastLineSKAttributeName);
 		this.preCacheAllKeys();
-		// help JIT remove code if not enabled
+		// help JIT remove dead code
 		isTracingEnabled = log.isTraceEnabled();
 		isDebugEnabled = log.isDebugEnabled();
 	}
@@ -367,14 +369,15 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		final String[] naturalKeyValues = new String[naturalKeyNames.length];
+		final boolean parsedLineIsNull = (parsedLine == null);
+		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			final int key = naturalKeyPositionsInFeed[i];
-			if (parsedLine != null && parsedLine.length <= key) {
+			if (!parsedLineIsNull && parsedLine.length <= key) {
 				throw new IllegalArgumentException("Parsed line has less values than needed " + key);
 			}
 			String value = null;
-			if (parsedLine == null || key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
+			if (parsedLineIsNull || key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
 				final String attributeName = naturalKeyNames[i];
 				if (attributeName != null) {
 					final String globalAttributeValue = globalAttributes.get(attributeName);
@@ -388,17 +391,12 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			} else {
 				value = parsedLine[key];
 			}
-			naturalKeyValues[i] = value;
+			if (i != 0) {
+				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
+			}
+			sb.append(value);
 		}
-		return StringUtil.getNaturalKeyCacheKey(naturalKeyValues);
-	}
-
-	private static int getDimensionLocalCacheSize() {
-		final String propertyValue = System.getProperty(SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME);
-		if (StringUtil.isEmpty(propertyValue)) {
-			return SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT;
-		}
-		return Integer.parseInt(propertyValue);
+		return sb.toString();
 	}
 
 	/*

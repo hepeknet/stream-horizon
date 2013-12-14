@@ -12,6 +12,7 @@ import com.threeglav.bauk.feed.bulk.writer.FileBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.NIOFileBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.NullBulkOutputWriter;
 import com.threeglav.bauk.model.BaukConfiguration;
+import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.bauk.model.FactFeed;
 
@@ -23,7 +24,11 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 
 	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier) {
 		super(factFeed, config);
-		final BulkLoadDefinitionOutputType outputType = factFeed.getBulkLoadDefinition().getOutputType();
+		final BulkLoadDefinition bld = factFeed.getBulkLoadDefinition();
+		if (bld == null) {
+			throw new IllegalArgumentException("Was not able to find bulk load definition for feed " + factFeed.getName());
+		}
+		final BulkLoadDefinitionOutputType outputType = bld.getOutputType();
 		if (outputType == BulkLoadDefinitionOutputType.FILE) {
 			log.info("Will output bulk output results for feed {} to file", factFeed.getName());
 			bulkOutputWriter = new FileBulkOutputWriter(factFeed, config);
@@ -42,6 +47,9 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 
 	@Override
 	public void startFeed(final Map<String, String> globalAttributes) {
+		if (globalAttributes == null) {
+			throw new IllegalArgumentException("Global attributes must not be null");
+		}
 		log.debug("Starting new feed with global attributes {}", globalAttributes);
 		bulkoutputResolver.startFeed(globalAttributes);
 		bulkOutputWriter.initialize(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));

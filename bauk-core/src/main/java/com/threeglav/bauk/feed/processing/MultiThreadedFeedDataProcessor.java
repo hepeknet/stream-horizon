@@ -32,12 +32,13 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	private AtomicInteger expectedLines;
 	private final int maxDrainedElements;
 	private Map<String, String> globalAttributes;
+	private final boolean isTraceEnabled;
 
 	public MultiThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
 			final int numberOfThreads) {
 		super(factFeed, config, routeIdentifier);
-		if (numberOfThreads < 1) {
-			throw new IllegalArgumentException("Number of threads must not be non-positive integer!");
+		if (numberOfThreads < 2) {
+			throw new IllegalArgumentException("Number of threads must be great than 1!");
 		}
 		final ThreadFactory threadFactory = new BaukThreadFactory("bauk-app", "feed-processing");
 		executorService = Executors.newFixedThreadPool(numberOfThreads, threadFactory);
@@ -46,6 +47,8 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		}
 		maxDrainedElements = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.MAX_DRAINED_ELEMENTS_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_MAX_DRAINED_ELEMENTS);
+		// help JIT to remove dead code
+		isTraceEnabled = log.isTraceEnabled();
 	}
 
 	@Override
@@ -90,7 +93,9 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 			while (true) {
 				final int totalDrained = lineQueue.drainTo(drainedElements, maxDrainedElements);
 				if (totalDrained > 0) {
-					log.trace("In total drained {} elements", totalDrained);
+					if (isTraceEnabled) {
+						log.trace("In total drained {} elements", totalDrained);
+					}
 					this.processAllDrainedElements(drainedElements);
 				} else {
 					final String singleLine = lineQueue.poll(300, TimeUnit.MILLISECONDS);
@@ -112,7 +117,9 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 				final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes, true);
 				drainedElements.set(i, lineForOutput);
 			}
-			log.trace("Will output {} lines", elementCount);
+			if (isTraceEnabled) {
+				log.trace("Will output {} lines", elementCount);
+			}
 			try {
 				writeLock.lock();
 				for (int i = 0; i < elementCount; i++) {
@@ -120,7 +127,9 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 					bulkOutputWriter.doOutput(line);
 				}
 				final int value = totalLinesOutputCounter.addAndGet(elementCount);
-				log.trace("In total output {} lines so far. Current expected value is {}", value, expectedLines);
+				if (isTraceEnabled) {
+					log.trace("In total output {} lines so far. Current expected value is {}", value, expectedLines);
+				}
 				if (expectedLines != null) {
 					if (value == expectedLines.get()) {
 						log.debug("Processed all required {} lines. Notifying to close output file!", value);
