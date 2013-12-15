@@ -3,7 +3,7 @@ package com.threeglav.bauk;
 public interface SystemConfigurationConstants {
 
 	public static final String DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME = "dimension.local.cache.size";
-	public static final int DIMENSION_LOCAL_CACHE_SIZE_DEFAULT = 10000;
+	public static final int DIMENSION_LOCAL_CACHE_SIZE_DEFAULT = 20000;
 
 	public static final String APP_HOME_SYS_PARAM_NAME = "bauk.home";
 

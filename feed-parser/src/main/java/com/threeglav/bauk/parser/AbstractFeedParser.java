@@ -12,9 +12,10 @@ public abstract class AbstractFeedParser implements FeedParser {
 	protected final String delimiter;
 	private int expectedTokens = DEFAULT_EXPECTED_MEMBERS;
 	private String nullString;
-	protected final int delimiterLenght;
+	private final int delimiterLenght;
 	private static final char DEFAULT_NON_INIT_CHAR = '\0';
 	private char singleCharacterDelimiter = DEFAULT_NON_INIT_CHAR;
+	private final boolean isSingleCharacterDelimiter;
 
 	public AbstractFeedParser(final String delimiter) {
 		if (delimiter == null || delimiter.trim().isEmpty()) {
@@ -25,7 +26,10 @@ public abstract class AbstractFeedParser implements FeedParser {
 		log.debug("Created parser for delimiter {}", delimiter);
 		if (delimiterLenght == 1) {
 			singleCharacterDelimiter = delimiter.charAt(0);
+			isSingleCharacterDelimiter = true;
 			log.info("Single character delimiter {}. This will slightly speed up execution", singleCharacterDelimiter);
+		} else {
+			isSingleCharacterDelimiter = false;
 		}
 	}
 
@@ -51,7 +55,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 
 	protected String[] splitLine(final String line, final int skipCharacters) {
 		try {
-			if (singleCharacterDelimiter != DEFAULT_NON_INIT_CHAR) {
+			if (isSingleCharacterDelimiter) {
 				return this.splitCharacterDelimiter(line, skipCharacters);
 			} else {
 				return this.splitStringDelimiter(line, skipCharacters);
@@ -85,6 +89,11 @@ public abstract class AbstractFeedParser implements FeedParser {
 		} else {
 			lines[count++] = val;
 		}
+		// if we already allocated array of appropriate size and filled it
+		if (count == expectedTokens) {
+			return lines;
+		}
+		// otherwise we want to send only used part of array (in case we did not know how many tokens to expect)
 		final String[] finalLines = new String[count];
 		System.arraycopy(lines, 0, finalLines, 0, count);
 		return finalLines;
@@ -95,12 +104,27 @@ public abstract class AbstractFeedParser implements FeedParser {
 		int indexOfDelimiter = line.indexOf(singleCharacterDelimiter, skipCharacters);
 		int fromIndex = skipCharacters;
 		int count = 0;
-		while (indexOfDelimiter != -1 && count < lines.length - 1) {
-			lines[count++] = line.substring(fromIndex, indexOfDelimiter);
-			fromIndex = indexOfDelimiter + 1;
+		while (indexOfDelimiter != -1 && count < (expectedTokens - 1)) {
+			final String val = line.substring(fromIndex, indexOfDelimiter);
+			if (this.isParsedValueNull(val)) {
+				lines[count++] = null;
+			} else {
+				lines[count++] = val;
+			}
+			fromIndex = indexOfDelimiter + delimiterLenght;
 			indexOfDelimiter = line.indexOf(singleCharacterDelimiter, fromIndex);
 		}
-		lines[count++] = line.substring(fromIndex, line.length());
+		final String val = line.substring(fromIndex, line.length());
+		if (this.isParsedValueNull(val)) {
+			lines[count++] = null;
+		} else {
+			lines[count++] = val;
+		}
+		// if we already allocated array of appropriate size and filled it
+		if (count == expectedTokens) {
+			return lines;
+		}
+		// otherwise we want to send only used part of array (in case we did not know how many tokens to expect)
 		final String[] finalLines = new String[count];
 		System.arraycopy(lines, 0, finalLines, 0, count);
 		return finalLines;

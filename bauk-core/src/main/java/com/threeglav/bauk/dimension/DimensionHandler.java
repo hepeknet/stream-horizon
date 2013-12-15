@@ -33,7 +33,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
 			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
 
-	private final Map<String, String> localCache = new THashMap<>();
+	private final Map<String, String> localCache = new THashMap<>(MAX_ELEMENTS_LOCAL_MAP);
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
