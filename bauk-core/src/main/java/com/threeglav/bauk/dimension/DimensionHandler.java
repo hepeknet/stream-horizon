@@ -49,8 +49,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
 	private final boolean skipCaching;
-	private final boolean isTracingEnabled;
-	private final boolean isDebugEnabled;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
@@ -87,9 +85,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
 				dimensionLastLineSKAttributeName);
 		this.preCacheAllKeys();
-		// help JIT remove dead code
-		isTracingEnabled = log.isTraceEnabled();
-		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	private void validate() {
@@ -238,7 +233,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			}
 		}
 		if (surrogateKey == null) {
-			if (isTracingEnabled) {
+			if (isTraceEnabled) {
 				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes);
@@ -246,15 +241,15 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				cacheInstance.put(naturalCacheKey, surrogateKey);
 				this.putInLocalCache(naturalCacheKey, surrogateKey);
 			}
-		} else if (isTracingEnabled) {
+		} else if (isTraceEnabled) {
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
-		if (isTracingEnabled) {
+		if (isTraceEnabled) {
 			log.trace("Resolved surrogate key is {}", surrogateKey);
 		}
 		if (isLastLine && globalAttributes != null) {
 			globalAttributes.put(dimensionLastLineSKAttributeName, surrogateKey);
-			if (isTracingEnabled) {
+			if (isTraceEnabled) {
 				log.trace("Saved last line value {}={}", dimensionLastLineSKAttributeName, surrogateKey);
 			}
 		}
@@ -283,7 +278,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (result == null) {
 			throw new IllegalStateException("Was not able to retrieve surrogate key by using select surrogate key statement " + preparedStatement);
 		}
-		if (isTracingEnabled) {
+		if (isTraceEnabled) {
 			log.trace("Retrieved surrogate key {} for {}", result, preparedStatement);
 		}
 		return result.toString();

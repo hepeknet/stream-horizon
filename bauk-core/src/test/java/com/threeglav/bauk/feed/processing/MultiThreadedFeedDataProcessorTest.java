@@ -65,6 +65,7 @@ public class MultiThreadedFeedDataProcessorTest {
 			}
 		});
 		Assert.assertEquals(Integer.valueOf(totalLines), f.get());
+		Thread.sleep(1000);
 		mtfdp.closeFeed(totalLines, attrs);
 	}
 

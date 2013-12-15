@@ -1,8 +1,9 @@
 package com.threeglav.bauk.feed;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
@@ -32,6 +33,9 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private final BulkLoadOutputValueHandler[] outputValueHandlers;
 	private final String outputDelimiter;
 	private final CacheInstanceManager cacheInstanceManager;
+
+	// one handler per dimension only
+	private static final Map<String, DimensionHandler> cachedDimensionHandlers = new THashMap<String, DimensionHandler>();
 
 	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
 			final CacheInstanceManager cacheInstanceManager) {
@@ -80,8 +84,6 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		if (!StringUtil.isEmpty(firstStringInEveryLine)) {
 			feedDataLineOffset = 1;
 		}
-		// one handler per dimension only
-		final Map<String, DimensionHandler> cachedDimensionHandlers = new HashMap<String, DimensionHandler>();
 		final Map<String, Integer> feedAttributeNamesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(feedData.getAttributes());
 		for (int i = 0; i < bulkOutputAttributeNames.length; i++) {
 			final String bulkOutputAttributeName = bulkOutputAttributeNames[i];
@@ -136,11 +138,15 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	public void startFeed(final Map<String, String> globalData) {
-		log.debug("Starting feed with attributes {}", globalData);
+		if (isDebugEnabled) {
+			log.debug("Starting feed with attributes {}", globalData);
+		}
 		for (int i = 0; i < outputValueHandlers.length; i++) {
 			outputValueHandlers[i].calculatePerFeedValues(globalData);
 		}
-		log.debug("Started feed. In total have {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
+		if (isDebugEnabled) {
+			log.debug("Started feed. In total have {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
+		}
 	}
 
 	public String resolveValuesAsSingleLine(final String[] inputValues, final Map<String, String> globalData, final boolean isLastLine) {

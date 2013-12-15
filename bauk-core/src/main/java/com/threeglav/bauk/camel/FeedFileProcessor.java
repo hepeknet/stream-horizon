@@ -68,7 +68,7 @@ class FeedFileProcessor implements Processor {
 		this.config = config;
 		this.validate();
 		final String cleanFileMask = StringUtil.replaceAllNonASCII(fileMask);
-		feedDataProcessor = this.createFeedDataProcessor(cleanFileMask);
+		feedDataProcessor = new SingleThreadedFeedDataProcessor(factFeed, config, cleanFileMask);
 		textFileReaderComponent = new TextFileReaderComponent(this.factFeed, this.config, feedDataProcessor, cleanFileMask);
 		feedCompletionProcessor = this.createFeedCompletionProcessor();
 		beforeFeedProcessingProcessor = this.createBeforeFeedProcessingProcessor();
@@ -188,6 +188,7 @@ class FeedFileProcessor implements Processor {
 		} catch (final Exception exc) {
 			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, exc.getMessage());
 			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "F");
+			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED, "0");
 		}
 		log.debug("Global attributes (including completion attributes) for {} are {}", factFeed.getName(), globalAttributes);
 		feedCompletionProcessor.process(globalAttributes);

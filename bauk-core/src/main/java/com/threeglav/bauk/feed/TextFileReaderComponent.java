@@ -135,13 +135,13 @@ public class TextFileReaderComponent extends ConfigAware {
 				final Map<String, String> headerAttributes = this.processHeader(line);
 				if (headerAttributes != null) {
 					globalAttributes.putAll(headerAttributes);
-					if (log.isTraceEnabled()) {
+					if (isTraceEnabled) {
 						log.trace(
 								"Added all attributes {} from header to global attributes. All attributes, before starting to process body for feed {} are {}",
 								headerAttributes, this.getFactFeed().getName(), globalAttributes);
 					}
 				}
-			} else {
+			} else if (isDebugEnabled) {
 				log.debug("Skipping header line {} for feed {}", line, this.getFactFeed().getName());
 			}
 		}
@@ -212,7 +212,9 @@ public class TextFileReaderComponent extends ConfigAware {
 					continue;
 				}
 			}
-			log.debug("Successfully processed {} lines in file", feedLinesNumber);
+			if (isDebugEnabled) {
+				log.debug("Successfully processed {} lines in file", feedLinesNumber);
+			}
 			if (feedFileSizeHistogram != null) {
 				feedFileSizeHistogram.update(feedLinesNumber);
 			}

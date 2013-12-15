@@ -15,6 +15,8 @@ public abstract class ConfigAware {
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
 	private DbHandler dbHandler;
+	protected final boolean isDebugEnabled;
+	protected final boolean isTraceEnabled;
 
 	public ConfigAware(final FactFeed factFeed, final BaukConfiguration config) {
 		if (factFeed == null) {
@@ -25,6 +27,9 @@ public abstract class ConfigAware {
 			throw new IllegalArgumentException("Config must not be null");
 		}
 		this.config = config;
+		// help JIT remove dead code
+		isDebugEnabled = log.isDebugEnabled();
+		isTraceEnabled = log.isTraceEnabled();
 	}
 
 	protected FactFeed getFactFeed() {

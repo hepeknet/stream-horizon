@@ -23,6 +23,8 @@ import com.threeglav.bauk.util.BaukThreadFactory;
 
 public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 
+	private static final int AWAIT_TIME_SECONDS = 10;
+
 	private final Lock writeLock = new ReentrantLock();
 
 	private final BlockingQueue<String> lineQueue = new LinkedBlockingQueue<>();
@@ -31,8 +33,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 	private CountDownLatch allDone;
 	private AtomicInteger expectedLines;
 	private final int maxDrainedElements;
-	private Map<String, String> globalAttributes;
-	private final boolean isTraceEnabled;
+	private volatile Map<String, String> globalAttributes;
 
 	public MultiThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
 			final int numberOfThreads) {
@@ -47,8 +48,6 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		}
 		maxDrainedElements = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.MAX_DRAINED_ELEMENTS_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_MAX_DRAINED_ELEMENTS);
-		// help JIT to remove dead code
-		isTraceEnabled = log.isTraceEnabled();
 	}
 
 	@Override
@@ -57,6 +56,7 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 			throw new IllegalStateException("Expected counter to be 0 but is " + totalLinesOutputCounter.get());
 		}
 		super.startFeed(globalAttributes);
+		this.globalAttributes = globalAttributes;
 		allDone = new CountDownLatch(1);
 		expectedLines = null;
 	}
@@ -67,7 +67,12 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		expectedLines = new AtomicInteger(expected);
 		log.debug("Closing feed. Expected lines {}", expected);
 		try {
-			allDone.await();
+			final boolean allLinesProcessed = allDone.await(AWAIT_TIME_SECONDS, TimeUnit.SECONDS);
+			if (!allLinesProcessed) {
+				log.error("Not all lines were processed in {} seconds. Expected lines {}, so far processed {}", AWAIT_TIME_SECONDS, expected,
+						totalLinesOutputCounter.get());
+				throw new IllegalStateException("Waited too long to process " + expected + " lines!");
+			}
 		} catch (final InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -90,22 +95,27 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		@Override
 		public Void call() throws Exception {
 			final List<String> drainedElements = new ArrayList<>(maxDrainedElements);
-			while (true) {
-				final int totalDrained = lineQueue.drainTo(drainedElements, maxDrainedElements);
-				if (totalDrained > 0) {
-					if (isTraceEnabled) {
-						log.trace("In total drained {} elements", totalDrained);
-					}
-					this.processAllDrainedElements(drainedElements);
-				} else {
-					final String singleLine = lineQueue.poll(300, TimeUnit.MILLISECONDS);
-					if (singleLine != null) {
-						drainedElements.add(singleLine);
+			try {
+				while (true) {
+					final int totalDrained = lineQueue.drainTo(drainedElements, maxDrainedElements);
+					if (totalDrained > 0) {
+						if (isTraceEnabled) {
+							log.trace("In total drained {} elements", totalDrained);
+						}
 						this.processAllDrainedElements(drainedElements);
 					} else {
-						this.processAllDrainedElements(drainedElements);
+						final String singleLine = lineQueue.poll(300, TimeUnit.MILLISECONDS);
+						if (singleLine != null) {
+							drainedElements.add(singleLine);
+							this.processAllDrainedElements(drainedElements);
+						} else {
+							this.checkAllProcessedAndNotify();
+						}
 					}
 				}
+			} catch (final Exception exc) {
+				log.error("Exception while processing feed", exc);
+				throw exc;
 			}
 		}
 
@@ -117,30 +127,44 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 				final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes, true);
 				drainedElements.set(i, lineForOutput);
 			}
-			if (isTraceEnabled) {
-				log.trace("Will output {} lines", elementCount);
+			if (isDebugEnabled) {
+				log.debug("Will output {} lines", elementCount);
 			}
+			this.writeOutputValues(drainedElements, elementCount);
+		}
+
+		private void writeOutputValues(final List<String> drainedElements, final int elementCount) {
 			try {
 				writeLock.lock();
-				for (int i = 0; i < elementCount; i++) {
-					final String line = drainedElements.get(i);
-					bulkOutputWriter.doOutput(line);
-				}
-				final int value = totalLinesOutputCounter.addAndGet(elementCount);
-				if (isTraceEnabled) {
-					log.trace("In total output {} lines so far. Current expected value is {}", value, expectedLines);
-				}
-				if (expectedLines != null) {
-					if (value == expectedLines.get()) {
-						log.debug("Processed all required {} lines. Notifying to close output file!", value);
-						allDone.countDown();
+				if (elementCount > 0) {
+					for (int i = 0; i < elementCount; i++) {
+						final String line = drainedElements.get(i);
+						bulkOutputWriter.doOutput(line);
+					}
+					final int value = totalLinesOutputCounter.addAndGet(elementCount);
+					if (isDebugEnabled) {
+						log.debug("In total output {} lines so far. Current expected value is {}", value, expectedLines);
 					}
 				}
+				this.checkAllProcessedAndNotify();
 			} finally {
 				drainedElements.clear();
 				writeLock.unlock();
 			}
 		}
+
+		private void checkAllProcessedAndNotify() {
+			final int value = totalLinesOutputCounter.get();
+			if (expectedLines != null) {
+				if (value == expectedLines.get()) {
+					if (isDebugEnabled) {
+						log.debug("Processed all required {} lines. Notifying to close output file!", value);
+					}
+					allDone.countDown();
+				}
+			}
+		}
+
 	}
 
 }

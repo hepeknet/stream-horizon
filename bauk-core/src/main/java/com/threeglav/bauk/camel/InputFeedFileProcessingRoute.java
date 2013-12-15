@@ -1,6 +1,10 @@
 package com.threeglav.bauk.camel;
 
+import java.util.Random;
+
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.impl.JndiRegistry;
+import org.apache.camel.impl.PropertyPlaceholderDelegateRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,22 +40,36 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		this.createRouteForAllFileMasks();
 	}
 
+	private void bindBean(final String name, final Object bean) {
+		final JndiRegistry registry = (JndiRegistry) ((PropertyPlaceholderDelegateRegistry) this.getContext().getRegistry()).getRegistry();
+		registry.bind(name, bean);
+	}
+
 	private void createRouteForAllFileMasks() {
 		for (final String fileMask : factFeed.getFileNameMasks()) {
-			log.debug("Creating route for {}", fileMask);
-			final FeedFileProcessor feedFileProcessor = new FeedFileProcessor(factFeed, config, fileMask);
-			this.createRoute(fileMask, feedFileProcessor);
-			log.debug("Created route for {}", fileMask);
+			log.debug("Creating {} routes for {}", feedProcessingThreads, fileMask);
+			for (int i = 0; i < feedProcessingThreads; i++) {
+				final FeedFileProcessor feedFileProcessor = new FeedFileProcessor(factFeed, config, fileMask);
+				this.createRoute(fileMask, feedFileProcessor, i, feedProcessingThreads);
+				log.debug("Created route #{} for {}", i, fileMask);
+			}
+			log.debug("Created in total {} routes for processing {}", feedProcessingThreads, fileMask);
 		}
 	}
 
-	private void createRoute(final String fileMask, final FeedFileProcessor feedFileProcessor) {
+	private void createRoute(final String fileMask, final FeedFileProcessor feedFileProcessor, final int routeId, final int totalNumber) {
+		final int delay = 1000 + routeId * 100;
+		final HashedNameFileFilter hnff = new HashedNameFileFilter<>(fileMask, routeId, totalNumber);
+		final Random rand = new Random();
+		final String filterName = "bauk_filter_" + routeId + "_" + rand.nextInt(100000);
+		this.bindBean(filterName, hnff);
 		String inputEndpoint = "file://" + config.getSourceDirectory() + "?move=" + config.getArchiveDirectory()
 				+ "/${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}&include=" + fileMask;
-		inputEndpoint += "&idempotent=true&readLock=changed";
+		inputEndpoint += "&idempotent=true&readLock=changed&initialDelay=" + delay + "&filter=#" + filterName;
 		log.debug("Input endpoint is {}", inputEndpoint);
-		this.from(inputEndpoint).routeId("InputFeedProcessing (" + fileMask + ")").doTry().process(feedFileProcessor).doCatch(Exception.class)
-				.to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
+
+		this.from(inputEndpoint).routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor)
+				.doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
 				.to("file://" + config.getErrorDirectory() + "/").end();
 	}
