@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class DataGenerator {
 
-	private static final int ROW_PER_FILE = 70000;
+	private static final int ROW_PER_FILE = 100000;
 	private static final String VALUE_DELIMITER = "^$";
 	private static final String DATE_TIME_FORMAT = "dd/MM/yyyy hh:mm:ss";
 	private static final String DATE_ONLY_FORMAT = "dd/MM/yyyy";
@@ -81,7 +81,7 @@ public class DataGenerator {
 			sb.append(VALUE_DELIMITER);
 			sb.append(baseCurrCode[currValue]);
 			sb.append(VALUE_DELIMITER);
-			final int baseValue = rand.nextInt(10000);
+			final double baseValue = rand.nextDouble() * 1000;
 			sb.append(baseValue);
 			sb.append(VALUE_DELIMITER);
 			final int riskStatus = rand.nextInt(1000);
@@ -124,7 +124,7 @@ public class DataGenerator {
 			sb.append(VALUE_DELIMITER);
 			sb.append(localCurrencyCode[currValue]);
 			sb.append(VALUE_DELIMITER);
-			final int localValue = rand.nextInt(10000);
+			final double localValue = rand.nextDouble() * 2000;
 			sb.append(localValue);
 			sb.append(VALUE_DELIMITER);
 			sb.append(pricingModel[rand.nextInt(5)]);

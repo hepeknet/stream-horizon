@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<!-- if do not exist folders will be created (if possible) -->
 	<sourceDirectory>d:/projects/test/input</sourceDirectory>
 	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
 	<errorDirectory>d:/projects/test/error</errorDirectory>
@@ -123,7 +122,6 @@
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 			</footer>
 			<bulkLoadDefinition>
-				<!-- executed by DB loading threads -->
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}'
@@ -131,7 +129,6 @@
 					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
 					<attributes>
-						<!-- dimension.XYZ means output calculated SK for dimension XYZ (based on dimension definition) -->
 						<attribute name="dimension.RWH_DEAL_DIM" />
 						<attribute name="dimension.RWH_PRODUCT_DIM" />
 						<attribute name="dimension.RWH_UNDERLYING_DIM" />
@@ -141,27 +138,22 @@
 						<attribute name="dimension.RWH_PARTY_DIM" />
 						<attribute name="dimension.RWH_PORTFOLIO_DIM" />
 						<attribute name="dimension.RWH_RISK_STATUS_DIM" />
-						<!-- constant attributes -->
 						<attribute>-1</attribute>
 						<attribute>'Y'</attribute>
 						<attribute>'N'</attribute>
-						<!-- copy directly from input feed -->
 						<attribute name="feed.localValue" />
 						<attribute name="feed.baseValue" />
 						<attribute name="feed.riskValue" />
 					</attributes>
 				</bulkLoadFormatDefinition>
 				<output-file-name-pattern></output-file-name-pattern>
-				<!-- executed by DB loading threads -->
 				<afterBulkLoadSuccess>
 					<sqlStatements>
-						<!-- can be any sql statement -->
 						<sqlStatement>CALL simpleproc(@a)</sqlStatement>
 						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
 					</sqlStatements>
 				</afterBulkLoadSuccess>
 			</bulkLoadDefinition>
-			<!-- executed by feed processing threads -->
 			<afterFeedProcessingCompletion>
 				<sqlStatement>
 					CALL warehouse.DATAFEED('${guid}', 'analyticsRequestGuid', '${runTag}', trunc(to_date('${businessDate}','DD/MM/YYYY')), '${rerunGuid}','requestName','batchType','${portfolio}', ${RWH_PORTFOLIO_DIM.sk}, ${completionNumberOfRowsInFeed},to_timestamp('${feedInputfileReceivedDateTime}', 'DD/MM/YYYY HH24:MI:SS.FF3'),
@@ -170,7 +162,6 @@
 				</sqlStatement>
 			</afterFeedProcessingCompletion>
 			<threadPoolSizes>
-				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
 				<feedProcessingThreads>1</feedProcessingThreads>
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
 			</threadPoolSizes>

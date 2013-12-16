@@ -13,6 +13,8 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 
 	private final boolean performFileRenameOperation;
 	protected final String bulkOutputFileDelimiter;
+	protected final boolean isSingleCharacterDelimiter;
+	protected final char singleCharacterDelimiter;
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -24,6 +26,14 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 			performFileRenameOperation = false;
 		} else {
 			performFileRenameOperation = true;
+		}
+		if (bulkOutputFileDelimiter.length() == 1) {
+			isSingleCharacterDelimiter = true;
+			singleCharacterDelimiter = bulkOutputFileDelimiter.charAt(0);
+			log.debug("Will use single character delimiter [{}] for {}", singleCharacterDelimiter, this.getFactFeed().getName());
+		} else {
+			isSingleCharacterDelimiter = false;
+			singleCharacterDelimiter = Character.MIN_VALUE;
 		}
 	}
 
