@@ -68,9 +68,12 @@ public class BulkOutputValuesResolverTest {
 			}
 		});
 		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
-		final String latestValue = bomhc.resolveValuesAsSingleLine(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, null, true);
-		Assert.assertNotNull(latestValue);
-		Assert.assertEquals("2,3,6,CONST_VAL", latestValue);
+		final String[] latestValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, null, true);
+		Assert.assertEquals(4, latestValue.length);
+		Assert.assertEquals("2", latestValue[0]);
+		Assert.assertEquals("3", latestValue[1]);
+		Assert.assertEquals("6", latestValue[2]);
+		Assert.assertEquals("CONST_VAL", latestValue[3]);
 	}
 
 	@Test
@@ -94,10 +97,10 @@ public class BulkOutputValuesResolverTest {
 			}
 		});
 		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
-		final String latestReceivedValue = bomhc.resolveValuesAsSingleLine(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
-				"12", "13", "14", "15", "16" }, null, true);
-		Assert.assertNotNull(latestReceivedValue);
-		Assert.assertEquals("2", latestReceivedValue);
+		final String[] latestReceivedValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
+				"14", "15", "16" }, null, true);
+		Assert.assertEquals(1, latestReceivedValue.length);
+		Assert.assertEquals("2", latestReceivedValue[0]);
 	}
 
 	private ArrayList<Attribute> createFactFeedAttributes(final int num) {

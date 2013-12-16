@@ -52,9 +52,10 @@ public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWr
 	}
 
 	@Override
-	public void doOutput(final String line) {
+	public void doOutput(final String[] resolvedData) {
 		try {
-			final byte[] bytes = line.getBytes();
+			// TODO: fix this
+			final byte[] bytes = null;// line.getBytes();
 			final int bytesLen = bytes.length + NEW_LINE_BYTES.length;
 			if (wrBuf.remaining() < bytesLen) {
 				wrBuf.flip();

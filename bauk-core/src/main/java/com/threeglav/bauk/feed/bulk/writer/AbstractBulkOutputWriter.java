@@ -12,10 +12,13 @@ import com.threeglav.bauk.util.StringUtil;
 public abstract class AbstractBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
 
 	private final boolean performFileRenameOperation;
+	protected final String bulkOutputFileDelimiter;
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.validate();
+		bulkOutputFileDelimiter = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFileDelimiter();
+		log.debug("For feed {} will use [{}] as delimiter for bulk output file", this.getFactFeed().getName(), bulkOutputFileDelimiter);
 		final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
 		if (StringUtil.isEmpty(outputFileNamePattern)) {
 			performFileRenameOperation = false;
@@ -29,6 +32,9 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		if (this.getFactFeed().getBulkLoadDefinition().getOutputType() == BulkLoadDefinitionOutputType.NONE
 				&& !StringUtil.isEmpty(outputFileNamePattern)) {
 			throw new IllegalStateException("Fact feed " + this.getFactFeed().getName() + " can not have output none and rename pattern!");
+		}
+		if (StringUtil.isEmpty(this.getFactFeed().getBulkLoadDefinition().getBulkLoadFileDelimiter())) {
+			throw new IllegalStateException("Could not find bulk load file delimiter for feed " + this.getFactFeed().getName() + "!");
 		}
 		log.debug("Bulk output file for fact feed {} will be renamed (after writing all data to it) according to pattern {}", this.getFactFeed()
 				.getName(), outputFileNamePattern);

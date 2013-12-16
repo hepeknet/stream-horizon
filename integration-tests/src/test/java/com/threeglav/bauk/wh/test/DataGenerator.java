@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class DataGenerator {
 
-	private static final int ROW_PER_FILE = 10000;
+	private static final int ROW_PER_FILE = 70000;
 	private static final String VALUE_DELIMITER = "^$";
 	private static final String DATE_TIME_FORMAT = "dd/MM/yyyy hh:mm:ss";
 	private static final String DATE_ONLY_FORMAT = "dd/MM/yyyy";
@@ -25,24 +25,27 @@ public class DataGenerator {
 		bw.write(createHeader(guid));
 		bw.write("\n");
 		final Random rand = new Random();
-		final String[] components = createRandomValues("component", 5);
+
 		final String[] factors = createRandomValues("factor", 1000);
 		final String[] under = createRandomValues("underlying", 15);
 		final String[] riskunderCode = createRandomValues("riskUnderlying", 15);
 		final String[] gridCellType = createRandomValues("gridCellType", 15);
 		final String[] buckets = createRandomValues("bucket1|bucket2|bucket", 1000);
 		final String[] curveType = createRandomValues("curvetype", 1);
-		final String[] riskCurrCode = createRandomValues("riskCurrencyCode", 100);
-		final String[] baseCurrCode = createRandomValues("baseCurrencyCode", 100);
+		final int currencyValues = 100;
+		final String[] riskCurrCode = createRandomValues("riskCurrencyCode", currencyValues);
+		final String[] baseCurrCode = createRandomValues("baseCurrencyCode", currencyValues);
 		final String[] exceptionCode = createRandomValues("ExceptionCode", 1000);
 		final String[] exceptionDescription = createRandomValues("Exception Description", 1000);
 		final String[] exceptionFlag = createAlphabetValues(1000);
-		final String[] sourceName = createRandomValues("sourceName", 100);
-		final String[] dealType = createRandomValues("dealType", 100);
-		final String[] dealId = createRandomValues("dealId", 100);
-		final String[] dealWhatIf = createRandomValues("dealWhatIf", 100);
+		final int dealValues = 100;
+		final String[] components = createRandomValues("component", dealValues);
+		final String[] sourceName = createRandomValues("sourceName", dealValues);
+		final String[] dealType = createRandomValues("dealType", dealValues);
+		final String[] dealId = createRandomValues("dealId", dealValues);
+		final String[] dealWhatIf = createRandomValues("dealWhatIf", dealValues);
 		final String[] pricingModel = createRandomValues("pricingModel", 5);
-		final String[] localCurrencyCode = createRandomValues("localCurrencyCode", 50);
+		final String[] localCurrencyCode = createRandomValues("localCurrencyCode", currencyValues);
 		final String[] dealDate = createRandomDates(10, DATE_TIME_FORMAT);
 		final String[] dealAmmended = createRandomDates(10, DATE_TIME_FORMAT);
 		final String[] dealState = createRandomValues("dealState", 10);
@@ -56,8 +59,9 @@ public class DataGenerator {
 		for (int i = 0; i < ROW_PER_FILE; i++) {
 			final StringBuilder sb = new StringBuilder();
 			sb.append("1");
+			final int dealVal = rand.nextInt(dealValues);
 			sb.append(VALUE_DELIMITER);
-			sb.append(components[rand.nextInt(5)]);
+			sb.append(components[dealVal]);
 			sb.append(VALUE_DELIMITER);
 			sb.append(factors[rand.nextInt(1000)]);
 			sb.append(VALUE_DELIMITER);
@@ -69,12 +73,13 @@ public class DataGenerator {
 			sb.append(VALUE_DELIMITER);
 			sb.append(buckets[rand.nextInt(15)]);
 			sb.append(VALUE_DELIMITER);
-			sb.append(riskCurrCode[rand.nextInt(100)]);
+			final int currValue = rand.nextInt(currencyValues);
+			sb.append(riskCurrCode[currValue]);
 			sb.append(VALUE_DELIMITER);
 			final int riskValue = rand.nextInt(10000);
 			sb.append(riskValue);
 			sb.append(VALUE_DELIMITER);
-			sb.append(baseCurrCode[rand.nextInt(100)]);
+			sb.append(baseCurrCode[currValue]);
 			sb.append(VALUE_DELIMITER);
 			final int baseValue = rand.nextInt(10000);
 			sb.append(baseValue);
@@ -86,15 +91,16 @@ public class DataGenerator {
 			sb.append(VALUE_DELIMITER);
 			sb.append(exceptionFlag[riskStatus]);
 			sb.append(VALUE_DELIMITER);
-			sb.append(sourceName[rand.nextInt(100)]);
+			sb.append(sourceName[dealVal]);
 			sb.append(VALUE_DELIMITER);
-			sb.append(dealType[rand.nextInt(100)]);
+			sb.append(dealType[dealVal]);
 			sb.append(VALUE_DELIMITER);
-			sb.append(dealId[rand.nextInt(100)]);
+			sb.append(dealId[dealVal]);
 			sb.append(VALUE_DELIMITER);
-			sb.append(rand.nextInt(100));
+			final int dealVersion = rand.nextInt(10);
+			sb.append(dealVersion);
 			sb.append(VALUE_DELIMITER);
-			sb.append(dealWhatIf[rand.nextInt(100)]);
+			sb.append(dealWhatIf[dealVal]);
 			sb.append(VALUE_DELIMITER);
 			sb.append(dealDate[rand.nextInt(10)]);
 			sb.append(VALUE_DELIMITER);
@@ -116,7 +122,7 @@ public class DataGenerator {
 			sb.append(VALUE_DELIMITER);
 			sb.append(maturityDate[rand.nextInt(100)]);
 			sb.append(VALUE_DELIMITER);
-			sb.append(localCurrencyCode[rand.nextInt(50)]);
+			sb.append(localCurrencyCode[currValue]);
 			sb.append(VALUE_DELIMITER);
 			final int localValue = rand.nextInt(10000);
 			sb.append(localValue);

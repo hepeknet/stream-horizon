@@ -6,7 +6,7 @@ public interface BulkOutputWriter {
 
 	public abstract void initialize(String outputFilePath);
 
-	public abstract void doOutput(String line);
+	public abstract void doOutput(String[] resolvedData);
 
 	public abstract void closeResources(final Map<String, String> globalAttributes);
 

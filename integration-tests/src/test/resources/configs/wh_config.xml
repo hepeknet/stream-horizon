@@ -123,6 +123,7 @@
 			</footer>
 			<bulkLoadDefinition>
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
+				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}'
 					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
 					'\n'</bulkLoadInsertStatement>
@@ -146,12 +147,12 @@
 					</attributes>
 				</bulkLoadFormatDefinition>
 				<output-file-name-pattern></output-file-name-pattern>
-				<onBulkLoadSuccess>
+				<afterBulkLoadSuccess>
 					<sqlStatements>
 						<sqlStatement>CALL simpleproc(@a)</sqlStatement>
 						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
 					</sqlStatements>
-				</onBulkLoadSuccess>
+				</afterBulkLoadSuccess>
 			</bulkLoadDefinition>
 			<afterFeedProcessingCompletion>
 				<sqlStatement>

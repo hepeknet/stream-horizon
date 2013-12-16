@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 
 import com.codahale.metrics.Counter;
 import com.threeglav.bauk.BaukConstants;
@@ -257,20 +258,29 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private String getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes) {
+		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
+		final String preparedInsertStatement = this.prepareStatement(insertStatement, parsedLine, globalAttributes);
 		try {
-			return this.tryInsertStatement(parsedLine, globalAttributes);
+			return this.tryInsertStatement(preparedInsertStatement);
+		} catch (final DuplicateKeyException dexc) {
+			log.warn("Failed inserting record into database - duplicate key! Will try to select value from database!", dexc);
+			log.warn("Insert statement was {}", preparedInsertStatement);
 		} catch (final Exception exc) {
-			log.error("Failed inserting record into database. Will try to select value from database!", exc);
+			log.error(
+					"Failed inserting record into database. This should not happen! Check database connection! Will try to select value from database!",
+					exc);
+			log.error("Insert statement was {}", preparedInsertStatement);
 		}
-		return this.trySelectStatement(parsedLine, globalAttributes);
+		final String selectSurrogateKey = dimension.getSqlStatements().getSelectSurrogateKey();
+		final String preparedSelectStatement = this.prepareStatement(selectSurrogateKey, parsedLine, globalAttributes);
+		final String result = this.trySelectStatement(preparedSelectStatement);
+		if (result == null) {
+			log.warn("After failing to insert record could not find key by select. Select ctatement is {}", preparedSelectStatement);
+		}
+		return result;
 	}
 
-	private String trySelectStatement(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		final String selectSurrogateKey = dimension.getSqlStatements().getSelectSurrogateKey();
-		if (StringUtil.isEmpty(selectSurrogateKey)) {
-			throw new IllegalArgumentException("Dimension select surrogate key statement is null or empty");
-		}
-		final String preparedStatement = this.prepareStatement(selectSurrogateKey, parsedLine, globalAttributes);
+	private String trySelectStatement(final String preparedStatement) {
 		final Long result = this.getDbHandler().executeQueryStatementAndReturnKey(preparedStatement);
 		if (dbAccessCounter != null) {
 			dbAccessCounter.inc();
@@ -284,13 +294,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return result.toString();
 	}
 
-	private String tryInsertStatement(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
-		if (StringUtil.isEmpty(insertStatement)) {
-			throw new IllegalArgumentException("Insert statement for dimension " + dimension.getName()
-					+ " is null or empty. Unable to try inserting value into database.");
-		}
-		final String preparedStatement = this.prepareStatement(insertStatement, parsedLine, globalAttributes);
+	private String tryInsertStatement(final String preparedStatement) {
 		final Long result = this.getDbHandler().executeInsertStatementAndReturnKey(preparedStatement);
 		if (dbAccessCounter != null) {
 			dbAccessCounter.inc();

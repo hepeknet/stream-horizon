@@ -16,13 +16,16 @@ public class BulkLoadDefinition {
 	private String bulkLoadOutputExtension = DEFAULT_BULK_OUTPUT_EXTENSION;
 
 	@XmlElement(required = true)
+	private String bulkLoadFileDelimiter;
+
+	@XmlElement(required = true)
 	private BulkLoadFormatDefinition bulkLoadFormatDefinition;
 
 	@XmlElement(required = true)
 	private String bulkLoadInsertStatement;
 
 	@XmlElement(required = false)
-	private OnBulkLoadSuccess onBulkLoadSuccess;
+	private AfterBulkLoadSuccess afterBulkLoadSuccess;
 
 	@XmlAttribute(required = false)
 	private BulkLoadDefinitionOutputType outputType = BulkLoadDefinitionOutputType.FILE;
@@ -54,12 +57,12 @@ public class BulkLoadDefinition {
 		this.bulkLoadInsertStatement = bulkLoadInsertStatement;
 	}
 
-	public OnBulkLoadSuccess getOnBulkLoadSuccess() {
-		return onBulkLoadSuccess;
+	public AfterBulkLoadSuccess getAfterBulkLoadSuccess() {
+		return afterBulkLoadSuccess;
 	}
 
-	public void setOnBulkLoadSuccess(final OnBulkLoadSuccess onBulkLoadSuccess) {
-		this.onBulkLoadSuccess = onBulkLoadSuccess;
+	public void setAfterBulkLoadSuccess(final AfterBulkLoadSuccess onBulkLoadSuccess) {
+		afterBulkLoadSuccess = onBulkLoadSuccess;
 	}
 
 	public BulkLoadDefinitionOutputType getOutputType() {
@@ -76,6 +79,14 @@ public class BulkLoadDefinition {
 
 	public void setOutputFileNamePattern(final String outputFileNamePattern) {
 		this.outputFileNamePattern = outputFileNamePattern;
+	}
+
+	public String getBulkLoadFileDelimiter() {
+		return bulkLoadFileDelimiter;
+	}
+
+	public void setBulkLoadFileDelimiter(final String bulkLoadFileDelimiter) {
+		this.bulkLoadFileDelimiter = bulkLoadFileDelimiter;
 	}
 
 }

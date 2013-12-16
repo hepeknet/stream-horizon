@@ -122,10 +122,12 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 		private void processAllDrainedElements(final List<String> drainedElements) {
 			final int elementCount = drainedElements.size();
 			for (int i = 0; i < elementCount; i++) {
-				final String line = drainedElements.get(i);
-				final String[] parsedData = feedParserComponent.parseData(line);
-				final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData, globalAttributes, true);
-				drainedElements.set(i, lineForOutput);
+				// final String line = drainedElements.get(i);
+				// final String[] parsedData = feedParserComponent.parseData(line);
+				// final String lineForOutput = bulkoutputResolver.resolveValuesAsSingleLine(parsedData,
+				// globalAttributes, true);
+				// drainedElements.set(i, lineForOutput);
+
 			}
 			if (isDebugEnabled) {
 				log.debug("Will output {} lines", elementCount);
@@ -138,8 +140,9 @@ public class MultiThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 				writeLock.lock();
 				if (elementCount > 0) {
 					for (int i = 0; i < elementCount; i++) {
-						final String line = drainedElements.get(i);
-						bulkOutputWriter.doOutput(line);
+						drainedElements.get(i);
+						throw new IllegalStateException("Not implemented!");
+						// bulkOutputWriter.doOutput(line);
 					}
 					final int value = totalLinesOutputCounter.addAndGet(elementCount);
 					if (isDebugEnabled) {

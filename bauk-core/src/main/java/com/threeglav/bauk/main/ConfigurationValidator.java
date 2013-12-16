@@ -182,8 +182,8 @@ public class ConfigurationValidator {
 					attrs.addAll(used);
 				}
 			}
-			if (ff.getBulkLoadDefinition().getOnBulkLoadSuccess() != null) {
-				for (final String stat : ff.getBulkLoadDefinition().getOnBulkLoadSuccess().getSqlStatements()) {
+			if (ff.getBulkLoadDefinition().getAfterBulkLoadSuccess() != null) {
+				for (final String stat : ff.getBulkLoadDefinition().getAfterBulkLoadSuccess().getSqlStatements()) {
 					if (!StringUtil.isEmpty(stat)) {
 						final Set<String> used = StringUtil.collectAllAttributesFromString(stat);
 						if (used != null) {

@@ -14,7 +14,7 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
-import com.threeglav.bauk.model.OnBulkLoadSuccess;
+import com.threeglav.bauk.model.AfterBulkLoadSuccess;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -53,7 +53,7 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 	}
 
 	private void executeOnSuccessBulkLoad(final Map<String, String> globalAttributes) {
-		final OnBulkLoadSuccess onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadSuccess();
+		final AfterBulkLoadSuccess onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
 		if (onBulkLoadSuccess != null) {
 			if (onBulkLoadSuccess.getSqlStatements() != null) {
 				log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
