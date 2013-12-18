@@ -60,9 +60,9 @@ public class FeedParserComponent extends ConfigAware {
 	}
 
 	private void resolveFeedProcessor() {
-		final String dataMappingClassName = this.getFactFeed().getData().getDataMappingClassName();
+		final String dataMappingClassName = this.getFactFeed().getData().getFeedDataProcessorClassName();
 		if (!StringUtil.isEmpty(dataMappingClassName)) {
-			log.debug("Will try to resolve data mapper {}", dataMappingClassName);
+			log.info("Will try to resolve feed data processor class [{}]", dataMappingClassName);
 			final CustomProcessorResolver<FeedDataLineProcessor> headerParserInstanceResolver = new CustomProcessorResolver<>(dataMappingClassName,
 					FeedDataLineProcessor.class);
 			feedProcessor = headerParserInstanceResolver.resolveInstance();

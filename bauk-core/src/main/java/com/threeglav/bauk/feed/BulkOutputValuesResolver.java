@@ -47,7 +47,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 		this.validate();
 		this.cacheInstanceManager = cacheInstanceManager;
-		bulkOutputFileNumberOfValues = factFeed.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes().size();
+		if (factFeed.getBulkLoadDefinition().getBulkLoadFormatDefinition() != null) {
+			bulkOutputFileNumberOfValues = factFeed.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes().size();
+		} else {
+			bulkOutputFileNumberOfValues = 0;
+		}
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
 		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
 		this.createOutputValueHandlers(routeIdentifier);
@@ -59,11 +63,10 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			throw new IllegalArgumentException("Bulk definition not found in configuration for feed " + this.getFactFeed().getName());
 		}
 		final BulkLoadFormatDefinition bulkLoadFormatDefinition = bulkDefinition.getBulkLoadFormatDefinition();
-		if (bulkLoadFormatDefinition == null) {
-			throw new IllegalArgumentException("Bulk load format definition not found in configuration file. Please check your configuration!");
-		}
-		if (bulkLoadFormatDefinition.getAttributes() == null || bulkLoadFormatDefinition.getAttributes().isEmpty()) {
-			throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
+		if (bulkLoadFormatDefinition != null) {
+			if (bulkLoadFormatDefinition.getAttributes() == null || bulkLoadFormatDefinition.getAttributes().isEmpty()) {
+				throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
+			}
 		}
 		if (this.getFactFeed().getData() == null) {
 			throw new IllegalArgumentException("Did not find any data definition for feed " + this.getFactFeed().getName());
@@ -71,6 +74,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	private void createOutputValueHandlers(final String routeIdentifier) {
+		if (bulkOutputFileNumberOfValues == 0) {
+			log.info("Could not find any bulk output file attributes for feed {}. Only values from context will be accessible!", this.getFactFeed()
+					.getName());
+			return;
+		}
 		final ArrayList<Attribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes();
 		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(bulkOutputAttributes);
 		if (log.isDebugEnabled()) {

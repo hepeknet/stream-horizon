@@ -20,7 +20,7 @@ public class Data {
 	private String eachLineStartsWithCharacter;
 
 	@XmlElement
-	private String dataMappingClassName;
+	private String feedDataProcessorClassName;
 
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")
@@ -50,12 +50,12 @@ public class Data {
 		this.process = process;
 	}
 
-	public String getDataMappingClassName() {
-		return dataMappingClassName;
+	public String getFeedDataProcessorClassName() {
+		return feedDataProcessorClassName;
 	}
 
-	public void setDataMappingClassName(final String dataMappingClassName) {
-		this.dataMappingClassName = dataMappingClassName;
+	public void setFeedDataProcessorClassName(final String feedDataProcessorClassName) {
+		this.feedDataProcessorClassName = feedDataProcessorClassName;
 	}
 
 }

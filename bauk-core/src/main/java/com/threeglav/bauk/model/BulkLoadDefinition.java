@@ -18,7 +18,7 @@ public class BulkLoadDefinition {
 	@XmlElement(required = true)
 	private String bulkLoadFileDelimiter;
 
-	@XmlElement(required = true)
+	@XmlElement(required = false)
 	private BulkLoadFormatDefinition bulkLoadFormatDefinition;
 
 	@XmlElement(required = true)

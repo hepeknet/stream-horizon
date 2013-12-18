@@ -12,11 +12,14 @@
 	</connectionProperties>
 	<databaseStringLiteral>'</databaseStringLiteral>
 	<factFeeds>
+		<!-- feed can be of type full, repetitive, delta and control -->
+		<!-- control feed can not have header and footer and it can have only one line, which will be exposed as context attributes -->
 		<factFeed name="NOTIF" type="control">
 			<fileNameMasks>
 				<fileNameMask>.*NOTIF.*</fileNameMask>
 			</fileNameMasks>
 			<delimiterString>^~</delimiterString>
+			<!-- for header valid values are no_header, normal and skip -->
 			<header process="no_header" />
 			<data process="normal">
 				<!-- if not specified then we do not expect line to start with any special character -->
@@ -34,14 +37,9 @@
 					<attribute name="notPersistedTradeCount" />
 				</attributes>
 			</data>
+			<!-- footer process can be skip or strict -->
 			<footer process="skip" />
-			<bulkLoadDefinition outputType="none">
-				<bulkLoadFormatDefinition>
-					<attributes>
-						<attribute name="dimension.REQUESTNOTIFICATION" />
-					</attributes>
-				</bulkLoadFormatDefinition>
-			</bulkLoadDefinition>
+			<bulkLoadDefinition outputType="none" />			
 			<beforeFeedProcessing>
 				<sqlStatement type="select">
 					select RWHSTG_ETL_BATCH_seq.nextval as etlBatchSk from dual
@@ -62,8 +60,14 @@
 			<fileNameMasks>
 				<fileNameMask>.*FEED.*done</fileNameMask>
 			</fileNameMasks>
+			<!--
+			<fileNameProcessorClassName>CustomFeedFileNameProcessor</fileNameProcessorClassName>
+			-->
 			<delimiterString>^$</delimiterString>
 			<header process="strict">
+				<!--
+				<headerParserClassName>CustomHeaderParser</headerParserClassName>
+				-->
 				<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
 				<attributes>
 					<attribute name="fileUserName" />
@@ -85,6 +89,9 @@
 			</header>
 			<data process="strict">
 				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+				<!--
+				<feedDataProcessorClassName>DataMapper</feedDataProcessorClassName>
+				-->
 				<attributes>
 					<attribute name="componentCode" />
 					<attribute name="factorCode" />
@@ -180,7 +187,7 @@
 			</afterFeedProcessingCompletion>
 			<threadPoolSizes>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
-				<feedProcessingThreads>1</feedProcessingThreads>
+				<feedProcessingThreads>4</feedProcessingThreads>
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
 			</threadPoolSizes>
 		</factFeed>
@@ -325,6 +332,7 @@
 				<preCacheKeys>select deal_dim_wid, sourceName, deal_type, deal_id, deal_version, DEAL_WHATIF_UID, component_code from rwh_deal_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
+		<!-- this dimension will be executed once per feed and its key will be available as ${notificationSk} in context  -->
 		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
 			<mappedColumns>
 				<!-- ffn[x] attributes are created by default feed file name processor. Delimiter for splitting feed file name is _ -->

@@ -68,7 +68,6 @@ public class TestJaxb {
 		d.setAttributes(attrs);
 		d.setEachLineStartsWithCharacter("cc");
 		ff.setData(d);
-		ff.setDerivedAttributes(attrs);
 		feeds.add(ff);
 		c.setFactFeeds(feeds);
 

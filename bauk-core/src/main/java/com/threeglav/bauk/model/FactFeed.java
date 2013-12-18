@@ -42,10 +42,6 @@ public class FactFeed {
 	@XmlElement
 	private Data data;
 
-	@XmlElementWrapper
-	@XmlElement(name = "attribute")
-	private ArrayList<Attribute> derivedAttributes;
-
 	@XmlElement
 	private HeaderFooter footer;
 
@@ -117,14 +113,6 @@ public class FactFeed {
 
 	public void setData(final Data data) {
 		this.data = data;
-	}
-
-	public ArrayList<Attribute> getDerivedAttributes() {
-		return derivedAttributes;
-	}
-
-	public void setDerivedAttributes(final ArrayList<Attribute> derivedAttributes) {
-		this.derivedAttributes = derivedAttributes;
 	}
 
 	public int getRepetitionCount() {
