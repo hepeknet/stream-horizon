@@ -193,6 +193,7 @@
 		</factFeed>
 	</factFeeds>
 	<dimensions>
+		<!-- surrogate key for every dimension used in feed will be exposed as context attribute under name ${DIMENSION_NAME.sk}, for last line in feed only -->
 		<dimension name="RWH_UNDERLYING_DIM" type="T1_INSERT_ONLY">
 			<mappedColumns>
 				<mappedColumn name="underlyingCode" naturalKey="true" />
