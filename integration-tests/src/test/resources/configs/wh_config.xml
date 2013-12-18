@@ -309,6 +309,7 @@
 				<!-- natural key columns are used to cache data -->
 				<!-- if not natural key columns are defined caching will be disabled -->
 				<!-- mapped columns are used to instruct engine what attributes from context (or feed) should be used to prepare statements before execution -->
+				<!-- all mapped column names will be searched in statements (before execution) and replaced if found with values found in feed or context -->
 				<mappedColumn name="sourceName" naturalKey="true" />
 				<mappedColumn name="dealType" naturalKey="true" />
 				<mappedColumn name="dealId" naturalKey="true" />
