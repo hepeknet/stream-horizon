@@ -27,6 +27,6 @@ public interface BaukConstants {
 	public static final String STATEMENT_PLACEHOLDER_DELIMITER_START = "${";
 	public static final String STATEMENT_PLACEHOLDER_DELIMITER_END = "}";
 
-	public static final String NATURAL_KEY_DELIMITER = "_|_";
+	public static final String NATURAL_KEY_DELIMITER = "|";
 
 }

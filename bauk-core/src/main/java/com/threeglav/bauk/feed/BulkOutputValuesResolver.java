@@ -31,7 +31,6 @@ public class BulkOutputValuesResolver extends ConfigAware {
 
 	private final int bulkOutputFileNumberOfValues;
 	private final BulkLoadOutputValueHandler[] outputValueHandlers;
-	private final String outputDelimiter;
 	private final CacheInstanceManager cacheInstanceManager;
 
 	// one handler per dimension only
@@ -52,7 +51,6 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
 		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
 		this.createOutputValueHandlers(routeIdentifier);
-		outputDelimiter = factFeed.getDelimiterString();
 	}
 
 	private void validate() {
@@ -60,11 +58,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		if (bulkDefinition == null) {
 			throw new IllegalArgumentException("Bulk definition not found in configuration for feed " + this.getFactFeed().getName());
 		}
-		final BulkLoadFormatDefinition bulkLoadFileDefinition = bulkDefinition.getBulkLoadFormatDefinition();
-		if (bulkLoadFileDefinition == null) {
+		final BulkLoadFormatDefinition bulkLoadFormatDefinition = bulkDefinition.getBulkLoadFormatDefinition();
+		if (bulkLoadFormatDefinition == null) {
 			throw new IllegalArgumentException("Bulk load format definition not found in configuration file. Please check your configuration!");
 		}
-		if (bulkLoadFileDefinition.getAttributes() == null || bulkLoadFileDefinition.getAttributes().isEmpty()) {
+		if (bulkLoadFormatDefinition.getAttributes() == null || bulkLoadFormatDefinition.getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
 		}
 		if (this.getFactFeed().getData() == null) {

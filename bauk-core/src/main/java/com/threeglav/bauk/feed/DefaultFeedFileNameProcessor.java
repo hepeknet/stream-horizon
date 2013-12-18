@@ -17,6 +17,11 @@ public class DefaultFeedFileNameProcessor implements FeedFileNameProcessor {
 
 	private static final String DELIMITER = "_";
 
+	public DefaultFeedFileNameProcessor() {
+		log.info("Default file name processor. Uses delimiter {} and splits file name into context attributes named {}x]", DELIMITER,
+				FEED_FILE_ATTR_PREFIX);
+	}
+
 	@Override
 	public Map<String, String> parseFeedFileName(final String feedFileName) {
 		final Map<String, String> parsedFeedFileNameAttributes = new THashMap<String, String>();

@@ -49,7 +49,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final int mappedColumnsPositionOffset;
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
-	private final boolean skipCaching;
+	private final boolean noNaturalKeyColumnsDefined;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
@@ -76,10 +76,10 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				+ "] - local cache clear times");
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
-			skipCaching = true;
+			noNaturalKeyColumnsDefined = true;
 			log.warn("Did not find any defined natural keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
 		} else {
-			skipCaching = false;
+			noNaturalKeyColumnsDefined = false;
 			log.debug("Caching for {} is enabled", dimension.getName());
 		}
 		dimensionLastLineSKAttributeName = dimension.getName() + DIMENSION_SK_SUFFIX;
@@ -127,7 +127,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private void calculatePositionOfNaturalKeyValues() {
-		if (skipCaching) {
+		if (noNaturalKeyColumnsDefined) {
 			return;
 		}
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
@@ -162,9 +162,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private void calculatePositionOfMappedColumnValues() {
-		if (skipCaching) {
-			return;
-		}
 		final int numberOfMappedColumns = dimension.getMappedColumns().size();
 		mappedColumnNames = new String[numberOfMappedColumns];
 		mappedColumnsPositionsInFeed = new int[numberOfMappedColumns];
@@ -172,8 +169,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		int i = 0;
 		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed().getData()
 				.getAttributes());
-		for (final MappedColumn nk : dimension.getMappedColumns()) {
-			final String mappedColumnName = nk.getName();
+		for (final MappedColumn mc : dimension.getMappedColumns()) {
+			final String mappedColumnName = mc.getName();
 			int mappedColumnPositionValue;
 			mappedColumnNames[i] = mappedColumnName;
 			log.debug("Trying to find position in feed for mapped column {} for dimension {}", mappedColumnName, dimension.getName());
@@ -194,7 +191,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private void preCacheAllKeys() {
-		if (skipCaching) {
+		if (noNaturalKeyColumnsDefined) {
 			log.info("Configured to skip caching. Will not precache any key values for {}!", dimension.getName());
 			return;
 		}
@@ -227,7 +224,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes, final boolean isLastLine) {
 		String surrogateKey = null;
 		String naturalCacheKey = null;
-		if (!skipCaching) {
+		if (!noNaturalKeyColumnsDefined) {
 			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes);
 			if (naturalCacheKey != null) {
 				surrogateKey = this.getSurrogateKeyFromCache(naturalCacheKey);
@@ -238,7 +235,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes);
-			if (!skipCaching && naturalCacheKey != null) {
+			if (!noNaturalKeyColumnsDefined && naturalCacheKey != null) {
 				cacheInstance.put(naturalCacheKey, surrogateKey);
 				this.putInLocalCache(naturalCacheKey, surrogateKey);
 			}
@@ -328,7 +325,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		for (int i = 0; i < mappedColumnNames.length; i++) {
 			final int mappedColumnValuePositionInFeed = mappedColumnsPositionsInFeed[i];
 			if (mappedColumnValuePositionInFeed == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
-				// will be replaced by header/global values
+				// will eventually be replaced by attribute values from context
 				continue;
 			}
 			if (parsedLine.length < mappedColumnValuePositionInFeed) {
