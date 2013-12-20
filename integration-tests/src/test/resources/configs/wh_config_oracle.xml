@@ -40,11 +40,6 @@
 			<!-- footer process can be skip or strict -->
 			<footer process="skip" />
 			<bulkLoadDefinition outputType="none" />			
-			<beforeFeedProcessing>
-				<sqlStatement type="select">
-					select RWHSTG_ETL_BATCH_seq.nextval as etlBatchSk from dual
-				</sqlStatement>
-			</beforeFeedProcessing>
 			<afterFeedProcessingCompletion>
 				<sqlStatement>
 					CALL warehouse.NOTIFFEED('${guid}', '${runGuid}', ${taskCount}, ${fileCount}, ${persistedTaskCount}, ${persistedTradeCount}, ${persistedValidValuesCount}, ${persistedInvalidValuesCount}, ${notPersistedTaskCount}, ${notPersistedTradeCount},

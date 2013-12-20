@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+	<!-- if do not exist folders will be created (if possible) -->
+	<sourceDirectory>d:/projects/test/input</sourceDirectory>
+	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
+	<errorDirectory>d:/projects/test/error</errorDirectory>
+	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
+	<connectionProperties>
+		<jdbcUrl>jdbc:mysql://localhost:3306/test?user=root&amp;password=shroot</jdbcUrl>
+	</connectionProperties>
+	<databaseStringLiteral>'</databaseStringLiteral>
+	<factFeeds>
+		<!-- feed can be of type full, repetitive, delta and control -->
+		<!-- control feed can not have header and footer and it can have only one line, which will be exposed as context attributes -->
+		<factFeed name="NOTIF" type="control">
+			<fileNameMasks>
+				<fileNameMask>.*NOTIF.*</fileNameMask>
+			</fileNameMasks>
+			<delimiterString>^~</delimiterString>
+			<!-- for header valid values are no_header, normal and skip -->
+			<header process="no_header" />
+			<data process="normal">
+				<!-- if not specified then we do not expect line to start with any special character -->
+				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="guid" />
+					<attribute name="runGuid" />
+					<attribute name="taskCount" />
+					<attribute name="fileCount" />
+					<attribute name="persistedTaskCount" />
+					<attribute name="persistedTradeCount" />
+					<attribute name="persistedValidValuesCount" />
+					<attribute name="persistedInvalidValuesCount" />
+					<attribute name="notPersistedTaskCount" />
+					<attribute name="notPersistedTradeCount" />
+				</attributes>
+			</data>
+			<!-- footer process can be skip or strict -->
+			<footer process="skip" />
+			<bulkLoadDefinition outputType="none" />			
+			<afterFeedProcessingCompletion>
+				<sqlStatement>
+					CALL NOTIFFEED('${guid}', '${runGuid}', ${taskCount}, ${fileCount}, ${persistedTaskCount}, ${persistedTradeCount}, ${persistedValidValuesCount}, ${persistedInvalidValuesCount}, ${notPersistedTaskCount}, ${notPersistedTradeCount},
+					'${feedInputFileName}', '${completionFeedProcessingErrorDescription}', CURRENT_TIMESTAMP, '', CURRENT_TIMESTAMP, 'SOURCE', 'NOTIF')
+				</sqlStatement>
+			</afterFeedProcessingCompletion>
+			<threadPoolSizes>
+				<feedProcessingThreads>1</feedProcessingThreads>
+				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
+			</threadPoolSizes>
+		</factFeed>
+		<factFeed name="dataFeed" type="full">
+			<fileNameMasks>
+				<fileNameMask>.*FEED.*done</fileNameMask>
+			</fileNameMasks>
+			<!--
+			<fileNameProcessorClassName>CustomFeedFileNameProcessor</fileNameProcessorClassName>
+			-->
+			<delimiterString>^$</delimiterString>
+			<header process="strict">
+				<!--
+				<headerParserClassName>CustomHeaderParser</headerParserClassName>
+				-->
+				<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="fileUserName" />
+					<attribute name="qlVersion" />
+					<attribute name="portfolio" />
+					<attribute name="eodFlag" />
+					<attribute name="location" />
+					<attribute name="intradayName" />
+					<attribute name="businessDate" />
+					<attribute name="rerunVersion" />
+					<attribute name="curveType" />
+					<attribute name="parisRequestId" />
+					<attribute name="guid" />
+					<attribute name="rerunGuid" />
+					<attribute name="requestTimestamp" />
+					<attribute name="requestGuid" />
+					<attribute name="runTag" />
+				</attributes>
+			</header>
+			<data process="strict">
+				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+				<!--
+				<feedDataProcessorClassName>DataMapper</feedDataProcessorClassName>
+				-->
+				<attributes>
+					<attribute name="componentCode" />
+					<attribute name="factorCode" />
+					<attribute name="underlyingCode" />
+					<attribute name="riskUnderlyingCode" />
+					<attribute name="gridCellType" />
+					<attribute name="gridCellValue" />
+					<attribute name="riskCurrencyCode" />
+					<attribute name="riskValue" />
+					<attribute name="baseCurrencyCode" />
+					<attribute name="baseValue" />
+					<attribute name="exceptionCode" />
+					<attribute name="exceptionDescription" />
+					<attribute name="exceptionFlag" />
+					<attribute name="sourceName" />
+					<attribute name="dealType" />
+					<attribute name="dealId" />
+					<attribute name="dealVersion" />
+					<attribute name="dealWhatIfUID" />
+					<attribute name="dealDate" />
+					<attribute name="dealAmended" />
+					<attribute name="dealState" />
+					<attribute name="structureCd" />
+					<attribute name="orgCode" />
+					<attribute name="productCode" />
+					<attribute name="partyName" />
+					<attribute name="trade_ql" />
+					<attribute name="trade_tds" />
+					<attribute name="maturityDate" />
+					<attribute name="localCurrencyCode" />
+					<attribute name="localValue" />
+					<attribute name="pricingModel" />
+					<attribute name="curveType" />
+				</attributes>
+			</data>
+			<footer process="strict">
+				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
+			</footer>
+			<bulkLoadDefinition>
+				<!-- this section is executed by DB loading threads -->
+				<!-- extension of bulk output file -->
+				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
+				<!-- what delimiter will be used when creating bulk output file -->
+				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
+				<!-- sql statement for loading bulk output file -->
+				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}'
+					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
+					'\n'</bulkLoadInsertStatement>
+				<bulkLoadFormatDefinition>
+					<attributes>
+						<!-- dimension.XYZ means output calculated SK for dimension XYZ (based on dimension definition) -->
+						<attribute name="dimension.RWH_DEAL_DIM" />
+						<attribute name="dimension.RWH_PRODUCT_DIM" />
+						<attribute name="dimension.RWH_UNDERLYING_DIM" />
+						<attribute name="dimension.RWH_CURVETYPE_DIM" />
+						<attribute name="dimension.RWH_DATE_DIM" />
+						<attribute name="dimension.RWH_CURRENCY_DIM" />
+						<attribute name="dimension.RWH_PARTY_DIM" />
+						<attribute name="dimension.RWH_PORTFOLIO_DIM" />
+						<attribute name="dimension.RWH_RISK_STATUS_DIM" />
+						<!-- constant attributes -->
+						<attribute>-1</attribute>
+						<attribute>'Y'</attribute>
+						<attribute>'N'</attribute>
+						<!-- copy directly from input feed, as is -->
+						<attribute name="feed.localValue" />
+						<attribute name="feed.baseValue" />
+						<attribute name="feed.riskValue" />
+					</attributes>
+				</bulkLoadFormatDefinition>
+				<!-- if we want bulk output file to be renamed to something after created (but before loaded) we set this value -->
+				<!-- any value from context can be used as ${} placeholder and engine will replace it before renaming -->
+				<!-- file is still left in bulkOutputDirectory - can only be renamed within same directory -->
+				<output-file-name-pattern></output-file-name-pattern>
+				<!-- executed by DB loading threads -->
+				<afterBulkLoadSuccess>
+					<!-- statements to be invoked after bulkLoadInsertStatement was successfully invoked. Same thread executes this! -->
+					<sqlStatements>
+						<!-- can be any sql statement -->
+						<sqlStatement>CALL simpleproc(@a)</sqlStatement>
+						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
+					</sqlStatements>
+				</afterBulkLoadSuccess>
+			</bulkLoadDefinition>
+			<!-- following is executed by feed processing threads -->
+			<afterFeedProcessingCompletion>
+				<!-- can be any sql statement -->
+				<sqlStatement>
+					CALL DATAFEED('${guid}', 'analyticsRequestGuid', '${runTag}', trunc(to_date('${businessDate}','DD/MM/YYYY')), '${rerunGuid}','requestName','batchType','${portfolio}', ${RWH_PORTFOLIO_DIM.sk}, ${completionNumberOfRowsInFeed},to_timestamp('${feedInputfileReceivedDateTime}', 'DD/MM/YYYY HH24:MI:SS.FF3'),
+                      'CS', '${intradayName}', '${guid}','RISK', 'RISK_fileName', trunc(to_timestamp('${feedInputfileProcessingStartedDateTime}','DD/MM/YYYY HH24:MI:SS.FF3')), '${fileUserName}','${location}','${qlVersion}','${completionFeedProcessingSuccessFailureFlag}',
+                      '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')
+				</sqlStatement>
+			</afterFeedProcessingCompletion>
+			<threadPoolSizes>
+				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
+				<feedProcessingThreads>4</feedProcessingThreads>
+				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
+			</threadPoolSizes>
+		</factFeed>
+	</factFeeds>
+	<dimensions>
+		<!-- surrogate key for every dimension used in feed will be exposed as context attribute under name ${DIMENSION_NAME.sk}, for last line in feed only -->
+		<dimension name="RWH_UNDERLYING_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="underlyingCode" naturalKey="true" />
+				<mappedColumn name="riskUnderlyingCode" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_underlying_dim(underlying_name, risk_underlying_name)
+					values ('${underlyingCode}','${riskUnderlyingCode}')
+				</insertSingle>
+				<selectSurrogateKey>select underlying_dim_wid from rwh_underlying_dim where underlying_name='${underlyingCode}' and risk_underlying_name='${riskUnderlyingCode}'</selectSurrogateKey>
+				<preCacheKeys>select underlying_dim_wid, underlying_name, risk_underlying_name from rwh_underlying_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_RISK_STATUS_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="exceptionCode" naturalKey="true" />
+				<mappedColumn name="exceptionDescription" naturalKey="true" />
+				<mappedColumn name="exceptionFlag" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_risk_status_dim(status_code, status_description, status_flag)
+    				values ('${exceptionCode}', '${exceptionDescription}', IF('A'=substr('${exceptionFlag}', 1, 1),0,1))
+				</insertSingle>
+				<selectSurrogateKey>select risk_status_dim_wid from rwh_risk_status_dim where status_code='${exceptionCode}' and status_description='${exceptionDescription}' and status_flag=IF('A'=substr('${exceptionFlag}', 1, 1),0,1)</selectSurrogateKey>
+				<preCacheKeys>select risk_status_dim_wid, status_code, status_description, status_flag from rwh_risk_status_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_PRODUCT_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="productCode" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_product_dim(product_code) values ('${productCode}')
+				</insertSingle>
+				<selectSurrogateKey>select product_dim_wid from rwh_product_dim where product_code='${productCode}'</selectSurrogateKey>
+				<preCacheKeys>select product_dim_wid, product_code from rwh_product_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_PORTFOLIO_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="portfolio" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_portfolio_dim(portfolio_name) values ('${portfolio}')
+				</insertSingle>
+				<selectSurrogateKey>select portfolio_dim_wid from rwh_portfolio_dim where portfolio_name='${portfolio}'</selectSurrogateKey>
+				<preCacheKeys>select portfolio_dim_wid, portfolio_name from rwh_portfolio_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_PARTY_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="partyName" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_party_dim(party_name) values ('${partyName}')
+				</insertSingle>
+				<selectSurrogateKey>select party_dim_wid from rwh_party_dim where party_name='${partyName}'</selectSurrogateKey>
+				<preCacheKeys>select party_dim_wid, party_name from rwh_party_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_CURRENCY_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="baseCurrencyCode" naturalKey="true" />
+				<mappedColumn name="riskCurrencyCode" naturalKey="true" />
+				<mappedColumn name="localCurrencyCode" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_currency_dim(BASE_CURRENCY, BASE_CURRENCY_DESC, RISK_CURRENCY, RISK_CURRENCY_DESC, LOCAL_CURRENCY, LOCAL_CURRENCY_DESC) 
+					values ('${baseCurrencyCode}', '${baseCurrencyCode}', '${riskCurrencyCode}', '${riskCurrencyCode}', '${localCurrencyCode}', '${localCurrencyCode}')
+				</insertSingle>
+				<selectSurrogateKey>select CURRENCY_DIM_WID from rwh_currency_dim where BASE_CURRENCY='${baseCurrencyCode}' and RISK_CURRENCY='${riskCurrencyCode}' and LOCAL_CURRENCY='${localCurrencyCode}'</selectSurrogateKey>
+				<preCacheKeys>select CURRENCY_DIM_WID, BASE_CURRENCY, RISK_CURRENCY, LOCAL_CURRENCY from rwh_currency_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_CURVETYPE_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="curveType" naturalKey="true" />
+				<mappedColumn name="pricingModel" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_curvetype_dim(curve_type_code, curve_type_desc, pricing_model)
+    				values ('${curveType}', '${curveType}', '${pricingModel}')
+				</insertSingle>
+				<selectSurrogateKey>select curvetype_dim_wid from rwh_curvetype_dim where curve_type_code='${curveType}' and pricing_model='${pricingModel}'</selectSurrogateKey>
+				<preCacheKeys>select curvetype_dim_wid, curve_type_code, pricing_model from rwh_curvetype_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_DATE_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<mappedColumn name="businessDate" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into RWH_DATE_DIM(DATE_DIM_WID, BUSINESS_DATE) values (CONVERT(DATE_FORMAT(STR_TO_DATE('${businessDate}', '%e/%m/%Y'), '%Y%m%e'), UNSIGNED INTEGER), STR_TO_DATE('${businessDate}', '%e/%m/%Y'))
+				</insertSingle>
+				<selectSurrogateKey>select DATE_DIM_WID from RWH_DATE_DIM where BUSINESS_DATE=STR_TO_DATE('${businessDate}', '%e/%m/%Y')</selectSurrogateKey>
+				<preCacheKeys>select DATE_DIM_WID, DATE_FORMAT(BUSINESS_DATE, '%e/%m/%Y') from RWH_DATE_DIM</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="RWH_DEAL_DIM" type="T1_INSERT_ONLY">
+			<mappedColumns>
+				<!-- natural key columns are used to cache data -->
+				<!-- if not natural key columns are defined caching will be disabled -->
+				<!-- mapped columns are used to instruct engine what attributes from context (or feed) should be used to prepare statements before execution -->
+				<!-- all mapped column names will be searched in statements (before execution) and replaced if found with values found in feed or context -->
+				<mappedColumn name="sourceName" naturalKey="true" />
+				<mappedColumn name="dealType" naturalKey="true" />
+				<mappedColumn name="dealId" naturalKey="true" />
+				<mappedColumn name="dealVersion" naturalKey="true" />
+				<mappedColumn name="dealWhatIfUID" naturalKey="true" />
+				<mappedColumn name="componentCode" naturalKey="true" />
+				<mappedColumn name="trade_tds" />
+				<mappedColumn name="dealAmended" />
+				<mappedColumn name="structureCd" />
+				<mappedColumn name="maturityDate" />
+				<mappedColumn name="dealDate" />
+				<mappedColumn name="dealState" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into rwh_deal_dim(sourceName, deal_type, deal_id, deal_version, deal_Whatif_uid, component_code,
+       					deal_date, deal_amended, deal_state, deal_structure_CD, deal_additional_info, maturity_date, deal_additional_info_cube, dealInCubeGeneration)
+    				values ('${sourceName}', '${dealType}', '${dealId}', ${dealVersion}, '${dealWhatIfUID}', '${componentCode}', STR_TO_DATE('${dealDate}', '%e/%m/%Y %H:%i:%s'), STR_TO_DATE('${dealAmended}', '%e/%m/%Y %H:%i:%s'),
+    				'${dealState}', '${structureCd}', '${trade_tds}', STR_TO_DATE('${maturityDate}', '%e/%m/%Y %H:%i:%s'), '${trade_tds}', NULL)
+				</insertSingle>
+				<selectSurrogateKey>select deal_dim_wid from rwh_deal_dim where sourceName='${sourceName}' and deal_type='${dealType}' and deal_id='${dealId}' and deal_version='${dealVersion}' and DEAL_WHATIF_UID='${dealWhatIfUID}' and component_code='${componentCode}'</selectSurrogateKey>
+				<preCacheKeys>select deal_dim_wid, sourceName, deal_type, deal_id, deal_version, DEAL_WHATIF_UID, component_code from rwh_deal_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<!-- this dimension will be executed once per feed and its key will be available as ${notificationSk} in context  -->
+		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
+			<mappedColumns>
+				<!-- ffn[x] attributes are created by default feed file name processor. Delimiter for splitting feed file name is _ -->
+				<mappedColumn name="ffn[1]" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into REQUESTNOTIFICATION (PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE) 
+					values (sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${feedInputFileName}',1,7))
+				</insertSingle>
+				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffn[1]}'</selectSurrogateKey>
+				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+	</dimensions>
+</config>
