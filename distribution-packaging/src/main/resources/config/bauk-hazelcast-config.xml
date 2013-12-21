@@ -118,7 +118,7 @@
         <!--
             Number of async backups. 0 means no backup.
         -->
-        <async-backup-count>1</async-backup-count>
+        <async-backup-count>0</async-backup-count>
         <!--
 			Maximum number of seconds for each entry to stay in the map. Entries that are
 			older than <time-to-live-seconds> and not updated for <time-to-live-seconds>
@@ -147,7 +147,7 @@
             Any integer between 0 and Integer.MAX_VALUE. 0 means
             Integer.MAX_VALUE. Default is 0.
         -->
-        <max-size policy="PER_NODE">50000</max-size>
+        <max-size policy="PER_NODE">1000000</max-size>
         <!--
             When max. size is reached, specified percentage of
             the map will be evicted. Any integer between 0 and 100.

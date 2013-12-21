@@ -45,7 +45,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private String[] naturalKeyNames;
 	private int[] naturalKeyPositionsInFeed;
 	private final CacheInstance cacheInstance;
-	private final Counter dbAccessCounter;
+	private final Counter dbAccessSelectCounter;
+	private final Counter dbAccessInsertCounter;
+	private final Counter dbAccessPreCachedValuesCounter;
 	private final int mappedColumnsPositionOffset;
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
@@ -70,8 +72,12 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		mappedColumnsPositionOffset = naturalKeyPositionOffset;
 		this.calculatePositionOfMappedColumnValues();
 		this.calculatePositionOfNaturalKeyValues();
-		dbAccessCounter = MetricsUtil
-				.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName() + "] - total database access times");
+		dbAccessSelectCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
+				+ "] - total database select queries");
+		dbAccessInsertCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
+				+ "] - total database insert queries");
+		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
+				+ "] - total pre-cached values");
 		localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
 				+ "] - local cache clear times");
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
@@ -213,6 +219,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 					cacheInstance.put(naturalKeyValue, surrogateKeyValue);
 					this.putInLocalCache(naturalKeyValue, surrogateKeyValue);
 				}
+				dbAccessPreCachedValuesCounter.inc(numberOfRows);
 			}
 			log.debug("Pre-cached {} keys for {}", numberOfRows, dimension.getName());
 		} else {
@@ -279,8 +286,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	private String trySelectStatement(final String preparedStatement) {
 		final Long result = this.getDbHandler().executeQueryStatementAndReturnKey(preparedStatement);
-		if (dbAccessCounter != null) {
-			dbAccessCounter.inc();
+		if (dbAccessSelectCounter != null) {
+			dbAccessSelectCounter.inc();
 		}
 		if (result == null) {
 			throw new IllegalStateException("Was not able to retrieve surrogate key by using select surrogate key statement " + preparedStatement);
@@ -293,8 +300,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	private String tryInsertStatement(final String preparedStatement) {
 		final Long result = this.getDbHandler().executeInsertStatementAndReturnKey(preparedStatement);
-		if (dbAccessCounter != null) {
-			dbAccessCounter.inc();
+		if (dbAccessInsertCounter != null) {
+			dbAccessInsertCounter.inc();
 		}
 		if (result == null) {
 			throw new IllegalStateException("Was not able to retrieve surrogate key by using insert statement " + preparedStatement);

@@ -11,8 +11,18 @@
 		<fileSet>
 			<directory>src/main/resources/scripts/</directory>
 			<outputDirectory>bin</outputDirectory>
+			<fileMode>777</fileMode>
+			<lineEnding>unix</lineEnding>
 			<includes>
 				<include>start.sh</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/scripts/</directory>
+			<outputDirectory>bin</outputDirectory>
+			<fileMode>777</fileMode>
+			<lineEnding>windows</lineEnding>
+			<includes>
 				<include>start.bat</include>
 			</includes>
 		</fileSet>
@@ -33,6 +43,7 @@
 		<fileSet>
 			<directory>src/main/resources/config/</directory>
 			<outputDirectory>config</outputDirectory>
+			<fileMode>666</fileMode>
 			<includes>
 				<include>*.*</include>
 			</includes>
@@ -48,6 +59,7 @@
 	<dependencySets>
 		<dependencySet>
 			<outputDirectory>lib</outputDirectory>
+			<fileMode>666</fileMode>
 			<includes>
 				<include>*:jar:*</include>
 			</includes>

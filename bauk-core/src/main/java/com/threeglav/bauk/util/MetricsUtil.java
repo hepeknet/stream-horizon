@@ -31,15 +31,15 @@ public abstract class MetricsUtil {
 	}
 
 	private synchronized static String getUniqueName(final String name) {
-		final AtomicInteger usedCounter = USED_NAMES.get(name);
+		AtomicInteger usedCounter = USED_NAMES.get(name);
 		if (usedCounter == null) {
-			USED_NAMES.put(name, new AtomicInteger(0));
-			return name;
-		} else {
-			final String newName = name + "_" + usedCounter.incrementAndGet();
+			usedCounter = new AtomicInteger(1);
 			USED_NAMES.put(name, usedCounter);
-			return newName;
+		} else {
+			usedCounter.incrementAndGet();
+			USED_NAMES.put(name, usedCounter);
 		}
+		return name + "_" + usedCounter.get();
 	}
 
 	public static Meter createMeter(final String name) {

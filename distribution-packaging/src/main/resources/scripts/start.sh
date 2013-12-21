@@ -1,12 +1,14 @@
 
+# first two lines are the only two lines that need to be changed
+# where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/baukConfig.xml
 BAUK_CONFIG_FILE_LOCATION="/home/bauk/baukConfig.xml"
-
+# if needed increase the size of heap to be used
+HEAP_OPTS="-Xmx4G -Xms2G"
 
 
 DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 RESOLVED_HOME=$DIRNAME/../
 
-HEAP_OPTS="-Xmx4G -Xms2G"
 GC_OPTS=""
 JAVA_OPTS="-server -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 JAVA_OPTS="$JAVA_OPTS -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"

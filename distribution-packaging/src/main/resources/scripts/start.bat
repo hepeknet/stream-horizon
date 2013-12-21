@@ -1,6 +1,11 @@
 @echo off
 
+rem first two lines are the only two lines that need to be changed
+rem where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/baukConfig.xml
 set "BAUK_CONFIG_FILE_LOCATION=d:/projects/test/baukConfig.xml"
+
+rem if needed increase the size of heap to be used
+set "HEAP_OPTS=-Xmx4G -Xms2G"
 
 set DIRNAME=.\
 
@@ -8,7 +13,6 @@ pushd %DIRNAME%..
 set "RESOLVED_HOME=%CD%"
 popd
 
-set "HEAP_OPTS=-Xmx4G -Xms2G"
 set "GC_OPTS="
 set "JAVA_OPTS=-server -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
