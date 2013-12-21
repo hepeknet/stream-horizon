@@ -194,11 +194,11 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into rwh_underlying_dim(underlying_name, risk_underlying_name)
+					insert into RWH_UNDERLYING_DIM(underlying_name, risk_underlying_name)
 					values ('${underlyingCode}','${riskUnderlyingCode}')
 				</insertSingle>
-				<selectSurrogateKey>select underlying_dim_wid from rwh_underlying_dim where underlying_name='${underlyingCode}' and risk_underlying_name='${riskUnderlyingCode}'</selectSurrogateKey>
-				<preCacheKeys>select underlying_dim_wid, underlying_name, risk_underlying_name from rwh_underlying_dim</preCacheKeys>
+				<selectSurrogateKey>select underlying_dim_wid from RWH_UNDERLYING_DIM where underlying_name='${underlyingCode}' and risk_underlying_name='${riskUnderlyingCode}'</selectSurrogateKey>
+				<preCacheKeys>select underlying_dim_wid, underlying_name, risk_underlying_name from RWH_UNDERLYING_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 		<dimension name="RWH_RISK_STATUS_DIM" type="T1_INSERT_ONLY">
@@ -209,11 +209,11 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into rwh_risk_status_dim(status_code, status_description, status_flag)
-    				values ('${exceptionCode}', '${exceptionDescription}', IF('A'=substr('${exceptionFlag}', 1, 1),0,1))
+					insert into RWH_RISK_STATUS_DIM(status_code, status_description, status_flag)
+    				values ('${exceptionCode}', '${exceptionDescription}', substr('${exceptionFlag}', 1, 1))
 				</insertSingle>
-				<selectSurrogateKey>select risk_status_dim_wid from rwh_risk_status_dim where status_code='${exceptionCode}' and status_description='${exceptionDescription}' and status_flag=IF('A'=substr('${exceptionFlag}', 1, 1),0,1)</selectSurrogateKey>
-				<preCacheKeys>select risk_status_dim_wid, status_code, status_description, status_flag from rwh_risk_status_dim</preCacheKeys>
+				<selectSurrogateKey>select risk_status_dim_wid from RWH_RISK_STATUS_DIM where status_code='${exceptionCode}' and status_description='${exceptionDescription}' and status_flag=substr('${exceptionFlag}', 1, 1)</selectSurrogateKey>
+				<preCacheKeys>select risk_status_dim_wid, status_code, status_description, status_flag from RWH_RISK_STATUS_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 		<dimension name="RWH_PRODUCT_DIM" type="T1_INSERT_ONLY">
@@ -222,10 +222,10 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into rwh_product_dim(product_code) values ('${productCode}')
+					insert into RWH_PRODUCT_DIM(product_code) values ('${productCode}')
 				</insertSingle>
-				<selectSurrogateKey>select product_dim_wid from rwh_product_dim where product_code='${productCode}'</selectSurrogateKey>
-				<preCacheKeys>select product_dim_wid, product_code from rwh_product_dim</preCacheKeys>
+				<selectSurrogateKey>select product_dim_wid from RWH_PRODUCT_DIM where product_code='${productCode}'</selectSurrogateKey>
+				<preCacheKeys>select product_dim_wid, product_code from RWH_PRODUCT_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 		<dimension name="RWH_PORTFOLIO_DIM" type="T1_INSERT_ONLY">
@@ -234,10 +234,10 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into rwh_portfolio_dim(portfolio_name) values ('${portfolio}')
+					insert into RWH_PORTFOLIO_DIM(portfolio_name) values ('${portfolio}')
 				</insertSingle>
-				<selectSurrogateKey>select portfolio_dim_wid from rwh_portfolio_dim where portfolio_name='${portfolio}'</selectSurrogateKey>
-				<preCacheKeys>select portfolio_dim_wid, portfolio_name from rwh_portfolio_dim</preCacheKeys>
+				<selectSurrogateKey>select portfolio_dim_wid from RWH_PORTFOLIO_DIM where portfolio_name='${portfolio}'</selectSurrogateKey>
+				<preCacheKeys>select portfolio_dim_wid, portfolio_name from RWH_PORTFOLIO_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 		<dimension name="RWH_PARTY_DIM" type="T1_INSERT_ONLY">
@@ -246,10 +246,10 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into rwh_party_dim(party_name) values ('${partyName}')
+					insert into RWH_PARTY_DIM(party_name) values ('${partyName}')
 				</insertSingle>
-				<selectSurrogateKey>select party_dim_wid from rwh_party_dim where party_name='${partyName}'</selectSurrogateKey>
-				<preCacheKeys>select party_dim_wid, party_name from rwh_party_dim</preCacheKeys>
+				<selectSurrogateKey>select party_dim_wid from RWH_PARTY_DIM where party_name='${partyName}'</selectSurrogateKey>
+				<preCacheKeys>select party_dim_wid, party_name from RWH_PARTY_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 		<dimension name="RWH_CURRENCY_DIM" type="T1_INSERT_ONLY">
@@ -260,7 +260,7 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into rwh_currency_dim(BASE_CURRENCY, BASE_CURRENCY_DESC, RISK_CURRENCY, RISK_CURRENCY_DESC, LOCAL_CURRENCY, LOCAL_CURRENCY_DESC) 
+					insert into RWH_CURRENCY_DIM(BASE_CURRENCY, BASE_CURRENCY_DESC, RISK_CURRENCY, RISK_CURRENCY_DESC, LOCAL_CURRENCY, LOCAL_CURRENCY_DESC) 
 					values ('${baseCurrencyCode}', '${baseCurrencyCode}', '${riskCurrencyCode}', '${riskCurrencyCode}', '${localCurrencyCode}', '${localCurrencyCode}')
 				</insertSingle>
 				<selectSurrogateKey>select CURRENCY_DIM_WID from rwh_currency_dim where BASE_CURRENCY='${baseCurrencyCode}' and RISK_CURRENCY='${riskCurrencyCode}' and LOCAL_CURRENCY='${localCurrencyCode}'</selectSurrogateKey>
@@ -274,11 +274,11 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into rwh_curvetype_dim(curve_type_code, curve_type_desc, pricing_model)
+					insert into RWH_CURVETYPE_DIM(curve_type_code, curve_type_desc, pricing_model)
     				values ('${curveType}', '${curveType}', '${pricingModel}')
 				</insertSingle>
-				<selectSurrogateKey>select curvetype_dim_wid from rwh_curvetype_dim where curve_type_code='${curveType}' and pricing_model='${pricingModel}'</selectSurrogateKey>
-				<preCacheKeys>select curvetype_dim_wid, curve_type_code, pricing_model from rwh_curvetype_dim</preCacheKeys>
+				<selectSurrogateKey>select curvetype_dim_wid from RWH_CURVETYPE_DIM where curve_type_code='${curveType}' and pricing_model='${pricingModel}'</selectSurrogateKey>
+				<preCacheKeys>select curvetype_dim_wid, curve_type_code, pricing_model from RWH_CURVETYPE_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
 		<dimension name="RWH_DATE_DIM" type="T1_INSERT_ONLY">

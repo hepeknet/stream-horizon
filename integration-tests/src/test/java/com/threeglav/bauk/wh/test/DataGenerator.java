@@ -37,7 +37,7 @@ public class DataGenerator {
 		final String[] baseCurrCode = createRandomValues("baseCurrencyCode", currencyValues);
 		final String[] exceptionCode = createRandomValues("ExceptionCode", 1000);
 		final String[] exceptionDescription = createRandomValues("Exception Description", 1000);
-		final String[] exceptionFlag = createAlphabetValues(1000);
+		final String[] exceptionFlag = { "0", "1" };
 		final int dealValues = 100;
 		final String[] components = createRandomValues("component", dealValues);
 		final String[] sourceName = createRandomValues("sourceName", dealValues);
@@ -89,7 +89,7 @@ public class DataGenerator {
 			sb.append(VALUE_DELIMITER);
 			sb.append(exceptionDescription[riskStatus]);
 			sb.append(VALUE_DELIMITER);
-			sb.append(exceptionFlag[riskStatus]);
+			sb.append(exceptionFlag[rand.nextInt(2)]);
 			sb.append(VALUE_DELIMITER);
 			sb.append(sourceName[dealVal]);
 			sb.append(VALUE_DELIMITER);
