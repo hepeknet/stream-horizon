@@ -1,13 +1,13 @@
 
-# first two lines are the only two lines that need to be changed
-# where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/baukConfig.xml
-BAUK_CONFIG_FILE_LOCATION="/home/bauk/baukConfig.xml"
+DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+RESOLVED_HOME=$DIRNAME/../
+
+# following two lines are the only two lines that need to be changed
+# where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/feedConfig.xml
+BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/feedConfig.xml"
 # if needed increase the size of heap to be used
 HEAP_OPTS="-Xmx4G -Xms2G"
 
-
-DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-RESOLVED_HOME=$DIRNAME/../
 
 GC_OPTS=""
 JAVA_OPTS="-server -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
@@ -19,7 +19,7 @@ JAVA_OPTS="$JAVA_OPTS -Dbauk.home=$RESOLVED_HOME -Dbauk.config=${BAUK_CONFIG_FIL
 
 CONFIG_OPTIONS="-Dlogback.configurationFile=$RESOLVED_HOME/config/logback.xml -Dhazelcast.config=$RESOLVED_HOME/config/bauk-hazelcast-config.xml"
 
-JAVA_CP="$RESOLVED_HOME/lib/*:$RESOLVED_HOME/extras/*:$RESOLVED_HOME/config/baukConfig.xml"
+JAVA_CP="$RESOLVED_HOME/lib/*:$RESOLVED_HOME/extras/*:"
 
 echo
 echo "classpath $JAVA_CP"

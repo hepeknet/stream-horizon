@@ -21,7 +21,7 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class BaukApplication {
 
-	private static final String DEFAULT_CONFIG_FILE_NAME = "baukConfig.xml";
+	private static final String DEFAULT_CONFIG_FILE_NAME = "feedConfig.xml";
 	private static final String CONFIG_FILE_PROP_NAME = "bauk.config";
 
 	private static final Logger LOG = LoggerFactory.getLogger(BaukApplication.class);
@@ -36,7 +36,9 @@ public class BaukApplication {
 			configValidator.validate();
 			createCamelRoutes(conf);
 		} else {
-			LOG.error("Unable to find valid configuration! Aborting!");
+			LOG.error(
+					"Unable to find valid configuration file! Check your startup scripts and make sure system property {} points to valid feed configuration file. Aborting!",
+					CONFIG_FILE_PROP_NAME);
 			return;
 		}
 		// sleep forever
@@ -69,6 +71,8 @@ public class BaukApplication {
 	}
 
 	private static final BaukConfiguration findConfiguration() {
+		LOG.info("Trying to find configuration file. First if specified as {} system property and then as {} in classpath", CONFIG_FILE_PROP_NAME,
+				DEFAULT_CONFIG_FILE_NAME);
 		final String configFile = System.getProperty(CONFIG_FILE_PROP_NAME);
 		InputStream is = null;
 		if (StringUtil.isEmpty(configFile)) {
@@ -79,7 +83,7 @@ public class BaukApplication {
 				LOG.error("Was not able to find file {} in the classpath. Unable to start application", DEFAULT_CONFIG_FILE_NAME);
 				return null;
 			}
-			LOG.info("Found configuration in classpath");
+			LOG.info("Found configuration file {} in classpath", DEFAULT_CONFIG_FILE_NAME);
 		} else {
 			LOG.info("Found system property {}={}. Will try to load it as configuration...", CONFIG_FILE_PROP_NAME, configFile);
 			try {
