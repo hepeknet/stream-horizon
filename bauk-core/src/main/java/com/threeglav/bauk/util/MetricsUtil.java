@@ -39,7 +39,7 @@ public abstract class MetricsUtil {
 			usedCounter.incrementAndGet();
 			USED_NAMES.put(name, usedCounter);
 		}
-		return name + "_" + usedCounter.get();
+		return "(" + usedCounter.get() + ") " + name;
 	}
 
 	public static Meter createMeter(final String name) {
@@ -49,9 +49,13 @@ public abstract class MetricsUtil {
 		return null;
 	}
 
-	public static Counter createCounter(final String name) {
+	public static Counter createCounter(final String name, final boolean uniqueName) {
 		if (!metricsOff) {
-			return registry.counter(getUniqueName(name));
+			String counterName = name;
+			if (uniqueName) {
+				counterName = getUniqueName(name);
+			}
+			return registry.counter(counterName);
 		}
 		return null;
 	}

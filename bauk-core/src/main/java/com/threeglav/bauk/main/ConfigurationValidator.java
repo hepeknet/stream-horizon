@@ -18,7 +18,7 @@ import com.threeglav.bauk.model.MappedResultsSQLStatement;
 import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public class ConfigurationValidator {
+class ConfigurationValidator {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -28,7 +28,7 @@ public class ConfigurationValidator {
 		this.config = config;
 	}
 
-	public void validate() throws Exception {
+	void validate() throws Exception {
 		final boolean sourceOk = this.getOrCreateDirectory(config.getSourceDirectory(), false);
 		if (!sourceOk) {
 			throw new IllegalStateException("Was not able to find folder where input feeds will be stored! Aborting!");

@@ -73,13 +73,13 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		this.calculatePositionOfMappedColumnValues();
 		this.calculatePositionOfNaturalKeyValues();
 		dbAccessSelectCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - total database select queries");
+				+ "] - total database selects executed", false);
 		dbAccessInsertCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - total database insert queries");
+				+ "] - total database inserts executed", false);
 		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - total pre-cached values");
+				+ "] - total pre-cached values retrieved", false);
 		localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - local cache clear times");
+				+ "] - local cache clear times", false);
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
 			noNaturalKeyColumnsDefined = true;

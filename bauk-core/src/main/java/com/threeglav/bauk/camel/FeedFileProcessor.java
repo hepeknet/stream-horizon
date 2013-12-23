@@ -28,7 +28,6 @@ import com.threeglav.bauk.feed.FeedCompletionProcessor;
 import com.threeglav.bauk.feed.FeedFileNameProcessor;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
-import com.threeglav.bauk.feed.processing.MultiThreadedFeedDataProcessor;
 import com.threeglav.bauk.feed.processing.SingleThreadedFeedDataProcessor;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
@@ -72,24 +71,10 @@ class FeedFileProcessor implements Processor {
 		textFileReaderComponent = new TextFileReaderComponent(this.factFeed, this.config, feedDataProcessor, cleanFileMask);
 		feedCompletionProcessor = this.createFeedCompletionProcessor();
 		beforeFeedProcessingProcessor = this.createBeforeFeedProcessingProcessor();
-		inputFeedsProcessed = MetricsUtil.createMeter("Input feeds (" + cleanFileMask + ") - processed files count");
-		inputFeedProcessingTime = MetricsUtil.createHistogram("Input feeds (" + cleanFileMask + ") - processing time (millis)");
+		inputFeedsProcessed = MetricsUtil.createMeter("(" + cleanFileMask + ") - processed files count");
+		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
 		log.info("Number of instances is {}", COUNTER.incrementAndGet());
-	}
-
-	private FeedDataProcessor createFeedDataProcessor(final String routeId) {
-		int numberOfInputThreads = 1;
-		if (factFeed.getThreadPoolSizes() != null) {
-			numberOfInputThreads = factFeed.getThreadPoolSizes().getFeedProcessingThreads();
-		}
-		if (numberOfInputThreads == 1) {
-			log.debug("Will use single threaded feed data processing");
-			return new SingleThreadedFeedDataProcessor(factFeed, config, routeId);
-		} else {
-			log.debug("Will use multi threaded feed data processing - thread number {}", numberOfInputThreads);
-			return new MultiThreadedFeedDataProcessor(factFeed, config, routeId, numberOfInputThreads);
-		}
 	}
 
 	private BeforeFeedProcessingProcessor createBeforeFeedProcessingProcessor() {
@@ -199,24 +184,27 @@ class FeedFileProcessor implements Processor {
 		if (inputStream != null) {
 			final long start = System.currentTimeMillis();
 			log.debug("Received filePath={}, lastModified={}, fileLength={}", fullFilePath, lastModified, fileLength);
-			final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
-			if (beforeFeedProcessingProcessor != null) {
-				beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
+			try {
+				final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
+				if (beforeFeedProcessingProcessor != null) {
+					beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
+				}
+				if (feedCompletionProcessor == null) {
+					textFileReaderComponent.process(inputStream, globalAttributes);
+				} else {
+					this.processStreamWithCompletion(inputStream, globalAttributes);
+				}
+			} finally {
+				IOUtils.closeQuietly(inputStream);
+				final long total = System.currentTimeMillis() - start;
+				if (inputFeedsProcessed != null) {
+					inputFeedsProcessed.mark();
+				}
+				if (inputFeedProcessingTime != null) {
+					inputFeedProcessingTime.update(total);
+				}
+				log.debug("Finished processing [{}] in {}ms", fullFilePath, total);
 			}
-			if (feedCompletionProcessor == null) {
-				textFileReaderComponent.process(inputStream, globalAttributes);
-			} else {
-				this.processStreamWithCompletion(inputStream, globalAttributes);
-			}
-			IOUtils.closeQuietly(inputStream);
-			final long total = System.currentTimeMillis() - start;
-			if (inputFeedsProcessed != null) {
-				inputFeedsProcessed.mark();
-			}
-			if (inputFeedProcessingTime != null) {
-				inputFeedProcessingTime.update(total);
-			}
-			log.debug("Successfully processed [{}] in {}ms", fullFilePath, total);
 		} else {
 			log.warn("Stream is null - unable to process file");
 		}

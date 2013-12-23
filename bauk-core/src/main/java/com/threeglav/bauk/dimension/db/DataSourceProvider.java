@@ -21,7 +21,7 @@ class DataSourceProvider {
 
 	}
 
-	DataSource createDataSource(final BaukConfiguration config) {
+	private DataSource createDataSource(final BaukConfiguration config) {
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
@@ -34,6 +34,7 @@ class DataSourceProvider {
 			throw new IllegalArgumentException("Unable to connect to database. JDBC URL not defined!");
 		}
 		try {
+			log.info("JDBC URL is {}", connectionProperties.getJdbcUrl());
 			dataSource.setJdbcUrl(connectionProperties.getJdbcUrl());
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcUserName())) {
 				log.debug("Will access database as user [{}]", connectionProperties.getJdbcUserName());

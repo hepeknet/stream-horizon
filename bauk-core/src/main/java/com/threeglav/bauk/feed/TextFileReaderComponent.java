@@ -54,7 +54,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		this.validate();
 		this.feedDataProcessor = feedDataProcessor;
 		processAndValidateFooter = factFeed.getFooter().getProcess() != HeaderFooterProcessType.SKIP;
-		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines in feed");
+		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines per feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
 		headerProcessingType = this.getFactFeed().getHeader().getProcess();
