@@ -21,8 +21,12 @@
 			</fileNameMasks>
 			<delimiterString>^~</delimiterString>
 			<!-- for header valid values are no_header, normal and skip -->
+			<!-- no_header means there is no header line, normal means header will be processed as configured, skip means there is header line but will not be processed -->
 			<header process="no_header" />
-			<data process="normal">
+			<!-- values for processing of data can be normal and no_validation -->
+			<!-- normal means that it is required to have validation string at the beginning of every line -->
+			<!-- no_validation means that validation string is not present -->
+			<data process="no_validation">
 				<!-- if not specified then we do not expect line to start with any special character -->
 				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
 				<attributes>
@@ -40,6 +44,7 @@
 				</attributes>
 			</data>
 			<!-- footer process can be skip or strict -->
+			<!-- skip means last line will be skipped, strict means that last line will be processed and validity of footer will be checked -->
 			<footer process="skip" />
 			<bulkLoadDefinition outputType="none" />			
 			<afterFeedProcessingCompletion>
@@ -86,7 +91,7 @@
 					<attribute name="runTag" />
 				</attributes>
 			</header>
-			<data process="strict">
+			<data process="normal">
 				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
 				<!--
 				<feedDataProcessorClassName>DataMapper</feedDataProcessorClassName>

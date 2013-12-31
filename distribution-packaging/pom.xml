@@ -39,15 +39,18 @@
 							<outjar>bauk_small.jar</outjar>
 							<obfuscate>true</obfuscate>
 							<options>
+								<option>-dontoptimize</option>
 								<option>-allowaccessmodification</option>
 								<option>-dontskipnonpubliclibraryclasses</option>
 								<option>-dontskipnonpubliclibraryclassmembers</option>
-								<option>-keep public class * { public protected *; }</option>
-								<option>-keepclasseswithmembernames class com.threeglav.bauk.model.** { public protected private *; }</option>
-								<option>-keepclasseswithmembernames class com.threeglav.bauk.main.BaukApplication { public protected private *; }</option>
+								<option>-keep public class com.threeglav.bauk.model.** { public protected private *; }</option>
+								<option>-keep public class com.threeglav.bauk.main.** { public *; }</option>
 								<option>-optimizationpasses 3</option>
 								<option>-overloadaggressively</option>
 								<option>-keepattributes *Annotation*</option>
+								<option>-keepattributes Exceptions</option>
+								<option>-keepattributes Signature</option>
+								<option>-keepclassmembers,allowoptimization enum * { public static **[] values(); public static ** valueOf(java.lang.String);}</option>
 							</options>
 							<assembly>
 								<inclusions>
