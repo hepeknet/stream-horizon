@@ -11,28 +11,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Data {
+public class Header {
 
 	@XmlAttribute
-	private DataProcessingType process = DataProcessingType.NORMAL;
+	private HeaderProcessingType process = HeaderProcessingType.NORMAL;
 
 	@XmlElement(required = true)
 	private String eachLineStartsWithCharacter;
 
-	@XmlElement
-	private String feedDataProcessorClassName;
+	@XmlElement(required = false)
+	private String headerParserClassName;
 
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")
 	private ArrayList<Attribute> attributes;
-
-	public String getEachLineStartsWithCharacter() {
-		return eachLineStartsWithCharacter;
-	}
-
-	public void setEachLineStartsWithCharacter(final String eachLineStartsWithCharacter) {
-		this.eachLineStartsWithCharacter = eachLineStartsWithCharacter;
-	}
 
 	public ArrayList<Attribute> getAttributes() {
 		return attributes;
@@ -42,20 +34,28 @@ public class Data {
 		this.attributes = attributes;
 	}
 
-	public DataProcessingType getProcess() {
+	public String getEachLineStartsWithCharacter() {
+		return eachLineStartsWithCharacter;
+	}
+
+	public void setEachLineStartsWithCharacter(final String eachLineStartsWithCharacter) {
+		this.eachLineStartsWithCharacter = eachLineStartsWithCharacter;
+	}
+
+	public HeaderProcessingType getProcess() {
 		return process;
 	}
 
-	public void setProcess(final DataProcessingType process) {
+	public void setProcess(final HeaderProcessingType process) {
 		this.process = process;
 	}
 
-	public String getFeedDataProcessorClassName() {
-		return feedDataProcessorClassName;
+	public String getHeaderParserClassName() {
+		return headerParserClassName;
 	}
 
-	public void setFeedDataProcessorClassName(final String feedDataProcessorClassName) {
-		this.feedDataProcessorClassName = feedDataProcessorClassName;
+	public void setHeaderParserClassName(final String headerParserClassName) {
+		this.headerParserClassName = headerParserClassName;
 	}
 
 }

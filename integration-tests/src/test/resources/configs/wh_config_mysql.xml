@@ -19,7 +19,7 @@
 			<delimiterString>^~</delimiterString>
 			<!-- for header valid values are no_header, normal and skip -->
 			<header process="no_header" />
-			<data process="normal">
+			<data process="no_validation">
 				<!-- if not specified then we do not expect line to start with any special character -->
 				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
 				<attributes>
@@ -80,7 +80,7 @@
 					<attribute name="runTag" />
 				</attributes>
 			</header>
-			<data process="strict">
+			<data process="normal">
 				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
 				<!--
 				<feedDataProcessorClassName>DataMapper</feedDataProcessorClassName>

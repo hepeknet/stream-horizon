@@ -11,16 +11,13 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class HeaderFooter {
+public class Footer {
 
 	@XmlAttribute
-	private HeaderFooterProcessType process = HeaderFooterProcessType.NORMAL;
+	private FooterProcessingType process = FooterProcessingType.STRICT;
 
 	@XmlElement(required = true)
 	private String eachLineStartsWithCharacter;
-
-	@XmlElement(required = false)
-	private String headerParserClassName;
 
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")
@@ -42,20 +39,12 @@ public class HeaderFooter {
 		this.eachLineStartsWithCharacter = eachLineStartsWithCharacter;
 	}
 
-	public HeaderFooterProcessType getProcess() {
+	public FooterProcessingType getProcess() {
 		return process;
 	}
 
-	public void setProcess(final HeaderFooterProcessType process) {
+	public void setProcess(final FooterProcessingType process) {
 		this.process = process;
-	}
-
-	public String getHeaderParserClassName() {
-		return headerParserClassName;
-	}
-
-	public void setHeaderParserClassName(final String headerParserClassName) {
-		this.headerParserClassName = headerParserClassName;
 	}
 
 }

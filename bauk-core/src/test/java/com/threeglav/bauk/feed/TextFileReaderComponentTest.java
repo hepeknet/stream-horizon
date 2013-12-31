@@ -21,16 +21,18 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
-import com.threeglav.bauk.model.HeaderFooter;
-import com.threeglav.bauk.model.HeaderFooterProcessType;
+import com.threeglav.bauk.model.Footer;
+import com.threeglav.bauk.model.FooterProcessingType;
+import com.threeglav.bauk.model.Header;
+import com.threeglav.bauk.model.HeaderProcessingType;
 
 public class TextFileReaderComponentTest {
 
 	@Test
 	public void testNoHeaderStrictFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
-		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderFooterProcessType.NO_HEADER,
-				HeaderFooterProcessType.STRICT, false), this.createConfig(), tfdp, "route1");
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
+				FooterProcessingType.STRICT, false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(5, true, 0);
@@ -43,8 +45,8 @@ public class TextFileReaderComponentTest {
 	@Test
 	public void testNoHeaderNoFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
-		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderFooterProcessType.NO_HEADER,
-				HeaderFooterProcessType.SKIP, false), this.createConfig(), tfdp, "route1");
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
+				FooterProcessingType.SKIP, false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(5, false, 0);
@@ -57,8 +59,8 @@ public class TextFileReaderComponentTest {
 	@Test
 	public void testSkipHeaderNoFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
-		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderFooterProcessType.SKIP,
-				HeaderFooterProcessType.SKIP, false), this.createConfig(), tfdp, "route1");
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.SKIP, FooterProcessingType.SKIP,
+				false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(5, false, 0);
@@ -71,8 +73,8 @@ public class TextFileReaderComponentTest {
 	@Test
 	public void testSkipHeaderStrictFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
-		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderFooterProcessType.SKIP,
-				HeaderFooterProcessType.STRICT, false), this.createConfig(), tfdp, "route1");
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.SKIP, FooterProcessingType.STRICT,
+				false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(4, true, 1);
@@ -85,15 +87,15 @@ public class TextFileReaderComponentTest {
 	@Test(expected = IllegalStateException.class)
 	public void testInvalidControlFeed() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
-		new TextFileReaderComponent(this.createFactFeed(HeaderFooterProcessType.SKIP, HeaderFooterProcessType.STRICT, true), this.createConfig(),
-				tfdp, "route1");
+		new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.SKIP, FooterProcessingType.STRICT, true), this.createConfig(), tfdp,
+				"route1");
 	}
 
 	@Test
 	public void testControlFeed() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
-		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderFooterProcessType.NO_HEADER,
-				HeaderFooterProcessType.SKIP, true), this.createConfig(), tfdp, "route1");
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
+				FooterProcessingType.SKIP, true), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		final InputStream is = this.createContent(1, false, 0);
@@ -128,19 +130,19 @@ public class TextFileReaderComponentTest {
 		return bc;
 	}
 
-	private FactFeed createFactFeed(final HeaderFooterProcessType hType, final HeaderFooterProcessType fType, final boolean isControl) {
+	private FactFeed createFactFeed(final HeaderProcessingType hType, final FooterProcessingType fType, final boolean isControl) {
 		final FactFeed ff = Mockito.mock(FactFeed.class);
 		when(ff.getDelimiterString()).thenReturn(",");
-		final HeaderFooter h = Mockito.mock(HeaderFooter.class);
+		final Header h = Mockito.mock(Header.class);
 		when(h.getProcess()).thenReturn(hType);
 		when(h.getEachLineStartsWithCharacter()).thenReturn("0");
 		when(ff.getHeader()).thenReturn(h);
 		when(ff.getName()).thenReturn("testFeed1");
 
-		final HeaderFooter f = Mockito.mock(HeaderFooter.class);
-		when(f.getProcess()).thenReturn(fType);
-		when(ff.getFooter()).thenReturn(f);
-		when(f.getEachLineStartsWithCharacter()).thenReturn("9");
+		final Footer header = Mockito.mock(Footer.class);
+		when(header.getProcess()).thenReturn(fType);
+		when(ff.getFooter()).thenReturn(header);
+		when(header.getEachLineStartsWithCharacter()).thenReturn("9");
 		if (isControl) {
 			when(ff.getType()).thenReturn(FactFeedType.CONTROL);
 		} else {

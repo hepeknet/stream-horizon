@@ -44,7 +44,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 			throw new IllegalStateException("Fact feed " + this.getFactFeed().getName() + " can not have output none and rename pattern!");
 		}
 		if (StringUtil.isEmpty(this.getFactFeed().getBulkLoadDefinition().getBulkLoadFileDelimiter())) {
-			throw new IllegalStateException("Could not find bulk load file delimiter for feed " + this.getFactFeed().getName() + "!");
+			throw new IllegalStateException("Could not find bulk load file value delimiter string for feed " + this.getFactFeed().getName() + "!");
 		}
 		log.debug("Bulk output file for fact feed {} will be renamed (after writing all data to it) according to pattern {}", this.getFactFeed()
 				.getName(), outputFileNamePattern);

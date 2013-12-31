@@ -10,13 +10,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BulkLoadDefinition {
 
+	public static final String DEFAULT_BULK_OUTPUT_VALUE_DELIMITER = ",";
+
 	public static final String DEFAULT_BULK_OUTPUT_EXTENSION = "data";
 
 	@XmlElement(required = true)
 	private String bulkLoadOutputExtension = DEFAULT_BULK_OUTPUT_EXTENSION;
 
 	@XmlElement(required = true)
-	private String bulkLoadFileDelimiter;
+	private String bulkLoadFileDelimiter = DEFAULT_BULK_OUTPUT_VALUE_DELIMITER;
 
 	@XmlElement(required = false)
 	private BulkLoadFormatDefinition bulkLoadFormatDefinition;

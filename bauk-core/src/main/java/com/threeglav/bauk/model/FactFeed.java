@@ -37,13 +37,13 @@ public class FactFeed {
 	private String delimiterString;
 
 	@XmlElement
-	private HeaderFooter header;
+	private Header header;
 
 	@XmlElement
 	private Data data;
 
 	@XmlElement
-	private HeaderFooter footer;
+	private Footer footer;
 
 	@XmlElement
 	private BulkLoadDefinition bulkLoadDefinition;
@@ -91,19 +91,19 @@ public class FactFeed {
 		this.delimiterString = delimiterString;
 	}
 
-	public HeaderFooter getHeader() {
+	public Header getHeader() {
 		return header;
 	}
 
-	public void setHeader(final HeaderFooter header) {
+	public void setHeader(final Header header) {
 		this.header = header;
 	}
 
-	public HeaderFooter getFooter() {
+	public Footer getFooter() {
 		return footer;
 	}
 
-	public void setFooter(final HeaderFooter footer) {
+	public void setFooter(final Footer footer) {
 		this.footer = footer;
 	}
 

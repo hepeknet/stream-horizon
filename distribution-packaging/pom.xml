@@ -44,6 +44,7 @@
 								<option>-dontskipnonpubliclibraryclassmembers</option>
 								<option>-keep public class * { public protected *; }</option>
 								<option>-keepclasseswithmembernames class com.threeglav.bauk.model.** { public protected private *; }</option>
+								<option>-keepclasseswithmembernames class com.threeglav.bauk.main.BaukApplication { public protected private *; }</option>
 								<option>-optimizationpasses 3</option>
 								<option>-overloadaggressively</option>
 								<option>-keepattributes *Annotation*</option>

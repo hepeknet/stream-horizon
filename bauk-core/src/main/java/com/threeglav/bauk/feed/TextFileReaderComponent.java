@@ -23,8 +23,9 @@ import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
-import com.threeglav.bauk.model.HeaderFooter;
-import com.threeglav.bauk.model.HeaderFooterProcessType;
+import com.threeglav.bauk.model.FooterProcessingType;
+import com.threeglav.bauk.model.Header;
+import com.threeglav.bauk.model.HeaderProcessingType;
 import com.threeglav.bauk.parser.FeedParser;
 import com.threeglav.bauk.parser.FullFeedParser;
 import com.threeglav.bauk.util.AttributeParsingUtil;
@@ -43,7 +44,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final String footerFirstString;
 	private final String[] declaredHeaderAttributes;
 	private final FeedDataProcessor feedDataProcessor;
-	private final HeaderFooterProcessType headerProcessingType;
+	private final HeaderProcessingType headerProcessingType;
 	private final boolean isControlFeed;
 	private final boolean headerShouldExist;
 	private final boolean skipHeader;
@@ -53,7 +54,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		super(factFeed, config);
 		this.validate();
 		this.feedDataProcessor = feedDataProcessor;
-		processAndValidateFooter = factFeed.getFooter().getProcess() != HeaderFooterProcessType.SKIP;
+		processAndValidateFooter = factFeed.getFooter().getProcess() != FooterProcessingType.SKIP;
 		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines per feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
@@ -70,7 +71,7 @@ public class TextFileReaderComponent extends ConfigAware {
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
 		log.debug("Read buffer size is {}", bufferSize);
 		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
-		headerShouldExist = headerProcessingType != HeaderFooterProcessType.NO_HEADER;
+		headerShouldExist = headerProcessingType != HeaderProcessingType.NO_HEADER;
 		if (isControlFeed && headerShouldExist) {
 			throw new IllegalStateException("Control feed " + factFeed.getName() + " must not have header!");
 		}
@@ -80,16 +81,16 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (isControlFeed) {
 			log.info("Feed {} will be treated as control feed", this.getFactFeed().getName());
 		}
-		skipHeader = headerProcessingType == HeaderFooterProcessType.SKIP;
+		skipHeader = headerProcessingType == HeaderProcessingType.SKIP;
 		log.debug("For feed {} footer processing is {}", this.getFactFeed().getName(), factFeed.getFooter().getProcess());
 	}
 
 	private boolean checkProcessHeader() {
-		final HeaderFooter header = this.getFactFeed().getHeader();
-		final HeaderFooterProcessType headerProcessingType = header.getProcess();
+		final Header header = this.getFactFeed().getHeader();
+		final HeaderProcessingType headerProcessingType = header.getProcess();
 		final String feedName = this.getFactFeed().getName();
 		log.debug("For feed {} header processing set to {}", feedName, headerProcessingType);
-		if (headerProcessingType == HeaderFooterProcessType.NO_HEADER || headerProcessingType == HeaderFooterProcessType.SKIP) {
+		if (headerProcessingType == HeaderProcessingType.NO_HEADER || headerProcessingType == HeaderProcessingType.SKIP) {
 			log.debug("Will skip header processing for {}", feedName);
 			return false;
 		}
@@ -118,11 +119,8 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (this.getFactFeed().getFooter() == null) {
 			throw new IllegalArgumentException("Footer configuration must not be null. Check your configuration file!");
 		}
-		final HeaderFooterProcessType footerProcessing = this.getFactFeed().getFooter().getProcess();
-		if (footerProcessing != HeaderFooterProcessType.SKIP && footerProcessing != HeaderFooterProcessType.STRICT) {
-			throw new IllegalArgumentException("Footer processing type " + footerProcessing + " not allowed. Only skip or strict are allowed!");
-		}
-		if (footerProcessing == HeaderFooterProcessType.STRICT && StringUtil.isEmpty(this.getFactFeed().getFooter().getEachLineStartsWithCharacter())) {
+		final FooterProcessingType footerProcessing = this.getFactFeed().getFooter().getProcess();
+		if (footerProcessing == FooterProcessingType.STRICT && StringUtil.isEmpty(this.getFactFeed().getFooter().getEachLineStartsWithCharacter())) {
 			throw new IllegalStateException(
 					"Footer is set to strict processing but can not find first character in configuration! Check your configuration file!");
 		}
@@ -291,7 +289,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	private Map<String, String> processHeader(final String line) {
-		final HeaderFooter header = this.getFactFeed().getHeader();
+		final Header header = this.getFactFeed().getHeader();
 		final String feedName = this.getFactFeed().getName();
 		final Map<String, String> parsedHeaderValues = headerParser.parseHeader(line, declaredHeaderAttributes,
 				header.getEachLineStartsWithCharacter(), this.getFactFeed().getDelimiterString());

@@ -6,10 +6,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType
 @XmlEnum
-public enum HeaderFooterProcessType {
-
-	@XmlEnumValue("strict")
-	STRICT,
+public enum HeaderProcessingType {
 
 	@XmlEnumValue("normal")
 	NORMAL,

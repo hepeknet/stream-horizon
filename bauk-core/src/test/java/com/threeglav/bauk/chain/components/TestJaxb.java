@@ -12,7 +12,8 @@ import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.DimensionType;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
-import com.threeglav.bauk.model.HeaderFooter;
+import com.threeglav.bauk.model.Footer;
+import com.threeglav.bauk.model.Header;
 import com.threeglav.bauk.model.SqlStatements;
 
 public class TestJaxb {
@@ -52,7 +53,7 @@ public class TestJaxb {
 		ff.setName("ff1");
 		ff.setNullString(".");
 		ff.setType(FactFeedType.DELTA);
-		final HeaderFooter h = new HeaderFooter();
+		final Header h = new Header();
 		h.setEachLineStartsWithCharacter("a");
 		ff.setHeader(h);
 		final ArrayList<Attribute> attrs = new ArrayList<Attribute>();
@@ -60,7 +61,7 @@ public class TestJaxb {
 		a1.setName("abc");
 		attrs.add(a1);
 		h.setAttributes(attrs);
-		final HeaderFooter f = new HeaderFooter();
+		final Footer f = new Footer();
 		f.setEachLineStartsWithCharacter("b");
 		f.setAttributes(attrs);
 		ff.setFooter(f);

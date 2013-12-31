@@ -7,9 +7,9 @@ import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.model.Attribute;
 import com.threeglav.bauk.model.BaukConfiguration;
+import com.threeglav.bauk.model.DataProcessingType;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
-import com.threeglav.bauk.model.HeaderFooterProcessType;
 import com.threeglav.bauk.parser.AbstractFeedParser;
 import com.threeglav.bauk.parser.DeltaFeedParser;
 import com.threeglav.bauk.parser.FullFeedParser;
@@ -50,11 +50,14 @@ public class FeedParserComponent extends ConfigAware {
 		}
 		parsedLinesMeter = MetricsUtil.createMeter("(" + routeIdentifier + ") - Parsed lines");
 		firstStringInEveryLine = this.getFactFeed().getData().getEachLineStartsWithCharacter();
-		final boolean isStrictCheckingRequired = this.getFactFeed().getData().getProcess() == HeaderFooterProcessType.STRICT;
+		/*
+		 * should we check every data line for validity or not?
+		 */
+		final boolean isStrictCheckingRequired = this.getFactFeed().getData().getProcess() == DataProcessingType.NORMAL;
 		this.validate(isStrictCheckingRequired);
 		checkEveryLineValidity = isStrictCheckingRequired && !StringUtil.isEmpty(firstStringInEveryLine);
 		if (checkEveryLineValidity) {
-			log.debug("Will check validity of every line in feed by comparing it with {}", firstStringInEveryLine);
+			log.debug("Will check validity of every line in feed by comparing first value in every line with [{}]", firstStringInEveryLine);
 		}
 		this.resolveFeedProcessor();
 	}
@@ -73,11 +76,6 @@ public class FeedParserComponent extends ConfigAware {
 	}
 
 	private void validate(final boolean strictCheckingRequired) {
-		final HeaderFooterProcessType dataProcessType = this.getFactFeed().getData().getProcess();
-		if (dataProcessType == HeaderFooterProcessType.NO_HEADER || dataProcessType == HeaderFooterProcessType.SKIP) {
-			throw new IllegalStateException("Invalid value " + dataProcessType + ". Not valid for feed data processing! Valid are "
-					+ HeaderFooterProcessType.NORMAL + " and " + HeaderFooterProcessType.SKIP);
-		}
 		if (strictCheckingRequired && StringUtil.isEmpty(firstStringInEveryLine)) {
 			throw new IllegalStateException(
 					"Configured to strict check every feed data line but start character not set in configuration! Check your configuration file!");
