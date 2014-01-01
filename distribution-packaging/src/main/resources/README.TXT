@@ -8,3 +8,5 @@
 - any additional classpath dependencies should be added to $BAUK_HOME/extras/
 - all log files will be created in $BAUK_HOME/log/ folder
 - JMX metrics are exposed by default under metrics subtree (use JVisualVM)
+
+- in case when engine is not able to process input feed file error will be logged and .fail file will be created in <errorDirectory> containing the description of error

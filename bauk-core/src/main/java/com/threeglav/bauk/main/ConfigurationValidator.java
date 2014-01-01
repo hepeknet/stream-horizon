@@ -68,7 +68,7 @@ class ConfigurationValidator {
 	private void checkValidityOfAttributes() {
 		log.info("Checking validity of declared attributes in configuration");
 		final List<String> implicitlyDeclaredAttributes = this.getImplicitDeclaredAttributes();
-		log.info("Implicit attributes are {}", implicitlyDeclaredAttributes);
+		log.info("Implicitly available attributes are {}", implicitlyDeclaredAttributes);
 		final Set<String> attributesUsedInConfiguration = this.getAllUsedAttributes();
 		final Set<String> attributesDeclaredInConfiguration = this.getAllDeclaredAttributes();
 		final int sizeUsed = attributesUsedInConfiguration.size();
@@ -84,8 +84,8 @@ class ConfigurationValidator {
 		}
 		if (!notAvailable.isEmpty()) {
 			log.warn(
-					"Used attributes {} have not been declared anywhere! This might cause problems! Make sure that someone does provide values for these attributes!",
-					notAvailable);
+					"{} of used attributes have not been declared anywhere! Those attributes are {}. This might cause problems! Make sure that there are provided values for all these attributes!",
+					notAvailable.size(), notAvailable);
 		} else {
 			log.info("Looks like all used attributes have been properly declared!");
 		}
@@ -127,7 +127,7 @@ class ConfigurationValidator {
 			for (final FactFeed ff : config.getFactFeeds()) {
 				final List<String> feedAttrs = this.getDeclaredFeedAttributes(ff);
 				if (!feedAttrs.isEmpty()) {
-					log.debug("For feed {} found declared attributes {}", ff.getName(), feedAttrs);
+					log.debug("For feed [{}] found declared attributes {}", ff.getName(), feedAttrs);
 					final Set<String> uniqueFeedAttrs = new HashSet<>(feedAttrs);
 					if (uniqueFeedAttrs.size() != feedAttrs.size()) {
 						final List<String> duplicates = new LinkedList<>();
@@ -135,14 +135,14 @@ class ConfigurationValidator {
 						for (final String uniq : uniqueFeedAttrs) {
 							duplicates.remove(uniq);
 						}
-						log.warn("Feed {} declares {} attributes but only {} are unique. Duplicate attributes are {}", ff.getName(),
+						log.warn("Feed [{}] declares {} attributes but only {} are unique. Duplicate attribute(s): {}", ff.getName(),
 								feedAttrs.size(), uniqueFeedAttrs.size(), duplicates);
 					}
 					final int currentSize = attrs.size();
 					attrs.addAll(uniqueFeedAttrs);
 					final int newSize = attrs.size();
 					if (newSize != currentSize + uniqueFeedAttrs.size()) {
-						log.warn("Some of the attributes declared by feed {} have been declared somewhere else. All declared attributes are {}",
+						log.warn("Some of the attributes declared by feed [{}] have been declared somewhere else. All declared attributes are {}",
 								ff.getName(), attrs);
 					}
 				}
@@ -193,7 +193,7 @@ class ConfigurationValidator {
 				}
 			}
 		}
-		log.info("Feed {} uses attributes {}", ff.getName(), attrs);
+		log.info("Feed [{}] uses in total {} attributes and those are {}", ff.getName(), attrs.size(), attrs);
 		return attrs;
 	}
 
@@ -219,7 +219,7 @@ class ConfigurationValidator {
 				}
 			}
 		}
-		log.info("Dimension {} uses attributes {}", dim.getName(), attrs);
+		log.info("Dimension [{}] uses attributes {}", dim.getName(), attrs);
 		return attrs;
 	}
 
@@ -257,7 +257,9 @@ class ConfigurationValidator {
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE);
 
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH);
@@ -285,7 +287,7 @@ class ConfigurationValidator {
 				return true;
 			}
 		} else {
-			log.warn("Was not able to find {}. Will try to create it!", directory);
+			log.warn("Was not able to find [{}]. Will try to create it!", directory);
 			return dir.mkdirs();
 		}
 	}

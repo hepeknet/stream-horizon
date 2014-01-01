@@ -12,6 +12,11 @@ import com.threeglav.bauk.util.StringUtil;
 
 class DataSourceProvider {
 
+	// as recommended in bonecp documentation
+	private static final int DEFAULT_PARTITION_COUNT = 3;
+
+	private static final int DEFAULT_ACQUIRE_INCREMENT = 5;
+
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final BoneCPDataSource dataSource = new BoneCPDataSource();
 
@@ -33,27 +38,26 @@ class DataSourceProvider {
 		if (StringUtil.isEmpty(jdbUrl)) {
 			throw new IllegalArgumentException("Unable to connect to database. JDBC URL not defined!");
 		}
+		if (connectionProperties.getJdbcPoolSize() <= 0) {
+			throw new IllegalArgumentException("JDBC pool size must be positive integer. Provided value is " + connectionProperties.getJdbcPoolSize());
+		}
 		try {
 			log.info("JDBC URL is {}", connectionProperties.getJdbcUrl());
 			dataSource.setJdbcUrl(connectionProperties.getJdbcUrl());
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcUserName())) {
 				log.debug("Will access database as user [{}]", connectionProperties.getJdbcUserName());
 				dataSource.setUsername(connectionProperties.getJdbcUserName());
-			} else {
-				log.warn("JDBC username not specified");
 			}
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcPassword())) {
 				log.debug("JDBC password set");
 				dataSource.setPassword(connectionProperties.getJdbcPassword());
-			} else {
-				log.warn("JDBC password not specified");
 			}
-			// pds.setDriverClass(config.getString("jdbc.driverClass"));
-			// pds.setJdbcUrl(config.getString("jdbc.url"));
-			// pds.setMinConnectionsPerPartition(config.getInt("jdbc.poolsize") / config.getInt("jdbc.partitions"));
-			// pds.setMaxConnectionsPerPartition(config.getInt("jdbc.poolsize") / config.getInt("jdbc.partitions"));
-			// pds.setPartitionCount(config.getInt("jdbc.partitions"));
-			dataSource.setAcquireIncrement(5);
+			dataSource.setPartitionCount(DEFAULT_PARTITION_COUNT);
+			final int connectionsPerPartition = connectionProperties.getJdbcPoolSize() / DEFAULT_PARTITION_COUNT;
+			log.info("Will use {} partitions and {} connections per partition", DEFAULT_PARTITION_COUNT, connectionsPerPartition);
+			dataSource.setMinConnectionsPerPartition(connectionsPerPartition);
+			dataSource.setMaxConnectionsPerPartition(connectionsPerPartition);
+			dataSource.setAcquireIncrement(DEFAULT_ACQUIRE_INCREMENT);
 			return dataSource;
 		} catch (final Exception e) {
 			log.error("Exception starting connection pool", e);

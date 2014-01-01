@@ -22,10 +22,10 @@ public abstract class ConfigAware {
 		if (factFeed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}
-		this.factFeed = factFeed;
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
+		this.factFeed = factFeed;
 		this.config = config;
 		// help JIT remove dead code
 		isDebugEnabled = log.isDebugEnabled();
@@ -40,7 +40,7 @@ public abstract class ConfigAware {
 		return config;
 	}
 
-	public DbHandler getDbHandler() {
+	public synchronized DbHandler getDbHandler() {
 		if (dbHandler == null) {
 			dbHandler = new SpringJdbcDbHandler(config);
 		}
