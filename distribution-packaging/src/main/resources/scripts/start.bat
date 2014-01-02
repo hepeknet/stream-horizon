@@ -17,6 +17,8 @@ set "GC_OPTS="
 set "JAVA_OPTS=-server -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
 rem set "JAVA_OPTS=%JAVA_OPTS% -XX:+UnlockCommercialFeatures -XX:+FlightRecorder"
+rem set "JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
+rem set "JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote.port=8765 -Djava.rmi.server.hostname=127.0.0.1"
 
 rem set bauk.config property to point to valid configuration file on file system
 set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.home=%RESOLVED_HOME% -Dbauk.config=%BAUK_CONFIG_FILE_LOCATION%"
@@ -31,7 +33,7 @@ echo heap %HEAP_OPTS%
 echo JVM options %JAVA_OPTS%
 echo.
 
-set "FINAL_JAVA_COMMAND=-classpath %JAVA_CP% %HEAP_OPTS% %JAVA_OPTS% %CONFIG_OPTIONS% com.threeglav.bauk.main.BaukApplication"
+set "FINAL_JAVA_COMMAND=-classpath %JAVA_CP% %HEAP_OPTS% %JAVA_OPTS% %CONFIG_OPTIONS% com.threeglav.bauk.main.BaukApplication > bauk.out"
 echo java %FINAL_JAVA_COMMAND%
 
 java %FINAL_JAVA_COMMAND%

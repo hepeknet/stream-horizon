@@ -9,9 +9,12 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "config")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {})
 public class BaukConfiguration {
 
 	@XmlElement(required = true)
@@ -41,6 +44,7 @@ public class BaukConfiguration {
 	private ArrayList<Dimension> dimensions;
 
 	// optimization, not found in configuration file
+	@XmlTransient
 	private Map<String, Dimension> dimensionMap;
 
 	public ArrayList<FactFeed> getFactFeeds() {

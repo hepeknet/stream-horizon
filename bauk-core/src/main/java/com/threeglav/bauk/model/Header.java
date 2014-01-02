@@ -8,15 +8,17 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {})
 public class Header {
 
 	@XmlAttribute
 	private HeaderProcessingType process = HeaderProcessingType.NORMAL;
 
-	@XmlElement(required = true)
+	@XmlElement(required = false)
 	private String eachLineStartsWithCharacter;
 
 	@XmlElement(required = false)

@@ -8,15 +8,17 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {})
 public class Footer {
 
 	@XmlAttribute
 	private FooterProcessingType process = FooterProcessingType.STRICT;
 
-	@XmlElement(required = true)
+	@XmlElement(required = false)
 	private String eachLineStartsWithCharacter;
 
 	@XmlElementWrapper

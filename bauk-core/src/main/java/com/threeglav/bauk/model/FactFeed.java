@@ -9,9 +9,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {})
 public class FactFeed {
 
 	@XmlAttribute(required = true)
@@ -27,8 +29,8 @@ public class FactFeed {
 	@XmlAttribute(required = true)
 	private FactFeedType type;
 
-	@XmlElement(required = false)
-	private int repetitionCount = -1;
+	@XmlElement(required = false, defaultValue = "-1")
+	private Integer repetitionCount = -1;
 
 	@XmlElement
 	private String nullString;
@@ -115,11 +117,11 @@ public class FactFeed {
 		this.data = data;
 	}
 
-	public int getRepetitionCount() {
+	public Integer getRepetitionCount() {
 		return repetitionCount;
 	}
 
-	public void setRepetitionCount(final int repetitionCount) {
+	public void setRepetitionCount(final Integer repetitionCount) {
 		this.repetitionCount = repetitionCount;
 	}
 

@@ -7,6 +7,7 @@
 	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
 	<connectionProperties>
 		<jdbcUrl>jdbc:mysql://localhost:3306/test?user=root&amp;password=shroot</jdbcUrl>
+		<jdbcPoolSize>12</jdbcPoolSize>
 	</connectionProperties>
 	<databaseStringLiteral>'</databaseStringLiteral>
 	<factFeeds>

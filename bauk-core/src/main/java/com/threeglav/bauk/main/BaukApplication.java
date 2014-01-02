@@ -1,11 +1,15 @@
 package com.threeglav.bauk.main;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.impl.DefaultCamelContext;
@@ -13,6 +17,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.camel.BulkLoadFileProcessingRoute;
 import com.threeglav.bauk.camel.InputFeedFileProcessingRoute;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -98,6 +103,12 @@ public class BaukApplication {
 			LOG.debug("Trying to load configuration from xml file");
 			final JAXBContext jaxbContext = JAXBContext.newInstance(BaukConfiguration.class);
 			final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+			final String configFolderPath = ConfigurationProperties.getConfigFolder();
+			final File configFolder = new File(configFolderPath);
+			final File xsdFile = new File(configFolder, "bauk_config.xsd");
+			final Schema schema = schemaFactory.newSchema(xsdFile);
+			jaxbUnmarshaller.setSchema(schema);
 			final BaukConfiguration config = (BaukConfiguration) jaxbUnmarshaller.unmarshal(is);
 			LOG.info("Successfully loaded configuration");
 			return config;

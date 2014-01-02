@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Attribute {
 
-	@XmlAttribute(required = true)
+	@XmlAttribute(required = false)
 	private String name;
 
 	@XmlValue

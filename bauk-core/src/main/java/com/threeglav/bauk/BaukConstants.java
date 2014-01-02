@@ -19,6 +19,9 @@ public interface BaukConstants {
 	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME = "bulkFileName";
 	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP = "bulkFileReceivedTimestamp";
 	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP = "bulkFileProcessedTimestamp";
+	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED = "bulkFileAlreadySubmittedForLoading";
+	public static final String ALREADY_SUBMITTED_TRUE_VALUE = "T";
+	public static final String ALREADY_SUBMITTED_FALSE_VALUE = "F";
 
 	public static final String COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG = "completionFeedProcessingSuccessFailureFlag";
 	public static final String COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED = "completionNumberOfRowsInFeed";

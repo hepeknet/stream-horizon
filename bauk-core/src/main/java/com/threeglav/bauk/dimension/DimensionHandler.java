@@ -205,7 +205,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (!StringUtil.isEmpty(preCacheStatement)) {
 			log.debug("For dimension {} statement for pre-caching is {}", dimension.getName(), preCacheStatement);
 			int numberOfRows = 0;
-			final List<String[]> retrievedValues = this.getDbHandler().queryForDimensionKeys(preCacheStatement, naturalKeyNames.length);
+			final List<String[]> retrievedValues = this.getDbHandler().queryForDimensionKeys(dimension.getName(), preCacheStatement,
+					naturalKeyNames.length);
 			if (retrievedValues != null) {
 				numberOfRows = retrievedValues.size();
 				final Iterator<String[]> iter = retrievedValues.iterator();
@@ -267,8 +268,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		try {
 			return this.tryInsertStatement(preparedInsertStatement);
 		} catch (final DuplicateKeyException dexc) {
-			log.warn("Failed inserting record into database - duplicate key! Will try to select value from database!", dexc);
-			log.warn("Insert statement was {}", preparedInsertStatement);
+			log.warn("Failed inserting record into database - duplicate key! Will try to select value from database! {}. Insert statement was {}",
+					dexc.getMessage(), preparedInsertStatement);
 		} catch (final Exception exc) {
 			log.error(
 					"Failed inserting record into database. This should not happen! Check database connection! Will try to select value from database!",

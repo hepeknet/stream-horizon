@@ -264,6 +264,7 @@ class ConfigurationValidator {
 
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP);
@@ -271,6 +272,16 @@ class ConfigurationValidator {
 		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG);
 		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED);
 		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION);
+		final StringBuilder sb = new StringBuilder("========================================================");
+		sb.append("\n\n");
+		sb.append("Implicitly available attributes are:");
+		sb.append("\n\n");
+		sb.append(attrs);
+		sb.append("\n");
+		sb.append("========================================================");
+		sb.append("\n\n");
+		System.out.println(sb);
+		log.warn(sb.toString());
 		return attrs;
 	}
 

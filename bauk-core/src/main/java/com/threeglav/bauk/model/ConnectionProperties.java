@@ -4,9 +4,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {})
 public class ConnectionProperties {
 
 	public static final int DEFAULT_POOL_SIZE = 12;
@@ -20,8 +22,8 @@ public class ConnectionProperties {
 	@XmlElement(required = false)
 	private String jdbcPassword;
 
-	@XmlElement(required = false)
-	private int jdbcPoolSize = DEFAULT_POOL_SIZE;
+	@XmlElement(required = false, defaultValue = "12")
+	private Integer jdbcPoolSize = DEFAULT_POOL_SIZE;
 
 	public String getJdbcUrl() {
 		return jdbcUrl;
@@ -47,11 +49,11 @@ public class ConnectionProperties {
 		this.jdbcPassword = jdbcPassword;
 	}
 
-	public int getJdbcPoolSize() {
+	public Integer getJdbcPoolSize() {
 		return jdbcPoolSize;
 	}
 
-	public void setJdbcPoolSize(final int jdbcPoolSize) {
+	public void setJdbcPoolSize(final Integer jdbcPoolSize) {
 		this.jdbcPoolSize = jdbcPoolSize;
 	}
 

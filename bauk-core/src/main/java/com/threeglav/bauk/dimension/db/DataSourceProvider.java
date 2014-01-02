@@ -10,7 +10,7 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.ConnectionProperties;
 import com.threeglav.bauk.util.StringUtil;
 
-class DataSourceProvider {
+public class DataSourceProvider {
 
 	// as recommended in bonecp documentation
 	private static final int DEFAULT_PARTITION_COUNT = 3;
@@ -26,7 +26,7 @@ class DataSourceProvider {
 
 	}
 
-	private DataSource createDataSource(final BaukConfiguration config) {
+	private DataSource createWhDataSource(final BaukConfiguration config) {
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
@@ -66,6 +66,15 @@ class DataSourceProvider {
 	}
 
 	public static DataSource getDataSource(final BaukConfiguration config) {
-		return INSTANCE.createDataSource(config);
+		return INSTANCE.createWhDataSource(config);
+	}
+
+	public static DataSource getSimpleDataSource(final String jdbcUrl) {
+		if (StringUtil.isEmpty(jdbcUrl)) {
+			throw new IllegalArgumentException("JDBC url must not be null or empty");
+		}
+		final BoneCPDataSource dataSource = new BoneCPDataSource();
+		dataSource.setJdbcUrl(jdbcUrl);
+		return dataSource;
 	}
 }

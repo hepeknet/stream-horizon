@@ -11,7 +11,7 @@ public interface DbHandler {
 
 	public void executeInsertOrUpdateStatement(final String statement);
 
-	public List<String[]> queryForDimensionKeys(final String statement, int numberOfNaturalKeyColumns);
+	public List<String[]> queryForDimensionKeys(final String dimensionName, final String statement, int numberOfNaturalKeyColumns);
 
 	public Map<String, String> executeSelectStatement(final String statement);
 

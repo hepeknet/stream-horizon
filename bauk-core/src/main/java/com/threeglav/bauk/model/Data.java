@@ -8,9 +8,11 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = {})
 public class Data {
 
 	@XmlAttribute
@@ -19,7 +21,7 @@ public class Data {
 	@XmlElement(required = true)
 	private String eachLineStartsWithCharacter;
 
-	@XmlElement
+	@XmlElement(required = false)
 	private String feedDataProcessorClassName;
 
 	@XmlElementWrapper

@@ -1,5 +1,7 @@
 package com.threeglav.bauk;
 
+import java.io.File;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,19 @@ public abstract class ConfigurationProperties {
 		final String home = System.getProperty(SystemConfigurationConstants.APP_HOME_SYS_PARAM_NAME);
 		LOG.debug("Application home is {}", home);
 		return home;
+	}
+
+	public static String getConfigFolder() {
+		return getApplicationHome() + "/config/";
+	}
+
+	public static String getDbDataFolder() {
+		final String fullFolderPath = getApplicationHome() + SystemConfigurationConstants.DB_DATA_FOLDER;
+		final File dir = new File(fullFolderPath);
+		if (!dir.exists() || !dir.isDirectory() || !dir.canRead() || !dir.canExecute()) {
+			throw new IllegalStateException("Unable to find readable folder [" + fullFolderPath + "]");
+		}
+		return fullFolderPath;
 	}
 
 }

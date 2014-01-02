@@ -266,7 +266,7 @@ public class DimensionHandlerTest {
 			}
 
 			@Override
-			public List<String[]> queryForDimensionKeys(final String statement, final int numberOfNaturalKeyColumns) {
+			public List<String[]> queryForDimensionKeys(final String dimName, final String statement, final int numberOfNaturalKeyColumns) {
 				return null;
 			}
 

@@ -126,9 +126,12 @@ public class SpringJdbcDbHandler implements DbHandler {
 	}
 
 	@Override
-	public List<String[]> queryForDimensionKeys(final String statement, final int numberOfNaturalKeyColumns) {
+	public List<String[]> queryForDimensionKeys(final String dimensionName, final String statement, final int numberOfNaturalKeyColumns) {
 		if (StringUtil.isEmpty(statement)) {
 			throw new IllegalArgumentException("Statement must not be null");
+		}
+		if (StringUtil.isEmpty(dimensionName)) {
+			throw new IllegalArgumentException("Dimension name must not be null");
 		}
 		final int expectedTotalValues = numberOfNaturalKeyColumns + 1;
 		final long start = System.currentTimeMillis();
@@ -146,9 +149,10 @@ public class SpringJdbcDbHandler implements DbHandler {
 					final ResultSetMetaData rsmd = rs.getMetaData();
 					final int columnsNumber = rsmd.getColumnCount();
 					if (columnsNumber != expectedTotalValues) {
-						throw new IllegalStateException(
-								"Statement should return surrogate key and all natural keys (in order as declared in configuration). In total expected "
-										+ expectedTotalValues + " columns, but database query returned only " + columnsNumber + " values!");
+						log.error("For dimension {} sql statement {} does not return correct number of values", dimensionName, statement);
+						throw new IllegalStateException("SQL statement for dimension " + dimensionName
+								+ " should return surrogate key and all natural keys (in order as declared in configuration). In total expected "
+								+ expectedTotalValues + " columns, but database query returned only " + columnsNumber + " values!");
 					}
 					alreadyCheckedForColumnNumber = true;
 				}

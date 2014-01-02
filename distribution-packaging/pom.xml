@@ -40,13 +40,11 @@
 							<obfuscate>true</obfuscate>
 							<options>
 								<option>-dontoptimize</option>
-								<option>-allowaccessmodification</option>
+								<option>-dontshrink</option>
 								<option>-dontskipnonpubliclibraryclasses</option>
 								<option>-dontskipnonpubliclibraryclassmembers</option>
 								<option>-keep public class com.threeglav.bauk.model.** { public protected private *; }</option>
 								<option>-keep public class com.threeglav.bauk.main.** { public *; }</option>
-								<option>-optimizationpasses 3</option>
-								<option>-overloadaggressively</option>
 								<option>-keepattributes *Annotation*</option>
 								<option>-keepattributes Exceptions</option>
 								<option>-keepattributes Signature</option>
