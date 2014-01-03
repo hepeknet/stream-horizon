@@ -63,7 +63,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 			log.debug("Renaming file {} according to pattern {} using attributes {}", originalFile.getAbsolutePath(), outputFileNamePattern,
 					globalAttributes);
 			final String replacedAttributes = StringUtil.replaceAllAttributes(outputFileNamePattern, globalAttributes, this.getConfig()
-					.getDatabaseStringLiteral());
+					.getDatabaseStringLiteral(), this.getConfig().getDatabaseStringEscapeLiteral());
 			log.debug("File {} will be renamed to {}", originalFile.getAbsolutePath(), replacedAttributes);
 			final File renamedFile = new File(originalFile.getParentFile(), replacedAttributes);
 			originalFile.renameTo(renamedFile);

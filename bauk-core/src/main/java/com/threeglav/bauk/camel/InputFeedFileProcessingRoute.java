@@ -8,6 +8,7 @@ import org.apache.camel.impl.PropertyPlaceholderDelegateRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.ThreadPoolSizes;
@@ -65,7 +66,11 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		this.bindBean(filterName, hnff);
 		String inputEndpoint = "file://" + config.getSourceDirectory() + "?move=" + config.getArchiveDirectory()
 				+ "/${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}&include=" + fileMask;
-		inputEndpoint += "&idempotent=true&readLock=changed&initialDelay=" + delay + "&filter=#" + filterName;
+		final boolean isTestMode = ConfigurationProperties.isTestMode();
+		if (!isTestMode) {
+			inputEndpoint += "&idempotent=true";
+		}
+		inputEndpoint += "&readLock=changed&initialDelay=" + delay + "&filter=#" + filterName;
 		log.debug("Input endpoint is {}", inputEndpoint);
 
 		this.from(inputEndpoint).routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor)

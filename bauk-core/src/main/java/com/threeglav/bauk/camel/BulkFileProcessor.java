@@ -25,13 +25,17 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 
 	private final Meter successfullyLoadedBulkFilesMeter;
 	private final String dbStringLiteral;
+	private final String dbStringEscapeLiteral;
 	private final BulkFileSubmissionRecorder fileSubmissionRecorder;
+	private final String statementDescription;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
+		dbStringEscapeLiteral = this.getConfig().getDatabaseStringEscapeLiteral();
 		fileSubmissionRecorder = new BulkFileSubmissionRecorder();
 		successfullyLoadedBulkFilesMeter = MetricsUtil.createMeter("Successfully loaded bulk files");
+		statementDescription = "BulkFileProcessor for " + this.getFactFeed().getName();
 	}
 
 	@Override
@@ -62,9 +66,9 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 
 	private void executeBulkLoadingCommandSequence(final Map<String, String> globalAttributes, final String insertStatement) {
 		log.debug("Insert statement for bulk loading files is {}", insertStatement);
-		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, dbStringLiteral);
+		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
 		log.debug("Statement to execute is {}", replacedStatement);
-		this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement);
+		this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement, statementDescription);
 		log.debug("Successfully executed statement {}", replacedStatement);
 		this.executeOnSuccessBulkLoad(globalAttributes);
 		if (successfullyLoadedBulkFilesMeter != null) {
@@ -78,9 +82,9 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 			if (onBulkLoadSuccess.getSqlStatements() != null) {
 				log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
 				for (final String sqlStatement : onBulkLoadSuccess.getSqlStatements()) {
-					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, dbStringLiteral);
+					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
 					log.debug("Trying to execute statement [{}]", replaced);
-					this.getDbHandler().executeInsertOrUpdateStatement(replaced);
+					this.getDbHandler().executeInsertOrUpdateStatement(replaced, statementDescription);
 					log.debug("Successfully finished execution of [{}]", replaced);
 				}
 			}

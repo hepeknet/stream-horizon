@@ -242,6 +242,7 @@ public class DimensionHandlerTest {
 	private BaukConfiguration createConfig() {
 		final BaukConfiguration bc = Mockito.mock(BaukConfiguration.class);
 		when(bc.getDatabaseStringLiteral()).thenReturn("'");
+		when(bc.getDatabaseStringEscapeLiteral()).thenReturn("''");
 		return bc;
 	}
 
@@ -249,19 +250,19 @@ public class DimensionHandlerTest {
 		return new DbHandler() {
 
 			@Override
-			public Long executeQueryStatementAndReturnKey(final String statement) {
+			public Long executeQueryStatementAndReturnKey(final String statement, final String dimensionName) {
 				lastStatementToExecute = statement;
 				return 100l;
 			}
 
 			@Override
-			public Long executeInsertStatementAndReturnKey(final String statement) {
+			public Long executeInsertStatementAndReturnKey(final String statement, final String description) {
 				lastStatementToExecute = statement;
 				return 100l;
 			}
 
 			@Override
-			public void executeInsertOrUpdateStatement(final String statement) {
+			public void executeInsertOrUpdateStatement(final String statement, final String description) {
 
 			}
 
@@ -271,7 +272,7 @@ public class DimensionHandlerTest {
 			}
 
 			@Override
-			public Map<String, String> executeSelectStatement(final String statement) {
+			public Map<String, String> executeSelectStatement(final String statement, final String description) {
 				return null;
 			}
 		};

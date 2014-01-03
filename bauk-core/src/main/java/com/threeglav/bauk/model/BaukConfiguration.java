@@ -35,6 +35,9 @@ public class BaukConfiguration {
 	@XmlElement(required = true)
 	private String databaseStringLiteral;
 
+	@XmlElement(required = true)
+	private String databaseStringEscapeLiteral;
+
 	@XmlElementWrapper(required = true)
 	@XmlElement(name = "factFeed")
 	private ArrayList<FactFeed> factFeeds;
@@ -109,6 +112,14 @@ public class BaukConfiguration {
 
 	public void setDatabaseStringLiteral(final String databaseStringLiteral) {
 		this.databaseStringLiteral = databaseStringLiteral;
+	}
+
+	public String getDatabaseStringEscapeLiteral() {
+		return databaseStringEscapeLiteral;
+	}
+
+	public void setDatabaseStringEscapeLiteral(final String databaseStringEscapeLiteral) {
+		this.databaseStringEscapeLiteral = databaseStringEscapeLiteral;
 	}
 
 	public synchronized Map<String, Dimension> getDimensionMap() {

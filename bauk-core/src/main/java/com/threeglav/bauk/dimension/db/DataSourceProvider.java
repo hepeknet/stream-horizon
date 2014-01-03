@@ -1,5 +1,7 @@
 package com.threeglav.bauk.dimension.db;
 
+import java.util.Properties;
+
 import javax.sql.DataSource;
 
 import org.slf4j.Logger;
@@ -42,6 +44,9 @@ public class DataSourceProvider {
 			throw new IllegalArgumentException("JDBC pool size must be positive integer. Provided value is " + connectionProperties.getJdbcPoolSize());
 		}
 		try {
+			final Properties clientInfoProperties = new Properties();
+			clientInfoProperties.put("v$session.program", "ETL_Bauk");
+			dataSource.setClientInfo(clientInfoProperties);
 			log.info("JDBC URL is {}", connectionProperties.getJdbcUrl());
 			dataSource.setJdbcUrl(connectionProperties.getJdbcUrl());
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcUserName())) {

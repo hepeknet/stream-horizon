@@ -17,6 +17,8 @@ public abstract class StringUtil {
 
 	private static final String NULL_VALUE = "NULL";
 
+	private static final boolean isDebugEnabled = LOG.isDebugEnabled();
+
 	public static boolean isEmpty(final String str) {
 		return str == null || str.trim().isEmpty();
 	}
@@ -39,7 +41,8 @@ public abstract class StringUtil {
 		return fileName;
 	}
 
-	public static String replaceAllAttributes(final String statement, final Map<String, String> attributes, final String dbStringLiteral) {
+	public static String replaceAllAttributes(final String statement, final Map<String, String> attributes, final String dbStringLiteral,
+			final String dbStringEscapeLiteral) {
 		if (StringUtil.isEmpty(dbStringLiteral)) {
 			throw new IllegalArgumentException("String literal must not be null or empty!");
 		}
@@ -57,24 +60,32 @@ public abstract class StringUtil {
 		for (final String key : attributes.keySet()) {
 			final String placeHolder = prefix + key + BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			final String value = attributes.get(key);
-			replaced = replaceSingleAttribute(replaced, placeHolder, value, dbStringLiteral);
+			replaced = replaceSingleAttribute(replaced, placeHolder, value, dbStringLiteral, dbStringEscapeLiteral);
 		}
 		return replaced;
 	}
 
 	public static String replaceSingleAttribute(final String statement, final String attributeName, final String attributeValue,
-			final String dbStringLiteral) {
+			final String dbStringLiteral, final String dbStringEscapeLiteral) {
 		String replaced = statement;
 		if (attributeValue == null) {
 			// also try to replace '${abc}' with NULL
 			final String stringEnclosedPlaceHolder = dbStringLiteral + attributeName + dbStringLiteral;
-			LOG.debug("Trying to replace {} with {}", stringEnclosedPlaceHolder, NULL_VALUE);
+			if (isDebugEnabled) {
+				LOG.debug("Trying to replace {} with {}", stringEnclosedPlaceHolder, NULL_VALUE);
+			}
 			replaced = replaced.replace(stringEnclosedPlaceHolder, NULL_VALUE);
-			LOG.debug("Trying to replace {} with {}", attributeName, NULL_VALUE);
+			if (isDebugEnabled) {
+				LOG.debug("Trying to replace {} with {}", attributeName, NULL_VALUE);
+			}
 			replaced = replaced.replace(attributeName, NULL_VALUE);
 		} else {
-			LOG.trace("Replacing {} with {}", attributeName, attributeValue);
-			replaced = replaced.replace(attributeName, attributeValue);
+			if (isDebugEnabled) {
+				LOG.debug("Replacing {} with {}", attributeName, attributeValue);
+			}
+			// escape all quotes
+			final String cleanedUpValue = attributeValue.replace(dbStringLiteral, dbStringEscapeLiteral);
+			replaced = replaced.replace(attributeName, cleanedUpValue);
 		}
 		return replaced;
 	}

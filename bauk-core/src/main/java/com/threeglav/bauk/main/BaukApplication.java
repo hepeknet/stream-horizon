@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.camel.BulkLoadFileProcessingRoute;
 import com.threeglav.bauk.camel.InputFeedFileProcessingRoute;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -35,6 +36,7 @@ public class BaukApplication {
 
 	public static void main(final String[] args) throws Exception {
 		LOG.info("Starting application");
+		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.BAUK_TEST_MODE_PARAM_NAME);
 		final BaukConfiguration conf = findConfiguration();
 		if (conf != null) {
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);

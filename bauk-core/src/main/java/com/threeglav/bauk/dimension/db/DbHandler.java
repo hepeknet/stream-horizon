@@ -5,14 +5,14 @@ import java.util.Map;
 
 public interface DbHandler {
 
-	public Long executeQueryStatementAndReturnKey(String statement);
+	public Long executeQueryStatementAndReturnKey(String statement, final String dimensionName);
 
-	public Long executeInsertStatementAndReturnKey(final String statement);
+	public Long executeInsertStatementAndReturnKey(final String statement, String description);
 
-	public void executeInsertOrUpdateStatement(final String statement);
+	public void executeInsertOrUpdateStatement(final String statement, String description);
 
 	public List<String[]> queryForDimensionKeys(final String dimensionName, final String statement, int numberOfNaturalKeyColumns);
 
-	public Map<String, String> executeSelectStatement(final String statement);
+	public Map<String, String> executeSelectStatement(final String statement, String description);
 
 }

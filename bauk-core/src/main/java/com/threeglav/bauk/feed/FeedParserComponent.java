@@ -35,10 +35,13 @@ public class FeedParserComponent extends ConfigAware {
 		}
 		if (fft == FactFeedType.DELTA) {
 			feedParser = new DeltaFeedParser(delimiter);
+			feedParser.setNullString(ff.getNullString());
+			log.debug("Will use delta feed parser for feed {}. Null string is set to [{}]", ff.getName(), ff.getNullString());
 		} else if (fft == FactFeedType.FULL || fft == FactFeedType.CONTROL) {
 			feedParser = new FullFeedParser(delimiter);
 		} else if (fft == FactFeedType.REPETITIVE) {
 			feedParser = new RepetitiveFeedParser(delimiter, 0);
+			log.debug("Will use repetitive feed parser for feed {}", ff.getName());
 		} else {
 			throw new IllegalStateException("Unknown fact feed type " + fft);
 		}

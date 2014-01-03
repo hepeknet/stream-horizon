@@ -12,6 +12,7 @@
 		<jdbcPoolSize>12</jdbcPoolSize>
 	</connectionProperties>
 	<databaseStringLiteral>'</databaseStringLiteral>
+	<databaseStringEscapeLiteral>''</databaseStringEscapeLiteral>
 	<factFeeds>
 		<!-- feed can be of type full, repetitive, delta and control -->
 		<!-- control feed can not have header and footer and it can have only one line, which will be exposed as context attributes -->

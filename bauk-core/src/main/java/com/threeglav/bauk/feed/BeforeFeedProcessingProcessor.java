@@ -12,8 +12,11 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class BeforeFeedProcessingProcessor extends ConfigAware {
 
+	private final String statementDescription;
+
 	public BeforeFeedProcessingProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
+		statementDescription = "BeforeFeedProcessor for feed " + this.getFactFeed().getName();
 	}
 
 	public void processAndGenerateNewAttributes(final Map<String, String> globalAttributes) {
@@ -29,20 +32,22 @@ public class BeforeFeedProcessingProcessor extends ConfigAware {
 	}
 
 	private Map<String, String> processMappedStatement(final MappedResultsSQLStatement mrss, final Map<String, String> globalAttrs) {
-		final String statement = StringUtil.replaceAllAttributes(mrss.getSqlStatement(), globalAttrs, this.getConfig().getDatabaseStringLiteral());
+		final String statement = StringUtil.replaceAllAttributes(mrss.getSqlStatement(), globalAttrs, this.getConfig().getDatabaseStringLiteral(),
+				this.getConfig().getDatabaseStringEscapeLiteral());
 		log.debug("Statement to execute is {}", statement);
+
 		if (mrss.getType() == SqlStatementType.SELECT) {
-			return this.getDbHandler().executeSelectStatement(statement);
+			return this.getDbHandler().executeSelectStatement(statement, statementDescription);
 		} else if (mrss.getType() == SqlStatementType.INSERT) {
-			this.getDbHandler().executeInsertOrUpdateStatement(statement);
+			this.getDbHandler().executeInsertOrUpdateStatement(statement, statementDescription);
 			return null;
 		} else if (mrss.getType() == SqlStatementType.INSERT_RETURN_KEY) {
-			final Long key = this.getDbHandler().executeInsertStatementAndReturnKey(statement);
+			final Long key = this.getDbHandler().executeInsertStatementAndReturnKey(statement, statementDescription);
 			final Map<String, String> vals = new HashMap<String, String>();
 			vals.put("_sk_", String.valueOf(key));
 			return vals;
 		} else {
-			throw new IllegalStateException("Unsupported statement type!");
+			throw new IllegalStateException("Unsupported statement type for " + statementDescription);
 		}
 	}
 

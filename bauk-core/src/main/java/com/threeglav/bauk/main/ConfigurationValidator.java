@@ -48,6 +48,9 @@ class ConfigurationValidator {
 		if (StringUtil.isEmpty(config.getDatabaseStringLiteral())) {
 			throw new IllegalStateException("Unable to find non-null, non-empty database string literal!");
 		}
+		if (StringUtil.isEmpty(config.getDatabaseStringEscapeLiteral())) {
+			throw new IllegalStateException("Unable to find non-null, non-empty database string escape literal!");
+		}
 		for (final FactFeed ff : config.getFactFeeds()) {
 			this.validateFactFeed(ff);
 		}
@@ -76,16 +79,16 @@ class ConfigurationValidator {
 		if (sizeUsed > sizeDeclared) {
 			log.warn("There are more used attributes {} than declared attributes {}. Some attributes might not be declared properly!");
 		}
-		final Set<String> notAvailable = new HashSet<>();
+		final Set<String> notDeclaredAttributes = new HashSet<>();
 		for (final String used : attributesUsedInConfiguration) {
-			if (!attributesDeclaredInConfiguration.contains(used)) {
-				notAvailable.add(used);
+			if (!attributesDeclaredInConfiguration.contains(used) && !implicitlyDeclaredAttributes.contains(used)) {
+				notDeclaredAttributes.add(used);
 			}
 		}
-		if (!notAvailable.isEmpty()) {
+		if (!notDeclaredAttributes.isEmpty()) {
 			log.warn(
 					"{} of used attributes have not been declared anywhere! Those attributes are {}. This might cause problems! Make sure that there are provided values for all these attributes!",
-					notAvailable.size(), notAvailable);
+					notDeclaredAttributes.size(), notDeclaredAttributes);
 		} else {
 			log.info("Looks like all used attributes have been properly declared!");
 		}

@@ -10,6 +10,8 @@ public interface SystemConfigurationConstants {
 	 */
 	public static final String APP_HOME_SYS_PARAM_NAME = "bauk.home";
 
+	public static final String BAUK_TEST_MODE_PARAM_NAME = "bauk.test.mode";
+
 	/**
 	 * Where internal db data (used for housekeeping) will be stored (relative to home folder)
 	 */

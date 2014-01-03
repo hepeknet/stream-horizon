@@ -39,6 +39,7 @@
       <xs:element name="errorDirectory" type="xs:string"/>
       <xs:element ref="connectionProperties"/>
       <xs:element name="databaseStringLiteral" type="xs:string"/>
+      <xs:element name="databaseStringEscapeLiteral" type="xs:string"/>
       <xs:element name="factFeeds">
         <xs:complexType>
           <xs:sequence>

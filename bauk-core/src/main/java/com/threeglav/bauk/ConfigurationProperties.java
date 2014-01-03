@@ -50,4 +50,8 @@ public abstract class ConfigurationProperties {
 		return fullFolderPath;
 	}
 
+	public static boolean isTestMode() {
+		return "true".equalsIgnoreCase(System.getProperty(SystemConfigurationConstants.BAUK_TEST_MODE_PARAM_NAME));
+	}
+
 }

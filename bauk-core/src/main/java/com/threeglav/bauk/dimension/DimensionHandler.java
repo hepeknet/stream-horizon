@@ -34,9 +34,15 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
 			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
 
+	private static final int NUMBER_OF_PRE_CACHED_ROWS_WARNING = 500000;
+
 	private final Map<String, String> localCache = new THashMap<>(MAX_ELEMENTS_LOCAL_MAP);
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	private static final int PRE_CACHE_EXECUTION_WARNING = ConfigurationProperties.getSystemProperty(
+			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
+			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 
 	private final String dimensionLastLineSKAttributeName;
 	protected final Dimension dimension;
@@ -51,6 +57,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final int mappedColumnsPositionOffset;
 	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
+	private final String dbStringEscapeLiteral;
 	private final boolean noNaturalKeyColumnsDefined;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
@@ -68,6 +75,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
 		dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
+		dbStringEscapeLiteral = this.getConfig().getDatabaseStringEscapeLiteral();
 		this.validate();
 		mappedColumnsPositionOffset = naturalKeyPositionOffset;
 		this.calculatePositionOfMappedColumnValues();
@@ -204,11 +212,15 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		final String preCacheStatement = dimension.getSqlStatements().getPreCacheKeys();
 		if (!StringUtil.isEmpty(preCacheStatement)) {
 			log.debug("For dimension {} statement for pre-caching is {}", dimension.getName(), preCacheStatement);
+			final long start = System.currentTimeMillis();
 			int numberOfRows = 0;
 			final List<String[]> retrievedValues = this.getDbHandler().queryForDimensionKeys(dimension.getName(), preCacheStatement,
 					naturalKeyNames.length);
 			if (retrievedValues != null) {
 				numberOfRows = retrievedValues.size();
+				if (numberOfRows > NUMBER_OF_PRE_CACHED_ROWS_WARNING) {
+					log.warn("For dimension {} will pre-cache {} rows. This might take a while!", dimension.getName(), numberOfRows);
+				}
 				final Iterator<String[]> iter = retrievedValues.iterator();
 				while (iter.hasNext()) {
 					final String[] row = iter.next();
@@ -223,6 +235,11 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				dbAccessPreCachedValuesCounter.inc(numberOfRows);
 			}
 			log.debug("Pre-cached {} keys for {}", numberOfRows, dimension.getName());
+			final long total = System.currentTimeMillis() - start;
+			if (total > PRE_CACHE_EXECUTION_WARNING) {
+				log.warn("Precaching of values for dimension {} took in total {}ms. Number of pre-cached values is {}", dimension.getName(), total,
+						numberOfRows);
+			}
 		} else {
 			log.info("Could not find pre-cache sql statement for {}!", dimension.getName());
 		}
@@ -286,7 +303,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private String trySelectStatement(final String preparedStatement) {
-		final Long result = this.getDbHandler().executeQueryStatementAndReturnKey(preparedStatement);
+		final Long result = this.getDbHandler().executeQueryStatementAndReturnKey(preparedStatement, dimension.getName());
 		if (dbAccessSelectCounter != null) {
 			dbAccessSelectCounter.inc();
 		}
@@ -300,7 +317,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private String tryInsertStatement(final String preparedStatement) {
-		final Long result = this.getDbHandler().executeInsertStatementAndReturnKey(preparedStatement);
+		final Long result = this.getDbHandler().executeInsertStatementAndReturnKey(preparedStatement, dimension.getName());
 		if (dbAccessInsertCounter != null) {
 			dbAccessInsertCounter.inc();
 		}
@@ -320,7 +337,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 		String stat = this.replaceAllMappedColumnValues(statement, parsedLine);
 		log.debug("Replacing all global attributes {}", globalAttributes);
-		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, dbStringLiteral);
+		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
 		log.debug("Final statement is {}", stat);
 		return stat;
 	}
@@ -343,7 +360,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			final String mappedColumnNamePlaceholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + mappedColumnNames[i]
 					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			log.debug("Replacing {} with {}", mappedColumnNamePlaceholder, value);
-			replaced = StringUtil.replaceSingleAttribute(replaced, mappedColumnNamePlaceholder, value, dbStringLiteral);
+			replaced = StringUtil.replaceSingleAttribute(replaced, mappedColumnNamePlaceholder, value, dbStringLiteral, dbStringEscapeLiteral);
 		}
 		return replaced;
 	}
