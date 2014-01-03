@@ -1,4 +1,4 @@
-package com.threeglav.bauk.chain.components;
+package test.pckg;
 
 import java.io.File;
 import java.io.IOException;

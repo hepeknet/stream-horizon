@@ -1,4 +1,4 @@
-package com.threeglav.bauk.chain.components;
+package test.pckg;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package com.threeglav.bauk.chain.components;
+package test.pckg;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
