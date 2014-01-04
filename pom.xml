@@ -108,6 +108,11 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.4.2</version>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -118,10 +123,10 @@
 		<module>bauk-api</module>
 		<module>integration-tests</module>
 	</modules>
-	
+
 	<scm>
-        <connection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</connection>
-        <developerConnection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</developerConnection>
-        <url>https://bitbucket.org/threeglav/bauk</url>
-    </scm>
+		<connection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</connection>
+		<developerConnection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</developerConnection>
+		<url>https://bitbucket.org/threeglav/bauk</url>
+	</scm>
 </project>

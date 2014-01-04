@@ -29,3 +29,6 @@
 .classpath
 .project
 .settings
+
+# maven files
+release.properties
