@@ -35,15 +35,17 @@ public class HashedNameFileFilter<T> implements GenericFileFilter<T> {
 		}
 		if (!fileName.matches(fileMask)) {
 			log.debug("{} does not match pattern {}. Skipping", fileName, fileMask);
+			return false;
 		}
-		log.debug("{} matches pattern {}", fileName, fileMask);
-		int hash = fileName.hashCode();
+		log.debug("{} matches pattern {}. Checking if this thread should process it!", fileName, fileMask);
+		final String fullFileName = file.getAbsoluteFilePath();
+		int hash = fullFileName.hashCode();
 		if (hash < 0) {
 			hash = -hash;
 		}
 		log.debug("Hash for {} is {}", fileName, hash);
 		final int res = hash % totalNumberOfFilters;
-		final boolean hashesMatch = res == orderNum;
+		final boolean hashesMatch = (res == orderNum);
 		log.debug("Checking if ({} % {} = {}) == {}", new Object[] { hash, totalNumberOfFilters, res, orderNum });
 		if (!hashesMatch) {
 			log.debug("Hash for {} does not match {}. Skipping", fileName, orderNum);

@@ -34,7 +34,7 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class TextFileReaderComponent extends ConfigAware {
 
-	private static final int READ_AHEAD_LINES = 16;
+	private static final int READ_AHEAD_LINES = 32;
 
 	private final int bufferSize;
 	private HeaderParser headerParser;

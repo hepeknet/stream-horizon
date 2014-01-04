@@ -65,7 +65,7 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		final Random rand = new Random();
 		final String filterName = "bauk_filter_" + routeId + "_" + rand.nextInt(100000);
 		this.bindBean(filterName, hnff);
-		String inputEndpoint = "file://" + config.getSourceDirectory() + "?include=" + fileMask;
+		String inputEndpoint = "file://" + config.getSourceDirectory() + "?include=" + fileMask + "&delete=true";
 		final boolean isTestMode = ConfigurationProperties.isTestMode();
 		if (!isTestMode) {
 			inputEndpoint += "&idempotent=true";
