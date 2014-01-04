@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<!-- if do not exist folders will be created (if possible) -->
+	<!-- if they do not exist folders will be created (if possible) -->
 	<sourceDirectory>d:/projects/test/input</sourceDirectory>
 	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
 	<errorDirectory>d:/projects/test/error</errorDirectory>
