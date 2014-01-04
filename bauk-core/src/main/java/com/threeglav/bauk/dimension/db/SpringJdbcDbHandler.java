@@ -21,12 +21,15 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.util.StringUtil;
 
 public class SpringJdbcDbHandler implements DbHandler {
+
+	private static final int DEFAULT_FETCH_SIZE = 10000;
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -39,6 +42,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 		final DataSource ds = DataSourceProvider.getDataSource(config);
 		jdbcTemplate = new JdbcTemplate(ds);
+		jdbcTemplate.setFetchSize(DEFAULT_FETCH_SIZE);
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		log.debug("Will report any sql execution taking longer than {}ms", warningThreshold);
@@ -160,31 +164,8 @@ public class SpringJdbcDbHandler implements DbHandler {
 			log.info(
 					"Will expect in exactly {} results per row. First one should be surrogate key, others should be natural keys in order as defined in configuration!",
 					expectedTotalValues);
-			final List<String[]> allRows = jdbcTemplate.query(statement, new RowMapper<String[]>() {
-
-				private boolean alreadyCheckedForColumnNumber = false;
-
-				@Override
-				public String[] mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-					if (!alreadyCheckedForColumnNumber) {
-						final ResultSetMetaData rsmd = rs.getMetaData();
-						final int columnsNumber = rsmd.getColumnCount();
-						if (columnsNumber != expectedTotalValues) {
-							log.error("For dimension {} sql statement {} does not return correct number of values", dimensionName, statement);
-							throw new IllegalStateException("SQL statement for dimension " + dimensionName
-									+ " should return surrogate key and all natural keys (in order as declared in configuration). In total expected "
-									+ expectedTotalValues + " columns, but database query returned only " + columnsNumber + " values!");
-						}
-						alreadyCheckedForColumnNumber = true;
-					}
-					final String[] values = new String[expectedTotalValues];
-					for (int i = 1; i <= expectedTotalValues; i++) {
-						values[i - 1] = rs.getString(i);
-					}
-					return values;
-				}
-
-			});
+			final List<String[]> allRows = jdbcTemplate.query(new BaukPreparedStatementCreator(statement), new DimensionKeysRowMapper(dimensionName,
+					statement, expectedTotalValues));
 			final int rowsReturned = allRows.size();
 			final long total = System.currentTimeMillis() - start;
 			if (total > warningThreshold) {
@@ -226,6 +207,65 @@ public class SpringJdbcDbHandler implements DbHandler {
 			log.error("Exception while executing select statement for {}. Statement is {}. Details {}", description, statement, exc.getMessage());
 			log.error("Exception", exc);
 			throw exc;
+		}
+	}
+
+	private static final class BaukPreparedStatementCreator implements PreparedStatementCreator {
+
+		private final String statement;
+
+		public BaukPreparedStatementCreator(final String stat) {
+			statement = stat;
+		}
+
+		@Override
+		public PreparedStatement createPreparedStatement(final Connection con) throws SQLException {
+			final PreparedStatement ps = con.prepareStatement(statement, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
+			ps.setFetchSize(DEFAULT_FETCH_SIZE);
+			return ps;
+		}
+
+	}
+
+	private static final class DimensionKeysRowMapper implements RowMapper<String[]> {
+
+		private final String dimensionName;
+		private final String statement;
+		private final int expectedTotalValues;
+		private boolean alreadyCheckedForColumnNumber = false;
+
+		private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+		private DimensionKeysRowMapper(final String dimensionName, final String statement, final int expectedTotalValues) {
+			this.dimensionName = dimensionName;
+			this.statement = statement;
+			this.expectedTotalValues = expectedTotalValues;
+		}
+
+		@Override
+		public String[] mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+			if (!alreadyCheckedForColumnNumber) {
+				final ResultSetMetaData rsmd = rs.getMetaData();
+				final int columnsNumber = rsmd.getColumnCount();
+				if (columnsNumber != expectedTotalValues) {
+					log.error("For dimension {} sql statement {} does not return correct number of values", dimensionName, statement);
+					throw new IllegalStateException("SQL statement for dimension " + dimensionName
+							+ " should return surrogate key and all natural keys (in order as declared in configuration). In total expected "
+							+ expectedTotalValues + " columns, but database query returned only " + columnsNumber + " values!");
+				}
+				alreadyCheckedForColumnNumber = true;
+			}
+			final String[] surrogateAndNaturalKeys = new String[2];
+			surrogateAndNaturalKeys[0] = rs.getString(1);
+			final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
+			for (int i = 2; i <= expectedTotalValues; i++) {
+				if (i != 2) {
+					sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
+				}
+				sb.append(rs.getString(i));
+			}
+			surrogateAndNaturalKeys[1] = sb.toString();
+			return surrogateAndNaturalKeys;
 		}
 	}
 

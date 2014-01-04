@@ -90,20 +90,6 @@ public abstract class StringUtil {
 		return replaced;
 	}
 
-	public static String getNaturalKeyCacheKey(final String[] values) {
-		if (values == null) {
-			throw new IllegalArgumentException("Unable to build cache key from null!");
-		}
-		final StringBuilder sb = new StringBuilder(DEFAULT_STRING_BUILDER_CAPACITY);
-		for (int i = 0; i < values.length; i++) {
-			if (i != 0) {
-				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
-			}
-			sb.append(values[i]);
-		}
-		return sb.toString();
-	}
-
 	public static String fixFilePath(final String path) {
 		if (isEmpty(path)) {
 			return path;

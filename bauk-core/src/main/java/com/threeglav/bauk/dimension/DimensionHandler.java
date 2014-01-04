@@ -214,8 +214,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.debug("For dimension {} statement for pre-caching is {}", dimension.getName(), preCacheStatement);
 			final long start = System.currentTimeMillis();
 			int numberOfRows = 0;
-			final List<String[]> retrievedValues = this.getDbHandler().queryForDimensionKeys(dimension.getName(), preCacheStatement,
-					naturalKeyNames.length);
+			List<String[]> retrievedValues = this.getDbHandler()
+					.queryForDimensionKeys(dimension.getName(), preCacheStatement, naturalKeyNames.length);
 			if (retrievedValues != null) {
 				numberOfRows = retrievedValues.size();
 				if (numberOfRows > NUMBER_OF_PRE_CACHED_ROWS_WARNING) {
@@ -226,12 +226,12 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 					final String[] row = iter.next();
 					iter.remove();
 					final String surrogateKeyValue = row[0];
-					final String[] naturalKeyValues = new String[row.length - 1];
-					System.arraycopy(row, 1, naturalKeyValues, 0, row.length - 1);
-					final String naturalKeyValue = StringUtil.getNaturalKeyCacheKey(naturalKeyValues);
+					final String naturalKeyValue = row[1];
 					cacheInstance.put(naturalKeyValue, surrogateKeyValue);
 					this.putInLocalCache(naturalKeyValue, surrogateKeyValue);
 				}
+				retrievedValues.clear();
+				retrievedValues = null;
 				dbAccessPreCachedValuesCounter.inc(numberOfRows);
 			}
 			log.debug("Pre-cached {} keys for {}", numberOfRows, dimension.getName());

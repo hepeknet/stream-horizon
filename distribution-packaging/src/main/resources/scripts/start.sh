@@ -6,7 +6,7 @@ RESOLVED_HOME=$DIRNAME/../
 # where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/feedConfig.xml
 BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/feedConfig.xml"
 # if needed increase the size of heap to be used
-HEAP_OPTS="-Xmx4G -Xms2G"
+HEAP_OPTS="-Xmx8G -Xms2G"
 
 
 GC_OPTS=""

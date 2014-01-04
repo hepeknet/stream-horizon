@@ -11,7 +11,7 @@ rem where config file is, if not specified then default one will be used
 set "BAUK_CONFIG_FILE_LOCATION=%RESOLVED_HOME%\config\feedConfig.xml"
 
 rem if needed increase the size of heap to be used
-set "HEAP_OPTS=-Xmx4G -Xms2G"
+set "HEAP_OPTS=-Xmx8G -Xms2G"
 
 set "GC_OPTS="
 set "JAVA_OPTS=-server -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
