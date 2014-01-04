@@ -62,6 +62,8 @@
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
 			</threadPoolSizes>
 		</factFeed>
+		<!-- feed can be full, delta or repetitive -->
+		<!-- for delta feed it is important to set nullString value -->
 		<factFeed name="dataFeed" type="full">
 			<fileNameMasks>
 				<fileNameMask>.*FEED.*done</fileNameMask>
