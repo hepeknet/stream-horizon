@@ -3,13 +3,16 @@ package com.threeglav.bauk;
 public interface SystemConfigurationConstants {
 
 	public static final String DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME = "dimension.local.cache.size";
-	public static final int DIMENSION_LOCAL_CACHE_SIZE_DEFAULT = 40000;
+	public static final int DIMENSION_LOCAL_CACHE_SIZE_DEFAULT = 50000;
 
 	/**
 	 * Points to installation folder. Startup scripts will ensure that this is set.
 	 */
 	public static final String APP_HOME_SYS_PARAM_NAME = "bauk.home";
 
+	/**
+	 * Used to make it easier for testing - should not be used in production
+	 */
 	public static final String BAUK_TEST_MODE_PARAM_NAME = "bauk.test.mode";
 
 	/**
