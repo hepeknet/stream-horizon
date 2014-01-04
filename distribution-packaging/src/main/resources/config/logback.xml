@@ -1,25 +1,53 @@
 <configuration scan="true">
-  <jmxConfigurator />
-  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>../log/bauk.log</file>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-      <fileNamePattern>../log/bauk.%i.log.zip</fileNamePattern>
-      <minIndex>1</minIndex>
-      <maxIndex>20</maxIndex>
-    </rollingPolicy>
 
-    <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-      <maxFileSize>10MB</maxFileSize>
-    </triggeringPolicy>
-    <encoder>
-      <pattern>%d{HH:mm:ss} %-5level %logger{10} - %msg%n</pattern>
-    </encoder>
-  </appender>
-  
-  <logger name="com.threeglav" level="WARN"/>
-  <logger name="com.hazelcast" level="WARN"/>
-        
-  <root level="WARN">
-    <appender-ref ref="FILE" />
-  </root>
+	<jmxConfigurator />
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../log/bauk.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>../log/bauk.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>20</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} [%thread] %-5level %logger{10} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ENGINE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../log/engine.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>../log/engine.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>20</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- set to DEBUG or INFO to see more information -->
+	<logger name="com.threeglav" level="WARN" />
+	
+	
+	<logger name="com.hazelcast" level="WARN" />
+	<logger name="engineLogger" level="INFO">
+		<appender-ref ref="ENGINE" />
+	</logger>
+
+	<root level="WARN">
+		<appender-ref ref="FILE" />
+	</root>
 </configuration>

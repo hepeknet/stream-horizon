@@ -17,7 +17,7 @@ JAVA_OPTS="$JAVA_OPTS -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.clie
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=8765 -Djava.rmi.server.hostname=127.0.0.1"
 
 # set this to true for test mode
-JAVA_OPTS="$JAVA_OPTS -Dbauk.test.mode=false"
+JAVA_OPTS="$JAVA_OPTS -Dbauk.test.mode=true"
 
 # set bauk.config property to point to valid configuration file on file system
 JAVA_OPTS="$JAVA_OPTS -Dbauk.home=$RESOLVED_HOME -Dbauk.config=${BAUK_CONFIG_FILE_LOCATION}"

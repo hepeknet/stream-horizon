@@ -5,6 +5,8 @@ import org.apache.camel.component.file.GenericFileFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.util.BaukUtil;
+
 public class HashedNameFileFilter<T> implements GenericFileFilter<T> {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -21,6 +23,11 @@ public class HashedNameFileFilter<T> implements GenericFileFilter<T> {
 
 	@Override
 	public boolean accept(final GenericFile<T> file) {
+		final boolean shutdownStarted = BaukUtil.shutdownStarted();
+		if (shutdownStarted) {
+			log.warn("Shutdown started. Will not accept any more files for processing!");
+			return false;
+		}
 		final String fileName = file.getFileNameOnly();
 		if (file.isDirectory()) {
 			log.debug("{} is directory. Skipping", fileName);

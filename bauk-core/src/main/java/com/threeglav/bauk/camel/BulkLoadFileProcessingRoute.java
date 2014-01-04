@@ -1,5 +1,6 @@
 package com.threeglav.bauk.camel;
 
+import org.apache.camel.ShutdownRunningTask;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +47,9 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 		String inputEndpoint = "file://" + config.getBulkOutputDirectory() + "?include=" + fullFileMask;
 		inputEndpoint += "&idempotent=true&readLock=changed&delete=true";
 		log.debug("Input endpoint is {}", inputEndpoint);
-		this.from(inputEndpoint).routeId("BulkLoadFileProcessing").threads(bulkProcessingThreads).doTry()
-				.process(new BulkFileProcessor(factFeed, config)).doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
-				.simple("${exception.stacktrace}")
+		this.from(inputEndpoint).routeId("BulkLoadFileProcessing").shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
+				.threads(bulkProcessingThreads).doTry().process(new BulkFileProcessor(factFeed, config)).doCatch(Exception.class)
+				.to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_bulkLoad.fail"))
 				.to("file://" + config.getBulkOutputDirectory() + "/").end();
 	}

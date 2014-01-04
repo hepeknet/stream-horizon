@@ -9,7 +9,7 @@
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
 		<jdbcUserName>warehouse</jdbcUserName>
 		<jdbcPassword>warehouse</jdbcPassword>
-		<jdbcPoolSize>12</jdbcPoolSize>
+		<jdbcPoolSize>30</jdbcPoolSize>
 	</connectionProperties>
 	<databaseStringLiteral>'</databaseStringLiteral>
 	<databaseStringEscapeLiteral>''</databaseStringEscapeLiteral>

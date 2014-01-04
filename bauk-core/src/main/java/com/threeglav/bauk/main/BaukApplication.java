@@ -23,6 +23,8 @@ import com.threeglav.bauk.camel.BulkLoadFileProcessingRoute;
 import com.threeglav.bauk.camel.InputFeedFileProcessingRoute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.BaukUtil;
+import com.threeglav.bauk.util.CacheUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public class BaukApplication {
@@ -35,13 +37,17 @@ public class BaukApplication {
 	private static final CamelContext camelContext = new DefaultCamelContext();
 
 	public static void main(final String[] args) throws Exception {
-		LOG.info("Starting application");
+		BaukUtil.logEngineMessage("Starting engine");
 		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.BAUK_TEST_MODE_PARAM_NAME);
+		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 		final BaukConfiguration conf = findConfiguration();
 		if (conf != null) {
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
 			configValidator.validate();
 			createCamelRoutes(conf);
+			final int numberOfInstances = CacheUtil.getNumberOfBaukInstances();
+			BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);
+			BaukUtil.logEngineMessage("Engine started successfully. Ready for feed files...");
 		} else {
 			LOG.error(
 					"Unable to find valid configuration file! Check your startup scripts and make sure system property {} points to valid feed configuration file. Aborting!",
@@ -120,6 +126,21 @@ public class BaukApplication {
 			return null;
 		} finally {
 			IOUtils.closeQuietly(is);
+		}
+	}
+
+	private static final class ShutdownHook extends Thread {
+		@Override
+		public void run() {
+			BaukUtil.logEngineMessage("Shutting down engine");
+			BaukUtil.startShutdown();
+			CacheUtil.shutdownHazelcast();
+			try {
+				camelContext.stop();
+			} catch (final Exception ignored) {
+				// ignored
+			}
+			BaukUtil.logEngineMessage("Engine is down!");
 		}
 	}
 

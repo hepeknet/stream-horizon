@@ -22,6 +22,7 @@ import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.MappedColumn;
 import com.threeglav.bauk.util.AttributeParsingUtil;
+import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -236,6 +237,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			}
 			log.debug("Pre-cached {} keys for {}", numberOfRows, dimension.getName());
 			final long total = System.currentTimeMillis() - start;
+			BaukUtil.logEngineMessage("For dimension " + dimension.getName() + " pre-cached " + numberOfRows + " values. Time taken " + total + "ms");
 			if (total > PRE_CACHE_EXECUTION_WARNING) {
 				log.warn("Precaching of values for dimension {} took in total {}ms. Number of pre-cached values is {}", dimension.getName(), total,
 						numberOfRows);

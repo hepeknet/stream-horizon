@@ -16,6 +16,7 @@ import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
 import com.threeglav.bauk.model.MappedResultsSQLStatement;
 import com.threeglav.bauk.util.AttributeParsingUtil;
+import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 class ConfigurationValidator {
@@ -285,6 +286,7 @@ class ConfigurationValidator {
 		sb.append("\n\n");
 		System.out.println(sb);
 		log.warn(sb.toString());
+		BaukUtil.logEngineMessage(sb.toString());
 		return attrs;
 	}
 

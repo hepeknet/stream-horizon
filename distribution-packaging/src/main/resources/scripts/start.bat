@@ -21,7 +21,7 @@ rem set "JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote.ssl=false -Dcom.su
 rem set "JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote.port=8765 -Djava.rmi.server.hostname=127.0.0.1"
 
 rem set this to true for test mode
-set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.test.mode=false"
+set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.test.mode=true"
 
 rem set bauk.config property to point to valid configuration file on file system
 set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.home=%RESOLVED_HOME% -Dbauk.config=%BAUK_CONFIG_FILE_LOCATION%"

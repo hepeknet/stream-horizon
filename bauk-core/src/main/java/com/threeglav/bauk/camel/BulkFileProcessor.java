@@ -16,6 +16,7 @@ import com.threeglav.bauk.camel.bulk.BulkFileSubmissionRecorder;
 import com.threeglav.bauk.model.AfterBulkLoadSuccess;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -40,6 +41,11 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 
 	@Override
 	public void process(final Exchange exchange) throws Exception {
+		final boolean shutdownStarted = BaukUtil.shutdownStarted();
+		if (shutdownStarted) {
+			log.warn("Shutdown started. Will not accept any more files for processing!");
+			return;
+		}
 		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
 		final String bulkLoadFilePath = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
 		log.debug("Processing {}", bulkLoadFilePath);

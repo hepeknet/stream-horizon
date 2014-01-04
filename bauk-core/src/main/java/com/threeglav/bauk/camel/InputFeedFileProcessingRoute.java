@@ -2,6 +2,7 @@ package com.threeglav.bauk.camel;
 
 import java.util.Random;
 
+import org.apache.camel.ShutdownRunningTask;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.impl.PropertyPlaceholderDelegateRegistry;
@@ -64,17 +65,18 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		final Random rand = new Random();
 		final String filterName = "bauk_filter_" + routeId + "_" + rand.nextInt(100000);
 		this.bindBean(filterName, hnff);
-		String inputEndpoint = "file://" + config.getSourceDirectory() + "?move=" + config.getArchiveDirectory()
-				+ "/${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}&include=" + fileMask;
+		String inputEndpoint = "file://" + config.getSourceDirectory() + "?include=" + fileMask;
 		final boolean isTestMode = ConfigurationProperties.isTestMode();
 		if (!isTestMode) {
 			inputEndpoint += "&idempotent=true";
 		}
 		inputEndpoint += "&readLock=changed&initialDelay=" + delay + "&filter=#" + filterName;
 		log.debug("Input endpoint is {}", inputEndpoint);
-
-		this.from(inputEndpoint).routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor)
-				.doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
+		this.from(inputEndpoint).shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
+				.routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor)
+				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}"))
+				.to("file://" + config.getArchiveDirectory()).doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
+				.simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
 				.to("file://" + config.getErrorDirectory() + "/").end();
 	}
