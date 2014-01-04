@@ -75,7 +75,7 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		this.from(inputEndpoint).shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
 				.routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor)
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}"))
-				.to("file://" + config.getArchiveDirectory()).doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
+				.to("file://" + config.getArchiveDirectory() + "/").doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
 				.simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
 				.to("file://" + config.getErrorDirectory() + "/").end();
