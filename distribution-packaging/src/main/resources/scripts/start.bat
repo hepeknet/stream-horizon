@@ -23,6 +23,9 @@ rem set "JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote.port=8765 -Djava.r
 rem set this to true for test mode
 set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.test.mode=true"
 
+rem hazelcast or ispn
+set "JAVA_OPTS=%JAVA_OPTS% -Dcache.provider=ispn"
+
 rem set bauk.config property to point to valid configuration file on file system
 set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.home=%RESOLVED_HOME% -Dbauk.config=%BAUK_CONFIG_FILE_LOCATION%"
 

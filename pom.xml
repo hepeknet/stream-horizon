@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.threeglav.bauk</groupId>
 	<artifactId>bauk</artifactId>
@@ -24,6 +25,7 @@
 		<version.commons.io>2.4</version.commons.io>
 		<version.commons.lang>2.6</version.commons.lang>
 		<version.h2>1.3.174</version.h2>
+		<version.ispn>6.0.0.Final</version.ispn>
 	</properties>
 
 	<dependencies>
@@ -94,6 +96,11 @@
 			<artifactId>h2</artifactId>
 			<version>${version.h2}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-core</artifactId>
+			<version>${version.ispn}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -127,8 +134,8 @@
 		<connection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</developerConnection>
 		<url>https://bitbucket.org/threeglav/bauk</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<distributionManagement>
 		<repository>

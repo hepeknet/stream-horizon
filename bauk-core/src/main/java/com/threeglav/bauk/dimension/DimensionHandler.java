@@ -1,7 +1,5 @@
 package com.threeglav.bauk.dimension;
 
-import gnu.trove.map.hash.THashMap;
-
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,12 +30,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	private static final int NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION = -1;
 
-	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
-
 	private static final int NUMBER_OF_PRE_CACHED_ROWS_WARNING = 500000;
-
-	private final Map<String, String> localCache = new THashMap<>(MAX_ELEMENTS_LOCAL_MAP);
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -51,15 +44,14 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private int[] mappedColumnsPositionsInFeed;
 	private String[] naturalKeyNames;
 	private int[] naturalKeyPositionsInFeed;
-	private final CacheInstance cacheInstance;
 	private final Counter dbAccessSelectCounter;
 	private final Counter dbAccessInsertCounter;
 	private final Counter dbAccessPreCachedValuesCounter;
 	private final int mappedColumnsPositionOffset;
-	private final Counter localCacheClearCounter;
 	private final String dbStringLiteral;
 	private final String dbStringEscapeLiteral;
 	private final boolean noNaturalKeyColumnsDefined;
+	private final DimensionCache dimensionCache;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
@@ -71,7 +63,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (cacheInstance == null) {
 			throw new IllegalArgumentException("Cache handler must not be null");
 		}
-		this.cacheInstance = cacheInstance;
+		dimensionCache = new DimensionCache(cacheInstance, routeIdentifier, dimension.getName());
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
@@ -87,8 +79,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				+ "] - total database inserts executed", false);
 		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
 				+ "] - total pre-cached values retrieved", false);
-		localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - local cache clear times", false);
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
 			noNaturalKeyColumnsDefined = true;
@@ -228,8 +218,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 					iter.remove();
 					final String surrogateKeyValue = row[0];
 					final String naturalKeyValue = row[1];
-					cacheInstance.put(naturalKeyValue, surrogateKeyValue);
-					this.putInLocalCache(naturalKeyValue, surrogateKeyValue);
+					dimensionCache.putInCache(naturalKeyValue, surrogateKeyValue);
 				}
 				retrievedValues.clear();
 				retrievedValues = null;
@@ -254,7 +243,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (!noNaturalKeyColumnsDefined) {
 			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes);
 			if (naturalCacheKey != null) {
-				surrogateKey = this.getSurrogateKeyFromCache(naturalCacheKey);
+				surrogateKey = dimensionCache.getSurrogateKeyFromCache(naturalCacheKey);
 			}
 		}
 		if (surrogateKey == null) {
@@ -263,8 +252,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes);
 			if (!noNaturalKeyColumnsDefined && naturalCacheKey != null) {
-				cacheInstance.put(naturalCacheKey, surrogateKey);
-				this.putInLocalCache(naturalCacheKey, surrogateKey);
+				dimensionCache.putInCache(naturalCacheKey, surrogateKey);
 			}
 		} else if (isTraceEnabled) {
 			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
@@ -365,30 +353,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			replaced = StringUtil.replaceSingleAttribute(replaced, mappedColumnNamePlaceholder, value, dbStringLiteral, dbStringEscapeLiteral);
 		}
 		return replaced;
-	}
-
-	private String getSurrogateKeyFromCache(final String cacheKey) {
-		final String locallyCachedValue = localCache.get(cacheKey);
-		if (locallyCachedValue != null) {
-			return locallyCachedValue;
-		} else {
-			final String cachedValue = cacheInstance.getSurrogateKey(cacheKey);
-			if (cachedValue != null) {
-				this.putInLocalCache(cacheKey, cachedValue);
-			}
-			return cachedValue;
-		}
-	}
-
-	private void putInLocalCache(final String cacheKey, final String cachedValue) {
-		if (localCache.size() > MAX_ELEMENTS_LOCAL_MAP) {
-			log.debug("Local cache has more than {} elements. Have to clear it!", MAX_ELEMENTS_LOCAL_MAP);
-			localCache.clear();
-			if (localCacheClearCounter != null) {
-				localCacheClearCounter.inc();
-			}
-		}
-		localCache.put(cacheKey, cachedValue);
 	}
 
 	private String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {

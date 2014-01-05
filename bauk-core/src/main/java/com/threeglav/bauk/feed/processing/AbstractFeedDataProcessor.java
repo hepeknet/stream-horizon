@@ -4,7 +4,6 @@ import java.util.Map;
 
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
-import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
 import com.threeglav.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.bauk.feed.FeedParserComponent;
 import com.threeglav.bauk.feed.bulk.writer.BulkOutputWriter;
@@ -15,6 +14,7 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.CacheUtil;
 
 public abstract class AbstractFeedDataProcessor extends ConfigAware implements FeedDataProcessor {
 
@@ -41,7 +41,8 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		} else {
 			throw new IllegalStateException("Unknown bulk output writer type " + outputType);
 		}
-		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, routeIdentifier, new HazelcastCacheInstanceManager());
+
+		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, routeIdentifier, CacheUtil.getCacheInstanceManager());
 		feedParserComponent = new FeedParserComponent(factFeed, config, routeIdentifier);
 	}
 

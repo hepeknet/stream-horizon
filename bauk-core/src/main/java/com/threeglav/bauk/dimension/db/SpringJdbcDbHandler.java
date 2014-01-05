@@ -35,6 +35,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 
 	private final JdbcTemplate jdbcTemplate;
 	private final int warningThreshold;
+	private final boolean isDebugEnabled;
 
 	public SpringJdbcDbHandler(final BaukConfiguration config) {
 		if (config == null) {
@@ -46,6 +47,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		log.debug("Will report any sql execution taking longer than {}ms", warningThreshold);
+		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	@Override
@@ -54,7 +56,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 			if (StringUtil.isEmpty(statement)) {
 				throw new IllegalArgumentException("Statement must not be null or empty!");
 			}
-			log.debug("About to execute query statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
+			if (isDebugEnabled) {
+				log.debug("About to execute query statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
+			}
 			final long start = System.currentTimeMillis();
 			final List<Long> queryResults = jdbcTemplate.query(statement, new RowMapper<Long>() {
 				@Override
@@ -66,13 +70,19 @@ public class SpringJdbcDbHandler implements DbHandler {
 			if (total > warningThreshold) {
 				log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 			}
-			log.debug("Successfully executed {}. Results {}", statement, queryResults);
+			if (isDebugEnabled) {
+				log.debug("Successfully executed {}. Results {}", statement, queryResults);
+			}
 			if (queryResults.size() == 1) {
 				final Long res = queryResults.get(0);
-				log.debug("Returned result is {}", res);
+				if (isDebugEnabled) {
+					log.debug("Returned result is {}", res);
+				}
 				return res;
 			} else if (queryResults.isEmpty()) {
-				log.debug("Could not find any results after executing {}", statement);
+				if (isDebugEnabled) {
+					log.debug("Could not find any results after executing {}", statement);
+				}
 				return null;
 			} else {
 				log.warn("Found results {} after executing {}. Unable to process!", queryResults, statement);
@@ -92,7 +102,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 			if (StringUtil.isEmpty(statement)) {
 				throw new IllegalArgumentException("Statement must not be null or empty!");
 			}
-			log.debug("About to execute insert statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
+			if (isDebugEnabled) {
+				log.debug("About to execute insert statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
+			}
 			final KeyHolder holder = new GeneratedKeyHolder();
 			final long start = System.currentTimeMillis();
 			jdbcTemplate.update(new PreparedStatementCreator() {
@@ -108,7 +120,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 			if (total > warningThreshold) {
 				log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 			}
-			log.debug("Returned key after insertion is {}", num);
+			if (isDebugEnabled) {
+				log.debug("Returned key after insertion is {}", num);
+			}
 			if (num == null) {
 				return null;
 			}
@@ -127,7 +141,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 				throw new IllegalArgumentException("Statement must not be null or empty!");
 			}
 			final long start = System.currentTimeMillis();
-			log.debug("About to execute insert/update statement [{}]", statement);
+			if (isDebugEnabled) {
+				log.debug("About to execute insert/update statement [{}]", statement);
+			}
 			final int res = jdbcTemplate.update(new PreparedStatementCreator() {
 
 				@Override
@@ -140,7 +156,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 			if (total > warningThreshold) {
 				log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 			}
-			log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
+			if (isDebugEnabled) {
+				log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
+			}
 		} catch (final Exception exc) {
 			log.error("Exception while executing insert/update statement for {}. Statement is {}. Details {}", description, statement,
 					exc.getMessage());
@@ -187,14 +205,18 @@ public class SpringJdbcDbHandler implements DbHandler {
 			if (StringUtil.isEmpty(statement)) {
 				throw new IllegalArgumentException("Statement must not be null or empty!");
 			}
-			log.debug("About to execute query statement [{}], Will return all results as string values", statement);
+			if (isDebugEnabled) {
+				log.debug("About to execute query statement [{}], Will return all results as string values", statement);
+			}
 			final long start = System.currentTimeMillis();
 			final Map<String, Object> queryResults = jdbcTemplate.queryForMap(statement);
 			final long total = System.currentTimeMillis() - start;
 			if (total > warningThreshold) {
 				log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 			}
-			log.debug("Successfully executed {}. Results {}", statement, queryResults);
+			if (isDebugEnabled) {
+				log.debug("Successfully executed {}. Results {}", statement, queryResults);
+			}
 			if (queryResults == null) {
 				return null;
 			}

@@ -31,4 +31,6 @@ public interface SystemConfigurationConstants {
 
 	public static final String METRICS_OFF_SYS_PARAM_NAME = "metrics.off";
 
+	public static final String CACHE_PROVIDER_SYS_PARAM_NAME = "cache.provider";
+
 }
