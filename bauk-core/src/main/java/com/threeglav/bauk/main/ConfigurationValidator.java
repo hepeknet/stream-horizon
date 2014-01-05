@@ -276,7 +276,7 @@ class ConfigurationValidator {
 		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG);
 		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED);
 		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION);
-		final StringBuilder sb = new StringBuilder("========================================================");
+		final StringBuilder sb = new StringBuilder("\n\n========================================================");
 		sb.append("\n\n");
 		sb.append("Implicitly available attributes are:");
 		sb.append("\n\n");
@@ -284,7 +284,6 @@ class ConfigurationValidator {
 		sb.append("\n");
 		sb.append("========================================================");
 		sb.append("\n\n");
-		System.out.println(sb);
 		log.warn(sb.toString());
 		BaukUtil.logEngineMessage(sb.toString());
 		return attrs;

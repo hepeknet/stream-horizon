@@ -37,7 +37,7 @@ public class BaukApplication {
 	private static final CamelContext camelContext = new DefaultCamelContext();
 
 	public static void main(final String[] args) throws Exception {
-		BaukUtil.logEngineMessage("Starting engine");
+		BaukUtil.logEngineMessage("Starting Bauk engine");
 		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.BAUK_TEST_MODE_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 		final BaukConfiguration conf = findConfiguration();
@@ -47,7 +47,7 @@ public class BaukApplication {
 			createCamelRoutes(conf);
 			final int numberOfInstances = CacheUtil.getNumberOfBaukInstances();
 			BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);
-			BaukUtil.logEngineMessage("Engine started successfully. Ready for feed files...");
+			BaukUtil.logEngineMessage("Bauk engine started successfully. Ready for feed files...");
 		} else {
 			LOG.error(
 					"Unable to find valid configuration file! Check your startup scripts and make sure system property {} points to valid feed configuration file. Aborting!",

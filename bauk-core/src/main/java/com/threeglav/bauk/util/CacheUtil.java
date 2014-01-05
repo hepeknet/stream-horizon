@@ -14,6 +14,8 @@ public abstract class CacheUtil {
 
 	private static final HazelcastInstance HAZELCAST_INSTANCE = Hazelcast.newHazelcastInstance();
 
+	private static CacheInstanceManager cacheInstanceManager;
+
 	public static HazelcastInstance getHazelcastInstance() {
 		return HAZELCAST_INSTANCE;
 	}
@@ -35,17 +37,20 @@ public abstract class CacheUtil {
 		return numberOfInstances;
 	}
 
-	public static CacheInstanceManager getCacheInstanceManager() {
-		final String cacheProvider = System.getProperty(SystemConfigurationConstants.CACHE_PROVIDER_SYS_PARAM_NAME, "ispn");
-		if ("hazelcast".equalsIgnoreCase(cacheProvider)) {
-			BaukUtil.logEngineMessage("Will use hazelcast cache provider! Set system property "
-					+ SystemConfigurationConstants.CACHE_PROVIDER_SYS_PARAM_NAME + " to value ispn to change this!");
-			return new HazelcastCacheInstanceManager();
-		} else {
-			BaukUtil.logEngineMessage("Will use infinispan cache provider! Set system property "
-					+ SystemConfigurationConstants.CACHE_PROVIDER_SYS_PARAM_NAME + " to value hazelcast to change this!");
-			return new InfinispanCacheInstanceManager();
+	public synchronized static CacheInstanceManager getCacheInstanceManager() {
+		if (cacheInstanceManager == null) {
+			final String cacheProvider = System.getProperty(SystemConfigurationConstants.CACHE_PROVIDER_SYS_PARAM_NAME, "ispn");
+			if ("hazelcast".equalsIgnoreCase(cacheProvider)) {
+				BaukUtil.logEngineMessage("Using hazelcast cache provider! Set system property "
+						+ SystemConfigurationConstants.CACHE_PROVIDER_SYS_PARAM_NAME + " to value ispn to change this!");
+				cacheInstanceManager = new HazelcastCacheInstanceManager();
+			} else {
+				BaukUtil.logEngineMessage("Using infinispan cache provider! Set system property "
+						+ SystemConfigurationConstants.CACHE_PROVIDER_SYS_PARAM_NAME + " to value hazelcast to change this!");
+				cacheInstanceManager = new InfinispanCacheInstanceManager();
+			}
 		}
+		return cacheInstanceManager;
 	}
 
 }
