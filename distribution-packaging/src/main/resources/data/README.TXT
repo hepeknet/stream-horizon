@@ -1,1 +1,3 @@
-Do not delete! Private engine data used for housekeeping!
+WARNING!
+
+Do not delete anything in this folder! Private engine data used for housekeeping!

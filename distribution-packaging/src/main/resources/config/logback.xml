@@ -38,7 +38,7 @@
 		</encoder>
 	</appender>
 
-	<!-- set to DEBUG or INFO to see more information -->
+	<!-- set to DEBUG or INFO to see more information in log files. THIS WILL SLOW DOWN EXECUTION -->
 	<logger name="com.threeglav" level="WARN" />
 	
 	

@@ -128,9 +128,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 			}
 			return num.longValue();
 		} catch (final Exception exc) {
-			log.error("Exception while executing insert statement for {}. Statement is {}. Details {}", description, statement, exc.getMessage());
-			log.error("Exception", exc);
-			throw exc;
+			final String message = "Exception while executing insert statement for " + description + ". Statement is " + statement + ".";
+			log.error(message, exc);
+			throw new RuntimeException(message, exc);
 		}
 	}
 
@@ -160,10 +160,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 				log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
 			}
 		} catch (final Exception exc) {
-			log.error("Exception while executing insert/update statement for {}. Statement is {}. Details {}", description, statement,
-					exc.getMessage());
-			log.error("Exception", exc);
-			throw exc;
+			final String message = "Exception while executing insert/update statement for " + description + ". Statement is " + statement + ".";
+			log.error(message, exc);
+			throw new RuntimeException(message, exc);
 		}
 	}
 
@@ -192,10 +191,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 			log.debug("Successfully executed {}. Returned {} rows in total. In total took {}ms to execute", statement, rowsReturned, total);
 			return allRows;
 		} catch (final Exception exc) {
-			log.error("Exception while querying for natural keys for dimension {}. Statement is {}. Details {}", dimensionName, statement,
-					exc.getMessage());
-			log.error("Exception", exc);
-			throw exc;
+			final String message = "Exception while querying for natural keys for dimension " + dimensionName + ". Statement is " + statement + ".";
+			log.error(message, exc);
+			throw new RuntimeException(message, exc);
 		}
 	}
 
@@ -226,9 +224,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 			}
 			return finalResults;
 		} catch (final Exception exc) {
-			log.error("Exception while executing select statement for {}. Statement is {}. Details {}", description, statement, exc.getMessage());
-			log.error("Exception", exc);
-			throw exc;
+			final String message = "Exception while executing select statement for " + description + ". Statement is " + statement + ".";
+			log.error(message, exc);
+			throw new RuntimeException(message, exc);
 		}
 	}
 
