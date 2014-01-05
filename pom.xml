@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.threeglav.bauk</groupId>
 	<artifactId>bauk</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.7-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Bauk</name>
 
@@ -133,7 +133,7 @@
 		<connection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/threeglav/bauk.git</developerConnection>
 		<url>https://bitbucket.org/threeglav/bauk</url>
-		<tag>bauk-0.0.6</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<distributionManagement>
