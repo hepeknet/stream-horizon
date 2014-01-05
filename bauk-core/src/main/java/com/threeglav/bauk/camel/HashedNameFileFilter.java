@@ -40,6 +40,10 @@ public class HashedNameFileFilter<T> implements GenericFileFilter<T> {
 		log.debug("{} matches pattern {}. Checking if this thread should process it!", fileName, fileMask);
 		final String fullFileName = file.getAbsoluteFilePath();
 		int hash = fullFileName.hashCode();
+		final long lastModifiedFile = file.getLastModified();
+		final long fileSize = file.getFileLength();
+		final int additionalSeed = (int) (lastModifiedFile / 31 + fileSize / 17);
+		hash = hash + additionalSeed * 11;
 		if (hash < 0) {
 			hash = -hash;
 		}

@@ -43,6 +43,7 @@
 	
 	
 	<logger name="com.hazelcast" level="WARN" />
+	<logger name="org.springframework" level="WARN" />
 	<logger name="engineLogger" level="INFO">
 		<appender-ref ref="ENGINE" />
 	</logger>

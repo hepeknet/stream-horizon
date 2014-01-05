@@ -11,6 +11,7 @@ public abstract class BaukUtil {
 
 	public static void logEngineMessage(final String message) {
 		ENGINE_LOG.info(message);
+		System.out.println(message);
 	}
 
 	public static void startShutdown() {
