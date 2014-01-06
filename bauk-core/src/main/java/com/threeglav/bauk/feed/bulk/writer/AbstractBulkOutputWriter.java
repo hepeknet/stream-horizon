@@ -15,9 +15,11 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	protected final String bulkOutputFileDelimiter;
 	protected final boolean isSingleCharacterDelimiter;
 	protected final char singleCharacterDelimiter;
+	protected final boolean isDebugEnabled;
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
+		isDebugEnabled = log.isDebugEnabled();
 		this.validate();
 		bulkOutputFileDelimiter = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFileDelimiter();
 		log.debug("For feed {} will use [{}] as delimiter for bulk output file", this.getFactFeed().getName(), bulkOutputFileDelimiter);
@@ -46,8 +48,10 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		if (StringUtil.isEmpty(this.getFactFeed().getBulkLoadDefinition().getBulkLoadFileDelimiter())) {
 			throw new IllegalStateException("Could not find bulk load file value delimiter string for feed " + this.getFactFeed().getName() + "!");
 		}
-		log.debug("Bulk output file for fact feed {} will be renamed (after writing all data to it) according to pattern {}", this.getFactFeed()
-				.getName(), outputFileNamePattern);
+		if (isDebugEnabled) {
+			log.debug("Bulk output file for fact feed {} will be renamed (after writing all data to it) according to pattern {}", this.getFactFeed()
+					.getName(), outputFileNamePattern);
+		}
 	}
 
 	protected void renameOutputFile(final String originalFileName, final Map<String, String> globalAttributes) {
@@ -60,14 +64,20 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 				return;
 			}
 			final File originalFile = new File(originalFileName);
-			log.debug("Renaming file {} according to pattern {} using attributes {}", originalFile.getAbsolutePath(), outputFileNamePattern,
-					globalAttributes);
+			if (isDebugEnabled) {
+				log.debug("Renaming file {} according to pattern {} using attributes {}", originalFile.getAbsolutePath(), outputFileNamePattern,
+						globalAttributes);
+			}
 			final String replacedAttributes = StringUtil.replaceAllAttributes(outputFileNamePattern, globalAttributes, this.getConfig()
 					.getDatabaseStringLiteral(), this.getConfig().getDatabaseStringEscapeLiteral());
-			log.debug("File {} will be renamed to {}", originalFile.getAbsolutePath(), replacedAttributes);
+			if (isDebugEnabled) {
+				log.debug("File {} will be renamed to {}", originalFile.getAbsolutePath(), replacedAttributes);
+			}
 			final File renamedFile = new File(originalFile.getParentFile(), replacedAttributes);
 			originalFile.renameTo(renamedFile);
-			log.debug("Successfully renamed file {} to {}", originalFile.getAbsolutePath(), renamedFile.getAbsolutePath());
+			if (isDebugEnabled) {
+				log.debug("Successfully renamed file {} to {}", originalFile.getAbsolutePath(), renamedFile.getAbsolutePath());
+			}
 		}
 	}
 

@@ -1,8 +1,11 @@
 package com.threeglav.bauk.feed.bulk.writer;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
+import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 
@@ -13,26 +16,31 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
 
-public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
+public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 
-	private BufferedWriter writer;
+	private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
+
+	private ZipOutputStream zipOutStream;
 	private String currentBulkOutputFilePath;
 	private final int bufferSize;
 
-	public FileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public ZipFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
-		log.info("Writer buffer size is {} MB", bufferSize);
+		log.debug("Write buffer size is {}", bufferSize);
 	}
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
 			currentBulkOutputFilePath = outputFilePath;
 			if (isDebugEnabled) {
-				log.debug("Creating writer to [{}]", outputFilePath);
+				log.debug("Creating zip writer to [{}]", outputFilePath);
 			}
-			writer = new BufferedWriter(new FileWriter(outputFilePath), bufferSize);
+			final FileOutputStream fos = new FileOutputStream(outputFilePath);
+			zipOutStream = new ZipOutputStream(new BufferedOutputStream(fos, bufferSize));
+			final ZipEntry ze = new ZipEntry("inputFeedFile");
+			zipOutStream.putNextEntry(ze);
 			if (isDebugEnabled) {
 				log.debug("Successfully created writer to [{}]", outputFilePath);
 			}
@@ -47,10 +55,17 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (StringUtil.isEmpty(outputFilePath)) {
 			throw new IllegalArgumentException("input file must not be null or empty");
 		}
-		if (writer != null) {
-			throw new IllegalArgumentException("Writer is not null! Unable to start writing unless previous writer has been closed!");
+		if (zipOutStream != null) {
+			throw new IllegalArgumentException("Zip writer is not null! Unable to start writing unless previous writer has been closed!");
 		}
-		this.createFileWriter(outputFilePath);
+		String finalOutputFilePath = outputFilePath;
+		if (!outputFilePath.toLowerCase().endsWith(".zip")) {
+			if (isDebugEnabled) {
+				log.debug("Will add .zip extension to bulk output file {}!", outputFilePath);
+			}
+			finalOutputFilePath += ".zip";
+		}
+		this.createFileWriter(finalOutputFilePath);
 	}
 
 	@Override
@@ -67,8 +82,10 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 				}
 				sb.append(resolvedData[i]);
 			}
-			writer.write(sb.toString());
-			writer.newLine();
+			sb.append("\n");
+			final String dataStr = sb.toString();
+			final byte[] dataBytes = dataStr.getBytes(UTF_8_CHARSET);
+			zipOutStream.write(dataBytes);
 		} catch (final Exception exc) {
 			log.error("Exception while writing data", exc);
 		}
@@ -76,8 +93,8 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	@Override
 	public void closeResources(final Map<String, String> globalAttributes) {
-		IOUtils.closeQuietly(writer);
-		writer = null;
+		IOUtils.closeQuietly(zipOutStream);
+		zipOutStream = null;
 		this.renameOutputFile(currentBulkOutputFilePath, globalAttributes);
 		currentBulkOutputFilePath = null;
 	}

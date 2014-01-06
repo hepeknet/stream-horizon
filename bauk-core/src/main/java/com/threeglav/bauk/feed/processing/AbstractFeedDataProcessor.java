@@ -10,6 +10,7 @@ import com.threeglav.bauk.feed.bulk.writer.BulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.FileBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.NIOFileBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.NullBulkOutputWriter;
+import com.threeglav.bauk.feed.bulk.writer.ZipFileBulkOutputWriter;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
@@ -21,6 +22,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	protected final BulkOutputWriter bulkOutputWriter;
 	protected final BulkOutputValuesResolver bulkoutputResolver;
 	protected final FeedParserComponent feedParserComponent;
+	private final boolean isDebugEnabled;
 
 	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier) {
 		super(factFeed, config);
@@ -36,14 +38,17 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 			log.info("Will not output any bulk output results for feed {}", factFeed.getName());
 			bulkOutputWriter = new NullBulkOutputWriter();
 		} else if (outputType == BulkLoadDefinitionOutputType.NIO) {
-			log.info("Will output bulk  output results for feed {} to file using NIO", factFeed.getName());
+			log.info("Will output bulk output results for feed {} to file using NIO", factFeed.getName());
 			bulkOutputWriter = new NIOFileBulkOutputWriter(factFeed, config);
+		} else if (outputType == BulkLoadDefinitionOutputType.ZIP) {
+			log.info("Will output bulk output results for feed {} to file using ZIP compression", factFeed.getName());
+			bulkOutputWriter = new ZipFileBulkOutputWriter(factFeed, config);
 		} else {
 			throw new IllegalStateException("Unknown bulk output writer type " + outputType);
 		}
-
 		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, routeIdentifier, CacheUtil.getCacheInstanceManager());
 		feedParserComponent = new FeedParserComponent(factFeed, config, routeIdentifier);
+		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	@Override
@@ -51,7 +56,9 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		if (globalAttributes == null) {
 			throw new IllegalArgumentException("Global attributes must not be null");
 		}
-		log.debug("Starting new feed with global attributes {}", globalAttributes);
+		if (isDebugEnabled) {
+			log.debug("Starting new feed with global attributes {}", globalAttributes);
+		}
 		bulkoutputResolver.startFeed(globalAttributes);
 		bulkOutputWriter.initialize(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
 	}
@@ -60,7 +67,9 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	public void closeFeed(final int expectedResults, final Map<String, String> globalAttributes) {
 		bulkOutputWriter.closeResources(globalAttributes);
 		bulkoutputResolver.closeCurrentFeed();
-		log.debug("Closed feed. Expected results {}", expectedResults);
+		if (isDebugEnabled) {
+			log.debug("Closed feed. Expected results {}", expectedResults);
+		}
 	}
 
 }

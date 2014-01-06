@@ -11,7 +11,7 @@ import com.threeglav.bauk.BaukConstants;
 
 public abstract class StringUtil {
 
-	public static final int DEFAULT_STRING_BUILDER_CAPACITY = 100;
+	public static final int DEFAULT_STRING_BUILDER_CAPACITY = 500;
 
 	private static final Logger LOG = LoggerFactory.getLogger(StringUtil.class);
 

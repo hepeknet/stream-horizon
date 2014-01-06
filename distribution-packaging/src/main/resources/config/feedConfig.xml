@@ -152,7 +152,9 @@
 			<footer process="strict">
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 			</footer>
-			<bulkLoadDefinition>
+			<!-- outputType can be one of following file/none/zip -->
+			<!-- if zip then .zip output file will be zip compressed and will have .zip extension added -->
+			<bulkLoadDefinition outputType="file">
 				<!-- this section is executed by DB loading threads -->
 				<!-- extension of bulk output file -->
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
