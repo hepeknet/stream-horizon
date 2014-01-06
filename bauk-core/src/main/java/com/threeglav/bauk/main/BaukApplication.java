@@ -38,10 +38,11 @@ public class BaukApplication {
 
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
-		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.BAUK_TEST_MODE_PARAM_NAME);
+		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 		final BaukConfiguration conf = findConfiguration();
 		if (conf != null) {
+			ConfigurationProperties.setBaukProperties(conf.getProperties());
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
 			configValidator.validate();
 			createCamelRoutes(conf);
@@ -52,6 +53,8 @@ public class BaukApplication {
 			LOG.error(
 					"Unable to find valid configuration file! Check your startup scripts and make sure system property {} points to valid feed configuration file. Aborting!",
 					CONFIG_FILE_PROP_NAME);
+			BaukUtil.logEngineMessage("Unable to find valid configuration file! Check your startup scripts and make sure system property "
+					+ CONFIG_FILE_PROP_NAME + " points to valid feed configuration file. Aborting!");
 			return;
 		}
 		// sleep forever
@@ -73,6 +76,7 @@ public class BaukApplication {
 				}
 				LOG.debug("Successfully added routes for feed [{}]", feed.getName());
 			} catch (final Exception exc) {
+				BaukUtil.logEngineMessage(exc.getMessage());
 				LOG.error("Exception while starting route. Exiting application!", exc);
 				System.exit(-1);
 				throw exc;

@@ -13,7 +13,7 @@ public interface SystemConfigurationConstants {
 	/**
 	 * Used to make it easier for testing - should not be used in production
 	 */
-	public static final String BAUK_TEST_MODE_PARAM_NAME = "bauk.test.mode";
+	public static final String IDEMPOTENT_FEED_PROCESSING_PARAM_NAME = "idempotent.feed.processing";
 
 	/**
 	 * Where internal db data (used for housekeeping) will be stored (relative to home folder)
@@ -32,5 +32,9 @@ public interface SystemConfigurationConstants {
 	public static final String METRICS_OFF_SYS_PARAM_NAME = "metrics.off";
 
 	public static final String CACHE_PROVIDER_SYS_PARAM_NAME = "cache.provider";
+
+	public static final String JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME = "jdbc.client.info.program";
+
+	public static final String RENAME_ARCHIVED_FILES_PARAM_NAME = "rename.archived.files";
 
 }

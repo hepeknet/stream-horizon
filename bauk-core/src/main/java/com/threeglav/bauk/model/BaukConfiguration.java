@@ -46,6 +46,10 @@ public class BaukConfiguration {
 	@XmlElement(name = "dimension")
 	private ArrayList<Dimension> dimensions;
 
+	@XmlElementWrapper(required = false)
+	@XmlElement(name = "property")
+	private ArrayList<BaukProperty> properties;
+
 	// optimization, not found in configuration file
 	@XmlTransient
 	private Map<String, Dimension> dimensionMap;
@@ -120,6 +124,14 @@ public class BaukConfiguration {
 
 	public void setDatabaseStringEscapeLiteral(final String databaseStringEscapeLiteral) {
 		this.databaseStringEscapeLiteral = databaseStringEscapeLiteral;
+	}
+
+	public ArrayList<BaukProperty> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(final ArrayList<BaukProperty> properties) {
+		this.properties = properties;
 	}
 
 	public synchronized Map<String, Dimension> getDimensionMap() {

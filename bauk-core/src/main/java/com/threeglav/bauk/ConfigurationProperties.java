@@ -1,30 +1,90 @@
 package com.threeglav.bauk;
 
 import java.io.File;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.model.BaukProperty;
 import com.threeglav.bauk.util.StringUtil;
 
 public abstract class ConfigurationProperties {
 
+	private static List<BaukProperty> BAUK_PROPERTIES;
+
 	private static final Logger LOG = LoggerFactory.getLogger(ConfigurationProperties.class);
+
+	public static void setBaukProperties(final List<BaukProperty> baukProps) {
+		BAUK_PROPERTIES = baukProps;
+	}
+
+	private static String getBaukProperty(final String propName) {
+		if (StringUtil.isEmpty(propName)) {
+			throw new IllegalArgumentException("Prop name must not be null or empty!");
+		}
+		String val = null;
+		if (BAUK_PROPERTIES != null) {
+			for (final BaukProperty bp : BAUK_PROPERTIES) {
+				if (propName.equalsIgnoreCase(bp.getName())) {
+					val = bp.getValue();
+					LOG.debug("Value for [{}] is [{}]", propName, val);
+					break;
+				}
+			}
+		}
+		return val;
+	}
+
+	public static boolean getSystemProperty(final String systemPropertyName, final boolean defaultValue) {
+		if (StringUtil.isEmpty(systemPropertyName)) {
+			throw new IllegalArgumentException("System property name must not be null or empty");
+		}
+		String baukPropValue = getBaukProperty(systemPropertyName);
+		if (baukPropValue == null) {
+			baukPropValue = System.getProperty(systemPropertyName);
+		}
+		if (!StringUtil.isEmpty(baukPropValue)) {
+			return Boolean.valueOf(baukPropValue);
+		} else {
+			LOG.info("Did not find set value for system property {}. Will use default value {}", systemPropertyName, defaultValue);
+		}
+		return defaultValue;
+	}
 
 	public static int getSystemProperty(final String systemPropertyName, final int defaultValue) {
 		if (StringUtil.isEmpty(systemPropertyName)) {
 			throw new IllegalArgumentException("System property name must not be null or empty");
 		}
-		final String sysPropValue = System.getProperty(systemPropertyName);
-		if (!StringUtil.isEmpty(sysPropValue)) {
-			LOG.debug("Found {}={}. Will try to convert it to integer", systemPropertyName, sysPropValue);
+		String baukPropValue = getBaukProperty(systemPropertyName);
+		if (baukPropValue == null) {
+			baukPropValue = System.getProperty(systemPropertyName);
+		}
+		if (!StringUtil.isEmpty(baukPropValue)) {
+			LOG.debug("Found {}={}. Will try to convert it to integer", systemPropertyName, baukPropValue);
 			try {
-				final int val = Integer.parseInt(sysPropValue);
+				final int val = Integer.parseInt(baukPropValue);
 				LOG.debug("Will use set value {}={}", systemPropertyName, val);
 				return val;
 			} catch (final NumberFormatException nfe) {
-				LOG.error("Exception while converting {} to integer", sysPropValue);
+				LOG.error("Exception while converting {} to integer", baukPropValue);
 			}
+		} else {
+			LOG.info("Did not find set value for system property {}. Will use default value {}", systemPropertyName, defaultValue);
+		}
+		return defaultValue;
+	}
+
+	public static String getSystemProperty(final String systemPropertyName, final String defaultValue) {
+		if (StringUtil.isEmpty(systemPropertyName)) {
+			throw new IllegalArgumentException("System property name must not be null or empty");
+		}
+		String baukPropValue = getBaukProperty(systemPropertyName);
+		if (baukPropValue == null) {
+			baukPropValue = System.getProperty(systemPropertyName);
+		}
+		if (!StringUtil.isEmpty(baukPropValue)) {
+			return baukPropValue;
 		} else {
 			LOG.info("Did not find set value for system property {}. Will use default value {}", systemPropertyName, defaultValue);
 		}
@@ -48,10 +108,6 @@ public abstract class ConfigurationProperties {
 			throw new IllegalStateException("Unable to find readable folder [" + fullFolderPath + "]");
 		}
 		return fullFolderPath;
-	}
-
-	public static boolean isTestMode() {
-		return "true".equalsIgnoreCase(System.getProperty(SystemConfigurationConstants.BAUK_TEST_MODE_PARAM_NAME));
 	}
 
 }

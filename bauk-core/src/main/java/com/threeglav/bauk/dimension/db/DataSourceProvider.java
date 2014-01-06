@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
+import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.ConnectionProperties;
 import com.threeglav.bauk.util.StringUtil;
@@ -45,8 +47,12 @@ public class DataSourceProvider {
 		}
 		try {
 			final Properties clientInfoProperties = new Properties();
-			clientInfoProperties.put("v$session.program", "ETL_Bauk");
-			dataSource.setClientInfo(clientInfoProperties);
+			final String jdbcProgramName = ConfigurationProperties.getSystemProperty(
+					SystemConfigurationConstants.JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME, null);
+			if (!StringUtil.isEmpty(jdbcProgramName)) {
+				clientInfoProperties.put("v$session.program", jdbcProgramName);
+			}
+			dataSource.setDriverProperties(clientInfoProperties);
 			log.info("JDBC URL is {}", connectionProperties.getJdbcUrl());
 			dataSource.setJdbcUrl(connectionProperties.getJdbcUrl());
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcUserName())) {

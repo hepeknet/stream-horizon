@@ -5,6 +5,20 @@
 	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
 	<errorDirectory>d:/projects/test/error</errorDirectory>
 	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
+	<properties>
+		<!-- should processed feed files be remembered or not (true/false) -->
+		<property name="idempotent.feed.processing">false</property>
+		<!-- what is used for caching (hazelcast/ispn) -->
+		<property name="cache.provider">ispn</property>
+		<!-- read/write buffer size to disk (megabytes) -->
+		<property name="rw.buffer.size.mb">1</property>
+		<!-- is exposing statistics feature off or on (true/false) -->
+		<property name="metrics.off">false</property>
+		<!-- jdbc client info - program name, set to empty not to use this feature -->
+		<property name="jdbc.client.info.program">ETLBauk</property>
+		<!-- whether files moved to archive folder should be renamed (appending date and time) or not (true/false) -->
+		<property name="rename.archived.files">false</property>
+	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
 		<jdbcUserName>warehouse</jdbcUserName>

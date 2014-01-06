@@ -6,10 +6,12 @@ import org.apache.camel.ShutdownRunningTask;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.impl.PropertyPlaceholderDelegateRegistry;
+import org.apache.camel.model.TryDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.ThreadPoolSizes;
@@ -66,16 +68,21 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		final String filterName = "bauk_filter_" + routeId + "_" + rand.nextInt(100000);
 		this.bindBean(filterName, hnff);
 		String inputEndpoint = "file://" + config.getSourceDirectory() + "?include=" + fileMask + "&delete=true";
-		final boolean isTestMode = ConfigurationProperties.isTestMode();
-		if (!isTestMode) {
+		final boolean isIdempotentFeedProcessing = ConfigurationProperties.getSystemProperty(
+				SystemConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME, false);
+		final boolean renameArchivedFiles = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.RENAME_ARCHIVED_FILES_PARAM_NAME,
+				false);
+		if (isIdempotentFeedProcessing) {
 			inputEndpoint += "&idempotent=true";
 		}
 		inputEndpoint += "&readLock=changed&initialDelay=" + delay + "&filter=#" + filterName;
 		log.debug("Input endpoint is {}", inputEndpoint);
-		this.from(inputEndpoint).shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
-				.routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor)
-				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}"))
-				.to("file://" + config.getArchiveDirectory() + "/").doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
+		final TryDefinition td = this.from(inputEndpoint).shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
+				.routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor);
+		if (renameArchivedFiles) {
+			td.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}"));
+		}
+		td.to("file://" + config.getArchiveDirectory() + "/").doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
 				.simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
 				.to("file://" + config.getErrorDirectory() + "/").end();

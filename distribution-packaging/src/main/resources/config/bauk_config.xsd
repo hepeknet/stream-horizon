@@ -5,6 +5,8 @@
 
   <xs:element name="attribute" type="attribute"/>
 
+  <xs:element name="baukProperty" type="baukProperty"/>
+
   <xs:element name="bulkLoadDefinition" type="bulkLoadDefinition"/>
 
   <xs:element name="bulkLoadFormatDefinition" type="bulkLoadFormatDefinition"/>
@@ -51,6 +53,13 @@
         <xs:complexType>
           <xs:sequence>
             <xs:element ref="dimension" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="properties" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="property" type="baukProperty" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -234,6 +243,14 @@
       <xs:element name="selectSurrogateKey" type="xs:string" minOccurs="0"/>
       <xs:element name="preCacheKeys" type="xs:string" minOccurs="0"/>
     </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="baukProperty">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
   <xs:simpleType name="factFeedType">
