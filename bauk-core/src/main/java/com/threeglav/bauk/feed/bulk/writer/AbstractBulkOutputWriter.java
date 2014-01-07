@@ -60,9 +60,6 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 				throw new IllegalArgumentException("Original file must not be null or empty");
 			}
 			final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
-			if (StringUtil.isEmpty(outputFileNamePattern)) {
-				return;
-			}
 			final File originalFile = new File(originalFileName);
 			if (isDebugEnabled) {
 				log.debug("Renaming file {} according to pattern {} using attributes {}", originalFile.getAbsolutePath(), outputFileNamePattern,

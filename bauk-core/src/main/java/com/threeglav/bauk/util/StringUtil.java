@@ -19,7 +19,7 @@ public abstract class StringUtil {
 
 	private static final boolean isDebugEnabled = LOG.isDebugEnabled();
 
-	public static boolean isEmpty(final String str) {
+	public static final boolean isEmpty(final String str) {
 		return str == null || str.trim().isEmpty();
 	}
 
@@ -54,7 +54,9 @@ public abstract class StringUtil {
 			LOG.debug("No attributes passed. Unable to replace any attributes in statement {}", statement);
 			return statement;
 		}
-		LOG.debug("Replacing all attributes {} in [{}]", attributes, statement);
+		if (isDebugEnabled) {
+			LOG.debug("Replacing all attributes {} in [{}]", attributes, statement);
+		}
 		final String prefix = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START;
 		String replaced = statement;
 		for (final String key : attributes.keySet()) {

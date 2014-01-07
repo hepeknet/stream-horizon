@@ -247,7 +247,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (StringUtil.isEmpty(feedDataLine)) {
 			throw new IllegalStateException("Last line for control feed " + ffName + " is null or empty!");
 		}
-		log.debug("Exposing last line {} as global attributes for control feed {}", feedDataLine, ffName);
+		if (isDebugEnabled) {
+			log.debug("Exposing last line {} as global attributes for control feed {}", feedDataLine, ffName);
+		}
 		final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		final String[] splitLine = feedParser.parse(feedDataLine);
 		final ArrayList<Attribute> ffDataAttrs = this.getFactFeed().getData().getAttributes();
@@ -267,8 +269,10 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	private void processFooter(final int feedLinesNumber, final String footerLine) {
-		log.debug("Validating footer for {}. Processed in total {} lines, comparing with values in footer line {}", this.getFactFeed().getName(),
-				feedLinesNumber, footerLine);
+		if (isDebugEnabled) {
+			log.debug("Validating footer for {}. Processed in total {} lines, comparing with values in footer line {}", this.getFactFeed().getName(),
+					feedLinesNumber, footerLine);
+		}
 		final String[] footerParsedValues = footerLineParser.parse(footerLine);
 		if (footerParsedValues.length > 2) {
 			throw new IllegalStateException("Found " + footerParsedValues.length + " values in footer. Expected at most 2!");
@@ -293,7 +297,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		final String feedName = this.getFactFeed().getName();
 		final Map<String, String> parsedHeaderValues = headerParser.parseHeader(line, declaredHeaderAttributes,
 				header.getEachLineStartsWithCharacter(), this.getFactFeed().getDelimiterString());
-		log.debug("Parsed header values for {} are {}", feedName, parsedHeaderValues);
+		if (isDebugEnabled) {
+			log.debug("Parsed header values for {} are {}", feedName, parsedHeaderValues);
+		}
 		return parsedHeaderValues;
 	}
 

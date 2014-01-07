@@ -50,6 +50,7 @@ public class DataSourceProvider {
 			final String jdbcProgramName = ConfigurationProperties.getSystemProperty(
 					SystemConfigurationConstants.JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME, null);
 			if (!StringUtil.isEmpty(jdbcProgramName)) {
+				log.info("Setting client info value to [{}]", jdbcProgramName);
 				clientInfoProperties.put("v$session.program", jdbcProgramName);
 			}
 			dataSource.setDriverProperties(clientInfoProperties);

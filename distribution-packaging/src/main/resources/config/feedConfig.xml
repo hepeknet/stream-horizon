@@ -12,9 +12,9 @@
 		<property name="cache.provider">ispn</property>
 		<!-- read/write buffer size to disk (megabytes) -->
 		<property name="rw.buffer.size.mb">1</property>
-		<!-- is exposing statistics feature off or on (true/false) -->
+		<!-- is exposing statistics feature off or on (true/false). No need to disable expect in extreme cases when every CPU cycle is important -->
 		<property name="metrics.off">false</property>
-		<!-- jdbc client info - program name, set to empty not to use this feature -->
+		<!-- jdbc client info - program name, set to empty not to use this feature. For Oracle we set v$session.program -->
 		<property name="jdbc.client.info.program">ETLBauk</property>
 		<!-- whether files moved to archive folder should be renamed (appending date and time) or not (true/false) -->
 		<property name="rename.archived.files">false</property>
@@ -77,11 +77,13 @@
 			</threadPoolSizes>
 		</factFeed>
 		<!-- feed can be full, delta or repetitive -->
-		<!-- for delta feed it is important to set nullString value -->
+		<!-- for delta feed it is important to set nullString value, see below -->
 		<factFeed name="dataFeed" type="full">
 			<fileNameMasks>
 				<fileNameMask>.*FEED.*done</fileNameMask>
 			</fileNameMasks>
+			<!-- null string is used only by delta feed parsers -->
+			<nullString>ab</nullString>
 			<!--
 			<fileNameProcessorClassName>CustomFeedFileNameProcessor</fileNameProcessorClassName>
 			-->
@@ -153,10 +155,13 @@
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 			</footer>
 			<!-- outputType can be one of following file/none/zip -->
+			<!-- set to none if you want to test performance of processing (but not writing bulk output file) -->
 			<!-- if zip then .zip output file will be zip compressed and will have .zip extension added -->
 			<bulkLoadDefinition outputType="file">
 				<!-- this section is executed by DB loading threads -->
-				<!-- extension of bulk output file -->
+				<!-- extension of bulk output file. Bulk loader will consider only files with this extension for loading into database -->
+				<!-- for example, if you expect .zip files to be loaded change this extension to zip -->
+				<!-- no need to add dot character -->
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<!-- what delimiter will be used when creating bulk output file. Whenever possible use single character delimiter -->
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
@@ -189,7 +194,9 @@
 				</bulkLoadFormatDefinition>
 				<!-- if we want bulk output file to be renamed to something after created (but before loaded) we set this value -->
 				<!-- any value from context can be used as ${} placeholder and engine will replace it before renaming -->
-				<!-- file is still left in bulkOutputDirectory - can only be renamed within same directory -->
+				<!-- renamed file will still be left in bulkOutputDirectory - can only be renamed within the same directory -->
+				<!-- if no renaming is required leave this empty or delete it -->
+				<!-- one possible example of this pattern is myFile_${feedInputFileName}_${feedInputFileProcessingStartedTimestamp}.txt -->
 				<output-file-name-pattern></output-file-name-pattern>
 				<!-- executed by DB loading threads -->
 				<afterBulkLoadSuccess>
@@ -366,6 +373,7 @@
 		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
 			<mappedColumns>
 				<!-- ffn[x] attributes are created by default feed file name processor. Delimiter for splitting feed file name is _ -->
+				<!-- so if input feed file is named a_b_c then ffn[0]=a ffn[1]=b ffn[2]=c and can be used as any other attribute in context -->
 				<!-- this can be changed by providing custom FeedFileNameProcessor implementation (see customisations folder for example) -->
 				<mappedColumn name="ffn[1]" naturalKey="true" />
 			</mappedColumns>

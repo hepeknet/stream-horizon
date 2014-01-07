@@ -41,6 +41,9 @@ public class StringUtilTest {
 		attrs.put("h.b", "'2");
 		Assert.assertEquals("select '1''' from '''2'", StringUtil.replaceAllAttributes("select '${h.a}' from '${h.b}'", attrs, "'", "''"));
 		Assert.assertEquals("select '${a}' from '${b}'", StringUtil.replaceAllAttributes("select '${a}' from '${b}'", attrs, "'", "''"));
+		attrs.put("h.a", "1'1");
+		attrs.put("h.b", "'2'2");
+		Assert.assertEquals("select '1''1' from '''2''2'", StringUtil.replaceAllAttributes("select '${h.a}' from '${h.b}'", attrs, "'", "''"));
 	}
 
 	@Test
