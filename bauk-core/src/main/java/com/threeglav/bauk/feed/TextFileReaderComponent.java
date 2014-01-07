@@ -184,9 +184,9 @@ public class TextFileReaderComponent extends ConfigAware {
 
 	public int readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
+		int feedLinesNumber = 0;
+		String footerLine = null;
 		try {
-			int feedLinesNumber = 0;
-			String footerLine = null;
 			final ArrayDeque<String> lineQueue = new ArrayDeque<>(READ_AHEAD_LINES);
 			feedDataProcessor.startFeed(globalAttributes);
 			this.fillArrayQueue(br, lineQueue);
@@ -216,15 +216,16 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (feedFileSizeHistogram != null) {
 				feedFileSizeHistogram.update(feedLinesNumber);
 			}
+
+			return feedLinesNumber;
+		} catch (final IOException ie) {
+			throw new IllegalStateException("IOException while processing feed", ie);
+		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
 			if (processAndValidateFooter) {
 				this.processFooter(feedLinesNumber, footerLine);
 			}
 			IOUtils.closeQuietly(br);
-			return feedLinesNumber;
-		} catch (final IOException ie) {
-			throw new IllegalStateException(ie);
-		} finally {
 			IOUtils.closeQuietly(fileInputStream);
 		}
 	}

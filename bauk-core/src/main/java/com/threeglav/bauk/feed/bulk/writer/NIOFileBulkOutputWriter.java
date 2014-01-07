@@ -8,10 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
-import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
@@ -19,21 +16,19 @@ import com.threeglav.bauk.util.StringUtil;
 public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
 
 	private static final byte[] NEW_LINE_BYTES = "\n".getBytes();
+	private final byte[] bulkOutputFileDelimiterBytes;
 	private FileChannel rwChannel;
-	private final int bufferSize;
 	private ByteBuffer wrBuf;
 
 	public NIOFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
-				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
-		log.debug("Write buffer size is {}", bufferSize);
+		bulkOutputFileDelimiterBytes = factFeed.getBulkLoadDefinition().getBulkLoadFileDelimiter().getBytes();
 	}
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
 			rwChannel = new RandomAccessFile(outputFilePath, "rw").getChannel();
-			wrBuf = rwChannel.map(FileChannel.MapMode.READ_WRITE, 0, bufferSize);
+			wrBuf = ByteBuffer.allocate(Integer.MAX_VALUE);
 		} catch (final Exception exc) {
 			log.error("Exception while creating writer", exc);
 			throw new RuntimeException(exc);
@@ -54,15 +49,14 @@ public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWr
 	@Override
 	public void doOutput(final String[] resolvedData) {
 		try {
-			// TODO: fix this
-			final byte[] bytes = null;// line.getBytes();
-			final int bytesLen = bytes.length + NEW_LINE_BYTES.length;
-			if (wrBuf.remaining() < bytesLen) {
-				wrBuf.flip();
-				rwChannel.write(wrBuf);
-				wrBuf.clear();
+			for (int i = 0; i < resolvedData.length; i++) {
+				if (i != 0) {
+					wrBuf.put(bulkOutputFileDelimiterBytes);
+				}
+				final String data = resolvedData[i];
+				final byte[] bytes = data.getBytes();
+				wrBuf.put(bytes);
 			}
-			wrBuf.put(bytes);
 			wrBuf.put(NEW_LINE_BYTES);
 		} catch (final Exception exc) {
 			log.error("Exception while writing data", exc);
@@ -72,11 +66,11 @@ public class NIOFileBulkOutputWriter extends ConfigAware implements BulkOutputWr
 	@Override
 	public void closeResources(final Map<String, String> globalAttributes) {
 		try {
-			if (wrBuf.hasRemaining()) {
-				wrBuf.flip();
+			wrBuf.flip();
+			while (wrBuf.hasRemaining()) {
 				rwChannel.write(wrBuf);
-				rwChannel.force(true);
 			}
+			rwChannel.force(true);
 		} catch (final IOException ie) {
 			log.error("Exception while writing data to file", ie);
 		}

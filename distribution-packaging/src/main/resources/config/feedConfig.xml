@@ -11,7 +11,7 @@
 		<!-- what is used for caching (hazelcast/ispn) -->
 		<property name="cache.provider">ispn</property>
 		<!-- read/write buffer size to disk (megabytes) -->
-		<property name="rw.buffer.size.mb">1</property>
+		<property name="rw.buffer.size.mb">10</property>
 		<!-- is exposing statistics feature off or on (true/false). No need to disable expect in extreme cases when every CPU cycle is important -->
 		<property name="metrics.off">false</property>
 		<!-- jdbc client info - program name, set to empty not to use this feature. For Oracle we set v$session.program -->
