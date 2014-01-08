@@ -26,7 +26,7 @@ public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	public ZipFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
+		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_BUFFER_SIZE_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
 		log.debug("Write buffer size is {}", bufferSize);
 	}

@@ -21,6 +21,7 @@ import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.camel.BulkLoadFileProcessingRoute;
 import com.threeglav.bauk.camel.InputFeedFileProcessingRoute;
+import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
@@ -36,8 +37,11 @@ public class BaukApplication {
 
 	private static final CamelContext camelContext = new DefaultCamelContext();
 
+	private static long instanceStartTime;
+
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
+		final long start = System.currentTimeMillis();
 		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 		final BaukConfiguration conf = findConfiguration();
@@ -47,8 +51,11 @@ public class BaukApplication {
 			configValidator.validate();
 			createCamelRoutes(conf);
 			final int numberOfInstances = CacheUtil.getNumberOfBaukInstances();
+			final long total = System.currentTimeMillis() - start;
+			final long totalSec = total / 1000;
+			instanceStartTime = System.currentTimeMillis();
 			BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);
-			BaukUtil.logEngineMessage("Bauk engine started successfully. Ready for feed files...");
+			BaukUtil.logEngineMessage("Bauk engine started successfully in " + total + "ms (" + totalSec + " seconds). Ready for feed files...");
 		} else {
 			LOG.error(
 					"Unable to find valid configuration file! Check your startup scripts and make sure system property {} points to valid feed configuration file. Aborting!",
@@ -144,7 +151,22 @@ public class BaukApplication {
 			} catch (final Exception ignored) {
 				// ignored
 			}
+			printStatistics();
 			BaukUtil.logEngineMessage("Engine is down!");
+		}
+	}
+
+	private static void printStatistics() {
+		final long totalInputFeedFilesProcessed = TextFileReaderComponent.TOTAL_INPUT_FILES_PROCESSED.get();
+		final long totalInputFeedRowsProcessed = TextFileReaderComponent.TOTAL_ROWS_PROCESSED.get();
+		final long totalUpTimeMillis = System.currentTimeMillis() - instanceStartTime;
+		final long totalUpTimeSec = totalUpTimeMillis / 1000;
+		final long minutes = totalUpTimeSec / 60;
+		final long remainedSeconds = totalUpTimeSec % 60;
+		if (totalInputFeedFilesProcessed > 0) {
+			BaukUtil.logEngineMessage("Uptime of instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and " + remainedSeconds
+					+ " seconds). In total processed " + totalInputFeedFilesProcessed + " input feed files and " + totalInputFeedRowsProcessed
+					+ " rows!");
 		}
 	}
 

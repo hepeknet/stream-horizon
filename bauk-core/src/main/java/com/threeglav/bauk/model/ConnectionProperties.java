@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {})
 public class ConnectionProperties {
 
-	public static final int DEFAULT_POOL_SIZE = 12;
+	public static final int DEFAULT_POOL_SIZE = 21;
 
 	@XmlElement(required = true)
 	private String jdbcUrl;

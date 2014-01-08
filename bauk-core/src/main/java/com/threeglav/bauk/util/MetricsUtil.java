@@ -21,7 +21,7 @@ public abstract class MetricsUtil {
 	private static final MetricRegistry registry;
 
 	static {
-		metricsOff = "true".equals(ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.METRICS_OFF_SYS_PARAM_NAME, "false"));
+		metricsOff = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.METRICS_OFF_SYS_PARAM_NAME, false);
 		registry = new MetricRegistry();
 		final JmxReporter reporter = JmxReporter.forRegistry(registry).build();
 		reporter.start();

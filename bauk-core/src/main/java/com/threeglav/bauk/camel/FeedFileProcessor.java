@@ -45,6 +45,7 @@ class FeedFileProcessor implements Processor {
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
 	private final Meter inputFeedsProcessed;
+	private final Histogram inputFeedSizeMegabytes;
 	private final Histogram inputFeedProcessingTime;
 	private final TextFileReaderComponent textFileReaderComponent;
 	private final FeedDataProcessor feedDataProcessor;
@@ -72,6 +73,7 @@ class FeedFileProcessor implements Processor {
 		feedCompletionProcessor = this.createFeedCompletionProcessor();
 		beforeFeedProcessingProcessor = this.createBeforeFeedProcessingProcessor();
 		inputFeedsProcessed = MetricsUtil.createMeter("(" + cleanFileMask + ") - processed files count");
+		inputFeedSizeMegabytes = MetricsUtil.createHistogram("(" + cleanFileMask + ") - input feed file size (MB)");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
 		log.info("Number of instances is {}", COUNTER.incrementAndGet());
@@ -135,6 +137,10 @@ class FeedFileProcessor implements Processor {
 		final String fullFileName = (String) exchange.getIn().getHeader("CamelFileName");
 		final Long lastModified = (Long) exchange.getIn().getHeader("CamelFileLastModified");
 		final Long fileLength = (Long) exchange.getIn().getHeader("CamelFileLength");
+		if (inputFeedSizeMegabytes != null) {
+			final long fileLengthMb = fileLength / BaukConstants.ONE_MEGABYTE;
+			inputFeedSizeMegabytes.update(fileLengthMb);
+		}
 		final String lowerCaseFilePath = fullFileName.toLowerCase();
 		log.debug("Trying to process {}", lowerCaseFilePath);
 		if (lowerCaseFilePath.endsWith(".zip")) {

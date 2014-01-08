@@ -10,8 +10,14 @@
 		<property name="idempotent.feed.processing">false</property>
 		<!-- what is used for caching (hazelcast/ispn) -->
 		<property name="cache.provider">ispn</property>
-		<!-- read/write buffer size to disk (megabytes) -->
-		<property name="rw.buffer.size.mb">10</property>
+		<!-- read buffer size to disk (megabytes) -->
+		<property name="read.buffer.size.mb">10</property>
+		<!-- write buffer size to disk (megabytes) -->
+		<property name="write.buffer.size.mb">10</property>
+		<!-- size of local cache (number of cached key/value pairs) for every configured dimension -->
+		<property name="dimension.local.cache.size">50000</property>
+		<!-- whether local cache for dimensions should be disabled (true/false) -->
+		<property name="dimension.local.cache.disable">false</property>
 		<!-- is exposing statistics feature off or on (true/false). No need to disable expect in extreme cases when every CPU cycle is important -->
 		<property name="metrics.off">false</property>
 		<!-- jdbc client info - program name, set to empty not to use this feature. For Oracle we set v$session.program -->

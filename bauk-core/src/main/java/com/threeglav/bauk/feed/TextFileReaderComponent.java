@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.IOUtils;
 
@@ -48,6 +49,9 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final boolean isControlFeed;
 	private final boolean headerShouldExist;
 	private final boolean skipHeader;
+	public static final AtomicLong TOTAL_INPUT_FILES_PROCESSED = new AtomicLong(-1);
+	public static final AtomicLong TOTAL_ROWS_PROCESSED = new AtomicLong(-1);
+	private final boolean metricsOff;
 
 	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
@@ -67,7 +71,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		} else {
 			declaredHeaderAttributes = null;
 		}
-		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
+		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
 		log.info("Read buffer size is {} MB", bufferSize);
 		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
@@ -82,6 +86,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			log.info("Feed {} will be treated as control feed", this.getFactFeed().getName());
 		}
 		skipHeader = headerProcessingType == HeaderProcessingType.SKIP;
+		metricsOff = MetricsUtil.isMetricsOff();
 		log.debug("For feed {} footer processing is {}", this.getFactFeed().getName(), factFeed.getFooter().getProcess());
 	}
 
@@ -216,12 +221,17 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (feedFileSizeHistogram != null) {
 				feedFileSizeHistogram.update(feedLinesNumber);
 			}
-
+			if (!metricsOff) {
+				TOTAL_ROWS_PROCESSED.addAndGet(feedLinesNumber);
+			}
 			return feedLinesNumber;
 		} catch (final IOException ie) {
 			throw new IllegalStateException("IOException while processing feed", ie);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
+			if (!metricsOff) {
+				TOTAL_INPUT_FILES_PROCESSED.incrementAndGet();
+			}
 			if (processAndValidateFooter) {
 				this.processFooter(feedLinesNumber, footerLine);
 			}

@@ -51,7 +51,7 @@ public class FeedParserComponent extends ConfigAware {
 			log.debug("For feed {} expect to find {} attributes in every data line, delimiter {}", ff.getName(), expectedTokensInEveryDataLine,
 					ff.getDelimiterString());
 		}
-		parsedLinesMeter = MetricsUtil.createMeter("(" + routeIdentifier + ") - Parsed lines");
+		parsedLinesMeter = MetricsUtil.createMeter("(" + routeIdentifier + ") - Total parsed lines");
 		firstStringInEveryLine = this.getFactFeed().getData().getEachLineStartsWithCharacter();
 		/*
 		 * should we check every data line for validity or not?
