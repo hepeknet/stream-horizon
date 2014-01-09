@@ -7,6 +7,8 @@ public interface SystemConfigurationConstants {
 
 	public static final String DIMENSION_LOCAL_CACHE_DISABLED = "dimension.local.cache.disable";
 
+	public static final String DETECT_OTHER_BAUK_INSTANCES = "detect.running.bauk.instances";
+
 	/**
 	 * Points to installation folder. Startup scripts will ensure that this is set.
 	 */

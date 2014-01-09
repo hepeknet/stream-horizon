@@ -15,6 +15,7 @@ import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.ThreadPoolSizes;
+import com.threeglav.bauk.util.StringUtil;
 
 public class InputFeedFileProcessingRoute extends RouteBuilder {
 
@@ -22,6 +23,8 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
 	private int feedProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
+	private MoveFileProcessor moveToArchiveFileProcessor;
+	private final MoveFileProcessor moveToErrorFileProcessor;
 
 	public InputFeedFileProcessingRoute(final FactFeed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
@@ -31,6 +34,12 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 			feedProcessingThreads = factFeed.getThreadPoolSizes().getFeedProcessingThreads();
 		}
 		log.debug("Will use {} threads to process incoming files for {}", feedProcessingThreads, factFeed.getName());
+		final String archiveFolderPath = config.getArchiveDirectory();
+		if (!StringUtil.isEmpty(archiveFolderPath)) {
+			moveToArchiveFileProcessor = new MoveFileProcessor(archiveFolderPath);
+			log.info("Will move all successfully processed files to {}", archiveFolderPath);
+		}
+		moveToErrorFileProcessor = new MoveFileProcessor(config.getErrorDirectory());
 	}
 
 	private void validate() {
@@ -82,9 +91,14 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		if (renameArchivedFiles) {
 			td.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HHmmssSSS}.${file:ext}"));
 		}
-		td.to("file://" + config.getArchiveDirectory() + "/").doCatch(Exception.class).to("file://" + config.getErrorDirectory()).transform()
-				.simple("${exception.stacktrace}")
+		if (moveToArchiveFileProcessor != null) {
+			td.setHeader("originalFilePath", this.simple("${file:absolute.path}"));
+			td.process(moveToArchiveFileProcessor);
+		} else {
+			log.info("Archive directory not specified! Input feeds will not be archived!");
+		}
+		td.doCatch(Exception.class).to("file://" + config.getErrorDirectory() + "/?forceWrites=false").transform().simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
-				.to("file://" + config.getErrorDirectory() + "/").end();
+				.setHeader("originalFilePath", this.simple("${file:absolute.path}")).process(moveToErrorFileProcessor).end();
 	}
 }

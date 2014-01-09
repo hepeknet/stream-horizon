@@ -24,6 +24,8 @@
 		<property name="jdbc.client.info.program">ETLBauk</property>
 		<!-- whether files moved to archive folder should be renamed (appending date and time) or not (true/false) -->
 		<property name="rename.archived.files">false</property>
+		<!-- should we detect other running bauk instances and print count at startup -->
+		<property name="detect.running.bauk.instances">false</property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>

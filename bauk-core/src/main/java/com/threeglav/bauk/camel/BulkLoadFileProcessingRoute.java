@@ -49,7 +49,7 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 		log.debug("Input endpoint is {}", inputEndpoint);
 		this.from(inputEndpoint).routeId("BulkLoadFileProcessing").shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
 				.threads(bulkProcessingThreads).doTry().process(new BulkFileProcessor(factFeed, config)).doCatch(Exception.class)
-				.to("file://" + config.getErrorDirectory()).transform().simple("${exception.stacktrace}")
+				.to("file://" + config.getErrorDirectory() + "/?forceWrites=false").transform().simple("${exception.stacktrace}")
 				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_bulkLoad.fail"))
 				.to("file://" + config.getBulkOutputDirectory() + "/").end();
 	}

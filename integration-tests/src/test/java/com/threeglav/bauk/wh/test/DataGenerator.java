@@ -9,13 +9,15 @@ import java.util.Random;
 
 public class DataGenerator {
 
-	private static final int ROW_PER_FILE = 100000;
+	private static final int ROW_PER_FILE = 1000;
 	private static final String VALUE_DELIMITER = "^$";
 	private static final String DATE_TIME_FORMAT = "dd/MM/yyyy hh:mm:ss";
 	private static final String DATE_ONLY_FORMAT = "dd/MM/yyyy";
 
 	public static void main(final String[] args) throws Exception {
-		generateFile();
+		for (int i = 0; i < 100; i++) {
+			generateFile();
+		}
 	}
 
 	private static void generateFile() throws Exception {
@@ -169,11 +171,8 @@ public class DataGenerator {
 		final Random r = new Random();
 		for (int i = 0; i < count; i++) {
 			final Calendar cal = Calendar.getInstance();
-			final int dayNum = -1 * r.nextInt(10);
-			cal.add(Calendar.DAY_OF_MONTH, dayNum);
-			if (r.nextBoolean()) {
-				cal.add(Calendar.DAY_OF_YEAR, dayNum);
-			}
+			cal.set(Calendar.DATE, 10 + r.nextInt(10));
+			cal.set(Calendar.MONTH, 10 + r.nextInt(2));
 			vals[i] = formatter.format(cal.getTime());
 		}
 		return vals;

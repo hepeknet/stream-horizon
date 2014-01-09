@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.hazelcast.core.IMap;
-import com.threeglav.bauk.util.CacheUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public final class HazelcastCacheInstance implements CacheInstance {
@@ -19,7 +18,7 @@ public final class HazelcastCacheInstance implements CacheInstance {
 		if (StringUtil.isEmpty(name)) {
 			throw new IllegalArgumentException("Name must not be null or empty");
 		}
-		cache = CacheUtil.getHazelcastInstance().getMap(name);
+		cache = HazelcastCacheInstanceManager.getInstance().getMap(name);
 		isDebugEnabled = log.isDebugEnabled();
 	}
 

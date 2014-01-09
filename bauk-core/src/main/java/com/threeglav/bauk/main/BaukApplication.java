@@ -21,6 +21,7 @@ import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.camel.BulkLoadFileProcessingRoute;
 import com.threeglav.bauk.camel.InputFeedFileProcessingRoute;
+import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
@@ -41,6 +42,7 @@ public class BaukApplication {
 
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
+		camelContext.disableJMX();
 		final long start = System.currentTimeMillis();
 		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -50,11 +52,15 @@ public class BaukApplication {
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
 			configValidator.validate();
 			createCamelRoutes(conf);
-			final int numberOfInstances = CacheUtil.getNumberOfBaukInstances();
 			final long total = System.currentTimeMillis() - start;
 			final long totalSec = total / 1000;
 			instanceStartTime = System.currentTimeMillis();
-			BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);
+			final boolean detectBaukInstances = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.DETECT_OTHER_BAUK_INSTANCES,
+					false);
+			if (detectBaukInstances) {
+				final int numberOfInstances = HazelcastCacheInstanceManager.getNumberOfBaukInstances();
+				BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);
+			}
 			BaukUtil.logEngineMessage("Bauk engine started successfully in " + total + "ms (" + totalSec + " seconds). Ready for feed files...");
 		} else {
 			LOG.error(
@@ -143,9 +149,9 @@ public class BaukApplication {
 	private static final class ShutdownHook extends Thread {
 		@Override
 		public void run() {
-			BaukUtil.logEngineMessage("Shutting down engine");
+			BaukUtil.logEngineMessage("Shutting down engine. Waiting to gracefully stop all threads...");
 			BaukUtil.startShutdown();
-			CacheUtil.shutdownHazelcast();
+			CacheUtil.getCacheInstanceManager().stop();
 			try {
 				camelContext.stop();
 			} catch (final Exception ignored) {
@@ -164,9 +170,9 @@ public class BaukApplication {
 		final long minutes = totalUpTimeSec / 60;
 		final long remainedSeconds = totalUpTimeSec % 60;
 		if (totalInputFeedFilesProcessed > 0) {
-			BaukUtil.logEngineMessage("Uptime of instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and " + remainedSeconds
+			BaukUtil.logEngineMessage("Uptime of this instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and " + remainedSeconds
 					+ " seconds). In total processed " + totalInputFeedFilesProcessed + " input feed files and " + totalInputFeedRowsProcessed
-					+ " rows!");
+					+ " rows.");
 		}
 	}
 

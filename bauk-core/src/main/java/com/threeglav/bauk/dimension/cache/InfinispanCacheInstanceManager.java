@@ -15,19 +15,29 @@ public class InfinispanCacheInstanceManager implements CacheInstanceManager {
 
 	private static EmbeddedCacheManager manager;
 
-	static {
-		try {
-			manager = new DefaultCacheManager(INFINISPAN_XML_CONFIG_FILE_PATH);
-		} catch (final IOException ie) {
-			BaukUtil.logEngineMessage("Exception while loading infinispan configuration " + ie.getMessage());
-			System.exit(-1);
+	private synchronized static EmbeddedCacheManager getManager() {
+		if (manager == null) {
+			try {
+				manager = new DefaultCacheManager(INFINISPAN_XML_CONFIG_FILE_PATH);
+			} catch (final IOException ie) {
+				BaukUtil.logEngineMessage("Exception while loading infinispan configuration " + ie.getMessage());
+				System.exit(-1);
+			}
 		}
+		return manager;
 	}
 
 	@Override
 	public CacheInstance getCacheInstance(final String regionName) {
-		final Cache<String, String> c = manager.getCache(regionName);
+		final Cache<String, String> c = getManager().getCache(regionName);
 		return new InfinispanCacheInstance(c);
+	}
+
+	@Override
+	public void stop() {
+		if (manager != null) {
+			manager.stop();
+		}
 	}
 
 }
