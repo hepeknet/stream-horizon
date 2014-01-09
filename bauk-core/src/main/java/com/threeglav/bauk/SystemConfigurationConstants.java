@@ -46,4 +46,6 @@ public interface SystemConfigurationConstants {
 
 	public static final String RENAME_ARCHIVED_FILES_PARAM_NAME = "rename.archived.files";
 
+	public static final String PRINT_PROCESSING_STATISTICS_PARAM_NAME = "output.processing.statistics";
+
 }

@@ -28,6 +28,8 @@
 		<property name="detect.running.bauk.instances">false</property>
 		<!-- JDBC fetch size used when pre-caching dimension keys -->
 		<property name="jdbc.client.info.program">10000</property>
+		<!-- should processing statistics be written as files are processed -->
+		<property name="output.processing.statistics">false</property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>

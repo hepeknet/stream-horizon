@@ -30,6 +30,7 @@ import com.threeglav.bauk.model.HeaderProcessingType;
 import com.threeglav.bauk.parser.FeedParser;
 import com.threeglav.bauk.parser.FullFeedParser;
 import com.threeglav.bauk.util.AttributeParsingUtil;
+import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -52,6 +53,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	public static final AtomicLong TOTAL_INPUT_FILES_PROCESSED = new AtomicLong(-1);
 	public static final AtomicLong TOTAL_ROWS_PROCESSED = new AtomicLong(-1);
 	private final boolean metricsOff;
+	private final boolean outputProcessingStatistics;
 
 	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
@@ -87,6 +89,11 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 		skipHeader = headerProcessingType == HeaderProcessingType.SKIP;
 		metricsOff = MetricsUtil.isMetricsOff();
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
+				false);
+		if (outputProcessingStatistics) {
+			log.info("Will output processing statistics!");
+		}
 		log.debug("For feed {} footer processing is {}", this.getFactFeed().getName(), factFeed.getFooter().getProcess());
 	}
 
@@ -191,6 +198,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		int feedLinesNumber = 0;
 		String footerLine = null;
+		final long start = System.currentTimeMillis();
 		try {
 			final ArrayDeque<String> lineQueue = new ArrayDeque<>(READ_AHEAD_LINES);
 			feedDataProcessor.startFeed(globalAttributes);
@@ -229,6 +237,17 @@ public class TextFileReaderComponent extends ConfigAware {
 			throw new IllegalStateException("IOException while processing feed", ie);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
+			if (outputProcessingStatistics) {
+				final long total = System.currentTimeMillis() - start;
+				final long totalSec = total / 1000;
+				String averagePerSec = "N/A";
+				if (totalSec > 0 && feedLinesNumber > 0) {
+					averagePerSec = String.valueOf(feedLinesNumber / totalSec) + " rows/second";
+				} else if (totalSec == 0 && total > 0) {
+					averagePerSec = String.valueOf(feedLinesNumber / total) + " rows/millisecond";
+				}
+				BaukUtil.logEngineMessage("Processed " + feedLinesNumber + " rows in " + total + "ms (" + totalSec + " seconds) or " + averagePerSec);
+			}
 			if (!metricsOff) {
 				TOTAL_INPUT_FILES_PROCESSED.incrementAndGet();
 			}
