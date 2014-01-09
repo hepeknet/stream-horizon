@@ -165,14 +165,19 @@ public class BaukApplication {
 	private static void printStatistics() {
 		final long totalInputFeedFilesProcessed = TextFileReaderComponent.TOTAL_INPUT_FILES_PROCESSED.get();
 		final long totalInputFeedRowsProcessed = TextFileReaderComponent.TOTAL_ROWS_PROCESSED.get();
-		final long totalUpTimeMillis = System.currentTimeMillis() - instanceStartTime;
-		final long totalUpTimeSec = totalUpTimeMillis / 1000;
-		final long minutes = totalUpTimeSec / 60;
-		final long remainedSeconds = totalUpTimeSec % 60;
-		if (totalInputFeedFilesProcessed > 0) {
+		if (totalInputFeedFilesProcessed > 0 && totalInputFeedRowsProcessed > 0) {
+			final long totalUpTimeMillis = System.currentTimeMillis() - instanceStartTime;
+			final long totalUpTimeSec = totalUpTimeMillis / 1000;
+			final long minutes = totalUpTimeSec / 60;
+			final long remainedSeconds = totalUpTimeSec % 60;
+			final long averageFilesPerSecond = totalInputFeedFilesProcessed / totalUpTimeSec;
+			final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
 			BaukUtil.logEngineMessage("Uptime of this instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and " + remainedSeconds
 					+ " seconds). In total processed " + totalInputFeedFilesProcessed + " input feed files and " + totalInputFeedRowsProcessed
 					+ " rows.");
+			BaukUtil.logEngineMessage("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
+		} else {
+			BaukUtil.logEngineMessage("No files were processed.");
 		}
 	}
 

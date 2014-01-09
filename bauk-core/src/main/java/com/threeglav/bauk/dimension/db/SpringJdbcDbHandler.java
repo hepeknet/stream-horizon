@@ -43,7 +43,9 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 		final DataSource ds = DataSourceProvider.getDataSource(config);
 		jdbcTemplate = new JdbcTemplate(ds);
-		jdbcTemplate.setFetchSize(DEFAULT_FETCH_SIZE);
+		final int fetchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME,
+				DEFAULT_FETCH_SIZE);
+		jdbcTemplate.setFetchSize(fetchSize);
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		log.debug("Will report any sql execution taking longer than {}ms", warningThreshold);

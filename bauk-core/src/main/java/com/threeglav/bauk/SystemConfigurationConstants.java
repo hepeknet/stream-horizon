@@ -42,6 +42,8 @@ public interface SystemConfigurationConstants {
 
 	public static final String JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME = "jdbc.client.info.program";
 
+	public static final String PRE_CACHE_FETCH_SIZE_PARAM_NAME = "dimension.precache.jdbc.fetch.size";
+
 	public static final String RENAME_ARCHIVED_FILES_PARAM_NAME = "rename.archived.files";
 
 }

@@ -18,13 +18,15 @@ public abstract class MetricsUtil {
 
 	private static final boolean metricsOff;
 
-	private static final MetricRegistry registry;
+	private static MetricRegistry registry;
 
 	static {
 		metricsOff = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.METRICS_OFF_SYS_PARAM_NAME, false);
-		registry = new MetricRegistry();
-		final JmxReporter reporter = JmxReporter.forRegistry(registry).build();
-		reporter.start();
+		if (!metricsOff) {
+			registry = new MetricRegistry();
+			final JmxReporter reporter = JmxReporter.forRegistry(registry).inDomain("bauk-metrics").build();
+			reporter.start();
+		}
 	}
 
 	public static final boolean isMetricsOff() {
