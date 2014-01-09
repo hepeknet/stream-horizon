@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.model.BaukProperty;
+import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public abstract class ConfigurationProperties {
@@ -17,6 +18,7 @@ public abstract class ConfigurationProperties {
 
 	public static void setBaukProperties(final List<BaukProperty> baukProps) {
 		BAUK_PROPERTIES = baukProps;
+		BaukUtil.logEngineMessage("Bauk properties are " + BAUK_PROPERTIES);
 	}
 
 	private static String getBaukProperty(final String propName) {

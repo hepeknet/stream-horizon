@@ -36,6 +36,8 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class TextFileReaderComponent extends ConfigAware {
 
+	private static final String AVERAGE_NUMBER_OUTPUT_FORMAT = "%.1f";
+
 	private static final int READ_AHEAD_LINES = 32;
 
 	private final int bufferSize;
@@ -238,15 +240,18 @@ public class TextFileReaderComponent extends ConfigAware {
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
 			if (outputProcessingStatistics) {
-				final long total = System.currentTimeMillis() - start;
-				final long totalSec = total / 1000;
+				final float total = System.currentTimeMillis() - start;
+				final float totalSec = total / 1000;
 				String averagePerSec = "N/A";
 				if (totalSec > 0 && feedLinesNumber > 0) {
-					averagePerSec = String.valueOf(feedLinesNumber / totalSec) + " rows/second";
+					final float val = feedLinesNumber / totalSec;
+					averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/second";
 				} else if (totalSec == 0 && total > 0) {
-					averagePerSec = String.valueOf(feedLinesNumber / total) + " rows/millisecond";
+					final float val = feedLinesNumber / total;
+					averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/millisecond";
 				}
-				BaukUtil.logEngineMessage("Processed " + feedLinesNumber + " rows in " + total + "ms (" + totalSec + " seconds) or " + averagePerSec);
+				BaukUtil.logEngineMessage("Processed " + feedLinesNumber + " rows in " + total + "ms (" + totalSec + " seconds). Average "
+						+ averagePerSec);
 			}
 			if (!metricsOff) {
 				TOTAL_INPUT_FILES_PROCESSED.incrementAndGet();

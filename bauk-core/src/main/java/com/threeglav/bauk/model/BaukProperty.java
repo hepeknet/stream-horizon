@@ -34,4 +34,9 @@ public class BaukProperty {
 		this.value = value;
 	}
 
+	@Override
+	public String toString() {
+		return "[name=" + name + ", value=" + value + "]";
+	}
+
 }
