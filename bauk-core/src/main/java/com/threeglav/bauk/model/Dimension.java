@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.threeglav.bauk.SystemConfigurationConstants;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {})
@@ -30,6 +32,9 @@ public class Dimension {
 
 	@XmlAttribute(required = false)
 	private String cacheKeyPerFeedInto;
+
+	@XmlElement(required = false, defaultValue = "" + SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT)
+	private Integer localCacheMaxSize;
 
 	public String getName() {
 		return name;
@@ -69,6 +74,14 @@ public class Dimension {
 
 	public void setCacheKeyPerFeedInto(final String cacheKeyPerFeedInto) {
 		this.cacheKeyPerFeedInto = cacheKeyPerFeedInto;
+	}
+
+	public Integer getLocalCacheMaxSize() {
+		return localCacheMaxSize;
+	}
+
+	public void setLocalCacheMaxSize(final Integer localCacheMaxSize) {
+		this.localCacheMaxSize = localCacheMaxSize;
 	}
 
 }

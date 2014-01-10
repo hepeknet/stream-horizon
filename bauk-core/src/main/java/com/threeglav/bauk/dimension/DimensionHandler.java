@@ -38,6 +38,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 
+	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
+			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
+
 	private final String dimensionLastLineSKAttributeName;
 	protected final Dimension dimension;
 	private String[] mappedColumnNames;
@@ -63,7 +66,12 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (cacheInstance == null) {
 			throw new IllegalArgumentException("Cache handler must not be null");
 		}
-		dimensionCache = new DimensionCache(cacheInstance, routeIdentifier, dimension.getName());
+		int maxElementsInLocalCacheForDimension = MAX_ELEMENTS_LOCAL_MAP;
+		if (dimension.getLocalCacheMaxSize() != null) {
+			maxElementsInLocalCacheForDimension = dimension.getLocalCacheMaxSize().intValue();
+		}
+		dimensionCache = new DimensionCache(cacheInstance, routeIdentifier, dimension.getName(), maxElementsInLocalCacheForDimension);
+		log.info("For dimension {} local cache will hold at most {} elements", dimension.getName(), maxElementsInLocalCacheForDimension);
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
@@ -106,6 +114,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 		if (this.getFactFeed().getData().getAttributes() == null || this.getFactFeed().getData().getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any attributes defined in feed " + this.getFactFeed().getName());
+		}
+		if (dimension.getLocalCacheMaxSize() != null && dimension.getLocalCacheMaxSize() < 0) {
+			throw new IllegalArgumentException("Local cache size for dimension must not be negative integer!");
 		}
 		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys > this.getFactFeed().getData().getAttributes().size()) {
@@ -237,7 +248,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes, final boolean isLastLine) {
+	public Object getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		Integer surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!noNaturalKeyColumnsDefined) {
@@ -254,19 +265,23 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			if (!noNaturalKeyColumnsDefined && naturalCacheKey != null) {
 				dimensionCache.putInCache(naturalCacheKey, surrogateKey);
 			}
-		} else if (isTraceEnabled) {
-			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
 		if (isTraceEnabled) {
-			log.trace("Resolved surrogate key is {}", surrogateKey);
+			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
 		}
-		if (isLastLine && globalAttributes != null) {
+		return surrogateKey;
+	}
+
+	@Override
+	public Object getLastLineBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+		final Object surrogateKey = this.getBulkLoadValue(parsedLine, globalAttributes);
+		if (globalAttributes != null) {
 			globalAttributes.put(dimensionLastLineSKAttributeName, String.valueOf(surrogateKey));
 			if (isTraceEnabled) {
 				log.trace("Saved last line value {}={}", dimensionLastLineSKAttributeName, surrogateKey);
 			}
 		}
-		return String.valueOf(surrogateKey);
+		return surrogateKey;
 	}
 
 	private Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes) {

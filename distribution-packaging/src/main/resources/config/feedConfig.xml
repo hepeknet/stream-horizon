@@ -10,12 +10,12 @@
 		<property name="idempotent.feed.processing">false</property>
 		<!-- what is used for caching (hazelcast/ispn) -->
 		<property name="cache.provider">ispn</property>
+		<!-- default local cache size for dimensions. Can be overridden for every dimension (see below) -->
+		<property name="dimension.local.cache.default.size">5000</property>
 		<!-- read buffer size to disk (megabytes) -->
 		<property name="read.buffer.size.mb">10</property>
 		<!-- write buffer size to disk (megabytes) -->
 		<property name="write.buffer.size.mb">10</property>
-		<!-- size of local cache (number of cached key/value pairs) for every configured dimension -->
-		<property name="dimension.local.cache.size">50000</property>
 		<!-- whether local cache for dimensions should be disabled (true/false) -->
 		<property name="dimension.local.cache.disable">false</property>
 		<!-- is exposing statistics feature off or on (true/false). No need to disable expect in extreme cases when every CPU cycle is important -->
@@ -239,6 +239,9 @@
 	<dimensions>
 		<!-- surrogate key for every dimension used in feed will be exposed as context attribute under name ${DIMENSION_NAME.sk}, for last line in feed only -->
 		<dimension name="RWH_UNDERLYING_DIM" type="T1_INSERT_ONLY">
+			<!-- how many elements can be stored in local cache for this dimension -->
+			<!-- if not set then default value will be used -->
+			<localCacheMaxSize>10000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="underlyingCode" naturalKey="true" />
 				<mappedColumn name="riskUnderlyingCode" naturalKey="true" />

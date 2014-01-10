@@ -172,11 +172,8 @@ public class TextFileReaderComponentTest {
 		}
 
 		@Override
-		public void processLine(final String line, final Map<String, String> globalAttributes, final boolean isLastLine) {
+		public void processLine(final String line, final Map<String, String> globalAttributes) {
 			lines.add(line);
-			if (isLastLine) {
-				lastLineNumber = lineCounter;
-			}
 			lineCounter++;
 		}
 
@@ -189,6 +186,13 @@ public class TextFileReaderComponentTest {
 			lines.clear();
 			lastLineNumber = 0;
 			lineCounter = 1;
+		}
+
+		@Override
+		public void processLastLine(final String line, final Map<String, String> globalAttributes) {
+			lines.add(line);
+			lastLineNumber = lineCounter;
+			lineCounter++;
 		}
 
 	}

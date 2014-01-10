@@ -179,6 +179,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		final String line = lines.poll();
 		final boolean hasMoreDataLines = this.hasMoreDataLines(lines);
 		final boolean hasAnyOtherLines = this.hasAnyOtherLines(lines);
+		final boolean isLastLine = !hasMoreDataLines;
 		if (!hasAnyOtherLines) {
 			if (isControlFeed) {
 				this.exposeControlFeedDataAsAttributes(line, globalAttributes);
@@ -187,11 +188,15 @@ public class TextFileReaderComponent extends ConfigAware {
 				lines.offer(line);
 				return FeedProcessingPhase.ONLY_FOOTER_LEFT;
 			} else {
-				feedDataProcessor.processLine(line, globalAttributes, true);
+				feedDataProcessor.processLastLine(line, globalAttributes);
 				return FeedProcessingPhase.STOP_AND_COUNT;
 			}
 		} else {
-			feedDataProcessor.processLine(line, globalAttributes, !hasMoreDataLines);
+			if (isLastLine) {
+				feedDataProcessor.processLastLine(line, globalAttributes);
+			} else {
+				feedDataProcessor.processLine(line, globalAttributes);
+			}
 			return FeedProcessingPhase.PROCESSED_DATA_LINE;
 		}
 	}

@@ -2,8 +2,8 @@ package com.threeglav.bauk;
 
 public interface SystemConfigurationConstants {
 
-	public static final String DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME = "dimension.local.cache.size";
-	public static final int DIMENSION_LOCAL_CACHE_SIZE_DEFAULT = 50000;
+	public static final String DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME = "dimension.local.cache.default.size";
+	public static final int DIMENSION_LOCAL_CACHE_SIZE_DEFAULT = 5000;
 
 	public static final String DIMENSION_LOCAL_CACHE_DISABLED = "dimension.local.cache.disable";
 

@@ -9,7 +9,7 @@ public final class NullBulkOutputWriter implements BulkOutputWriter {
 	}
 
 	@Override
-	public void doOutput(final String[] resolvedData) {
+	public void doOutput(final Object[] resolvedData) {
 	}
 
 	@Override

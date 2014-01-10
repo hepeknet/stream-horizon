@@ -155,10 +155,18 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 	}
 
-	public String[] resolveValues(final String[] inputValues, final Map<String, String> globalData, final boolean isLastLine) {
-		final String[] output = new String[bulkOutputFileNumberOfValues];
+	public Object[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
+		final Object[] output = new Object[bulkOutputFileNumberOfValues];
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-			output[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData, isLastLine);
+			output[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+		}
+		return output;
+	}
+
+	public Object[] resolveLastLineValues(final String[] inputValues, final Map<String, String> globalData) {
+		final Object[] output = new Object[bulkOutputFileNumberOfValues];
+		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
+			output[i] = outputValueHandlers[i].getLastLineBulkLoadValue(inputValues, globalData);
 		}
 		return output;
 	}

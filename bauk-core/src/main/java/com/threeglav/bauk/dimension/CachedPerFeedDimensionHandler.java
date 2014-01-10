@@ -6,11 +6,10 @@ import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
-import com.threeglav.bauk.util.StringUtil;
 
 public class CachedPerFeedDimensionHandler extends DimensionHandler {
 
-	private String keyValueCachedPerFeed;
+	private Integer keyValueCachedPerFeed;
 
 	public CachedPerFeedDimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
@@ -21,15 +20,15 @@ public class CachedPerFeedDimensionHandler extends DimensionHandler {
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes, final boolean isLastLine) {
-		if (!StringUtil.isEmpty(keyValueCachedPerFeed)) {
+	public Object getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+		if (keyValueCachedPerFeed != null) {
 			return keyValueCachedPerFeed;
 		}
-		final String surrogateKey = super.getBulkLoadValue(parsedLine, globalAttributes, isLastLine);
+		final Integer surrogateKey = (Integer) super.getBulkLoadValue(parsedLine, globalAttributes);
 		log.debug("Cached surrogate key {} for dimension {} for feed", surrogateKey, dimension.getName());
 		keyValueCachedPerFeed = surrogateKey;
 		if (keyValueCachedPerFeed != null) {
-			globalAttributes.put(dimension.getCacheKeyPerFeedInto(), keyValueCachedPerFeed);
+			globalAttributes.put(dimension.getCacheKeyPerFeedInto(), String.valueOf(keyValueCachedPerFeed));
 			log.trace("After caching per feed global attributes are {}", globalAttributes);
 		}
 		return surrogateKey;
@@ -43,7 +42,7 @@ public class CachedPerFeedDimensionHandler extends DimensionHandler {
 	@Override
 	public void calculatePerFeedValues(final Map<String, String> globalValues) {
 		log.debug("Global attributes before per-feed calculation {}", globalValues);
-		this.getBulkLoadValue(null, globalValues, false);
+		this.getBulkLoadValue(null, globalValues);
 		log.debug("Global attributes after per-feed calculation {}", globalValues);
 	}
 

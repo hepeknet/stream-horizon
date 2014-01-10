@@ -24,7 +24,7 @@ public final class GlobalAttributeMappingHandler implements BulkLoadOutputValueH
 	}
 
 	@Override
-	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues, final boolean isLastLine) {
+	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
 		if (globalValues != latestUsedGlobalMap) {
 			latestUsedGlobalMap = globalValues;
 			latestGlobalValue = globalValues.get(attributeName);
@@ -40,6 +40,11 @@ public final class GlobalAttributeMappingHandler implements BulkLoadOutputValueH
 	@Override
 	public void calculatePerFeedValues(final Map<String, String> globalValues) {
 
+	}
+
+	@Override
+	public String getLastLineBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
+		return this.getBulkLoadValue(parsedLine, globalValues);
 	}
 
 }

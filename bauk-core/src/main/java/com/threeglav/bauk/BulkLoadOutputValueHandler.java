@@ -6,7 +6,9 @@ public interface BulkLoadOutputValueHandler {
 
 	void calculatePerFeedValues(Map<String, String> globalValues);
 
-	String getBulkLoadValue(String[] parsedLine, Map<String, String> globalValues, boolean isLastLine);
+	Object getBulkLoadValue(String[] parsedLine, Map<String, String> globalValues);
+
+	Object getLastLineBulkLoadValue(String[] parsedLine, Map<String, String> globalValues);
 
 	void closeCurrentFeed();
 

@@ -8,7 +8,6 @@ import com.threeglav.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.bauk.feed.FeedParserComponent;
 import com.threeglav.bauk.feed.bulk.writer.BulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.FileBulkOutputWriter;
-import com.threeglav.bauk.feed.bulk.writer.NIOFileBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.NullBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.ZipFileBulkOutputWriter;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -37,9 +36,6 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		} else if (outputType == BulkLoadDefinitionOutputType.NONE) {
 			log.info("Will not output any bulk output results for feed {}", factFeed.getName());
 			bulkOutputWriter = new NullBulkOutputWriter();
-		} else if (outputType == BulkLoadDefinitionOutputType.NIO) {
-			log.info("Will output bulk output results for feed {} to file using NIO", factFeed.getName());
-			bulkOutputWriter = new NIOFileBulkOutputWriter(factFeed, config);
 		} else if (outputType == BulkLoadDefinitionOutputType.ZIP) {
 			log.info("Will output bulk output results for feed {} to file using ZIP compression", factFeed.getName());
 			bulkOutputWriter = new ZipFileBulkOutputWriter(factFeed, config);

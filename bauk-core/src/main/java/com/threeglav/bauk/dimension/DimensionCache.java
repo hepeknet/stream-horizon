@@ -15,9 +15,6 @@ public final class DimensionCache {
 
 	private static final int NO_ENTRY_INT_VALUE = Integer.MIN_VALUE;
 
-	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
-
 	private static final boolean LOCAL_CACHE_DISABLED = ConfigurationProperties.getSystemProperty(
 			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_DISABLED, false);
 
@@ -26,7 +23,11 @@ public final class DimensionCache {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final TObjectIntHashMap<String> localCache = new TObjectIntHashMap<>(MAX_ELEMENTS_LOCAL_MAP);
+	private TObjectIntHashMap<String> localCache;
+
+	private final int maxElementsInLocalCache;
+
+	private final String dimensionName;
 
 	private static final ThreadLocal<KeyValuePair> lastUsedPerThreadPair = new ThreadLocal<KeyValuePair>() {
 
@@ -45,17 +46,20 @@ public final class DimensionCache {
 		System.setProperty("gnu.trove.no_entry.int", "MIN_VALUE");
 	}
 
-	public DimensionCache(final CacheInstance cacheInstance, final String routeIdentifier, final String dimeName) {
+	public DimensionCache(final CacheInstance cacheInstance, final String routeIdentifier, final String dimName, final int localCacheMaxSize) {
 		this.cacheInstance = cacheInstance;
 		if (!LOCAL_CACHE_DISABLED) {
-			localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimeName + "] - local cache clear times",
+			localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimName + "] - local cache clear times",
 					false);
+			localCache = new TObjectIntHashMap<>(localCacheMaxSize);
 		}
+		maxElementsInLocalCache = localCacheMaxSize;
+		dimensionName = dimName;
 	}
 
 	public Integer getSurrogateKeyFromCache(final String cacheKey) {
 		KeyValuePair kvp = null;
-		if (!PER_THREAD_CACHING_ENABLED) {
+		if (PER_THREAD_CACHING_ENABLED) {
 			kvp = lastUsedPerThreadPair.get();
 			if (cacheKey.equals(kvp.key)) {
 				return kvp.value;
@@ -64,7 +68,7 @@ public final class DimensionCache {
 		if (!LOCAL_CACHE_DISABLED) {
 			final int locallyCachedValue = localCache.get(cacheKey);
 			if (locallyCachedValue != NO_ENTRY_INT_VALUE) {
-				if (!PER_THREAD_CACHING_ENABLED) {
+				if (PER_THREAD_CACHING_ENABLED) {
 					kvp.key = cacheKey;
 					kvp.value = locallyCachedValue;
 					lastUsedPerThreadPair.set(kvp);
@@ -76,7 +80,7 @@ public final class DimensionCache {
 		if (cachedValue != null) {
 			if (!LOCAL_CACHE_DISABLED) {
 				this.putInLocalCache(cacheKey, cachedValue);
-				if (!PER_THREAD_CACHING_ENABLED) {
+				if (PER_THREAD_CACHING_ENABLED) {
 					kvp.key = cacheKey;
 					kvp.value = cachedValue;
 					lastUsedPerThreadPair.set(kvp);
@@ -94,8 +98,8 @@ public final class DimensionCache {
 	}
 
 	private void putInLocalCache(final String cacheKey, final int cachedValue) {
-		if (localCache.size() > MAX_ELEMENTS_LOCAL_MAP) {
-			log.debug("Local cache has more than {} elements. Have to clear it!", MAX_ELEMENTS_LOCAL_MAP);
+		if (localCache.size() > maxElementsInLocalCache) {
+			log.debug("Local cache for dimension {} has more than {} elements. Have to clear it!", dimensionName, maxElementsInLocalCache);
 			localCache.clear();
 			if (localCacheClearCounter != null) {
 				localCacheClearCounter.inc();

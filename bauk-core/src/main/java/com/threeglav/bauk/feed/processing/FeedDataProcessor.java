@@ -6,7 +6,9 @@ public interface FeedDataProcessor {
 
 	void startFeed(final Map<String, String> globalAttributes);
 
-	void processLine(final String line, final Map<String, String> globalAttributes, boolean isLastLine);
+	void processLine(final String line, final Map<String, String> globalAttributes);
+
+	void processLastLine(final String line, final Map<String, String> globalAttributes);
 
 	void closeFeed(int expectedResults, final Map<String, String> globalAttributes);
 
