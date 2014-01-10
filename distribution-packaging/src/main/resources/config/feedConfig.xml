@@ -27,7 +27,7 @@
 		<!-- should we detect other running bauk instances and print count at startup -->
 		<property name="detect.running.bauk.instances">false</property>
 		<!-- JDBC fetch size used when pre-caching dimension keys -->
-		<property name="jdbc.client.info.program">10000</property>
+		<property name="dimension.precache.jdbc.fetch.size">10000</property>
 		<!-- should processing statistics be written as files are processed -->
 		<property name="output.processing.statistics">false</property>
 	</properties>

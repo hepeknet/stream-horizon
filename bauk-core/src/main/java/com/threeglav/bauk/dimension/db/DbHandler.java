@@ -3,6 +3,8 @@ package com.threeglav.bauk.dimension.db;
 import java.util.List;
 import java.util.Map;
 
+import com.threeglav.bauk.dimension.DimensionKeysPair;
+
 public interface DbHandler {
 
 	public Long executeQueryStatementAndReturnKey(String statement, final String dimensionName);
@@ -11,7 +13,7 @@ public interface DbHandler {
 
 	public void executeInsertOrUpdateStatement(final String statement, String description);
 
-	public List<String[]> queryForDimensionKeys(final String dimensionName, final String statement, int numberOfNaturalKeyColumns);
+	public List<DimensionKeysPair> queryForDimensionKeys(final String dimensionName, final String statement, int numberOfNaturalKeyColumns);
 
 	public Map<String, String> executeSelectStatement(final String statement, String description);
 

@@ -60,11 +60,11 @@ public class BulkOutputValuesResolverTest {
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);
 		final CacheInstance cacheInstance = Mockito.mock(CacheInstance.class);
 		when(ch.getCacheInstance(Matchers.<String> any())).thenReturn(cacheInstance);
-		when(cacheInstance.getSurrogateKey(Matchers.<String> any())).thenAnswer(new Answer<String>() {
+		when(cacheInstance.getSurrogateKey(Matchers.<String> any())).thenAnswer(new Answer<Integer>() {
 			@Override
-			public String answer(final InvocationOnMock invocation) throws Throwable {
+			public Integer answer(final InvocationOnMock invocation) throws Throwable {
 				final Object[] args = invocation.getArguments();
-				return (String) args[0];
+				return Integer.valueOf(String.valueOf(args[0]));
 			}
 		});
 		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
@@ -89,18 +89,18 @@ public class BulkOutputValuesResolverTest {
 		final CacheInstanceManager ch = Mockito.mock(CacheInstanceManager.class);
 		final CacheInstance cacheInstance = Mockito.mock(CacheInstance.class);
 		when(ch.getCacheInstance(Matchers.<String> any())).thenReturn(cacheInstance);
-		when(cacheInstance.getSurrogateKey(Matchers.<String> any())).thenAnswer(new Answer<String>() {
+		when(cacheInstance.getSurrogateKey(Matchers.<String> any())).thenAnswer(new Answer<Integer>() {
 			@Override
-			public String answer(final InvocationOnMock invocation) throws Throwable {
+			public Integer answer(final InvocationOnMock invocation) throws Throwable {
 				final Object[] args = invocation.getArguments();
-				return (String) args[0];
+				return Integer.valueOf(String.valueOf(args[0]));
 			}
 		});
 		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
 		final String[] latestReceivedValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
 				"14", "15", "16" }, null, true);
 		Assert.assertEquals(1, latestReceivedValue.length);
-		Assert.assertEquals("2", latestReceivedValue[0]);
+		Assert.assertEquals("2", String.valueOf(latestReceivedValue[0]));
 	}
 
 	private ArrayList<Attribute> createFactFeedAttributes(final int num) {

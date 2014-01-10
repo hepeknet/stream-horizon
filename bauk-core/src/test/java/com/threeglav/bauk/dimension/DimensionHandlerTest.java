@@ -227,13 +227,13 @@ public class DimensionHandlerTest {
 		return new CacheInstance() {
 
 			@Override
-			public String getSurrogateKey(final String naturalKey) {
+			public Integer getSurrogateKey(final String naturalKey) {
 				lastRequiredFromCache = naturalKey;
 				return null;
 			}
 
 			@Override
-			public void put(final String naturalKey, final String surrogateKey) {
+			public void put(final String naturalKey, final Integer surrogateKey) {
 
 			}
 		};
@@ -267,7 +267,7 @@ public class DimensionHandlerTest {
 			}
 
 			@Override
-			public List<String[]> queryForDimensionKeys(final String dimName, final String statement, final int numberOfNaturalKeyColumns) {
+			public List<DimensionKeysPair> queryForDimensionKeys(final String dimName, final String statement, final int numberOfNaturalKeyColumns) {
 				return null;
 			}
 

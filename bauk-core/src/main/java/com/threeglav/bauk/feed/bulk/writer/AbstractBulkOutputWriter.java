@@ -78,4 +78,19 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		}
 	}
 
+	protected StringBuilder concatenateAllValues(final String[] resolvedData) {
+		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
+		for (int i = 0; i < resolvedData.length; i++) {
+			if (i != 0) {
+				if (isSingleCharacterDelimiter) {
+					sb.append(singleCharacterDelimiter);
+				} else {
+					sb.append(bulkOutputFileDelimiter);
+				}
+			}
+			sb.append(resolvedData[i]);
+		}
+		return sb;
+	}
+
 }

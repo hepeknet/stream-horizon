@@ -14,11 +14,13 @@ public class HashedNameFileFilter<T> implements GenericFileFilter<T> {
 	private final String fileMask;
 	private final int orderNum;
 	private final int totalNumberOfFilters;
+	private final boolean isDebugEnabled;
 
 	public HashedNameFileFilter(final String fileMask, final int orderNum, final int totalNumberOfFilters) {
 		this.fileMask = fileMask;
 		this.orderNum = orderNum;
 		this.totalNumberOfFilters = totalNumberOfFilters;
+		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	@Override
@@ -34,10 +36,14 @@ public class HashedNameFileFilter<T> implements GenericFileFilter<T> {
 			return false;
 		}
 		if (!fileName.matches(fileMask)) {
-			log.debug("{} does not match pattern {}. Skipping", fileName, fileMask);
+			if (isDebugEnabled) {
+				log.debug("{} does not match pattern {}. Skipping", fileName, fileMask);
+			}
 			return false;
 		}
-		log.debug("{} matches pattern {}. Checking if this thread should process it!", fileName, fileMask);
+		if (isDebugEnabled) {
+			log.debug("{} matches pattern {}. Checking if this thread should process it!", fileName, fileMask);
+		}
 		final String fullFileName = file.getAbsoluteFilePath();
 		int hash = fullFileName.hashCode();
 		final long lastModifiedFile = file.getLastModified();
@@ -47,15 +53,23 @@ public class HashedNameFileFilter<T> implements GenericFileFilter<T> {
 		if (hash < 0) {
 			hash = -hash;
 		}
-		log.debug("Hash for {} is {}", fileName, hash);
+		if (isDebugEnabled) {
+			log.debug("Hash for {} is {}", fileName, hash);
+		}
 		final int res = hash % totalNumberOfFilters;
 		final boolean hashesMatch = (res == orderNum);
-		log.debug("Checking if ({} % {} = {}) == {}", new Object[] { hash, totalNumberOfFilters, res, orderNum });
+		if (isDebugEnabled) {
+			log.debug("Checking if ({} % {} = {}) == {}", new Object[] { hash, totalNumberOfFilters, res, orderNum });
+		}
 		if (!hashesMatch) {
-			log.debug("Hash for {} does not match {}. Skipping", fileName, orderNum);
+			if (isDebugEnabled) {
+				log.debug("Hash for {} does not match {}. Skipping", fileName, orderNum);
+			}
 			return false;
 		}
-		log.debug("Will accept to process {}", fileName);
+		if (isDebugEnabled) {
+			log.debug("Will accept to process {}", fileName);
+		}
 		return true;
 	}
 

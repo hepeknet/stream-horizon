@@ -29,7 +29,7 @@ public class InfinispanCacheInstanceManager implements CacheInstanceManager {
 
 	@Override
 	public CacheInstance getCacheInstance(final String regionName) {
-		final Cache<String, String> c = getManager().getCache(regionName);
+		final Cache<String, Integer> c = getManager().getCache(regionName);
 		return new InfinispanCacheInstance(c);
 	}
 

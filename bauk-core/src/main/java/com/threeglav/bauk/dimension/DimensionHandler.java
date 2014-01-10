@@ -205,19 +205,19 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.debug("For dimension {} statement for pre-caching is {}", dimension.getName(), preCacheStatement);
 			final long start = System.currentTimeMillis();
 			int numberOfRows = 0;
-			List<String[]> retrievedValues = this.getDbHandler()
-					.queryForDimensionKeys(dimension.getName(), preCacheStatement, naturalKeyNames.length);
+			List<DimensionKeysPair> retrievedValues = this.getDbHandler().queryForDimensionKeys(dimension.getName(), preCacheStatement,
+					naturalKeyNames.length);
 			if (retrievedValues != null) {
 				numberOfRows = retrievedValues.size();
 				if (numberOfRows > NUMBER_OF_PRE_CACHED_ROWS_WARNING) {
 					log.warn("For dimension {} will pre-cache {} rows. This might take a while!", dimension.getName(), numberOfRows);
 				}
-				final Iterator<String[]> iter = retrievedValues.iterator();
+				final Iterator<DimensionKeysPair> iter = retrievedValues.iterator();
 				while (iter.hasNext()) {
-					final String[] row = iter.next();
+					final DimensionKeysPair row = iter.next();
 					iter.remove();
-					final String surrogateKeyValue = row[0];
-					final String naturalKeyValue = row[1];
+					final int surrogateKeyValue = row.surrogateKey;
+					final String naturalKeyValue = row.naturalKey;
 					dimensionCache.putInCache(naturalKeyValue, surrogateKeyValue);
 				}
 				retrievedValues.clear();
@@ -238,7 +238,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	@Override
 	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes, final boolean isLastLine) {
-		String surrogateKey = null;
+		Integer surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!noNaturalKeyColumnsDefined) {
 			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes);
@@ -261,15 +261,15 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.trace("Resolved surrogate key is {}", surrogateKey);
 		}
 		if (isLastLine && globalAttributes != null) {
-			globalAttributes.put(dimensionLastLineSKAttributeName, surrogateKey);
+			globalAttributes.put(dimensionLastLineSKAttributeName, String.valueOf(surrogateKey));
 			if (isTraceEnabled) {
 				log.trace("Saved last line value {}={}", dimensionLastLineSKAttributeName, surrogateKey);
 			}
 		}
-		return surrogateKey;
+		return String.valueOf(surrogateKey);
 	}
 
-	private String getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	private Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
 		final String preparedInsertStatement = this.prepareStatement(insertStatement, parsedLine, globalAttributes);
 		try {
@@ -285,14 +285,14 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 		final String selectSurrogateKey = dimension.getSqlStatements().getSelectSurrogateKey();
 		final String preparedSelectStatement = this.prepareStatement(selectSurrogateKey, parsedLine, globalAttributes);
-		final String result = this.trySelectStatement(preparedSelectStatement);
+		final Integer result = this.trySelectStatement(preparedSelectStatement);
 		if (result == null) {
 			log.warn("After failing to insert record could not find key by select. Select ctatement is {}", preparedSelectStatement);
 		}
 		return result;
 	}
 
-	private String trySelectStatement(final String preparedStatement) {
+	private Integer trySelectStatement(final String preparedStatement) {
 		final Long result = this.getDbHandler().executeQueryStatementAndReturnKey(preparedStatement, dimension.getName());
 		if (dbAccessSelectCounter != null) {
 			dbAccessSelectCounter.inc();
@@ -303,10 +303,10 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (isTraceEnabled) {
 			log.trace("Retrieved surrogate key {} for {}", result, preparedStatement);
 		}
-		return result.toString();
+		return result.intValue();
 	}
 
-	private String tryInsertStatement(final String preparedStatement) {
+	private Integer tryInsertStatement(final String preparedStatement) {
 		final Long result = this.getDbHandler().executeInsertStatementAndReturnKey(preparedStatement, dimension.getName());
 		if (dbAccessInsertCounter != null) {
 			dbAccessInsertCounter.inc();
@@ -315,7 +315,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			throw new IllegalStateException("Was not able to retrieve surrogate key by using insert statement " + preparedStatement);
 		}
 		log.debug("Retrieved surrogate key {} for {}", result, preparedStatement);
-		return result.toString();
+		return result.intValue();
 	}
 
 	private String prepareStatement(final String statement, final String[] parsedLine, final Map<String, String> globalAttributes) {

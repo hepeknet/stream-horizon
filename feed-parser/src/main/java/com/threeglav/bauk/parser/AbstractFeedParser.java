@@ -58,7 +58,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 			if (isSingleCharacterDelimiter) {
 				return this.splitCharacterDelimiter(line, skipCharacters);
 			} else {
-				return this.splitStringDelimiter(line, skipCharacters);
+				return this.splitMultiCharacterDelimiter(line, skipCharacters);
 			}
 		} catch (final Exception exc) {
 			log.error("Exception while parsing line [{}], skipCharacters {}, delimiter {}, expectedTokens {}", new Object[] { line, skipCharacters,
@@ -68,7 +68,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 		}
 	}
 
-	private String[] splitStringDelimiter(final String line, final int skipCharacters) {
+	private String[] splitMultiCharacterDelimiter(final String line, final int skipCharacters) {
 		final String[] lines = new String[expectedTokens];
 		int indexOfDelimiter = line.indexOf(delimiter, skipCharacters);
 		int fromIndex = skipCharacters;

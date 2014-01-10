@@ -7,10 +7,19 @@
 		<shutdown hookBehavior="DEFAULT" />
 	</global>
 	
+	<default>
+		<jmxStatistics enabled="true" />
+  		<eviction maxEntries="20000000" strategy="LIRS" />
+		<transaction transactionMode="NON_TRANSACTIONAL" autoCommit="true" lockingMode="OPTIMISTIC" />
+		<locking concurrencyLevel="100" isolationLevel="READ_COMMITTED" lockAcquisitionTimeout="500" useLockStriping="false" />
+	</default>
+	
 	<!-- copy for every dimension and name cache same as dimension -->
 	<namedCache name="defaultCache">
 		<jmxStatistics enabled="true" />
   		<eviction maxEntries="20000000" strategy="LIRS" />
+		<transaction transactionMode="NON_TRANSACTIONAL" autoCommit="true" lockingMode="OPTIMISTIC" />
+		<locking concurrencyLevel="100" isolationLevel="READ_COMMITTED" lockAcquisitionTimeout="500" useLockStriping="false" />
 	</namedCache>
 
 </infinispan>

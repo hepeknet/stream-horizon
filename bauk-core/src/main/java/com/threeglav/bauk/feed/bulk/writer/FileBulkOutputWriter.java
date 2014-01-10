@@ -56,17 +56,7 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void doOutput(final String[] resolvedData) {
 		try {
-			final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
-			for (int i = 0; i < resolvedData.length; i++) {
-				if (i != 0) {
-					if (isSingleCharacterDelimiter) {
-						sb.append(singleCharacterDelimiter);
-					} else {
-						sb.append(bulkOutputFileDelimiter);
-					}
-				}
-				sb.append(resolvedData[i]);
-			}
+			final StringBuilder sb = this.concatenateAllValues(resolvedData);
 			writer.write(sb.toString());
 			writer.newLine();
 		} catch (final Exception exc) {

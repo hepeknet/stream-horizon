@@ -10,7 +10,7 @@ public final class HazelcastCacheInstance implements CacheInstance {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final IMap<String, String> cache;
+	private final IMap<String, Integer> cache;
 
 	private final boolean isDebugEnabled;
 
@@ -23,12 +23,12 @@ public final class HazelcastCacheInstance implements CacheInstance {
 	}
 
 	@Override
-	public String getSurrogateKey(final String naturalKey) {
+	public Integer getSurrogateKey(final String naturalKey) {
 		return cache.get(naturalKey);
 	}
 
 	@Override
-	public void put(final String naturalKey, final String surrogateKey) {
+	public void put(final String naturalKey, final Integer surrogateKey) {
 		cache.set(naturalKey, surrogateKey);
 		if (isDebugEnabled) {
 			log.debug("Cached [{}] -> [{}]", naturalKey, surrogateKey);

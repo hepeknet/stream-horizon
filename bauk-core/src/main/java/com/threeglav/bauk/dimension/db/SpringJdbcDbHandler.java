@@ -24,6 +24,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.dimension.DimensionKeysPair;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -43,7 +44,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 		final DataSource ds = DataSourceProvider.getDataSource(config);
 		jdbcTemplate = new JdbcTemplate(ds);
-		final int fetchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME,
+		final int fetchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME,
 				DEFAULT_FETCH_SIZE);
 		jdbcTemplate.setFetchSize(fetchSize);
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
@@ -169,7 +170,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 	}
 
 	@Override
-	public List<String[]> queryForDimensionKeys(final String dimensionName, final String statement, final int numberOfNaturalKeyColumns) {
+	public List<DimensionKeysPair> queryForDimensionKeys(final String dimensionName, final String statement, final int numberOfNaturalKeyColumns) {
 		try {
 			if (StringUtil.isEmpty(statement)) {
 				throw new IllegalArgumentException("Statement must not be null");
@@ -183,8 +184,8 @@ public class SpringJdbcDbHandler implements DbHandler {
 			log.info(
 					"Will expect in exactly {} results per row. First one should be surrogate key, others should be natural keys in order as defined in configuration!",
 					expectedTotalValues);
-			final List<String[]> allRows = jdbcTemplate.query(new BaukPreparedStatementCreator(statement), new DimensionKeysRowMapper(dimensionName,
-					statement, expectedTotalValues));
+			final List<DimensionKeysPair> allRows = jdbcTemplate.query(new BaukPreparedStatementCreator(statement), new DimensionKeysRowMapper(
+					dimensionName, statement, expectedTotalValues));
 			final int rowsReturned = allRows.size();
 			final long total = System.currentTimeMillis() - start;
 			if (total > warningThreshold) {
@@ -249,7 +250,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 
 	}
 
-	private static final class DimensionKeysRowMapper implements RowMapper<String[]> {
+	private static final class DimensionKeysRowMapper implements RowMapper<DimensionKeysPair> {
 
 		private final String dimensionName;
 		private final String statement;
@@ -265,7 +266,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		}
 
 		@Override
-		public String[] mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+		public DimensionKeysPair mapRow(final ResultSet rs, final int rowNum) throws SQLException {
 			if (!alreadyCheckedForColumnNumber) {
 				final ResultSetMetaData rsmd = rs.getMetaData();
 				final int columnsNumber = rsmd.getColumnCount();
@@ -277,8 +278,8 @@ public class SpringJdbcDbHandler implements DbHandler {
 				}
 				alreadyCheckedForColumnNumber = true;
 			}
-			final String[] surrogateAndNaturalKeys = new String[2];
-			surrogateAndNaturalKeys[0] = rs.getString(1);
+			final DimensionKeysPair dkp = new DimensionKeysPair();
+			dkp.surrogateKey = rs.getInt(1);
 			final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 			for (int i = 2; i <= expectedTotalValues; i++) {
 				if (i != 2) {
@@ -286,8 +287,8 @@ public class SpringJdbcDbHandler implements DbHandler {
 				}
 				sb.append(rs.getString(i));
 			}
-			surrogateAndNaturalKeys[1] = sb.toString();
-			return surrogateAndNaturalKeys;
+			dkp.naturalKey = sb.toString();
+			return dkp;
 		}
 	}
 
