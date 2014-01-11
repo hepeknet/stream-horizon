@@ -36,6 +36,9 @@ public class Dimension {
 	@XmlElement(required = false, defaultValue = "" + SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT)
 	private Integer localCacheMaxSize;
 
+	@XmlAttribute(required = false)
+	private Boolean exposeLastLineValueInContext = Boolean.FALSE;
+
 	public String getName() {
 		return name;
 	}
@@ -82,6 +85,14 @@ public class Dimension {
 
 	public void setLocalCacheMaxSize(final Integer localCacheMaxSize) {
 		this.localCacheMaxSize = localCacheMaxSize;
+	}
+
+	public Boolean getExposeLastLineValueInContext() {
+		return exposeLastLineValueInContext;
+	}
+
+	public void setExposeLastLineValueInContext(final Boolean exposeLastLineValueInContext) {
+		this.exposeLastLineValueInContext = exposeLastLineValueInContext;
 	}
 
 }

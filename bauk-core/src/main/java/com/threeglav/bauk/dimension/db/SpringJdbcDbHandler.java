@@ -28,7 +28,7 @@ import com.threeglav.bauk.dimension.DimensionKeysPair;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.util.StringUtil;
 
-public class SpringJdbcDbHandler implements DbHandler {
+public final class SpringJdbcDbHandler implements DbHandler {
 
 	private static final int DEFAULT_FETCH_SIZE = 10000;
 
@@ -47,6 +47,7 @@ public class SpringJdbcDbHandler implements DbHandler {
 		final int fetchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME,
 				DEFAULT_FETCH_SIZE);
 		jdbcTemplate.setFetchSize(fetchSize);
+		jdbcTemplate.setLazyInit(false);
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		log.debug("Will report any sql execution taking longer than {}ms", warningThreshold);

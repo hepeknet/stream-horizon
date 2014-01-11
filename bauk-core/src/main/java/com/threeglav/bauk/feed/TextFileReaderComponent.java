@@ -252,20 +252,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			throw new IllegalStateException("IOException while processing feed", ie);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
-			if (outputProcessingStatistics) {
-				final float total = System.currentTimeMillis() - start;
-				final float totalSec = total / 1000;
-				String averagePerSec = "N/A";
-				if (totalSec > 0 && feedLinesNumber > 0) {
-					final float val = feedLinesNumber / totalSec;
-					averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/second";
-				} else if (totalSec == 0 && total > 0) {
-					final float val = feedLinesNumber / total;
-					averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/millisecond";
-				}
-				BaukUtil.logEngineMessage("Processed " + feedLinesNumber + " rows in " + total + "ms (" + totalSec + " seconds). Average "
-						+ averagePerSec);
-			}
+			outputFeedProcessingStatistics(feedLinesNumber, start);
 			if (!metricsOff) {
 				TOTAL_INPUT_FILES_PROCESSED.incrementAndGet();
 			}
@@ -274,6 +261,23 @@ public class TextFileReaderComponent extends ConfigAware {
 			}
 			IOUtils.closeQuietly(br);
 			IOUtils.closeQuietly(fileInputStream);
+		}
+	}
+
+	private void outputFeedProcessingStatistics(int feedLinesNumber, final long start) {
+		if (outputProcessingStatistics) {
+			final float total = System.currentTimeMillis() - start;
+			final float totalSec = total / 1000;
+			String averagePerSec = "N/A";
+			if (totalSec > 0 && feedLinesNumber > 0) {
+				final float val = feedLinesNumber / totalSec;
+				averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/second";
+			} else if (totalSec == 0 && total > 0) {
+				final float val = feedLinesNumber / total;
+				averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/millisecond";
+			}
+			BaukUtil.logEngineMessage("Processed " + feedLinesNumber + " rows in " + total + "ms (" + totalSec + " seconds). Average "
+					+ averagePerSec);
 		}
 	}
 

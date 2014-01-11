@@ -238,7 +238,8 @@
 	</factFeeds>
 	<dimensions>
 		<!-- surrogate key for every dimension used in feed will be exposed as context attribute under name ${DIMENSION_NAME.sk}, for last line in feed only -->
-		<dimension name="RWH_UNDERLYING_DIM" type="T1_INSERT_ONLY">
+		<!-- exposeLastLineValueInContext - whether surrogate key caculated for the last line of every feed should be available in context as attribute named ${DIMENSION_NAME.sk}, default is false -->
+		<dimension name="RWH_UNDERLYING_DIM" type="T1_INSERT_ONLY" exposeLastLineValueInContext="false">
 			<!-- how many elements can be stored in local cache for this dimension -->
 			<!-- if not set then default value will be used -->
 			<localCacheMaxSize>10000</localCacheMaxSize>

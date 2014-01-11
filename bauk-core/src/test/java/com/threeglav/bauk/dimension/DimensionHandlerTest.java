@@ -70,7 +70,7 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testNaturalKeyMappedToHeader() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(10), this.createFactFeed(), this.createCacheHandler(), 0, null,
+		final DimensionHandler dh = new DimensionHandler(this.createDimension(10, false), this.createFactFeed(), this.createCacheHandler(), 0, null,
 				this.createConfig());
 		Assert.assertEquals(10, dh.getMappedColumnPositions().length);
 		Assert.assertEquals(10, dh.getNaturalKeyPositionsInFeed().length);
@@ -131,7 +131,7 @@ public class DimensionHandlerTest {
 		dh.getBulkLoadValue(null, null);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = ArrayIndexOutOfBoundsException.class)
 	public void testSmallParsedLine() {
 		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0, null,
 				this.createConfig());
@@ -176,12 +176,37 @@ public class DimensionHandlerTest {
 	}
 
 	@Test
-	public void testLookupsWithOffset() {
+	public void testLookupsWithOffsetLastLineDisabled() {
 		lastRequiredFromCache = null;
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final DimensionHandler dh1 = spy(new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 1, null,
+				this.createConfig()));
+		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
+		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
+		final Map<String, String> headerValues = new HashMap<String, String>();
+		headerValues.put("h1", "100");
+		headerValues.put("h2", "200");
+		Assert.assertEquals(2, headerValues.size());
+		final Object key1 = dh1.getLastLineBulkLoadValue(parsedLine1, headerValues);
+		Assert.assertEquals(2, headerValues.size());
+		Assert.assertNull(headerValues.get("dim1.sk"));
+		Assert.assertEquals("100", "" + key1);
+		final String nkLookup1 = "d" + BaukConstants.NATURAL_KEY_DELIMITER + "e" + BaukConstants.NATURAL_KEY_DELIMITER + "h"
+				+ BaukConstants.NATURAL_KEY_DELIMITER + "g" + BaukConstants.NATURAL_KEY_DELIMITER + "b";
+		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
+		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
+				lastStatementToExecute);
+	}
+
+	@Test
+	public void testLookupsWithOffsetLastLineEnabled() {
+		lastRequiredFromCache = null;
+		lastStatementToExecute = null;
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertNull(lastStatementToExecute);
+		final DimensionHandler dh1 = spy(new DimensionHandler(this.createDimension(true), this.createFactFeed(), this.createCacheHandler(), 1, null,
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -201,13 +226,13 @@ public class DimensionHandlerTest {
 	}
 
 	@Test
-	public void testLookupNoNaturalKeys() {
+	public void testLookupNoNaturalKeysLastLineEnabled() {
 		lastRequiredFromCache = null;
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = Mockito.spy(new DimensionHandler(this.createDimension(0), this.createFactFeed(), this.createCacheHandler(), 1,
-				null, this.createConfig()));
+		final DimensionHandler dh1 = Mockito.spy(new DimensionHandler(this.createDimension(0, true), this.createFactFeed(),
+				this.createCacheHandler(), 1, null, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -215,6 +240,28 @@ public class DimensionHandlerTest {
 		headerValues.put("h2", "200");
 		final Object key1 = dh1.getLastLineBulkLoadValue(parsedLine1, headerValues);
 		Assert.assertEquals("" + key1, headerValues.get("dim1.sk"));
+		Assert.assertEquals("100", "" + key1);
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertEquals(
+				"insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
+				lastStatementToExecute);
+	}
+
+	@Test
+	public void testLookupNoNaturalKeysLastLineDisabled() {
+		lastRequiredFromCache = null;
+		lastStatementToExecute = null;
+		Assert.assertNull(lastRequiredFromCache);
+		Assert.assertNull(lastStatementToExecute);
+		final DimensionHandler dh1 = Mockito.spy(new DimensionHandler(this.createDimension(0, false), this.createFactFeed(), this
+				.createCacheHandler(), 1, null, this.createConfig()));
+		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
+		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
+		final Map<String, String> headerValues = new HashMap<String, String>();
+		headerValues.put("h1", "100");
+		headerValues.put("h2", "200");
+		final Object key1 = dh1.getLastLineBulkLoadValue(parsedLine1, headerValues);
+		Assert.assertNull(headerValues.get("dim1.sk"));
 		Assert.assertEquals("100", "" + key1);
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertEquals(
@@ -283,9 +330,10 @@ public class DimensionHandlerTest {
 		};
 	}
 
-	private Dimension createDimension(final int naturalKeysCount) {
+	private Dimension createDimension(final int naturalKeysCount, final boolean exposeLastLine) {
 		final Dimension dim = new Dimension();
 		dim.setName("dim1");
+		dim.setExposeLastLineValueInContext(exposeLastLine);
 		final ArrayList<MappedColumn> naturalKeys = new ArrayList<MappedColumn>();
 		for (int i = 0; i < naturalKeysCount; i++) {
 			final String nkName = "nk_" + i;
@@ -328,7 +376,11 @@ public class DimensionHandlerTest {
 	}
 
 	private Dimension createDimension() {
-		return this.createDimension(5);
+		return this.createDimension(false);
+	}
+
+	private Dimension createDimension(final boolean exposeLastLine) {
+		return this.createDimension(5, exposeLastLine);
 	}
 
 	private FactFeed createFactFeed() {
