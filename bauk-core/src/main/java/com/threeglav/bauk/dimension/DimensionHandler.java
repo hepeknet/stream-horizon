@@ -1,6 +1,5 @@
 package com.threeglav.bauk.dimension;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -218,29 +217,24 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			int numberOfRows = 0;
 			List<DimensionKeysPair> retrievedValues = this.getDbHandler().queryForDimensionKeys(dimension.getName(), preCacheStatement,
 					naturalKeyNames.length);
+			int cachedValuesCount = 0;
 			if (retrievedValues != null) {
 				numberOfRows = retrievedValues.size();
 				if (numberOfRows > NUMBER_OF_PRE_CACHED_ROWS_WARNING) {
 					log.warn("For dimension {} will pre-cache {} rows. This might take a while!", dimension.getName(), numberOfRows);
 				}
-				final Iterator<DimensionKeysPair> iter = retrievedValues.iterator();
-				while (iter.hasNext()) {
-					final DimensionKeysPair row = iter.next();
-					iter.remove();
-					final int surrogateKeyValue = row.surrogateKey;
-					final String naturalKeyValue = row.naturalKey;
-					dimensionCache.putInCache(naturalKeyValue, surrogateKeyValue);
-				}
+				cachedValuesCount = dimensionCache.putAllInCache(retrievedValues);
 				retrievedValues.clear();
 				retrievedValues = null;
-				dbAccessPreCachedValuesCounter.inc(numberOfRows);
+				dbAccessPreCachedValuesCounter.inc(cachedValuesCount);
 			}
-			log.debug("Pre-cached {} keys for {}", numberOfRows, dimension.getName());
+			log.debug("Pre-cached {} keys for {}", cachedValuesCount, dimension.getName());
 			final long total = System.currentTimeMillis() - start;
-			BaukUtil.logEngineMessage("For dimension " + dimension.getName() + " pre-cached " + numberOfRows + " values. Time taken " + total + "ms");
+			BaukUtil.logEngineMessage("For dimension " + dimension.getName() + " pre-cached " + cachedValuesCount + " values. Time taken " + total
+					+ "ms");
 			if (total > PRE_CACHE_EXECUTION_WARNING) {
 				log.warn("Precaching of values for dimension {} took in total {}ms. Number of pre-cached values is {}", dimension.getName(), total,
-						numberOfRows);
+						cachedValuesCount);
 			}
 		} else {
 			log.info("Could not find pre-cache sql statement for {}!", dimension.getName());

@@ -2,6 +2,11 @@ package com.threeglav.bauk.dimension;
 
 import gnu.trove.map.hash.TObjectIntHashMap;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,6 +93,30 @@ public final class DimensionCache {
 			}
 		}
 		return cachedValue;
+	}
+
+	public int putAllInCache(final List<DimensionKeysPair> values) {
+		final int batchSize = 10000;
+		final Iterator<DimensionKeysPair> iter = values.iterator();
+		final Map<String, Integer> valuesToCache = new HashMap<>();
+		int valuesCached = 0;
+		while (iter.hasNext()) {
+			if (valuesToCache.size() == batchSize) {
+				cacheInstance.putAll(valuesToCache);
+				valuesCached += valuesToCache.size();
+				valuesToCache.clear();
+			}
+			final DimensionKeysPair row = iter.next();
+			final int surrogateKeyValue = row.surrogateKey;
+			final String naturalKeyValue = row.naturalKey;
+			valuesToCache.put(naturalKeyValue, surrogateKeyValue);
+		}
+		if (!valuesToCache.isEmpty()) {
+			cacheInstance.putAll(valuesToCache);
+			valuesCached += valuesToCache.size();
+			valuesToCache.clear();
+		}
+		return valuesCached;
 	}
 
 	public void putInCache(final String cacheKey, final int cachedValue) {

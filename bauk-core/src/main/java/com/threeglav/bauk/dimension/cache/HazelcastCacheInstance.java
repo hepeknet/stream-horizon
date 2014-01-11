@@ -1,5 +1,7 @@
 package com.threeglav.bauk.dimension.cache;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,11 @@ public final class HazelcastCacheInstance implements CacheInstance {
 		if (isDebugEnabled) {
 			log.debug("Cached [{}] -> [{}]", naturalKey, surrogateKey);
 		}
+	}
+
+	@Override
+	public void putAll(final Map<String, Integer> values) {
+		cache.putAll(values);
 	}
 
 }

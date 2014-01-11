@@ -1,5 +1,7 @@
 package com.threeglav.bauk.dimension.cache;
 
+import java.util.Map;
+
 import org.infinispan.Cache;
 
 public class InfinispanCacheInstance implements CacheInstance {
@@ -18,6 +20,11 @@ public class InfinispanCacheInstance implements CacheInstance {
 	@Override
 	public void put(final String naturalKey, final Integer surrogateKey) {
 		cache.putIfAbsent(naturalKey, surrogateKey);
+	}
+
+	@Override
+	public void putAll(final Map<String, Integer> values) {
+		cache.putAll(values);
 	}
 
 }

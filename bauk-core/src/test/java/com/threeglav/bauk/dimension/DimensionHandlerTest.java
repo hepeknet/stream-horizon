@@ -236,6 +236,11 @@ public class DimensionHandlerTest {
 			public void put(final String naturalKey, final Integer surrogateKey) {
 
 			}
+
+			@Override
+			public void putAll(final Map<String, Integer> values) {
+
+			}
 		};
 	}
 
