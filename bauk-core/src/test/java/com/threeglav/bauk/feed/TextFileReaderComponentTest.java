@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,10 +34,12 @@ public class TextFileReaderComponentTest {
 				FooterProcessingType.STRICT, false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
-		final InputStream is = this.createContent(5, true, 0);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(5, true, 0);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(5, tfdp.lastLineNumber);
+		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
 		Assert.assertEquals(5, lineNum);
 	}
 
@@ -49,10 +50,12 @@ public class TextFileReaderComponentTest {
 				FooterProcessingType.SKIP, false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
-		final InputStream is = this.createContent(5, false, 0);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(5, false, 0);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(5, tfdp.lastLineNumber);
+		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
 		Assert.assertEquals(5, lineNum);
 	}
 
@@ -63,10 +66,12 @@ public class TextFileReaderComponentTest {
 				false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
-		final InputStream is = this.createContent(5, false, 0);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(5, false, 0);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(4, tfdp.lines.size());
 		Assert.assertEquals(4, tfdp.lastLineNumber);
+		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
 		Assert.assertEquals(4, lineNum);
 	}
 
@@ -77,10 +82,12 @@ public class TextFileReaderComponentTest {
 				false), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
-		final InputStream is = this.createContent(4, true, 1);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(4, true, 1);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(3, tfdp.lines.size());
 		Assert.assertEquals(3, tfdp.lastLineNumber);
+		Assert.assertEquals("3,3,3,3,3", tfdp.lastLineContent);
 		Assert.assertEquals(3, lineNum);
 	}
 
@@ -98,16 +105,18 @@ public class TextFileReaderComponentTest {
 				FooterProcessingType.SKIP, true), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
-		final InputStream is = this.createContent(1, false, 0);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(1, false, 0);
 		final Map<String, String> attrs = new HashMap<String, String>();
 		Assert.assertEquals(0, attrs.size());
 		tfrc.process(is, attrs);
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
+		Assert.assertNull(tfdp.lastLineContent);
 		Assert.assertEquals(5, attrs.size());
 	}
 
-	private InputStream createContent(final int numOfLines, final boolean addFooter, final int footerSubtract) {
+	private InputStream createOrderedContent(final int numOfLines, final boolean addFooter, final int footerSubtract) {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < numOfLines; i++) {
 			String line = "";
@@ -115,7 +124,7 @@ public class TextFileReaderComponentTest {
 				if (k != 0) {
 					line += ",";
 				}
-				line += UUID.randomUUID().toString();
+				line += i;
 			}
 			sb.append(line).append("\n");
 		}
@@ -165,6 +174,7 @@ public class TextFileReaderComponentTest {
 		private final List<String> lines = new LinkedList<>();
 		private int lastLineNumber;
 		private int lineCounter = 1;
+		private String lastLineContent;
 
 		@Override
 		public void startFeed(final Map<String, String> globalAttributes) {
@@ -186,6 +196,7 @@ public class TextFileReaderComponentTest {
 			lines.clear();
 			lastLineNumber = 0;
 			lineCounter = 1;
+			lastLineContent = null;
 		}
 
 		@Override
@@ -193,6 +204,7 @@ public class TextFileReaderComponentTest {
 			lines.add(line);
 			lastLineNumber = lineCounter;
 			lineCounter++;
+			lastLineContent = line;
 		}
 
 	}

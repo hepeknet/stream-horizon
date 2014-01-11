@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -37,8 +36,6 @@ import com.threeglav.bauk.util.StringUtil;
 public class TextFileReaderComponent extends ConfigAware {
 
 	private static final String AVERAGE_NUMBER_OUTPUT_FORMAT = "%.1f";
-
-	private static final int READ_AHEAD_LINES = 32;
 
 	private final int bufferSize;
 	private HeaderParser headerParser;
@@ -140,9 +137,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	private void processFirstLine(final ArrayDeque<String> lines, final Map<String, String> globalAttributes) {
+	private void processFirstLine(final LineBuffer lines, final Map<String, String> globalAttributes) {
 		if (headerShouldExist) {
-			final String line = lines.poll();
+			final String line = lines.getLine();
 			if (!skipHeader) {
 				final Map<String, String> headerAttributes = this.processHeader(line);
 				if (headerAttributes != null) {
@@ -159,24 +156,24 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	private boolean hasMoreDataLines(final ArrayDeque<String> lines) {
+	private boolean hasMoreDataLines(final LineBuffer lines) {
 		if (processAndValidateFooter) {
-			return lines.size() > 1;
+			return lines.getSize() > 1;
 		} else {
-			return lines.size() > 0;
+			return lines.getSize() > 0;
 		}
 	}
 
-	private boolean hasAnyOtherLines(final ArrayDeque<String> lines) {
-		return !lines.isEmpty();
+	private boolean hasAnyOtherLines(final LineBuffer lines) {
+		return lines.getSize() > 0;
 	}
 
 	enum FeedProcessingPhase {
 		STOP_AND_COUNT, STOP, ONLY_FOOTER_LEFT, PROCESSED_DATA_LINE;
 	}
 
-	private FeedProcessingPhase processLine(final ArrayDeque<String> lines, final Map<String, String> globalAttributes) {
-		final String line = lines.poll();
+	private FeedProcessingPhase processLine(final LineBuffer lines, final Map<String, String> globalAttributes) {
+		final String line = lines.getLine();
 		final boolean hasMoreDataLines = this.hasMoreDataLines(lines);
 		final boolean hasAnyOtherLines = this.hasAnyOtherLines(lines);
 		final boolean isLastLine = !hasMoreDataLines;
@@ -185,7 +182,7 @@ public class TextFileReaderComponent extends ConfigAware {
 				this.exposeControlFeedDataAsAttributes(line, globalAttributes);
 				return FeedProcessingPhase.STOP;
 			} else if (processAndValidateFooter) {
-				lines.offer(line);
+				lines.add(line);
 				return FeedProcessingPhase.ONLY_FOOTER_LEFT;
 			} else {
 				feedDataProcessor.processLastLine(line, globalAttributes);
@@ -201,28 +198,39 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
+	private void fillBuffer(final LineBuffer buffer, final BufferedReader br) throws IOException {
+		while (buffer.canAdd()) {
+			final String line = br.readLine();
+			if (line == null) {
+				break;
+			}
+			buffer.add(line);
+		}
+	}
+
 	public int readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		int feedLinesNumber = 0;
 		String footerLine = null;
 		final long start = System.currentTimeMillis();
 		try {
-			final ArrayDeque<String> lineQueue = new ArrayDeque<>(READ_AHEAD_LINES);
+			final LineBuffer lineBuffer = new LineBuffer();
 			feedDataProcessor.startFeed(globalAttributes);
-			this.fillArrayQueue(br, lineQueue);
-			this.processFirstLine(lineQueue, globalAttributes);
+			this.fillBuffer(lineBuffer, br);
+			this.processFirstLine(lineBuffer, globalAttributes);
 			while (true) {
-				this.fillArrayQueue(br, lineQueue);
-				final FeedProcessingPhase fpp = this.processLine(lineQueue, globalAttributes);
+				this.fillBuffer(lineBuffer, br);
+				final FeedProcessingPhase fpp = this.processLine(lineBuffer, globalAttributes);
 				if (fpp == FeedProcessingPhase.STOP) {
 					break;
 				} else if (fpp == FeedProcessingPhase.STOP_AND_COUNT) {
 					feedLinesNumber++;
 					break;
 				} else if (fpp == FeedProcessingPhase.ONLY_FOOTER_LEFT) {
-					footerLine = lineQueue.poll();
-					if (!lineQueue.isEmpty()) {
-						throw new IllegalStateException("Only footer should be here. Found " + lineQueue.size() + " elements left!");
+					footerLine = lineBuffer.getLine();
+					final int currentBufferSize = lineBuffer.getSize();
+					if (currentBufferSize > 0) {
+						throw new IllegalStateException("Only footer should be here. Found " + currentBufferSize + " elements left!");
 					}
 					break;
 				} else if (fpp == FeedProcessingPhase.PROCESSED_DATA_LINE) {
@@ -266,19 +274,6 @@ public class TextFileReaderComponent extends ConfigAware {
 			}
 			IOUtils.closeQuietly(br);
 			IOUtils.closeQuietly(fileInputStream);
-		}
-	}
-
-	private void fillArrayQueue(final BufferedReader br, final ArrayDeque<String> lineQueue) throws IOException {
-		for (int i = 0; i < READ_AHEAD_LINES; i++) {
-			if (lineQueue.size() < READ_AHEAD_LINES) {
-				final String line = br.readLine();
-				if (line != null) {
-					lineQueue.add(line);
-				}
-			} else {
-				break;
-			}
 		}
 	}
 
