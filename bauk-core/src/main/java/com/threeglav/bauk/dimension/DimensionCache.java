@@ -35,6 +35,8 @@ public final class DimensionCache {
 
 	private Counter localCacheClearCounter;
 
+	private final boolean isDebugEnabled;
+
 	static {
 		System.setProperty("gnu.trove.no_entry.int", "MIN_VALUE");
 	}
@@ -47,6 +49,7 @@ public final class DimensionCache {
 		}
 		maxElementsInLocalCache = localCacheMaxSize;
 		dimensionName = dimName;
+		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	public Integer getSurrogateKeyFromCache(final String cacheKey) {
@@ -98,7 +101,9 @@ public final class DimensionCache {
 
 	private void putInLocalCache(final String cacheKey, final int cachedValue) {
 		if (localCache.size() > maxElementsInLocalCache) {
-			log.debug("Local cache for dimension {} has more than {} elements. Have to clear it!", dimensionName, maxElementsInLocalCache);
+			if (isDebugEnabled) {
+				log.debug("Local cache for dimension {} has more than {} elements. Have to clear it!", dimensionName, maxElementsInLocalCache);
+			}
 			localCache.clear();
 			if (localCacheClearCounter != null) {
 				localCacheClearCounter.inc();

@@ -31,7 +31,7 @@ public class PositionalMappingHandlerTest {
 			final PositionalMappingHandler pmh = new PositionalMappingHandler(2, 3);
 			pmh.getBulkLoadValue(new String[] { "1" }, null);
 			fail("nok");
-		} catch (final IllegalArgumentException iae) {
+		} catch (final ArrayIndexOutOfBoundsException iae) {
 			Assert.assertTrue(true);
 		}
 	}

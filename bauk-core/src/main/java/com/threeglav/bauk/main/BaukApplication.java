@@ -177,7 +177,7 @@ public class BaukApplication {
 					+ " rows.");
 			BaukUtil.logEngineMessage("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
 		} else {
-			BaukUtil.logEngineMessage("No files were processed.");
+			BaukUtil.logEngineMessage("No files were processed or statistics are turned off.");
 		}
 	}
 
