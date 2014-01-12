@@ -45,7 +45,7 @@ class FeedFileProcessor implements Processor {
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
 	private final Meter inputFeedsProcessed;
-	private final Histogram inputFeedSizeMegabytes;
+	private final Histogram inputFeedSizeMegabytesHistogram;
 	private final Histogram inputFeedProcessingTime;
 	private final TextFileReaderComponent textFileReaderComponent;
 	private final FeedDataProcessor feedDataProcessor;
@@ -53,6 +53,7 @@ class FeedFileProcessor implements Processor {
 	private final BeforeFeedProcessingProcessor beforeFeedProcessingProcessor;
 	private FeedFileNameProcessor feedFileNameProcessor;
 	private String fileExtension;
+	private final boolean isDebugEnabled;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -73,10 +74,11 @@ class FeedFileProcessor implements Processor {
 		feedCompletionProcessor = this.createFeedCompletionProcessor();
 		beforeFeedProcessingProcessor = this.createBeforeFeedProcessingProcessor();
 		inputFeedsProcessed = MetricsUtil.createMeter("(" + cleanFileMask + ") - processed files count");
-		inputFeedSizeMegabytes = MetricsUtil.createHistogram("(" + cleanFileMask + ") - input feed file size (MB)");
+		inputFeedSizeMegabytesHistogram = MetricsUtil.createHistogram("(" + cleanFileMask + ") - input feed file size (MB)");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
 		log.info("Number of instances is {}", COUNTER.incrementAndGet());
+		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	private BeforeFeedProcessingProcessor createBeforeFeedProcessingProcessor() {
@@ -137,12 +139,14 @@ class FeedFileProcessor implements Processor {
 		final String fullFileName = (String) exchange.getIn().getHeader("CamelFileName");
 		final Long lastModified = (Long) exchange.getIn().getHeader("CamelFileLastModified");
 		final Long fileLength = (Long) exchange.getIn().getHeader("CamelFileLength");
-		if (inputFeedSizeMegabytes != null) {
+		if (inputFeedSizeMegabytesHistogram != null) {
 			final long fileLengthMb = fileLength / BaukConstants.ONE_MEGABYTE;
-			inputFeedSizeMegabytes.update(fileLengthMb);
+			inputFeedSizeMegabytesHistogram.update(fileLengthMb);
 		}
 		final String lowerCaseFilePath = fullFileName.toLowerCase();
-		log.debug("Trying to process {}", lowerCaseFilePath);
+		if (isDebugEnabled) {
+			log.debug("Trying to process {}", lowerCaseFilePath);
+		}
 		if (lowerCaseFilePath.endsWith(".zip")) {
 			final File file = exchange.getIn().getBody(File.class);
 			final ZipFile zipFile = new ZipFile(file);
@@ -181,7 +185,9 @@ class FeedFileProcessor implements Processor {
 			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "F");
 			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED, "0");
 		}
-		log.debug("Global attributes (including completion attributes) for {} are {}", factFeed.getName(), globalAttributes);
+		if (isDebugEnabled) {
+			log.debug("Global attributes (including completion attributes) for {} are {}", factFeed.getName(), globalAttributes);
+		}
 		feedCompletionProcessor.process(globalAttributes);
 	}
 
@@ -189,7 +195,9 @@ class FeedFileProcessor implements Processor {
 			final Long fileLength) {
 		if (inputStream != null) {
 			final long start = System.currentTimeMillis();
-			log.debug("Received filePath={}, lastModified={}, fileLength={}", fullFilePath, lastModified, fileLength);
+			if (isDebugEnabled) {
+				log.debug("Received filePath={}, lastModified={}, fileLength={}", fullFilePath, lastModified, fileLength);
+			}
 			try {
 				final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
 				if (beforeFeedProcessingProcessor != null) {
@@ -209,7 +217,9 @@ class FeedFileProcessor implements Processor {
 				if (inputFeedProcessingTime != null) {
 					inputFeedProcessingTime.update(total);
 				}
-				log.debug("Finished processing [{}] in {}ms", fullFilePath, total);
+				if (isDebugEnabled) {
+					log.debug("Finished processing [{}] in {}ms", fullFilePath, total);
+				}
 			}
 		} else {
 			log.warn("Stream is null - unable to process file");
@@ -217,7 +227,9 @@ class FeedFileProcessor implements Processor {
 	}
 
 	private String getOutputFilePath(final String inputFileName) {
-		log.debug("Will use {} file extension for bulk files", fileExtension);
+		if (isDebugEnabled) {
+			log.debug("Will use {} file extension for bulk files", fileExtension);
+		}
 		return config.getBulkOutputDirectory() + "/" + factFeed.getName() + "_" + StringUtil.getFileNameWithoutExtension(inputFileName) + "."
 				+ fileExtension;
 	}
@@ -246,7 +258,9 @@ class FeedFileProcessor implements Processor {
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getTime());
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, dateFormat.format(now));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
-		log.debug("Created global attributes {}", attributes);
+		if (isDebugEnabled) {
+			log.debug("Created global attributes {}", attributes);
+		}
 		return attributes;
 	}
 

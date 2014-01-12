@@ -20,6 +20,7 @@ public class MoveFileProcessor implements Processor {
 
 	private final Histogram moveFilesTimeTakenHistogram;
 	private final Path targetFolderPath;
+	private final boolean isDebugEnabled;
 
 	public MoveFileProcessor(final String targetFolderName) {
 		if (StringUtil.isEmpty(targetFolderName)) {
@@ -31,6 +32,7 @@ public class MoveFileProcessor implements Processor {
 		}
 		targetFolderPath = targetDir.toPath();
 		moveFilesTimeTakenHistogram = MetricsUtil.createHistogram("Time taken (millis) to move files to " + targetDir.getName() + "");
+		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	@Override
@@ -45,7 +47,7 @@ public class MoveFileProcessor implements Processor {
 			final long start = System.currentTimeMillis();
 			Files.move(originalPath, targetFolderPath.resolve(originalPath.getFileName()), StandardCopyOption.REPLACE_EXISTING);
 			final long total = System.currentTimeMillis() - start;
-			if (log.isDebugEnabled()) {
+			if (isDebugEnabled) {
 				log.debug("Moved {} to {}. In total took {}ms to move this file", originalFilePath, targetFolderPath, total);
 			}
 			if (moveFilesTimeTakenHistogram != null) {
