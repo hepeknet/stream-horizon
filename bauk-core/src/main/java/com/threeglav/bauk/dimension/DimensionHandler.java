@@ -232,7 +232,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				cachedValuesCount = dimensionCache.putAllInCache(retrievedValues);
 				retrievedValues.clear();
 				retrievedValues = null;
-				dbAccessPreCachedValuesCounter.inc(cachedValuesCount);
+				if (dbAccessPreCachedValuesCounter != null) {
+					dbAccessPreCachedValuesCounter.inc(cachedValuesCount);
+				}
 			}
 			log.debug("Pre-cached {} keys for {}", cachedValuesCount, dimension.getName());
 			final long total = System.currentTimeMillis() - start;
@@ -331,7 +333,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (result == null) {
 			throw new IllegalStateException("Was not able to retrieve surrogate key by using insert statement " + preparedStatement);
 		}
-		log.debug("Retrieved surrogate key {} for {}", result, preparedStatement);
+		if (isDebugEnabled) {
+			log.debug("Retrieved surrogate key {} for {}", result, preparedStatement);
+		}
 		return result.intValue();
 	}
 
@@ -343,9 +347,13 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 					placeHolderFormat);
 		}
 		String stat = this.replaceAllMappedColumnValues(statement, parsedLine);
-		log.debug("Replacing all global attributes {}", globalAttributes);
+		if (isDebugEnabled) {
+			log.debug("Replacing all global attributes {}", globalAttributes);
+		}
 		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
-		log.debug("Final statement is {}", stat);
+		if (isDebugEnabled) {
+			log.debug("Final statement is {}", stat);
+		}
 		return stat;
 	}
 
@@ -366,7 +374,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			final String value = parsedLine[mappedColumnValuePositionInFeed];
 			final String mappedColumnNamePlaceholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + mappedColumnNames[i]
 					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
-			log.debug("Replacing {} with {}", mappedColumnNamePlaceholder, value);
+			if (isDebugEnabled) {
+				log.debug("Replacing {} with {}", mappedColumnNamePlaceholder, value);
+			}
 			replaced = StringUtil.replaceSingleAttribute(replaced, mappedColumnNamePlaceholder, value, dbStringLiteral, dbStringEscapeLiteral);
 		}
 		return replaced;
