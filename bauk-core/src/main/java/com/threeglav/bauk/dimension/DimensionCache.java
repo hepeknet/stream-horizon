@@ -14,6 +14,7 @@ import com.codahale.metrics.Counter;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
+import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.util.MetricsUtil;
 
 public final class DimensionCache {
@@ -23,17 +24,20 @@ public final class DimensionCache {
 	private static final boolean LOCAL_CACHE_DISABLED = ConfigurationProperties.getSystemProperty(
 			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_DISABLED, false);
 
+	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
+			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
+
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private TObjectIntHashMap<String> localCache;
 
 	private final int maxElementsInLocalCache;
 
-	private final String dimensionName;
-
 	private final CacheInstance cacheInstance;
 
 	private Counter localCacheClearCounter;
+
+	private final Dimension dimension;
 
 	private final boolean isDebugEnabled;
 
@@ -41,14 +45,22 @@ public final class DimensionCache {
 		System.setProperty("gnu.trove.no_entry.int", "MIN_VALUE");
 	}
 
-	public DimensionCache(final CacheInstance cacheInstance, final String routeIdentifier, final String dimName, final int localCacheMaxSize) {
+	public DimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
+		if (dimension == null) {
+			throw new IllegalArgumentException("Dimension must not be null");
+		}
+		this.dimension = dimension;
+		int maxElementsInLocalCacheForDimension = MAX_ELEMENTS_LOCAL_MAP;
+		if (dimension.getLocalCacheMaxSize() != null) {
+			maxElementsInLocalCacheForDimension = dimension.getLocalCacheMaxSize().intValue();
+		}
+		log.info("For dimension {} local cache will hold at most {} elements", dimension.getName(), maxElementsInLocalCacheForDimension);
 		this.cacheInstance = cacheInstance;
 		if (!LOCAL_CACHE_DISABLED) {
-			localCacheClearCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimName + "] - fast cache resets", false);
-			localCache = new TObjectIntHashMap<>(localCacheMaxSize);
+			localCacheClearCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - fast cache resets", false);
+			localCache = new TObjectIntHashMap<>(maxElementsInLocalCacheForDimension);
 		}
-		maxElementsInLocalCache = localCacheMaxSize;
-		dimensionName = dimName;
+		maxElementsInLocalCache = maxElementsInLocalCacheForDimension;
 		isDebugEnabled = log.isDebugEnabled();
 	}
 
@@ -102,7 +114,7 @@ public final class DimensionCache {
 	private void putInLocalCache(final String cacheKey, final int cachedValue) {
 		if (localCache.size() > maxElementsInLocalCache) {
 			if (isDebugEnabled) {
-				log.debug("Local cache for dimension {} has more than {} elements. Have to clear it!", dimensionName, maxElementsInLocalCache);
+				log.debug("Local cache for dimension {} has more than {} elements. Have to clear it!", dimension.getName(), maxElementsInLocalCache);
 			}
 			localCache.clear();
 			if (localCacheClearCounter != null) {

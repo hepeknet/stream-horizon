@@ -95,4 +95,19 @@ public class Dimension {
 		this.exposeLastLineValueInContext = exposeLastLineValueInContext;
 	}
 
+	/*
+	 * Helper method - not persisted anywhere
+	 */
+	public int getNumberOfNaturalKeys() {
+		int num = 0;
+		if (this.getMappedColumns() != null && !this.getMappedColumns().isEmpty()) {
+			for (final MappedColumn mp : this.getMappedColumns()) {
+				if (mp.isNaturalKey()) {
+					num++;
+				}
+			}
+		}
+		return num;
+	}
+
 }

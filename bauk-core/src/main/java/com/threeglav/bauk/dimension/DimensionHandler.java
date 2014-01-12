@@ -37,9 +37,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 
-	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
-
 	private final String dimensionLastLineSKAttributeName;
 	protected final Dimension dimension;
 	private String[] mappedColumnNames;
@@ -67,12 +64,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (cacheInstance == null) {
 			throw new IllegalArgumentException("Cache handler must not be null");
 		}
-		int maxElementsInLocalCacheForDimension = MAX_ELEMENTS_LOCAL_MAP;
-		if (dimension.getLocalCacheMaxSize() != null) {
-			maxElementsInLocalCacheForDimension = dimension.getLocalCacheMaxSize().intValue();
-		}
-		dimensionCache = new DimensionCache(cacheInstance, routeIdentifier, dimension.getName(), maxElementsInLocalCacheForDimension);
-		log.info("For dimension {} local cache will hold at most {} elements", dimension.getName(), maxElementsInLocalCacheForDimension);
+		dimensionCache = new DimensionCache(cacheInstance, dimension);
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
@@ -89,7 +81,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				+ "] - total database inserts executed", false);
 		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
 				+ "] - total pre-cached values retrieved", false);
-		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
+		final int numberOfNaturalKeys = this.dimension.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
 			noNaturalKeyColumnsDefined = true;
 			log.warn("Did not find any defined natural keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
@@ -120,7 +112,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (dimension.getLocalCacheMaxSize() != null && dimension.getLocalCacheMaxSize() < 0) {
 			throw new IllegalArgumentException("Local cache size for dimension must not be negative integer!");
 		}
-		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
+		final int numberOfNaturalKeys = dimension.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys > this.getFactFeed().getData().getAttributes().size()) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " has more defined natural keys than there are attributes in feed " + this.getFactFeed().getName());
@@ -132,24 +124,12 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 	}
 
-	private int getNumberOfNaturalKeys() {
-		int num = 0;
-		if (dimension.getMappedColumns() != null && !dimension.getMappedColumns().isEmpty()) {
-			for (final MappedColumn mp : dimension.getMappedColumns()) {
-				if (mp.isNaturalKey()) {
-					num++;
-				}
-			}
-		}
-		return num;
-	}
-
 	private boolean calculatePositionOfNaturalKeyValues() {
 		boolean foundNaturalKeyNotPresentInFeed = false;
 		if (noNaturalKeyColumnsDefined) {
 			return foundNaturalKeyNotPresentInFeed;
 		}
-		final int numberOfNaturalKeys = this.getNumberOfNaturalKeys();
+		final int numberOfNaturalKeys = dimension.getNumberOfNaturalKeys();
 		naturalKeyNames = new String[numberOfNaturalKeys];
 		naturalKeyPositionsInFeed = new int[numberOfNaturalKeys];
 		log.debug("Calculating natural keys position values. Will use offset {}", mappedColumnsPositionOffset);
