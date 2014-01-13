@@ -79,4 +79,14 @@ public class LineBufferTest {
 		lb.add("abc2");
 	}
 
+	@Test
+	public void testAddign() {
+		final LineBuffer lb = new LineBuffer();
+		Assert.assertEquals(0, lb.getSize());
+		while (lb.canAdd()) {
+			lb.add("ab");
+		}
+		Assert.assertEquals(2, lb.getSize());
+	}
+
 }

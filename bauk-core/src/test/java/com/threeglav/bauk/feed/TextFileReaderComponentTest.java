@@ -38,9 +38,27 @@ public class TextFileReaderComponentTest {
 		final InputStream is = this.createOrderedContent(5, true, 0);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
+		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals(5, tfdp.lastLineNumber);
 		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
 		Assert.assertEquals(5, lineNum);
+	}
+
+	@Test
+	public void testNoHeaderStrictFooterEven() {
+		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
+				FooterProcessingType.STRICT, false), this.createConfig(), tfdp, "route1");
+		Assert.assertEquals(0, tfdp.lines.size());
+		Assert.assertEquals(0, tfdp.lastLineNumber);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(6, true, 0);
+		final int lineNum = tfrc.process(is, null);
+		Assert.assertEquals(6, tfdp.lines.size());
+		Assert.assertEquals(1, tfdp.lastLineInvocations);
+		Assert.assertEquals(6, tfdp.lastLineNumber);
+		Assert.assertEquals("5,5,5,5,5", tfdp.lastLineContent);
+		Assert.assertEquals(6, lineNum);
 	}
 
 	@Test
@@ -55,6 +73,7 @@ public class TextFileReaderComponentTest {
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(5, tfdp.lastLineNumber);
+		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
 		Assert.assertEquals(5, lineNum);
 	}
@@ -71,6 +90,7 @@ public class TextFileReaderComponentTest {
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(4, tfdp.lines.size());
 		Assert.assertEquals(4, tfdp.lastLineNumber);
+		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
 		Assert.assertEquals(4, lineNum);
 	}
@@ -87,6 +107,7 @@ public class TextFileReaderComponentTest {
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(3, tfdp.lines.size());
 		Assert.assertEquals(3, tfdp.lastLineNumber);
+		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals("3,3,3,3,3", tfdp.lastLineContent);
 		Assert.assertEquals(3, lineNum);
 	}
@@ -112,6 +133,7 @@ public class TextFileReaderComponentTest {
 		tfrc.process(is, attrs);
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
+		Assert.assertEquals(0, tfdp.lastLineInvocations);
 		Assert.assertNull(tfdp.lastLineContent);
 		Assert.assertEquals(5, attrs.size());
 	}
@@ -175,6 +197,7 @@ public class TextFileReaderComponentTest {
 		private int lastLineNumber;
 		private int lineCounter = 1;
 		private String lastLineContent;
+		private int lastLineInvocations = 0;
 
 		@Override
 		public void startFeed(final Map<String, String> globalAttributes) {
@@ -197,6 +220,7 @@ public class TextFileReaderComponentTest {
 			lastLineNumber = 0;
 			lineCounter = 1;
 			lastLineContent = null;
+			lastLineInvocations = 0;
 		}
 
 		@Override
@@ -205,6 +229,7 @@ public class TextFileReaderComponentTest {
 			lastLineNumber = lineCounter;
 			lineCounter++;
 			lastLineContent = line;
+			lastLineInvocations++;
 		}
 
 	}

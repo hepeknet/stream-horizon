@@ -71,7 +71,7 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 	}
 
 	private void createRoute(final String fileMask, final FeedFileProcessor feedFileProcessor, final int routeId, final int totalNumber) {
-		final int delay = 1000 + routeId * 100;
+		final int initialRouteDelayMillis = 500 + routeId * 100;
 		final HashedNameFileFilter hnff = new HashedNameFileFilter<>(fileMask, routeId, totalNumber);
 		final Random rand = new Random();
 		final String filterName = "bauk_filter_" + routeId + "_" + rand.nextInt(100000);
@@ -84,7 +84,9 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		if (isIdempotentFeedProcessing) {
 			inputEndpoint += "&idempotent=true";
 		}
-		inputEndpoint += "&readLock=changed&initialDelay=" + delay + "&filter=#" + filterName;
+		inputEndpoint += "&readLock=changed&initialDelay=" + initialRouteDelayMillis + "&filter=#" + filterName;
+		final int maxMessagesPerPoll = 2 * totalNumber;
+		inputEndpoint += "&maxMessagesPerPoll=" + maxMessagesPerPoll + "&delay=300";
 		log.debug("Input endpoint is {}", inputEndpoint);
 		final TryDefinition td = this.from(inputEndpoint).shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
 				.routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor);

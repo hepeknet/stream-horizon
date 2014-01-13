@@ -3,7 +3,10 @@ package com.threeglav.bauk.feed.bulk.writer;
 import java.io.File;
 import java.util.Map;
 
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
+import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.bauk.model.FactFeed;
@@ -16,6 +19,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	protected final boolean isSingleCharacterDelimiter;
 	protected final char singleCharacterDelimiter;
 	protected final boolean isDebugEnabled;
+	protected final int bufferSize;
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -37,6 +41,9 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 			isSingleCharacterDelimiter = false;
 			singleCharacterDelimiter = Character.MIN_VALUE;
 		}
+		bufferSize = (int) (ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
+				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE);
+		log.info("Write buffer size is {} bytes", bufferSize);
 	}
 
 	private void validate() {

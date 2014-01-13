@@ -55,7 +55,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final boolean exposeLastLineValueInContext;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
-			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
+			final int naturalKeyPositionOffset, final BaukConfiguration config) {
 		super(factFeed, config);
 		if (dimension == null) {
 			throw new IllegalArgumentException("Dimension must not be null");
@@ -75,12 +75,10 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		mappedColumnsPositionOffset = naturalKeyPositionOffset;
 		this.calculatePositionOfMappedColumnValues();
 		hasNaturalKeysNotPresentInFeed = this.calculatePositionOfNaturalKeyValues();
-		dbAccessSelectCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - total database selects executed", false);
-		dbAccessInsertCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - total database inserts executed", false);
-		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("(" + routeIdentifier + ") Dimension [" + dimension.getName()
-				+ "] - total pre-cached values retrieved", false);
+		dbAccessSelectCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database selects executed", false);
+		dbAccessInsertCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database inserts executed", false);
+		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total pre-cached values retrieved",
+				false);
 		final int numberOfNaturalKeys = this.dimension.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
 			noNaturalKeyColumnsDefined = true;
@@ -93,6 +91,10 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
 				dimensionLastLineSKAttributeName);
 		this.preCacheAllKeys();
+	}
+
+	Dimension getDimension() {
+		return dimension;
 	}
 
 	private void validate() {
@@ -231,13 +233,21 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	@Override
 	public Object getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		Integer surrogateKey = null;
 		String naturalCacheKey = null;
 		if (!noNaturalKeyColumnsDefined) {
 			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes);
-			if (naturalCacheKey != null) {
-				surrogateKey = dimensionCache.getSurrogateKeyFromCache(naturalCacheKey);
-			}
+		}
+		return this.getBulkLoadValueByPrecalculatedLookupKey(parsedLine, globalAttributes, naturalCacheKey);
+	}
+
+	/*
+	 * Used for delegates - no need to calculate lookup key again in case when previous line cache failed.
+	 */
+	public Object getBulkLoadValueByPrecalculatedLookupKey(final String[] parsedLine, final Map<String, String> globalAttributes,
+			final String naturalCacheKey) {
+		Integer surrogateKey = null;
+		if (naturalCacheKey != null) {
+			surrogateKey = dimensionCache.getSurrogateKeyFromCache(naturalCacheKey);
 		}
 		if (surrogateKey == null) {
 			if (isTraceEnabled) {
@@ -249,7 +259,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			}
 		}
 		if (isTraceEnabled) {
-			log.trace("Found surrogate key {} for {} in cache", surrogateKey, naturalCacheKey);
+			log.trace("Found surrogate key {} for natural key {} for dimension {}", surrogateKey, naturalCacheKey, dimension.getName());
 		}
 		return surrogateKey;
 	}
@@ -362,7 +372,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return replaced;
 	}
 
-	private String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			final int key = naturalKeyPositionsInFeed[i];

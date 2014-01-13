@@ -54,7 +54,7 @@ public abstract class ConfigurationProperties {
 		return defaultValue;
 	}
 
-	public static int getSystemProperty(final String systemPropertyName, final int defaultValue) {
+	public static float getSystemProperty(final String systemPropertyName, final float defaultValue) {
 		if (StringUtil.isEmpty(systemPropertyName)) {
 			throw new IllegalArgumentException("System property name must not be null or empty");
 		}
@@ -64,6 +64,29 @@ public abstract class ConfigurationProperties {
 		}
 		if (!StringUtil.isEmpty(baukPropValue)) {
 			LOG.debug("Found {}={}. Will try to convert it to integer", systemPropertyName, baukPropValue);
+			try {
+				final float val = Float.parseFloat(baukPropValue);
+				LOG.debug("Will use set value {}={}", systemPropertyName, val);
+				return val;
+			} catch (final NumberFormatException nfe) {
+				LOG.error("Exception while converting {} to float value", baukPropValue);
+			}
+		} else {
+			LOG.info("Did not find set value for system property {}. Will use default value {}", systemPropertyName, defaultValue);
+		}
+		return defaultValue;
+	}
+
+	public static int getSystemProperty(final String systemPropertyName, final int defaultValue) {
+		if (StringUtil.isEmpty(systemPropertyName)) {
+			throw new IllegalArgumentException("System property name must not be null or empty");
+		}
+		String baukPropValue = getBaukProperty(systemPropertyName);
+		if (baukPropValue == null) {
+			baukPropValue = System.getProperty(systemPropertyName);
+		}
+		if (!StringUtil.isEmpty(baukPropValue)) {
+			LOG.debug("Found {}={}. Will try to convert it to integer value", systemPropertyName, baukPropValue);
 			try {
 				final int val = Integer.parseInt(baukPropValue);
 				LOG.debug("Will use set value {}={}", systemPropertyName, val);

@@ -10,37 +10,43 @@ public class HeaderParserTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testNull() {
 		final HeaderParser hp = new DefaultHeaderParser();
-		hp.parseHeader("", null, null, null);
+		hp.init(null, null);
+		hp.parseHeader("", null);
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testNoExpectedCharacter() {
 		final HeaderParser hp = new DefaultHeaderParser();
-		hp.parseHeader("", new String[] { "a", "b" }, "0", ",");
+		hp.init("0", ",");
+		hp.parseHeader("", new String[] { "a", "b" });
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testNoHeader() {
 		final HeaderParser hp = new DefaultHeaderParser();
-		hp.parseHeader("", new String[] { "a", "b" }, "0", ",");
+		hp.init("0", ",");
+		hp.parseHeader("", new String[] { "a", "b" });
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testHeaderNoMatch() {
 		final HeaderParser hp = new DefaultHeaderParser();
-		hp.parseHeader("1,2,3,4", null, "0", ",");
+		hp.init("0", ",");
+		hp.parseHeader("1,2,3,4", null);
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testNumbersDoNotMatch() {
 		final HeaderParser hp = new DefaultHeaderParser();
-		hp.parseHeader("1,2,3,4", new String[] {}, "1", ",");
+		hp.init("1", ",");
+		hp.parseHeader("1,2,3,4", new String[] {});
 	}
 
 	@Test
 	public void testSimpleSuccess() {
 		final HeaderParser hp = new DefaultHeaderParser();
-		final Map<String, String> headerValues = hp.parseHeader("1,2,3,4", new String[] { "n_0", "n_1", "n_2" }, "1", ",");
+		hp.init("1", ",");
+		final Map<String, String> headerValues = hp.parseHeader("1,2,3,4", new String[] { "n_0", "n_1", "n_2" });
 		Assert.assertNotNull(headerValues);
 		Assert.assertEquals(3, headerValues.size());
 		Assert.assertEquals("2", headerValues.get("n_0"));

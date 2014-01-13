@@ -9,9 +9,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
 
-import com.threeglav.bauk.BaukConstants;
-import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.StringUtil;
@@ -22,13 +19,9 @@ public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private ZipOutputStream zipOutStream;
 	private String currentBulkOutputFilePath;
-	private final int bufferSize;
 
 	public ZipFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_BUFFER_SIZE_SYS_PARAM_NAME,
-				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
-		log.debug("Write buffer size is {}", bufferSize);
 	}
 
 	private void createFileWriter(final String outputFilePath) {

@@ -61,9 +61,8 @@ public final class LineBuffer {
 			return 2;
 		} else if (line1 != null || line2 != null) {
 			return 1;
-		} else {
-			return 0;
 		}
+		return 0;
 	}
 
 }

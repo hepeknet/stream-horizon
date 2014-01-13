@@ -12,10 +12,10 @@
 		<property name="cache.provider">ispn</property>
 		<!-- default local cache size for dimensions. Can be overridden for every dimension (see below) -->
 		<property name="dimension.local.cache.default.size">5000</property>
-		<!-- read buffer size to disk (megabytes) -->
-		<property name="read.buffer.size.mb">10</property>
-		<!-- write buffer size to disk (megabytes) -->
-		<property name="write.buffer.size.mb">10</property>
+		<!-- read buffer size to disk (megabytes) - accepts decimal numbers -->
+		<property name="read.buffer.size.mb">10.0</property>
+		<!-- write buffer size to disk (megabytes) - accepts decimal numbers -->
+		<property name="write.buffer.size.mb">10.0</property>
 		<!-- whether local cache for dimensions should be disabled (true/false) -->
 		<property name="dimension.local.cache.disable">false</property>
 		<!-- is exposing statistics feature off or on (true/false). No need to disable expect in extreme cases when every CPU cycle is important -->

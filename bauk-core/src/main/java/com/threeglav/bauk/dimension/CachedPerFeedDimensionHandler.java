@@ -12,8 +12,8 @@ public class CachedPerFeedDimensionHandler extends DimensionHandler {
 	private Integer keyValueCachedPerFeed;
 
 	public CachedPerFeedDimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
-			final int naturalKeyPositionOffset, final String routeIdentifier, final BaukConfiguration config) {
-		super(dimension, factFeed, cacheInstance, naturalKeyPositionOffset, routeIdentifier, config);
+			final int naturalKeyPositionOffset, final BaukConfiguration config) {
+		super(dimension, factFeed, cacheInstance, naturalKeyPositionOffset, config);
 		log.info(
 				"For dimension {} caching-per-feed is enabled. This means that dimension calculation will be executed only once and before processing any data from feed (only global attributes will be accessible)!",
 				dimension.getName());

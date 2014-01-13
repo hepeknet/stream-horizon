@@ -49,8 +49,8 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final boolean isControlFeed;
 	private final boolean headerShouldExist;
 	private final boolean skipHeader;
-	public static final AtomicLong TOTAL_INPUT_FILES_PROCESSED = new AtomicLong(-1);
-	public static final AtomicLong TOTAL_ROWS_PROCESSED = new AtomicLong(-1);
+	public static final AtomicLong TOTAL_INPUT_FILES_PROCESSED = new AtomicLong(0);
+	public static final AtomicLong TOTAL_ROWS_PROCESSED = new AtomicLong(0);
 	private final boolean metricsOff;
 	private final boolean outputProcessingStatistics;
 
@@ -72,9 +72,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		} else {
 			declaredHeaderAttributes = null;
 		}
-		bufferSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
-				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE;
-		log.info("Read buffer size is {} MB", bufferSize);
+		bufferSize = (int) (ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_BUFFER_SIZE_SYS_PARAM_NAME,
+				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE);
+		log.info("Read buffer size is {} bytes", bufferSize);
 		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
 		headerShouldExist = headerProcessingType != HeaderProcessingType.NO_HEADER;
 		if (isControlFeed && headerShouldExist) {
@@ -121,6 +121,10 @@ public class TextFileReaderComponent extends ConfigAware {
 		final CustomProcessorResolver<HeaderParser> headerParserInstanceResolver = new CustomProcessorResolver<>(headerParserClassName,
 				HeaderParser.class);
 		headerParser = headerParserInstanceResolver.resolveInstance();
+		final Header header = this.getFactFeed().getHeader();
+		final String startsWithString = header.getEachLineStartsWithCharacter();
+		final String delimiterString = this.getFactFeed().getDelimiterString();
+		headerParser.init(startsWithString, delimiterString);
 	}
 
 	private void validate() {
@@ -165,19 +169,19 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	private boolean hasAnyOtherLines(final LineBuffer lines) {
-		return lines.getSize() > 0;
+		return lines.getSize() > 1;
 	}
 
 	enum FeedProcessingPhase {
 		STOP_AND_COUNT, STOP, ONLY_FOOTER_LEFT, PROCESSED_DATA_LINE;
 	}
 
-	private FeedProcessingPhase processLine(final LineBuffer lines, final Map<String, String> globalAttributes) {
-		final String line = lines.getLine();
-		final boolean hasMoreDataLines = this.hasMoreDataLines(lines);
-		final boolean hasAnyOtherLines = this.hasAnyOtherLines(lines);
-		final boolean isLastLine = !hasMoreDataLines;
-		if (!hasAnyOtherLines) {
+	private FeedProcessingPhase doProcessSingleLine(final LineBuffer lines, final Map<String, String> globalAttributes, final BufferedReader br)
+			throws IOException {
+		final boolean noMoreLinesAvailable = !this.hasAnyOtherLines(lines);
+		if (noMoreLinesAvailable) {
+			final String line = lines.getLine();
+			this.fillBuffer(lines, br);
 			if (isControlFeed) {
 				this.exposeControlFeedDataAsAttributes(line, globalAttributes);
 				return FeedProcessingPhase.STOP;
@@ -189,6 +193,10 @@ public class TextFileReaderComponent extends ConfigAware {
 				return FeedProcessingPhase.STOP_AND_COUNT;
 			}
 		} else {
+			lines.getSize();
+			final String line = lines.getLine();
+			this.fillBuffer(lines, br);
+			final boolean isLastLine = !this.hasMoreDataLines(lines);
 			if (isLastLine) {
 				feedDataProcessor.processLastLine(line, globalAttributes);
 			} else {
@@ -208,11 +216,11 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	public int readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
+	private int readFile(final InputStream fileInputStream, final Map<String, String> globalAttributes) {
+		final long start = System.currentTimeMillis();
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		int feedLinesNumber = 0;
 		String footerLine = null;
-		final long start = System.currentTimeMillis();
 		try {
 			final LineBuffer lineBuffer = new LineBuffer();
 			feedDataProcessor.startFeed(globalAttributes);
@@ -220,7 +228,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			this.processFirstLine(lineBuffer, globalAttributes);
 			while (true) {
 				this.fillBuffer(lineBuffer, br);
-				final FeedProcessingPhase fpp = this.processLine(lineBuffer, globalAttributes);
+				final FeedProcessingPhase fpp = this.doProcessSingleLine(lineBuffer, globalAttributes, br);
 				if (fpp == FeedProcessingPhase.STOP) {
 					break;
 				} else if (fpp == FeedProcessingPhase.STOP_AND_COUNT) {
@@ -252,10 +260,11 @@ public class TextFileReaderComponent extends ConfigAware {
 			throw new IllegalStateException("IOException while processing feed", ie);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
-			outputFeedProcessingStatistics(feedLinesNumber, start);
+			long filesProcessedSoFar = 0;
 			if (!metricsOff) {
-				TOTAL_INPUT_FILES_PROCESSED.incrementAndGet();
+				filesProcessedSoFar = TOTAL_INPUT_FILES_PROCESSED.incrementAndGet();
 			}
+			this.outputFeedProcessingStatistics(feedLinesNumber, start, filesProcessedSoFar);
 			if (processAndValidateFooter) {
 				this.processFooter(feedLinesNumber, footerLine);
 			}
@@ -264,7 +273,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	private void outputFeedProcessingStatistics(int feedLinesNumber, final long start) {
+	private void outputFeedProcessingStatistics(final int feedLinesNumber, final long start, final long filesProcessedSoFar) {
 		if (outputProcessingStatistics) {
 			final float total = System.currentTimeMillis() - start;
 			final float totalSec = total / 1000;
@@ -276,8 +285,13 @@ public class TextFileReaderComponent extends ConfigAware {
 				final float val = feedLinesNumber / total;
 				averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/millisecond";
 			}
-			BaukUtil.logEngineMessage("Processed " + feedLinesNumber + " rows in " + total + "ms (" + totalSec + " seconds). Average "
-					+ averagePerSec);
+			final String currentThreadName = Thread.currentThread().getName();
+			String messageToOutput = "(" + currentThreadName + ") Processed " + feedLinesNumber + " rows in " + total + "ms ("
+					+ String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, totalSec) + " sec). Average " + averagePerSec;
+			if (filesProcessedSoFar > 0) {
+				messageToOutput += ". So far processed " + filesProcessedSoFar + " input feed files";
+			}
+			BaukUtil.logEngineMessage(messageToOutput);
 		}
 	}
 
@@ -332,11 +346,9 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	private Map<String, String> processHeader(final String line) {
-		final Header header = this.getFactFeed().getHeader();
-		final String feedName = this.getFactFeed().getName();
-		final Map<String, String> parsedHeaderValues = headerParser.parseHeader(line, declaredHeaderAttributes,
-				header.getEachLineStartsWithCharacter(), this.getFactFeed().getDelimiterString());
+		final Map<String, String> parsedHeaderValues = headerParser.parseHeader(line, declaredHeaderAttributes);
 		if (isDebugEnabled) {
+			final String feedName = this.getFactFeed().getName();
 			log.debug("Parsed header values for {} are {}", feedName, parsedHeaderValues);
 		}
 		return parsedHeaderValues;

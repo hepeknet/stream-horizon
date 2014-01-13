@@ -27,7 +27,7 @@ public interface SystemConfigurationConstants {
 	public static final int SQL_EXECUTION_WARNING_THRESHOLD_MILLIS = 1000 * 10;
 	public static final String SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME = "sql.execution.warning.threshold.millis";
 
-	public static final int DEFAULT_READ_WRITE_BUFFER_SIZE_MB = 1;
+	public static final float DEFAULT_READ_WRITE_BUFFER_SIZE_MB = 1.0f;
 
 	public static final String READ_BUFFER_SIZE_SYS_PARAM_NAME = "read.buffer.size.mb";
 

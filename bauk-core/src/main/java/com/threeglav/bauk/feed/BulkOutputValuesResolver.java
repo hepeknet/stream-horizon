@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.ConfigAware;
+import com.threeglav.bauk.dimension.CachePreviousUsedRowPerThreadDimensionHandler;
 import com.threeglav.bauk.dimension.CachedPerFeedDimensionHandler;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
@@ -129,19 +130,21 @@ public class BulkOutputValuesResolver extends ConfigAware {
 
 	private void createBulkOutputHandler(final String routeIdentifier, final ArrayList<Attribute> bulkOutputAttributes,
 			final String[] bulkOutputAttributeNames, final int feedDataLineOffset, final Map<String, Integer> feedAttributeNamesAndPositions,
-			final int i) {
-		final String bulkOutputAttributeName = bulkOutputAttributeNames[i];
+			final int bulkHandlerPosition) {
+		final String bulkOutputAttributeName = bulkOutputAttributeNames[bulkHandlerPosition];
 		if (StringUtil.isEmpty(bulkOutputAttributeName)) {
-			final Attribute attr = bulkOutputAttributes.get(i);
+			final Attribute attr = bulkOutputAttributes.get(bulkHandlerPosition);
 			final String value = attr.getConstantValue();
-			outputValueHandlers[i] = new ConstantOutputValueHandler(value);
-			log.debug("Value at position {} in bulk output load will be constant value {}", i, value);
+			outputValueHandlers[bulkHandlerPosition] = new ConstantOutputValueHandler(value);
+			log.debug("Value at position {} in bulk output load will be constant value {}", bulkHandlerPosition, value);
 		} else if (bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
 			final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
 			log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
 			final DimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
 			if (cachedDimensionHandler != null) {
-				outputValueHandlers[i] = cachedDimensionHandler;
+				final CachePreviousUsedRowPerThreadDimensionHandler proxyDimHandler = new CachePreviousUsedRowPerThreadDimensionHandler(
+						cachedDimensionHandler);
+				outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
 			} else {
 				final Dimension dim = this.getConfig().getDimensionMap().get(requiredDimensionName);
 				if (dim == null) {
@@ -152,15 +155,16 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				DimensionHandler dimHandler = null;
 				if (cachePerFeedDimension) {
 					dimHandler = new CachedPerFeedDimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
-							feedDataLineOffset, routeIdentifier, this.getConfig());
+							feedDataLineOffset, this.getConfig());
 				} else {
 					dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
-							feedDataLineOffset, routeIdentifier, this.getConfig());
+							feedDataLineOffset, this.getConfig());
 				}
 				cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
-				outputValueHandlers[i] = dimHandler;
+				final CachePreviousUsedRowPerThreadDimensionHandler proxyDimHandler = new CachePreviousUsedRowPerThreadDimensionHandler(dimHandler);
+				outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
 			}
-			log.debug("Value at position {} in bulk output load will be mapped using dimension {}", i, requiredDimensionName);
+			log.debug("Value at position {} in bulk output load will be mapped using dimension {}", bulkHandlerPosition, requiredDimensionName);
 		} else if (bulkOutputAttributeName.startsWith(FEED_PREFIX)) {
 			final String requiredFeedAttributeName = bulkOutputAttributeName.replace(FEED_PREFIX, "");
 			log.debug("Searching for feed attribute {}", requiredFeedAttributeName);
@@ -169,14 +173,15 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				throw new IllegalArgumentException("Was not able to find feed attribute " + requiredFeedAttributeName
 						+ " in feed definition and this attribute was defined in bulk output file definition. Check config file!");
 			}
-			outputValueHandlers[i] = new PositionalMappingHandler(foundPosition + feedDataLineOffset, feedAttributeNamesAndPositions.size());
+			outputValueHandlers[bulkHandlerPosition] = new PositionalMappingHandler(foundPosition + feedDataLineOffset,
+					feedAttributeNamesAndPositions.size());
 			log.debug(
 					"Value at position {} in bulk output load will be copied directly from value in feed at position {}. Every data line in feed must have {} values",
-					i, foundPosition, feedAttributeNamesAndPositions.size());
+					bulkHandlerPosition, foundPosition, feedAttributeNamesAndPositions.size());
 		} else {
 			final GlobalAttributeMappingHandler cmh = new GlobalAttributeMappingHandler(bulkOutputAttributeName);
-			outputValueHandlers[i] = cmh;
-			log.debug("Value at position {} in bulk output load will be mapped value derived from {}", i, bulkOutputAttributeName);
+			outputValueHandlers[bulkHandlerPosition] = cmh;
+			log.debug("Value at position {} in bulk output load will be mapped value derived from {}", bulkHandlerPosition, bulkOutputAttributeName);
 		}
 	}
 
