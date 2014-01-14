@@ -14,12 +14,10 @@ public class BulkLoadDefinition {
 
 	public static final String DEFAULT_BULK_OUTPUT_VALUE_DELIMITER = ",";
 
-	public static final String DEFAULT_BULK_OUTPUT_EXTENSION = "data";
+	@XmlElement(required = false)
+	private String bulkLoadOutputExtension;
 
-	@XmlElement(required = false, defaultValue = ",")
-	private String bulkLoadOutputExtension = DEFAULT_BULK_OUTPUT_EXTENSION;
-
-	@XmlElement(required = false, defaultValue = "data")
+	@XmlElement(required = false, defaultValue = DEFAULT_BULK_OUTPUT_VALUE_DELIMITER)
 	private String bulkLoadFileDelimiter = DEFAULT_BULK_OUTPUT_VALUE_DELIMITER;
 
 	@XmlElement(required = false)

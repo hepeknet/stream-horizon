@@ -21,9 +21,27 @@
 	</appender>
 
 	<appender name="ENGINE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../log/engine.log</file>
+		<file>../log/feedEngine.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>../log/engine.%i.log.zip</fileNamePattern>
+			<fileNamePattern>../log/feedEngine.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>20</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="BULK_LOAD_ENGINE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../log/bulkLoadEngine.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>../log/bulkLoadEngine.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>20</maxIndex>
 		</rollingPolicy>
@@ -44,8 +62,11 @@
 	
 	<logger name="com.hazelcast" level="WARN" />
 	<logger name="org.springframework" level="WARN" />
-	<logger name="engineLogger" level="INFO">
+	<logger name="feedEngineLogger" level="INFO">
 		<appender-ref ref="ENGINE" />
+	</logger>
+	<logger name="bulkLoadEngineLogger" level="INFO">
+		<appender-ref ref="BULK_LOAD_ENGINE" />
 	</logger>
 
 	<root level="WARN">

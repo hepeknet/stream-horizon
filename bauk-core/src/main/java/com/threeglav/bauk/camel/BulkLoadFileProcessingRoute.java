@@ -15,6 +15,7 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
 	private int bulkProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
+	private final MoveFileProcessor moveToErrorFileProcessor;
 
 	public BulkLoadFileProcessingRoute(final FactFeed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
@@ -27,6 +28,7 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 			log.info("For feed {} bulk processing set to use non-positive number of threads. Will not be started!", factFeed.getName());
 		}
 		this.validate();
+		moveToErrorFileProcessor = new MoveFileProcessor(config.getErrorDirectory());
 	}
 
 	private void validate() {
@@ -38,20 +40,22 @@ public class BulkLoadFileProcessingRoute extends RouteBuilder {
 
 	@Override
 	public void configure() throws Exception {
-		this.createRoute();
+		for (int i = 0; i < bulkProcessingThreads; i++) {
+			this.createRoute(i);
+		}
+		log.debug("Created in total {} bulk processing routes", bulkProcessingThreads);
 	}
 
-	private void createRoute() {
+	private void createRoute(final int routeId) {
+		final int initialRouteDelayMillis = 500 + routeId * 100;
 		final String fullFileMask = ".*" + factFeed.getBulkLoadDefinition().getBulkLoadOutputExtension();
 		log.debug("Will process bulk files in {} with file mask {}", config.getBulkOutputDirectory(), fullFileMask);
-		String inputEndpoint = "file://" + config.getBulkOutputDirectory() + "?include=" + fullFileMask;
+		String inputEndpoint = "file://" + config.getBulkOutputDirectory() + "?include=" + fullFileMask + "&initialDelay=" + initialRouteDelayMillis;
 		inputEndpoint += "&idempotent=true&readLock=changed&delete=true";
 		log.debug("Input endpoint is {}", inputEndpoint);
-		this.from(inputEndpoint).routeId("BulkLoadFileProcessing").shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
-				.threads(bulkProcessingThreads).doTry().process(new BulkFileProcessor(factFeed, config)).doCatch(Exception.class)
-				.to("file://" + config.getErrorDirectory() + "/?forceWrites=false").transform().simple("${exception.stacktrace}")
-				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_bulkLoad.fail"))
-				.to("file://" + config.getBulkOutputDirectory() + "/").end();
+		this.from(inputEndpoint).routeId("BulkLoadFileProcessing_" + routeId).shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
+				.doTry().process(new BulkFileProcessor(factFeed, config)).doCatch(Exception.class)
+				.setHeader("originalFilePath", this.simple("${file:absolute.path}")).process(moveToErrorFileProcessor).end();
 	}
 
 	public boolean shouldStartRoute() {

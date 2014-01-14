@@ -30,6 +30,8 @@
 		<property name="dimension.precache.jdbc.fetch.size">10000</property>
 		<!-- should processing statistics be written as files are processed -->
 		<property name="output.processing.statistics">false</property>
+		<!-- when outputting null value what should actually be written to output file, by default this is empty string -->
+		<property name="bulk.output.file.null.value.string"></property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
@@ -163,22 +165,28 @@
 					<attribute name="curveType" />
 				</attributes>
 			</data>
+			<!-- delimiter for footer values is the same as delimiter for factFeed (data) values -->
 			<footer process="strict">
+				<!-- character with which every footer line should start -->
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
+				<!-- at what position will footer count attribute be found -->
+				<recordCountAttributePosition>2</recordCountAttributePosition>
 			</footer>
-			<!-- outputType can be one of following file/none/zip -->
+			<!-- outputType can be one of following file/none/zip/gz -->
 			<!-- set to none if you want to test performance of processing (but not writing bulk output file) -->
 			<!-- if zip then .zip output file will be zip compressed and will have .zip extension added -->
+			<!-- if gz then .gz output file will be gzip compressed and will have .gz extension added -->
 			<bulkLoadDefinition outputType="file">
 				<!-- this section is executed by DB loading threads -->
 				<!-- extension of bulk output file. Bulk loader will consider only files with this extension for loading into database -->
 				<!-- for example, if you expect .zip files to be loaded change this extension to zip -->
 				<!-- no need to add dot character -->
+				<!-- can be null or empty, in which case extension will not be used as part of matching files in bulk load folder -->
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<!-- what delimiter will be used when creating bulk output file. Whenever possible use single character delimiter -->
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<!-- sql statement for loading bulk output file. Can be any sql statement or stored procedure invocation -->
-				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}'
+				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}', ${processingThreadID}
 					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
 					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
@@ -384,7 +392,7 @@
 				<preCacheKeys>select deal_dim_wid, sourceName, deal_type, deal_id, deal_version, DEAL_WHATIF_UID, component_code from rwh_deal_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<!-- this dimension will be executed once per feed (before starting to process feed file) and its key will be available as ${notificationSk} in context -->
+		<!-- this dimension will be executed once per feed (before starting to process feed file) and its key will be available as ${notificationSk} in context for feed processing (not available in context for bulk processing)-->
 		<!-- this is normal dimension, caching still applies - the only difference from other dimension is that SK is looked up once per feed and not once per feed row -->
 		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
 			<mappedColumns>
@@ -395,8 +403,8 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE) 
-					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${feedInputFileName}',1,7))
+					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE, SOME_NUMBER) 
+					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${feedInputFileName}',1,7), ${processingThreadID})
 				</insertSingle>
 				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffn[1]}'</selectSurrogateKey>
 				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>

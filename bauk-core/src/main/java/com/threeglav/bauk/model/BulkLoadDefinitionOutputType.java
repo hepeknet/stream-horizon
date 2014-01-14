@@ -14,6 +14,9 @@ public enum BulkLoadDefinitionOutputType {
 	@XmlEnumValue("zip")
 	ZIP,
 
+	@XmlEnumValue("gz")
+	GZ,
+
 	@XmlEnumValue("none")
 	NONE;
 

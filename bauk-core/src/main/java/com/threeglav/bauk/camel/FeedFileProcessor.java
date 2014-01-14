@@ -31,6 +31,7 @@ import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.feed.processing.SingleThreadedFeedDataProcessor;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
+import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StreamUtil;
@@ -54,6 +55,7 @@ class FeedFileProcessor implements Processor {
 	private FeedFileNameProcessor feedFileNameProcessor;
 	private String fileExtension;
 	private final boolean isDebugEnabled;
+	private final String processorId;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -77,7 +79,8 @@ class FeedFileProcessor implements Processor {
 		inputFeedSizeMegabytesHistogram = MetricsUtil.createHistogram("(" + cleanFileMask + ") - input feed file size (MB)");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
-		log.info("Number of instances is {}", COUNTER.incrementAndGet());
+		processorId = String.valueOf(COUNTER.incrementAndGet());
+		log.info("Number of instances is {}", processorId);
 		isDebugEnabled = log.isDebugEnabled();
 	}
 
@@ -110,16 +113,20 @@ class FeedFileProcessor implements Processor {
 		if (StringUtil.isEmpty(config.getBulkOutputDirectory())) {
 			throw new IllegalStateException("Bulk output directory must not be null or empty!");
 		}
-		fileExtension = BulkLoadDefinition.DEFAULT_BULK_OUTPUT_EXTENSION;
+		fileExtension = null;
 		final BulkLoadDefinition bulkDefinition = factFeed.getBulkLoadDefinition();
 		if (bulkDefinition != null) {
-			final String bulkLoadOutputExtension = bulkDefinition.getBulkLoadOutputExtension();
-			if (bulkDefinition != null && !StringUtil.isEmpty(bulkLoadOutputExtension)) {
-				fileExtension = bulkLoadOutputExtension;
+			fileExtension = bulkDefinition.getBulkLoadOutputExtension();
+			if (fileExtension != null && !fileExtension.matches("[A-Za-z0-9]+")) {
+				throw new IllegalStateException("Bulk file extension must contain only alpha-numerical characters. Currently it is set to ["
+						+ fileExtension + "]");
 			}
-			if (!fileExtension.matches("[A-Za-z0-9]+")) {
-				throw new IllegalStateException("Bulk file extension must contain only alpha-numerical characters. Currently " + fileExtension);
-			}
+		}
+		final boolean isEmptyExtension = StringUtil.isEmpty(fileExtension);
+		if (isEmptyExtension && bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.NONE) {
+			throw new IllegalStateException(
+					"Extension for recognizing bulk output file is required to be specified in configuration file because output will be generated Feed "
+							+ factFeed.getName() + "!");
 		}
 	}
 
@@ -258,6 +265,7 @@ class FeedFileProcessor implements Processor {
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getTime());
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, dateFormat.format(now));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_PROCESSOR_ID, processorId);
 		if (isDebugEnabled) {
 			log.debug("Created global attributes {}", attributes);
 		}

@@ -86,7 +86,7 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		}
 		inputEndpoint += "&readLock=changed&initialDelay=" + initialRouteDelayMillis + "&filter=#" + filterName;
 		final int maxMessagesPerPoll = 2 * totalNumber;
-		inputEndpoint += "&maxMessagesPerPoll=" + maxMessagesPerPoll + "&delay=300";
+		inputEndpoint += "&maxMessagesPerPoll=" + maxMessagesPerPoll + "&delay=500";
 		log.debug("Input endpoint is {}", inputEndpoint);
 		final TryDefinition td = this.from(inputEndpoint).shutdownRunningTask(ShutdownRunningTask.CompleteCurrentTaskOnly)
 				.routeId("InputFeedProcessing (" + fileMask + ")_" + routeId).doTry().process(feedFileProcessor);
@@ -99,8 +99,6 @@ public class InputFeedFileProcessingRoute extends RouteBuilder {
 		} else {
 			log.info("Archive directory not specified! Input feeds will not be archived!");
 		}
-		td.doCatch(Exception.class).to("file://" + config.getErrorDirectory() + "/?forceWrites=false").transform().simple("${exception.stacktrace}")
-				.setHeader("CamelFileName", this.simple("${file:name.noext}-${date:now:yyyy_MM_dd_HH_mm_ss_SSS}_inputFeed.fail"))
-				.setHeader("originalFilePath", this.simple("${file:absolute.path}")).process(moveToErrorFileProcessor).end();
+		td.doCatch(Exception.class).setHeader("originalFilePath", this.simple("${file:absolute.path}")).process(moveToErrorFileProcessor).end();
 	}
 }

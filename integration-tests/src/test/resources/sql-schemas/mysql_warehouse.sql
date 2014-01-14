@@ -1,26 +1,3 @@
-CREATE TABLE RWH_RISK_FACT
-(
-  RWH_DEAL_DIM_WID        INTEGER,
-  RWH_PRDCT_DIM_WID       INTEGER,
-  RWH_FACTOR_DIM_WID      INTEGER,
-  RWH_UNDERLYING_DIM_WID  INTEGER,
-  RWH_CURVETYPE_DIM_WID   INTEGER,
-  RWH_DATE_DIM_WID        INTEGER,
-  RWH_CURRENCY_DIM_WID    INTEGER,
-  RWH_ORG_DIM_WID         INTEGER,
-  RWH_PARTY_DIM_WID       INTEGER,
-  RWH_PORTFOLIO_DIM_WID   INTEGER,
-  RWH_ETL_BATCH_WID       INTEGER,
-  RWH_DEALRISK_WID        INTEGER,
-  RWH_ERROR_DIM_WID       INTEGER,-- always set to -1
-  RISK_VALUE              INTEGER,
-  BASE_VALUE              INTEGER,
-  LOCAL_VALUE             INTEGER,
-  CURRENT_FLAG            BOOL,-- always hardcode to 'Y'
-  ISADJUSTMENT            BOOL,-- always hardcode to 'N'
-  RWH_NOTIFICATION_WID    INTEGER
-);
-
 CREATE TABLE RWH_UNDERLYING_DIM
 (
   UNDERLYING_DIM_WID    INTEGER NOT NULL AUTO_INCREMENT,
@@ -185,7 +162,7 @@ CREATE UNIQUE INDEX RWH_DEAL_DIM_uindex ON RWH_DEAL_DIM (SOURCENAME, DEAL_TYPE, 
 CREATE TABLE RWH_DATE_DIM
 (
   DATE_DIM_WID       INTEGER NOT NULL AUTO_INCREMENT,
-  BUSINESS_DATE      TIMESTAMP(6),
+  BUSINESS_DATE      TIMESTAMP,
   DAYOFWEEK          VARCHAR(9 ),
   SHORTDAYOFWEEK     CHAR(3 ),
   YR                 INTEGER(4),
@@ -225,77 +202,3 @@ CREATE TABLE RWH_CURRENCY_DIM
 );
 
 CREATE UNIQUE INDEX RWH_CURRENCY_DIM_uindex ON RWH_CURRENCY_DIM (BASE_CURRENCY, RISK_CURRENCY, LOCAL_CURRENCY);
-
-CREATE TABLE RWHSTG_ETL_BATCH
-(
-  BATCH_ID                      INTEGER NOT NULL AUTO_INCREMENT,--not used
-  FILE_ID                       INTEGER,--file id
-  SOURCE_SYSTEM                 VARCHAR(255 ),--not used
-  FILE_NAME                     VARCHAR(255 ),
-  FILE_TYPE				  VARCHAR(255 ), --substring of file name  substr(fineName,1,7)  example value:  CSRISKFEED  ILI CSNOTIF
-  FILE_CREATED_TIMESTAMP DATE,--kada je file kreiran u direcotry
-  BUSINESS_DATE DATE, --    businessDate  (data files only)
-  INTEGER_OF_ROWS INTEGER,--INTEGEROfRows (data files only)
-  USERNAME_REQUESTED   VARCHAR(255 ),--fileUserName (data files only)
-  LOCATION   VARCHAR(255 ), --location (data files only)
-  QL_VERSION VARCHAR(255 ),--qlVersion   (data files only)
-  START_TIMESTAMP               DATE,--etl start timestamp  (record creation time of this record in batch table by dispatcher)
-  CASPAR_GUID                   VARCHAR(255 ),--guid
-  RERUN_GUID                    VARCHAR(255 ),--guid
-  FILE_VALIDATION_FLAG          BOOL,--S F  same as STAGING_DATA_LOAD_FLAG
-  STAGING_DATA_LOAD_FLAG        BOOL,--same as above
-  DIMENSION_SWEEP_STATUS        INTEGER,--not used
-  FACT_LOAD_FLAG                BOOL, --same as STAGING_DATA_LOAD_FLAG     set to P (or R) if purged and rerun
-  END_TIMESTAMP                 DATE,--when we have finished writing to fact table
-  ERROR_DESCRIPTION             VARCHAR(4000 ),--
-  ALERT_RAISED_TIMESTAMP        DATE,--not used or populated
-  BUNDLE_ID                     INTEGER,--not used
-  UNIQUE_INTRADAY_REQUEST_NAME  VARCHAR(255 ),
-  PARIS_REQUEST_ID              VARCHAR(255 ),--not used
-  RERUN_VERSION                 VARCHAR(255 ),--not used
-  ANAL_REQUEST_GUID             VARCHAR(255 ),--not used
-  EOD_FLAG                      VARCHAR(255 ),--EOD SOD coming from data file
-  REQUEST_TIMESTAMP             VARCHAR(255 ),--not used
-  RUN_TAG                       VARCHAR(255 ),--london official
-  PENDING_SWEEP_STATUS          INTEGER,--not used
-  PORTFOLIO                     VARCHAR(1000 ),--portfolio from data file
-  VARIANCE_BATCH_ID             INTEGER,--not used
-  VARIANCE_FACT_LOAD_FLAG       VARBOOL--not used
-);
-
-CREATE UNIQUE INDEX request_notification_uindex ON REQUESTNOTIFICATION (UNIQUENAME, ANALYTICSREQUESTGUID);
-
-CREATE TABLE WAREHOUSE.REQUESTNOTIFICATION--this is control table and dimension at the same time
-(
-  NOTIFICATIONID                  INTEGER NOT NULL AUTO_INCREMENT, --key
-  SOURCE                          VARCHAR(30 ) NOT NULL,--
-  UNIQUENAME                      VARCHAR(100 ),--guid
-  ANALYTICSREQUESTGUID            VARCHAR(100 ),--guid
-  INTEGEROFTASKS                   INTEGER,--not used   
-  INTEGEROFFILES                   INTEGER,--data files  must match sum(LOADINCRFILES)  --cube upload condition
-  INTEGEROFPERSISTEDTASKS          INTEGER,-- not used ------from notif file   
-  INTEGEROFPERSISTEDTRADES         INTEGER,--trades in the file
-  INTEGEROFPERSISTEDVALIDVALUES    INTEGER,--records in a file msut match sum(LOADINCRROWS) --cube upload condition
-  INTEGEROFPERSISTEDINVALIDVALUES  INTEGER,--not used from notif
-  INTEGEROFNOTPERSISTEDTASKS       INTEGER,--not used from notif
-  INTEGEROFNOTPERSISTEDTRADES      INTEGER,--not used from notif
-  RUNTAG                          VARCHAR(100 ),--from data file    
-  BUSINESSDATE                    DATE,
-  BATCHTYPE                       VARCHAR(1000 ),
-  REQUESTNAME                     VARCHAR(200 ),--uniq intraday req name
-  USERNAMEREQUESTED               VARCHAR(100 ),
-  PORTFOLIO                       VARCHAR(255 ),
-  RERUNGUID                       VARCHAR(100 ),
-  RERUNVERSION                    VARCHAR(20 ),
-  PERSISTSTATUS                   BOOL,--fact table persist flage Y complete A abandoned P purged R replaced by rerun E complete with dta eror F failed   n incomplete e uncomplete with data erors f uncoplete failed files
-  --this is run complete flag replpacement, allows cube upload (cuberequest table)
-  PERSISTSTARTTIMESTAMP           TIMESTAMP(6),--creation time of the notification record (this record)
-  PERSISTENDTIMESTAMP             TIMESTAMP(6),-- last time of update of PERSISTSTATUS to Y E F only
-  REPORTFLAG                      BOOL,--not used
-  AGGFLAG                         BOOL,--not used
-  VARFLAG                         BOOL,--not used
-  LOADINCRFILES                   INTEGER,--how many files loaded so far     not used for adjustments and variance
-  LOADINCRROWS                    INTEGER,--same as above for rows....    not used for adjustments and variance
-  PORTFOLIODIMWID                 INTEGER,-- portfoio dim wid
-  NOTUSED1                        INTEGER
-);

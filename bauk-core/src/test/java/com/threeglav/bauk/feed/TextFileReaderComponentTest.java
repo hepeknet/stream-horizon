@@ -31,11 +31,28 @@ public class TextFileReaderComponentTest {
 	public void testNoHeaderStrictFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
 		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
-				FooterProcessingType.STRICT, false), this.createConfig(), tfdp, "route1");
+				FooterProcessingType.STRICT, false, 1), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
-		final InputStream is = this.createOrderedContent(5, true, 0);
+		final InputStream is = this.createOrderedContent(5, true, 0, 0);
+		final int lineNum = tfrc.process(is, null);
+		Assert.assertEquals(5, tfdp.lines.size());
+		Assert.assertEquals(1, tfdp.lastLineInvocations);
+		Assert.assertEquals(5, tfdp.lastLineNumber);
+		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
+		Assert.assertEquals(5, lineNum);
+	}
+
+	@Test
+	public void testNoHeaderStrictFooterAdditionalFooterAttributes() {
+		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
+				FooterProcessingType.STRICT, false, 2), this.createConfig(), tfdp, "route1");
+		Assert.assertEquals(0, tfdp.lines.size());
+		Assert.assertEquals(0, tfdp.lastLineNumber);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(5, true, 0, 1);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
@@ -48,11 +65,28 @@ public class TextFileReaderComponentTest {
 	public void testNoHeaderStrictFooterEven() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
 		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
-				FooterProcessingType.STRICT, false), this.createConfig(), tfdp, "route1");
+				FooterProcessingType.STRICT, false, 1), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
-		final InputStream is = this.createOrderedContent(6, true, 0);
+		final InputStream is = this.createOrderedContent(6, true, 0, 0);
+		final int lineNum = tfrc.process(is, null);
+		Assert.assertEquals(6, tfdp.lines.size());
+		Assert.assertEquals(1, tfdp.lastLineInvocations);
+		Assert.assertEquals(6, tfdp.lastLineNumber);
+		Assert.assertEquals("5,5,5,5,5", tfdp.lastLineContent);
+		Assert.assertEquals(6, lineNum);
+	}
+
+	@Test
+	public void testNoHeaderStrictFooterEvenAdditionalAttributes() {
+		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
+		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
+				FooterProcessingType.STRICT, false, 4), this.createConfig(), tfdp, "route1");
+		Assert.assertEquals(0, tfdp.lines.size());
+		Assert.assertEquals(0, tfdp.lastLineNumber);
+		Assert.assertNull(tfdp.lastLineContent);
+		final InputStream is = this.createOrderedContent(6, true, 0, 3);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(6, tfdp.lines.size());
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
@@ -65,11 +99,11 @@ public class TextFileReaderComponentTest {
 	public void testNoHeaderNoFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
 		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
-				FooterProcessingType.SKIP, false), this.createConfig(), tfdp, "route1");
+				FooterProcessingType.SKIP, false, 2), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
-		final InputStream is = this.createOrderedContent(5, false, 0);
+		final InputStream is = this.createOrderedContent(5, false, 0, 0);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(5, tfdp.lastLineNumber);
@@ -82,11 +116,11 @@ public class TextFileReaderComponentTest {
 	public void testSkipHeaderNoFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
 		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.SKIP, FooterProcessingType.SKIP,
-				false), this.createConfig(), tfdp, "route1");
+				false, 2), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
-		final InputStream is = this.createOrderedContent(5, false, 0);
+		final InputStream is = this.createOrderedContent(5, false, 0, 0);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(4, tfdp.lines.size());
 		Assert.assertEquals(4, tfdp.lastLineNumber);
@@ -99,11 +133,11 @@ public class TextFileReaderComponentTest {
 	public void testSkipHeaderStrictFooter() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
 		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.SKIP, FooterProcessingType.STRICT,
-				false), this.createConfig(), tfdp, "route1");
+				false, 1), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
-		final InputStream is = this.createOrderedContent(4, true, 1);
+		final InputStream is = this.createOrderedContent(4, true, 1, 0);
 		final int lineNum = tfrc.process(is, null);
 		Assert.assertEquals(3, tfdp.lines.size());
 		Assert.assertEquals(3, tfdp.lastLineNumber);
@@ -115,7 +149,7 @@ public class TextFileReaderComponentTest {
 	@Test(expected = IllegalStateException.class)
 	public void testInvalidControlFeed() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
-		new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.SKIP, FooterProcessingType.STRICT, true), this.createConfig(), tfdp,
+		new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.SKIP, FooterProcessingType.STRICT, true, 2), this.createConfig(), tfdp,
 				"route1");
 	}
 
@@ -123,11 +157,11 @@ public class TextFileReaderComponentTest {
 	public void testControlFeed() {
 		final TestFeedDataProcessor tfdp = new TestFeedDataProcessor();
 		final TextFileReaderComponent tfrc = new TextFileReaderComponent(this.createFactFeed(HeaderProcessingType.NO_HEADER,
-				FooterProcessingType.SKIP, true), this.createConfig(), tfdp, "route1");
+				FooterProcessingType.SKIP, true, 2), this.createConfig(), tfdp, "route1");
 		Assert.assertEquals(0, tfdp.lines.size());
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
-		final InputStream is = this.createOrderedContent(1, false, 0);
+		final InputStream is = this.createOrderedContent(1, false, 0, 0);
 		final Map<String, String> attrs = new HashMap<String, String>();
 		Assert.assertEquals(0, attrs.size());
 		tfrc.process(is, attrs);
@@ -138,7 +172,8 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(5, attrs.size());
 	}
 
-	private InputStream createOrderedContent(final int numOfLines, final boolean addFooter, final int footerSubtract) {
+	private InputStream createOrderedContent(final int numOfLines, final boolean addFooter, final int footerSubtract,
+			final int additionalFooterAttributes) {
 		final StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < numOfLines; i++) {
 			String line = "";
@@ -151,7 +186,11 @@ public class TextFileReaderComponentTest {
 			sb.append(line).append("\n");
 		}
 		if (addFooter) {
-			sb.append("9,").append(numOfLines - footerSubtract);
+			sb.append("9,");
+			for (int i = 0; i < additionalFooterAttributes; i++) {
+				sb.append("att,");
+			}
+			sb.append(numOfLines - footerSubtract);
 		}
 		return new ByteArrayInputStream(sb.toString().getBytes());
 	}
@@ -161,7 +200,8 @@ public class TextFileReaderComponentTest {
 		return bc;
 	}
 
-	private FactFeed createFactFeed(final HeaderProcessingType hType, final FooterProcessingType fType, final boolean isControl) {
+	private FactFeed createFactFeed(final HeaderProcessingType hType, final FooterProcessingType fType, final boolean isControl,
+			final int footerAttributePosition) {
 		final FactFeed ff = Mockito.mock(FactFeed.class);
 		when(ff.getDelimiterString()).thenReturn(",");
 		final Header h = Mockito.mock(Header.class);
@@ -170,10 +210,11 @@ public class TextFileReaderComponentTest {
 		when(ff.getHeader()).thenReturn(h);
 		when(ff.getName()).thenReturn("testFeed1");
 
-		final Footer header = Mockito.mock(Footer.class);
-		when(header.getProcess()).thenReturn(fType);
-		when(ff.getFooter()).thenReturn(header);
-		when(header.getEachLineStartsWithCharacter()).thenReturn("9");
+		final Footer footer = Mockito.mock(Footer.class);
+		when(footer.getProcess()).thenReturn(fType);
+		when(footer.getRecordCountAttributePosition()).thenReturn(footerAttributePosition);
+		when(ff.getFooter()).thenReturn(footer);
+		when(footer.getEachLineStartsWithCharacter()).thenReturn("9");
 		if (isControl) {
 			when(ff.getType()).thenReturn(FactFeedType.CONTROL);
 		} else {

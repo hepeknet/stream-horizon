@@ -153,6 +153,7 @@
   <xs:complexType name="footer">
     <xs:all>
       <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
+      <xs:element name="recordCountAttributePosition" type="xs:int" default="1" minOccurs="0"/>
       <xs:element name="attributes" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
@@ -166,8 +167,8 @@
 
   <xs:complexType name="bulkLoadDefinition">
     <xs:all>
-      <xs:element name="bulkLoadOutputExtension" type="xs:string" default="," minOccurs="0"/>
-      <xs:element name="bulkLoadFileDelimiter" type="xs:string" default="data" minOccurs="0"/>
+      <xs:element name="bulkLoadOutputExtension" type="xs:string" minOccurs="0"/>
+      <xs:element name="bulkLoadFileDelimiter" type="xs:string" default="," minOccurs="0"/>
       <xs:element ref="bulkLoadFormatDefinition" minOccurs="0"/>
       <xs:element name="bulkLoadInsertStatement" type="xs:string" minOccurs="0"/>
       <xs:element ref="afterBulkLoadSuccess" minOccurs="0"/>
@@ -291,6 +292,7 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="file"/>
       <xs:enumeration value="zip"/>
+      <xs:enumeration value="gz"/>
       <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>

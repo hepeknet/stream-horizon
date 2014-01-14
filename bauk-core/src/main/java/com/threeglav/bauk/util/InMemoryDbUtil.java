@@ -37,7 +37,7 @@ public abstract class InMemoryDbUtil {
 			LOG.debug("Successfully executed {}", sql);
 			conn.commit();
 		} catch (final SQLException e) {
-			LOG.error("Exception while executing {}. Details {}", sql, e.getMessage());
+			LOG.info("Exception while executing {}. Details {}", sql, e.getMessage());
 			throw new RuntimeException(e);
 		}
 	}

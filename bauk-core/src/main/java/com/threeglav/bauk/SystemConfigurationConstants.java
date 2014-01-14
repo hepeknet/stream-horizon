@@ -50,4 +50,14 @@ public interface SystemConfigurationConstants {
 
 	public static final String ENABLE_PER_THREAD_CACHING_PARAM_NAME = "per.thread.caching.enabled";
 
+	/**
+	 * When we encounter null to be written to output file what should be actually written
+	 */
+	public static final String BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME = "bulk.output.file.null.value.string";
+
+	/**
+	 * Default value for parameter above
+	 */
+	public static final String BULK_OUTPUT_FILE_NULL_VALUE_DEFAULT = "";
+
 }

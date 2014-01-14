@@ -3,6 +3,8 @@ package com.threeglav.bauk.camel;
 import gnu.trove.map.hash.THashMap;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -12,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
+import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.camel.bulk.BulkFileSubmissionRecorder;
 import com.threeglav.bauk.model.AfterBulkLoadSuccess;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -24,11 +28,17 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+	private static final AtomicInteger COUNTER = new AtomicInteger(0);
+
 	private final Meter successfullyLoadedBulkFilesMeter;
 	private final String dbStringLiteral;
 	private final String dbStringEscapeLiteral;
 	private final BulkFileSubmissionRecorder fileSubmissionRecorder;
 	private final String statementDescription;
+	private final String processorId;
+	private final boolean isDebugEnabled;
+	private final boolean outputProcessingStatistics;
+	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -37,6 +47,11 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		fileSubmissionRecorder = new BulkFileSubmissionRecorder();
 		successfullyLoadedBulkFilesMeter = MetricsUtil.createMeter("Successfully loaded bulk files");
 		statementDescription = "BulkFileProcessor for " + this.getFactFeed().getName();
+		processorId = String.valueOf(COUNTER.incrementAndGet());
+		isDebugEnabled = log.isDebugEnabled();
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
+				false);
+		log.debug("Current processing id is {}", processorId);
 	}
 
 	@Override
@@ -71,11 +86,33 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 	}
 
 	private void executeBulkLoadingCommandSequence(final Map<String, String> globalAttributes, final String insertStatement) {
-		log.debug("Insert statement for bulk loading files is {}", insertStatement);
+		final long start = System.currentTimeMillis();
+		if (isDebugEnabled) {
+			log.debug("Insert statement for bulk loading files is {}", insertStatement);
+		}
 		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
-		log.debug("Statement to execute is {}", replacedStatement);
-		this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement, statementDescription);
-		log.debug("Successfully executed statement {}", replacedStatement);
+		if (isDebugEnabled) {
+			log.debug("Statement to execute is {}", replacedStatement);
+		}
+		try {
+			this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement, statementDescription);
+		} catch (final Exception exc) {
+			log.error(
+					"Exception while trying to load bulk file using JDBC. Fully prepared load statement is {}. Available context attributes are {}",
+					replacedStatement, globalAttributes);
+			throw exc;
+		}
+		if (isDebugEnabled) {
+			log.debug("Successfully executed statement {}", replacedStatement);
+		}
+		final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
+		if (outputProcessingStatistics) {
+			final long total = System.currentTimeMillis() - start;
+			final float totalSec = total / 1000;
+			final String message = "Bulk loading of file took in total " + total + "ms (" + totalSec + " sec). In total bulk loaded "
+					+ totalBulkLoadedFiles + " files so far";
+			BaukUtil.logBulkLoadEngineMessage(message);
+		}
 		this.executeOnSuccessBulkLoad(globalAttributes);
 		if (successfullyLoadedBulkFilesMeter != null) {
 			successfullyLoadedBulkFilesMeter.mark();
@@ -86,12 +123,18 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		final AfterBulkLoadSuccess onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
 		if (onBulkLoadSuccess != null) {
 			if (onBulkLoadSuccess.getSqlStatements() != null) {
-				log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
+				if (isDebugEnabled) {
+					log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
+				}
 				for (final String sqlStatement : onBulkLoadSuccess.getSqlStatements()) {
 					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
-					log.debug("Trying to execute statement [{}]", replaced);
+					if (isDebugEnabled) {
+						log.debug("Trying to execute statement [{}]", replaced);
+					}
 					this.getDbHandler().executeInsertOrUpdateStatement(replaced, statementDescription);
-					log.debug("Successfully finished execution of [{}]", replaced);
+					if (isDebugEnabled) {
+						log.debug("Successfully finished execution of [{}]", replaced);
+					}
 				}
 			}
 		}
@@ -106,7 +149,10 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP,
 				String.valueOf(exchange.getIn().getHeader("CamelFileLastModified")));
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
-		log.debug("Created global attributes {}", attributes);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_PROCESSOR_ID, processorId);
+		if (isDebugEnabled) {
+			log.debug("Created global attributes {}", attributes);
+		}
 		return attributes;
 	}
 

@@ -53,6 +53,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	public static final AtomicLong TOTAL_ROWS_PROCESSED = new AtomicLong(0);
 	private final boolean metricsOff;
 	private final boolean outputProcessingStatistics;
+	private final int footerRecordCountPosition;
 
 	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
@@ -63,6 +64,11 @@ public class TextFileReaderComponent extends ConfigAware {
 		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines per feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
+		footerRecordCountPosition = this.getFactFeed().getFooter().getRecordCountAttributePosition();
+		if (footerRecordCountPosition <= 0) {
+			throw new IllegalStateException("Footer record count attribute position must be > 0. Provided value is " + footerRecordCountPosition);
+		}
+		log.info("Footer record count position is {}", footerRecordCountPosition);
 		headerProcessingType = this.getFactFeed().getHeader().getProcess();
 		final boolean shouldProcessHeader = this.checkProcessHeader();
 		if (shouldProcessHeader) {
@@ -327,21 +333,23 @@ public class TextFileReaderComponent extends ConfigAware {
 					feedLinesNumber, footerLine);
 		}
 		final String[] footerParsedValues = footerLineParser.parse(footerLine);
-		if (footerParsedValues.length > 2) {
-			throw new IllegalStateException("Found " + footerParsedValues.length + " values in footer. Expected at most 2!");
+		if (footerParsedValues.length < footerRecordCountPosition) {
+			throw new IllegalStateException("Found " + footerParsedValues.length
+					+ " values in footer. But footer record count position is set to be found at position " + footerRecordCountPosition);
 		}
 		if (!footerParsedValues[0].equals(footerFirstString)) {
 			throw new IllegalStateException("First character of footer line " + footerParsedValues[0]
 					+ " does not match the one given in configuration file " + footerFirstString);
 		}
 		try {
-			final Integer footerIntValue = Integer.parseInt(footerParsedValues[1]);
+			final Integer footerIntValue = Integer.parseInt(footerParsedValues[footerRecordCountPosition]);
 			if (feedLinesNumber != footerIntValue) {
 				throw new IllegalStateException("Footer value " + footerIntValue + " does not match with total number of processed lines "
 						+ feedLinesNumber);
 			}
 		} catch (final NumberFormatException nfe) {
-			throw new IllegalStateException("Footer value [" + footerParsedValues[1] + "] can not be converted to integer value!");
+			throw new IllegalStateException("Footer value [" + footerParsedValues[footerRecordCountPosition]
+					+ "] can not be converted to integer value!");
 		}
 	}
 

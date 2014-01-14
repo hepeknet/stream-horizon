@@ -20,6 +20,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	protected final char singleCharacterDelimiter;
 	protected final boolean isDebugEnabled;
 	protected final int bufferSize;
+	private final String nullReplacementString;
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -43,6 +44,8 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		}
 		bufferSize = (int) (ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
 				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE);
+		nullReplacementString = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME,
+				SystemConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_DEFAULT);
 		log.info("Write buffer size is {} bytes", bufferSize);
 	}
 
@@ -95,7 +98,11 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 					sb.append(bulkOutputFileDelimiter);
 				}
 			}
-			sb.append(resolvedData[i]);
+			if (resolvedData[i] == null) {
+				sb.append(nullReplacementString);
+			} else {
+				sb.append(resolvedData[i]);
+			}
 		}
 		return sb;
 	}

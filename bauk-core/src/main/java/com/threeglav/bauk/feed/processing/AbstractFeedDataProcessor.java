@@ -8,6 +8,7 @@ import com.threeglav.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.bauk.feed.FeedParserComponent;
 import com.threeglav.bauk.feed.bulk.writer.BulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.FileBulkOutputWriter;
+import com.threeglav.bauk.feed.bulk.writer.GzipFileBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.NullBulkOutputWriter;
 import com.threeglav.bauk.feed.bulk.writer.ZipFileBulkOutputWriter;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -39,6 +40,9 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		} else if (outputType == BulkLoadDefinitionOutputType.ZIP) {
 			log.info("Will output bulk output results for feed {} to file using ZIP compression", factFeed.getName());
 			bulkOutputWriter = new ZipFileBulkOutputWriter(factFeed, config);
+		} else if (outputType == BulkLoadDefinitionOutputType.GZ) {
+			log.info("Will output bulk output results for feed {} to file using GZ compression", factFeed.getName());
+			bulkOutputWriter = new GzipFileBulkOutputWriter(factFeed, config);
 		} else {
 			throw new IllegalStateException("Unknown bulk output writer type " + outputType);
 		}

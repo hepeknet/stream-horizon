@@ -15,11 +15,16 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {})
 public class Footer {
 
+	private static final int DEFAULT_RECORD_COUNT_POSITION = 1;
+
 	@XmlAttribute
 	private FooterProcessingType process = FooterProcessingType.STRICT;
 
 	@XmlElement(required = false)
 	private String eachLineStartsWithCharacter;
+
+	@XmlElement(required = false, defaultValue = "1")
+	private Integer recordCountAttributePosition = DEFAULT_RECORD_COUNT_POSITION;
 
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")
@@ -47,6 +52,14 @@ public class Footer {
 
 	public void setProcess(final FooterProcessingType process) {
 		this.process = process;
+	}
+
+	public Integer getRecordCountAttributePosition() {
+		return recordCountAttributePosition;
+	}
+
+	public void setRecordCountAttributePosition(final Integer recordCountAttributePosition) {
+		this.recordCountAttributePosition = recordCountAttributePosition;
 	}
 
 }

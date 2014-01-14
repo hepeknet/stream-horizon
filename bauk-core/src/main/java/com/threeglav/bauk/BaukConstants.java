@@ -6,6 +6,8 @@ public interface BaukConstants {
 
 	public static final int ONE_MEGABYTE = 1024 * 1024;
 
+	public static final String IMPLICIT_ATTRIBUTE_PROCESSOR_ID = "processingThreadID";
+
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH = "feedInputFilePath";
 	public static final String IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME = "feedInputFileName";
 	public static final String IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP = "feedInputFileReceivedTimestamp";
