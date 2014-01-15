@@ -30,7 +30,7 @@
 		<property name="dimension.precache.jdbc.fetch.size">10000</property>
 		<!-- should processing statistics be written as files are processed -->
 		<property name="output.processing.statistics">false</property>
-		<!-- when outputting null value what should actually be written to output file, by default this is empty string -->
+		<!-- when outputting null value what should actually be written to output file, by default this is empty string - nothing will be written -->
 		<property name="bulk.output.file.null.value.string"></property>
 	</properties>
 	<connectionProperties>
@@ -186,7 +186,7 @@
 				<!-- what delimiter will be used when creating bulk output file. Whenever possible use single character delimiter -->
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<!-- sql statement for loading bulk output file. Can be any sql statement or stored procedure invocation -->
-				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}', ${processingThreadID}
+				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}', ${bulkProcessingThreadID}
 					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
 					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
@@ -404,7 +404,7 @@
 			<sqlStatements>
 				<insertSingle>
 					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE, SOME_NUMBER) 
-					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${feedInputFileName}',1,7), ${processingThreadID})
+					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${feedInputFileName}',1,7), ${feedProcessingThreadID})
 				</insertSingle>
 				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffn[1]}'</selectSurrogateKey>
 				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>

@@ -13,7 +13,6 @@ import com.threeglav.bauk.util.StringUtil;
 public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private BufferedWriter writer;
-	private String currentBulkOutputFilePath;
 
 	public FileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -22,13 +21,14 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
-			currentBulkOutputFilePath = outputFilePath;
+			finalBulkOutputFilePath = outputFilePath;
+			temporaryBulkOutputFilePath = finalBulkOutputFilePath + TEMPORARY_FILE_EXTENSION;
 			if (isDebugEnabled) {
-				log.debug("Creating writer to [{}]", outputFilePath);
+				log.debug("Creating writer to [{}]", temporaryBulkOutputFilePath);
 			}
-			writer = new BufferedWriter(new FileWriter(outputFilePath), bufferSize);
+			writer = new BufferedWriter(new FileWriter(temporaryBulkOutputFilePath), bufferSize);
 			if (isDebugEnabled) {
-				log.debug("Successfully created writer to [{}]", outputFilePath);
+				log.debug("Successfully created writer to [{}]", temporaryBulkOutputFilePath);
 			}
 		} catch (final Exception exc) {
 			log.error("Exception while creating writer", exc);
@@ -62,8 +62,10 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void closeResources(final Map<String, String> globalAttributes) {
 		IOUtils.closeQuietly(writer);
 		writer = null;
-		this.renameOutputFile(currentBulkOutputFilePath, globalAttributes);
-		currentBulkOutputFilePath = null;
+		this.renameTemporaryBulkOutputFile();
+		this.renameOutputFile(finalBulkOutputFilePath, globalAttributes);
+		finalBulkOutputFilePath = null;
+		temporaryBulkOutputFilePath = null;
 	}
 
 }

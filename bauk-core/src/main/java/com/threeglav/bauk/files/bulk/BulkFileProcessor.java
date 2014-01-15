@@ -1,13 +1,13 @@
-package com.threeglav.bauk.camel;
+package com.threeglav.bauk.files.bulk;
 
 import gnu.trove.map.hash.THashMap;
 
+import java.io.File;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,7 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
-import com.threeglav.bauk.camel.bulk.BulkFileSubmissionRecorder;
+import com.threeglav.bauk.files.FileProcessor;
 import com.threeglav.bauk.model.AfterBulkLoadSuccess;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
@@ -24,7 +24,7 @@ import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public class BulkFileProcessor extends ConfigAware implements Processor {
+public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -38,6 +38,7 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 	private final String processorId;
 	private final boolean isDebugEnabled;
 	private final boolean outputProcessingStatistics;
+	private final String bulkLoadStatement;
 	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
@@ -52,37 +53,42 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
 				false);
 		log.debug("Current processing id is {}", processorId);
+		final String insertStatement = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsertStatement();
+		if (StringUtil.isEmpty(insertStatement)) {
+			throw new IllegalStateException("Could not find insert statement for bulk loading files!");
+		}
+		bulkLoadStatement = insertStatement;
 	}
 
 	@Override
-	public void process(final Exchange exchange) throws Exception {
-		final boolean shutdownStarted = BaukUtil.shutdownStarted();
-		if (shutdownStarted) {
-			log.warn("Shutdown started. Will not accept any more files for processing!");
-			return;
-		}
-		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
+	public void process(final File file, final BasicFileAttributes attributes) {
+		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(attributes, file);
 		final String bulkLoadFilePath = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
-		log.debug("Processing {}", bulkLoadFilePath);
-		final String insertStatement = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsertStatement();
-		if (StringUtil.isEmpty(insertStatement)) {
-			log.info("Could not find insert statement for bulk loading files!");
-			return;
+		if (isDebugEnabled) {
+			log.debug("Bulk loading {}", bulkLoadFilePath);
 		}
-		final String fileNameOnly = (String) exchange.getIn().getHeader("CamelFileNameOnly");
+		final String fileNameOnly = file.getName();
 		final boolean alreadySubmitted = fileSubmissionRecorder.wasAlreadySubmitted(fileNameOnly);
 		if (alreadySubmitted) {
-			log.debug("File [{}] was already submitted for loading previously. Will set {} to {}",
-					BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
+			if (isDebugEnabled) {
+				log.debug("File [{}] was already submitted for loading previously. Will set {} to {}",
+						BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
+			}
 			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
 		} else {
-			log.debug("File [{}] was not submitted for loading before. Will set {} to {}",
-					BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
+			if (isDebugEnabled) {
+				log.debug("File [{}] was not submitted for loading before. Will set {} to {}",
+						BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
+			}
 			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
 			fileSubmissionRecorder.recordSubmissionAttempt(fileNameOnly);
 		}
-		this.executeBulkLoadingCommandSequence(globalAttributes, insertStatement);
+		this.executeBulkLoadingCommandSequence(globalAttributes, bulkLoadStatement);
 		fileSubmissionRecorder.deleteLoadedFile(fileNameOnly);
+		final boolean deleted = file.delete();
+		if (!deleted) {
+			log.error("Was not able to delete {}", bulkLoadFilePath);
+		}
 	}
 
 	private void executeBulkLoadingCommandSequence(final Map<String, String> globalAttributes, final String insertStatement) {
@@ -140,16 +146,16 @@ public class BulkFileProcessor extends ConfigAware implements Processor {
 		}
 	}
 
-	private Map<String, String> createImplicitGlobalAttributes(final Exchange exchange) {
+	private Map<String, String> createImplicitGlobalAttributes(final BasicFileAttributes bfa, final File file) {
 		final Map<String, String> attributes = new THashMap<String, String>();
-		final String fileNameOnly = (String) exchange.getIn().getHeader("CamelFileNameOnly");
+		final String fileNameOnly = file.getName();
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
-		final String inputFileAbsolutePath = (String) exchange.getIn().getHeader("CamelFileAbsolutePath");
+		final String inputFileAbsolutePath = file.getAbsolutePath();
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH, StringUtil.fixFilePath(inputFileAbsolutePath));
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP,
-				String.valueOf(exchange.getIn().getHeader("CamelFileLastModified")));
+				String.valueOf(bfa.lastModifiedTime().toMillis()));
 		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_PROCESSOR_ID, processorId);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
 		if (isDebugEnabled) {
 			log.debug("Created global attributes {}", attributes);
 		}

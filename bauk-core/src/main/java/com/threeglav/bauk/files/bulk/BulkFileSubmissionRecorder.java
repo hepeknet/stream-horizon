@@ -1,4 +1,4 @@
-package com.threeglav.bauk.camel.bulk;
+package com.threeglav.bauk.files.bulk;
 
 import javax.sql.DataSource;
 

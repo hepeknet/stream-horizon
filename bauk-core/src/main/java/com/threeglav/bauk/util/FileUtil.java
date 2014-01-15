@@ -4,6 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -38,6 +42,20 @@ public abstract class FileUtil {
 		}
 		LOG.debug("Content for {} is {}", filePath, sb);
 		return sb.toString();
+	}
+
+	public static void moveFile(final Path originalPath, final Path destinationPath) {
+		try {
+			try {
+				Files.move(originalPath, destinationPath, StandardCopyOption.ATOMIC_MOVE);
+			} catch (final AtomicMoveNotSupportedException noAtomicMove) {
+				LOG.warn("Atomic move not supported on this file system!", noAtomicMove);
+				Files.move(originalPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+			}
+		} catch (final IOException ie) {
+			LOG.error("IOException while moving files", ie);
+			throw new RuntimeException(ie);
+		}
 	}
 
 }

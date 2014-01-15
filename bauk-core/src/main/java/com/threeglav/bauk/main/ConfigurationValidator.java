@@ -258,7 +258,8 @@ class ConfigurationValidator {
 
 	private List<String> getImplicitDeclaredAttributes() {
 		final List<String> attrs = new LinkedList<>();
-		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_PROCESSOR_ID);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID);
+		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP);

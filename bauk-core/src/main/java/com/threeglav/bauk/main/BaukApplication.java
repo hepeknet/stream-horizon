@@ -11,18 +11,16 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
-import com.threeglav.bauk.camel.BulkLoadFileProcessingRoute;
-import com.threeglav.bauk.camel.InputFeedFileProcessingRoute;
 import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
+import com.threeglav.bauk.files.bulk.BulkFilesHandler;
+import com.threeglav.bauk.files.feed.FeedFilesHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
@@ -36,13 +34,10 @@ public class BaukApplication {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BaukApplication.class);
 
-	private static final CamelContext camelContext = new DefaultCamelContext();
-
 	private static long instanceStartTime;
 
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
-		camelContext.disableJMX();
 		final long start = System.currentTimeMillis();
 		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -80,13 +75,11 @@ public class BaukApplication {
 		LOG.debug("Starting camel routes...");
 		for (final FactFeed feed : config.getFactFeeds()) {
 			LOG.trace("Creating routes for feed [{}]", feed.getName());
-			final InputFeedFileProcessingRoute fpr = new InputFeedFileProcessingRoute(feed, config);
-			final BulkLoadFileProcessingRoute blfp = new BulkLoadFileProcessingRoute(feed, config);
 			try {
-				camelContext.addRoutes(fpr);
-				if (blfp.shouldStartRoute()) {
-					camelContext.addRoutes(blfp);
-				}
+				final FeedFilesHandler feedFilesHandler = new FeedFilesHandler(feed, config);
+				feedFilesHandler.startHandlingFiles();
+				final BulkFilesHandler bulkFilesHandler = new BulkFilesHandler(feed, config);
+				bulkFilesHandler.startHandlingFiles();
 				LOG.debug("Successfully added routes for feed [{}]", feed.getName());
 			} catch (final Exception exc) {
 				BaukUtil.logEngineMessage(exc.getMessage());
@@ -96,7 +89,6 @@ public class BaukApplication {
 			}
 		}
 		LOG.debug("Starting camel context");
-		camelContext.start();
 		LOG.debug("Successfully started camel context");
 	}
 
@@ -152,11 +144,6 @@ public class BaukApplication {
 			BaukUtil.logEngineMessage("Shutting down engine. Waiting to gracefully stop all threads...");
 			BaukUtil.startShutdown();
 			CacheUtil.getCacheInstanceManager().stop();
-			try {
-				camelContext.stop();
-			} catch (final Exception ignored) {
-				// ignored
-			}
 			printStatistics();
 			BaukUtil.logEngineMessage("Engine is down!");
 		}

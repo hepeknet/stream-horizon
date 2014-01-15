@@ -18,7 +18,6 @@ public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 	private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
 
 	private ZipOutputStream zipOutStream;
-	private String currentBulkOutputFilePath;
 
 	public ZipFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -26,11 +25,12 @@ public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
-			currentBulkOutputFilePath = outputFilePath;
+			finalBulkOutputFilePath = outputFilePath;
+			temporaryBulkOutputFilePath = finalBulkOutputFilePath + TEMPORARY_FILE_EXTENSION;
 			if (isDebugEnabled) {
-				log.debug("Creating zip writer to [{}]", outputFilePath);
+				log.debug("Creating zip writer to [{}]", temporaryBulkOutputFilePath);
 			}
-			final FileOutputStream fos = new FileOutputStream(outputFilePath);
+			final FileOutputStream fos = new FileOutputStream(temporaryBulkOutputFilePath);
 			zipOutStream = new ZipOutputStream(new BufferedOutputStream(fos, bufferSize));
 			final ZipEntry ze = new ZipEntry("inputFeedFile");
 			zipOutStream.putNextEntry(ze);
@@ -78,8 +78,10 @@ public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void closeResources(final Map<String, String> globalAttributes) {
 		IOUtils.closeQuietly(zipOutStream);
 		zipOutStream = null;
-		this.renameOutputFile(currentBulkOutputFilePath, globalAttributes);
-		currentBulkOutputFilePath = null;
+		this.renameTemporaryBulkOutputFile();
+		this.renameOutputFile(finalBulkOutputFilePath, globalAttributes);
+		finalBulkOutputFilePath = null;
+		temporaryBulkOutputFilePath = null;
 	}
 
 }

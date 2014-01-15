@@ -1,0 +1,62 @@
+package com.threeglav.bauk.files.feed;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.threeglav.bauk.files.FileAttributesHashedNameFilter;
+import com.threeglav.bauk.files.FileFindingHandler;
+import com.threeglav.bauk.files.FileProcessingErrorHandler;
+import com.threeglav.bauk.files.MoveFileErrorHandler;
+import com.threeglav.bauk.model.BaukConfiguration;
+import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.model.ThreadPoolSizes;
+import com.threeglav.bauk.util.BaukThreadFactory;
+
+public class FeedFilesHandler {
+
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private final FactFeed factFeed;
+	private final BaukConfiguration config;
+	private int feedProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
+	private final FileProcessingErrorHandler moveToErrorFileProcessor;
+
+	public FeedFilesHandler(final FactFeed factFeed, final BaukConfiguration config) {
+		this.factFeed = factFeed;
+		this.config = config;
+		this.validate();
+		if (this.factFeed.getThreadPoolSizes() != null) {
+			feedProcessingThreads = factFeed.getThreadPoolSizes().getFeedProcessingThreads();
+		}
+		log.debug("Will use {} threads to process incoming files for {}", feedProcessingThreads, factFeed.getName());
+		moveToErrorFileProcessor = new MoveFileErrorHandler(config.getErrorDirectory());
+	}
+
+	private void validate() {
+		if (factFeed.getFileNameMasks() == null || factFeed.getFileNameMasks().isEmpty()) {
+			throw new IllegalArgumentException("Could not find any file masks for " + factFeed.getName() + ". Check your configuration!");
+		}
+	}
+
+	private void createSingleFileHandler(final int routeId, final ExecutorService exec, final String fullFileMask) {
+		final FeedFileProcessor bfp = new FeedFileProcessor(factFeed, config, fullFileMask);
+		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, feedProcessingThreads);
+		final FileFindingHandler ffh = new FileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
+		exec.submit(ffh);
+	}
+
+	public void startHandlingFiles() {
+		final ExecutorService exec = Executors.newFixedThreadPool(feedProcessingThreads, new BaukThreadFactory("feedHandlingThreadGroup",
+				"feed-processing-" + factFeed.getName()));
+		for (final String fileMask : factFeed.getFileNameMasks()) {
+			log.debug("Creating {} processing threads for {}", feedProcessingThreads, fileMask);
+			for (int i = 0; i < feedProcessingThreads; i++) {
+				this.createSingleFileHandler(i, exec, fileMask);
+				log.debug("Created processing thread #{} for {}", i, fileMask);
+			}
+			log.debug("Created in total {} threads for processing {}", feedProcessingThreads, fileMask);
+		}
+	}
+}

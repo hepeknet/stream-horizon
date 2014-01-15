@@ -17,7 +17,6 @@ public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 	private static final Charset UTF_8_CHARSET = Charset.forName("UTF-8");
 
 	private GZIPOutputStream gzipOutStream;
-	private String currentBulkOutputFilePath;
 
 	public GzipFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -25,14 +24,15 @@ public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private void createFileWriter(final String outputFilePath) {
 		try {
-			currentBulkOutputFilePath = outputFilePath;
+			finalBulkOutputFilePath = outputFilePath;
+			temporaryBulkOutputFilePath = finalBulkOutputFilePath + TEMPORARY_FILE_EXTENSION;
 			if (isDebugEnabled) {
-				log.debug("Creating zip writer to [{}]", outputFilePath);
+				log.debug("Creating zip writer to [{}]", temporaryBulkOutputFilePath);
 			}
-			final FileOutputStream fos = new FileOutputStream(outputFilePath);
+			final FileOutputStream fos = new FileOutputStream(temporaryBulkOutputFilePath);
 			gzipOutStream = new GZIPOutputStream(new BufferedOutputStream(fos, bufferSize));
 			if (isDebugEnabled) {
-				log.debug("Successfully created writer to [{}]", outputFilePath);
+				log.debug("Successfully created writer to [{}]", temporaryBulkOutputFilePath);
 			}
 		} catch (final Exception exc) {
 			log.error("Exception while creating writer", exc);
@@ -75,8 +75,10 @@ public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void closeResources(final Map<String, String> globalAttributes) {
 		IOUtils.closeQuietly(gzipOutStream);
 		gzipOutStream = null;
-		this.renameOutputFile(currentBulkOutputFilePath, globalAttributes);
-		currentBulkOutputFilePath = null;
+		this.renameTemporaryBulkOutputFile();
+		this.renameOutputFile(finalBulkOutputFilePath, globalAttributes);
+		finalBulkOutputFilePath = null;
+		temporaryBulkOutputFilePath = null;
 	}
 
 }

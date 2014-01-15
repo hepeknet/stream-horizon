@@ -1,20 +1,18 @@
-package com.threeglav.bauk.camel;
+package com.threeglav.bauk.files;
 
 import java.io.File;
-import java.nio.file.Files;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Histogram;
+import com.threeglav.bauk.util.FileUtil;
 import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public class MoveFileProcessor implements Processor {
+public class MoveFileErrorHandler implements FileProcessingErrorHandler {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -22,7 +20,7 @@ public class MoveFileProcessor implements Processor {
 	private final Path targetFolderPath;
 	private final boolean isDebugEnabled;
 
-	public MoveFileProcessor(final String targetFolderName) {
+	public MoveFileErrorHandler(final String targetFolderName) {
 		if (StringUtil.isEmpty(targetFolderName)) {
 			throw new IllegalArgumentException("Target folder must not be null or empty!");
 		}
@@ -36,16 +34,21 @@ public class MoveFileProcessor implements Processor {
 	}
 
 	@Override
-	public void process(final Exchange exchange) throws Exception {
-		final String originalFilePath = (String) exchange.getIn().getHeader("originalFilePath");
+	public void handleError(final File f, final Exception exc) throws IOException {
+		final String originalFilePath = f.getAbsolutePath();
+		if (exc != null) {
+			log.error("Caught exception while processing file {}. Triggering error handling!", originalFilePath);
+			log.error("Exception ", exc);
+		}
 		if (StringUtil.isEmpty(originalFilePath)) {
 			throw new IllegalArgumentException("Was not able to find file to be moved");
 		}
 		final File originalFile = new File(originalFilePath);
 		if (originalFile.isFile() && originalFile.exists()) {
 			final Path originalPath = originalFile.toPath();
+			final Path destinationPath = targetFolderPath.resolve(originalPath.getFileName());
 			final long start = System.currentTimeMillis();
-			Files.move(originalPath, targetFolderPath.resolve(originalPath.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+			FileUtil.moveFile(originalPath, destinationPath);
 			final long total = System.currentTimeMillis() - start;
 			if (isDebugEnabled) {
 				log.debug("Moved {} to {}. In total took {}ms to move this file", originalFilePath, targetFolderPath, total);

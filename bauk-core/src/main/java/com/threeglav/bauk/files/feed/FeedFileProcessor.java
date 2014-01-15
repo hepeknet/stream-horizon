@@ -1,9 +1,12 @@
-package com.threeglav.bauk.camel;
+package com.threeglav.bauk.files.feed;
 
 import gnu.trove.map.hash.THashMap;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,9 +14,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipFile;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Message;
-import org.apache.camel.Processor;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,9 @@ import com.threeglav.bauk.feed.FeedFileNameProcessor;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.feed.processing.SingleThreadedFeedDataProcessor;
+import com.threeglav.bauk.files.FileProcessingErrorHandler;
+import com.threeglav.bauk.files.FileProcessor;
+import com.threeglav.bauk.files.MoveFileErrorHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
@@ -37,7 +40,7 @@ import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StreamUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-class FeedFileProcessor implements Processor {
+public class FeedFileProcessor implements FileProcessor {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -56,6 +59,7 @@ class FeedFileProcessor implements Processor {
 	private String fileExtension;
 	private final boolean isDebugEnabled;
 	private final String processorId;
+	private FileProcessingErrorHandler moveToArchiveFileProcessor;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -82,6 +86,66 @@ class FeedFileProcessor implements Processor {
 		processorId = String.valueOf(COUNTER.incrementAndGet());
 		log.info("Number of instances is {}", processorId);
 		isDebugEnabled = log.isDebugEnabled();
+		final String archiveFolderPath = config.getArchiveDirectory();
+		if (!StringUtil.isEmpty(archiveFolderPath)) {
+			moveToArchiveFileProcessor = new MoveFileErrorHandler(archiveFolderPath);
+			log.info("Will move all successfully processed files to {}", archiveFolderPath);
+		}
+	}
+
+	@Override
+	public void process(final File file, final BasicFileAttributes attributes) throws IOException {
+		final String fullFileName = file.getAbsolutePath();
+		attributes.lastModifiedTime().toMillis();
+		final Long fileLength = attributes.size();
+		if (inputFeedSizeMegabytesHistogram != null) {
+			final long fileLengthMb = fileLength / BaukConstants.ONE_MEGABYTE;
+			inputFeedSizeMegabytesHistogram.update(fileLengthMb);
+		}
+		final String lowerCaseFilePath = fullFileName.toLowerCase();
+		if (isDebugEnabled) {
+			log.debug("Trying to process {}", lowerCaseFilePath);
+		}
+		boolean successfullyProcessed = false;
+		if (lowerCaseFilePath.endsWith(".zip")) {
+			final ZipFile zipFile = new ZipFile(file);
+			if (!zipFile.entries().hasMoreElements()) {
+				IOUtils.closeQuietly(zipFile);
+				throw new IllegalStateException("Did not find any entries inside " + fullFileName);
+			}
+			if (zipFile.size() > 1) {
+				log.error("Will process only one zipped entry inside {} and will skip all others. Found {} entries", fullFileName);
+			}
+			final InputStream inputStream = zipFile.getInputStream(zipFile.entries().nextElement());
+			this.processInputStream(inputStream, file, attributes);
+			IOUtils.closeQuietly(zipFile);
+			IOUtils.closeQuietly(inputStream);
+			successfullyProcessed = true;
+		} else if (lowerCaseFilePath.endsWith(".gz")) {
+			final InputStream fileInputStream = new FileInputStream(file);
+			final InputStream inputStream = StreamUtil.ungzipInputStream(fileInputStream);
+			this.processInputStream(inputStream, file, attributes);
+			IOUtils.closeQuietly(inputStream);
+			IOUtils.closeQuietly(fileInputStream);
+			successfullyProcessed = true;
+		} else {
+			final InputStream inputStream = new FileInputStream(file);
+			this.processInputStream(inputStream, file, attributes);
+			IOUtils.closeQuietly(inputStream);
+			successfullyProcessed = true;
+		}
+		if (successfullyProcessed) {
+			try {
+				if (moveToArchiveFileProcessor != null) {
+					moveToArchiveFileProcessor.handleError(file, null);
+				} else {
+					file.delete();
+				}
+			} catch (final IOException ie) {
+				log.error("Exception while moving file to archive folder. Exiting!", ie);
+				System.exit(-1);
+			}
+		}
 	}
 
 	private BeforeFeedProcessingProcessor createBeforeFeedProcessingProcessor() {
@@ -141,46 +205,6 @@ class FeedFileProcessor implements Processor {
 		return processor;
 	}
 
-	@Override
-	public void process(final Exchange exchange) throws Exception {
-		final String fullFileName = (String) exchange.getIn().getHeader("CamelFileName");
-		final Long lastModified = (Long) exchange.getIn().getHeader("CamelFileLastModified");
-		final Long fileLength = (Long) exchange.getIn().getHeader("CamelFileLength");
-		if (inputFeedSizeMegabytesHistogram != null) {
-			final long fileLengthMb = fileLength / BaukConstants.ONE_MEGABYTE;
-			inputFeedSizeMegabytesHistogram.update(fileLengthMb);
-		}
-		final String lowerCaseFilePath = fullFileName.toLowerCase();
-		if (isDebugEnabled) {
-			log.debug("Trying to process {}", lowerCaseFilePath);
-		}
-		if (lowerCaseFilePath.endsWith(".zip")) {
-			final File file = exchange.getIn().getBody(File.class);
-			final ZipFile zipFile = new ZipFile(file);
-			if (!zipFile.entries().hasMoreElements()) {
-				IOUtils.closeQuietly(zipFile);
-				throw new IllegalStateException("Did not find any entries inside " + fullFileName);
-			}
-			if (zipFile.size() > 1) {
-				log.error("Will process only one zipped entry inside {} and will skip all others. Found {} entries", fullFileName);
-			}
-			final InputStream inputStream = zipFile.getInputStream(zipFile.entries().nextElement());
-			this.processInputStream(exchange, inputStream, fullFileName, lastModified, fileLength);
-			IOUtils.closeQuietly(zipFile);
-			IOUtils.closeQuietly(inputStream);
-		} else if (lowerCaseFilePath.endsWith(".gz")) {
-			final InputStream fileInputStream = exchange.getIn().getBody(InputStream.class);
-			final InputStream inputStream = StreamUtil.ungzipInputStream(fileInputStream);
-			this.processInputStream(exchange, inputStream, fullFileName, lastModified, fileLength);
-			IOUtils.closeQuietly(inputStream);
-			IOUtils.closeQuietly(fileInputStream);
-		} else {
-			final InputStream inputStream = exchange.getIn().getBody(InputStream.class);
-			this.processInputStream(exchange, inputStream, fullFileName, lastModified, fileLength);
-			IOUtils.closeQuietly(inputStream);
-		}
-	}
-
 	private void processStreamWithCompletion(final InputStream inputStream, final Map<String, String> globalAttributes) {
 		try {
 			final int numberOfLineProcessed = textFileReaderComponent.process(inputStream, globalAttributes);
@@ -198,15 +222,14 @@ class FeedFileProcessor implements Processor {
 		feedCompletionProcessor.process(globalAttributes);
 	}
 
-	private void processInputStream(final Exchange exchange, final InputStream inputStream, final String fullFilePath, final Long lastModified,
-			final Long fileLength) {
+	private void processInputStream(final InputStream inputStream, final File file, final BasicFileAttributes fileAttributes) {
 		if (inputStream != null) {
 			final long start = System.currentTimeMillis();
 			if (isDebugEnabled) {
-				log.debug("Received filePath={}, lastModified={}, fileLength={}", fullFilePath, lastModified, fileLength);
+				log.debug("Received filePath={}, attributes = {}", file.getAbsolutePath(), fileAttributes);
 			}
 			try {
-				final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(exchange);
+				final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(file, fileAttributes);
 				if (beforeFeedProcessingProcessor != null) {
 					beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
 				}
@@ -225,7 +248,7 @@ class FeedFileProcessor implements Processor {
 					inputFeedProcessingTime.update(total);
 				}
 				if (isDebugEnabled) {
-					log.debug("Finished processing [{}] in {}ms", fullFilePath, total);
+					log.debug("Finished processing [{}] in {}ms", file.getAbsolutePath(), total);
 				}
 			}
 		} else {
@@ -241,12 +264,11 @@ class FeedFileProcessor implements Processor {
 				+ fileExtension;
 	}
 
-	private Map<String, String> createImplicitGlobalAttributes(final Exchange exchange) {
+	private Map<String, String> createImplicitGlobalAttributes(final File file, final BasicFileAttributes fileAttributes) {
 		final DateFormat dateFormat = new SimpleDateFormat(BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
 		log.info("All date/time values will be in format {}", BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
 		final Map<String, String> attributes = new THashMap<String, String>();
-		final Message exchangeIn = exchange.getIn();
-		final String fileNameOnly = (String) exchangeIn.getHeader("CamelFileNameOnly");
+		final String fileNameOnly = file.getName();
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
 		final Map<String, String> parsedAttributesFromFeedFileName = feedFileNameProcessor.parseFeedFileName(fileNameOnly);
 		if (parsedAttributesFromFeedFileName != null && !parsedAttributesFromFeedFileName.isEmpty()) {
@@ -254,18 +276,18 @@ class FeedFileProcessor implements Processor {
 		} else {
 			log.info("Null or empty attributes returned by feed file name parser!");
 		}
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, (String) exchangeIn.getHeader("CamelFileAbsolutePath"));
-		final Long lastModifiedFeedFile = (Long) exchangeIn.getHeader("CamelFileLastModified");
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, file.getAbsolutePath());
+		final Long lastModifiedFeedFile = fileAttributes.lastModifiedTime().toMillis();
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, "" + lastModifiedFeedFile);
 		final Date lastModifiedFileDate = new Date();
 		lastModifiedFileDate.setTime(lastModifiedFeedFile);
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME, dateFormat.format(lastModifiedFileDate));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(exchangeIn.getHeader("CamelFileLength")));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(fileAttributes.size()));
 		final Date now = new Date();
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getTime());
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, dateFormat.format(now));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_PROCESSOR_ID, processorId);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID, processorId);
 		if (isDebugEnabled) {
 			log.debug("Created global attributes {}", attributes);
 		}

@@ -1,6 +1,7 @@
 package com.threeglav.bauk.feed.bulk.writer;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 
 import com.threeglav.bauk.BaukConstants;
@@ -10,9 +11,12 @@ import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.FileUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public abstract class AbstractBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
+
+	protected final String TEMPORARY_FILE_EXTENSION = ".baukTmp";
 
 	private final boolean performFileRenameOperation;
 	protected final String bulkOutputFileDelimiter;
@@ -21,6 +25,8 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	protected final boolean isDebugEnabled;
 	protected final int bufferSize;
 	private final String nullReplacementString;
+	protected String finalBulkOutputFilePath;
+	protected String temporaryBulkOutputFilePath;
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -47,6 +53,14 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		nullReplacementString = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME,
 				SystemConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_DEFAULT);
 		log.info("Write buffer size is {} bytes", bufferSize);
+	}
+
+	protected void renameTemporaryBulkOutputFile() {
+		final File temp = new File(temporaryBulkOutputFilePath);
+		final Path originalPath = temp.toPath();
+		final File finalFile = new File(finalBulkOutputFilePath);
+		final Path destinationPath = finalFile.toPath();
+		FileUtil.moveFile(originalPath, destinationPath);
 	}
 
 	private void validate() {
@@ -81,9 +95,14 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 				log.debug("File {} will be renamed to {}", originalFile.getAbsolutePath(), replacedAttributes);
 			}
 			final File renamedFile = new File(originalFile.getParentFile(), replacedAttributes);
-			originalFile.renameTo(renamedFile);
-			if (isDebugEnabled) {
-				log.debug("Successfully renamed file {} to {}", originalFile.getAbsolutePath(), renamedFile.getAbsolutePath());
+			try {
+				FileUtil.moveFile(originalFile.toPath(), renamedFile.toPath());
+				if (isDebugEnabled) {
+					log.debug("Successfully renamed file {} to {}", originalFile.getAbsolutePath(), renamedFile.getAbsolutePath());
+				}
+			} catch (final Exception ie) {
+				log.error("Was not able to rename file {} to {}", temporaryBulkOutputFilePath, finalBulkOutputFilePath);
+				log.error("Exception", ie);
 			}
 		}
 	}
