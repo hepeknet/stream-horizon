@@ -179,10 +179,11 @@
 				<!-- at what position will footer count attribute be found -->
 				<recordCountAttributePosition>2</recordCountAttributePosition>
 			</footer>
-			<!-- outputType can be one of following file/none/zip/gz -->
+			<!-- outputType can be one of following file/none/zip/gz/jdbc -->
 			<!-- set to none if you want to test performance of processing (but not writing bulk output file) -->
 			<!-- if zip then .zip output file will be zip compressed and will have .zip extension added -->
 			<!-- if gz then .gz output file will be gzip compressed and will have .gz extension added -->
+			<!-- if jdbc then you have to specify types for all attributes in bulkLoadFormatDefinition -->
 			<bulkLoadDefinition outputType="file">
 				<!-- this section is executed by DB loading threads -->
 				<!-- extension of bulk output file. Bulk loader will consider only files with this extension for loading into database -->
@@ -193,6 +194,8 @@
 				<!-- what delimiter will be used when creating bulk output file. Whenever possible use single character delimiter -->
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<!-- sql statement for loading bulk output file. Can be any sql statement or stored procedure invocation -->
+				<!-- in case of jdbc loading this statement must be prepared statement listing all attributes that are defined in bulkLoadFormatDefinition section -->
+				<!-- for example insert into FACT(col1, col2, col3) VALUES (?,?,?) -->
 				<bulkLoadInsertStatement>LOAD DATA INFILE '${bulkFilePath}', ${bulkProcessingThreadID}
 					INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY
 					'\n'</bulkLoadInsertStatement>
@@ -200,8 +203,9 @@
 					<attributes>
 						<!-- order of attributes is important -->
 						<!-- dimension.XYZ means output calculated SK for dimension XYZ (based on dimension definition) -->
-						<attribute name="dimension.RWH_DEAL_DIM" />
-						<attribute name="dimension.RWH_PRODUCT_DIM" />
+						<attribute name="dimension.RWH_DEAL_DIM" type="int" />
+						<!-- type can be int/string/float -->
+						<attribute name="dimension.RWH_PRODUCT_DIM" type="int" />
 						<attribute name="dimension.RWH_UNDERLYING_DIM" />
 						<attribute name="dimension.RWH_CURVETYPE_DIM" />
 						<attribute name="dimension.RWH_DATE_DIM" />
@@ -210,7 +214,7 @@
 						<attribute name="dimension.RWH_PORTFOLIO_DIM" />
 						<attribute name="dimension.RWH_RISK_STATUS_DIM" />
 						<!-- constant attributes. Will be copied directly to output -->
-						<attribute>-1</attribute>
+						<attribute type="int">-1</attribute>
 						<attribute>'Y'</attribute>
 						<attribute>'N'</attribute>
 						<!-- copy directly from input feed, as is -->

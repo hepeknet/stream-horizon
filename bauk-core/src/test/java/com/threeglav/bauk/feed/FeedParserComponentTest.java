@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.DataProcessingType;
 import com.threeglav.bauk.model.FactFeed;
@@ -55,9 +55,9 @@ public class FeedParserComponentTest {
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(DataProcessingType.NORMAL);
-		final ArrayList<Attribute> attrs = new ArrayList<>();
+		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
-			final Attribute a = new Attribute();
+			final BaukAttribute a = new BaukAttribute();
 			a.setName("n_" + i);
 			attrs.add(a);
 		}
@@ -76,9 +76,9 @@ public class FeedParserComponentTest {
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(DataProcessingType.NORMAL);
-		final ArrayList<Attribute> attrs = new ArrayList<>();
+		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
-			final Attribute a = new Attribute();
+			final BaukAttribute a = new BaukAttribute();
 			a.setName("n_" + i);
 			attrs.add(a);
 		}
@@ -97,9 +97,9 @@ public class FeedParserComponentTest {
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(DataProcessingType.NO_VALIDATION);
-		final ArrayList<Attribute> attrs = new ArrayList<>();
+		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
-			final Attribute a = new Attribute();
+			final BaukAttribute a = new BaukAttribute();
 			a.setName("n_" + i);
 			attrs.add(a);
 		}

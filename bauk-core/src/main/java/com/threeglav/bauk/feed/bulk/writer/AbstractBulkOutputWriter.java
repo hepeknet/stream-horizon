@@ -16,6 +16,8 @@ import com.threeglav.bauk.util.StringUtil;
 
 public abstract class AbstractBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
 
+	protected final String NEWLINE_STRING = "\n";
+
 	protected final String TEMPORARY_FILE_EXTENSION = ".baukTmp";
 
 	private final boolean performFileRenameOperation;

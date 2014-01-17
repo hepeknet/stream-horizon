@@ -17,7 +17,7 @@ import org.mockito.Mockito;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.db.DbHandler;
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.Dimension;
@@ -387,45 +387,45 @@ public class DimensionHandlerTest {
 		final FactFeed ff = new FactFeed();
 		ff.setName("ff1");
 		final Data data = new Data();
-		final ArrayList<Attribute> attributes = new ArrayList<Attribute>();
+		final ArrayList<BaukAttribute> attributes = new ArrayList<BaukAttribute>();
 
-		final Attribute atr = new Attribute();
+		final BaukAttribute atr = new BaukAttribute();
 		atr.setName("nk_4");
 		attributes.add(atr);
 
-		final Attribute atr1 = new Attribute();
+		final BaukAttribute atr1 = new BaukAttribute();
 		atr1.setName("x_4");
 		attributes.add(atr1);
 
-		final Attribute atr2 = new Attribute();
+		final BaukAttribute atr2 = new BaukAttribute();
 		atr2.setName("nk_0");
 		attributes.add(atr2);
 
-		final Attribute atr3 = new Attribute();
+		final BaukAttribute atr3 = new BaukAttribute();
 		atr3.setName("nk_1");
 		attributes.add(atr3);
 
-		final Attribute atr4 = new Attribute();
+		final BaukAttribute atr4 = new BaukAttribute();
 		atr4.setName("yyy");
 		attributes.add(atr4);
 
-		final Attribute atr5 = new Attribute();
+		final BaukAttribute atr5 = new BaukAttribute();
 		atr5.setName("nk_3");
 		attributes.add(atr5);
 
-		final Attribute atr6 = new Attribute();
+		final BaukAttribute atr6 = new BaukAttribute();
 		atr6.setName("nk_2");
 		attributes.add(atr6);
 
-		final Attribute mapped1 = new Attribute();
+		final BaukAttribute mapped1 = new BaukAttribute();
 		mapped1.setName("mapped1");
 		attributes.add(mapped1);
 
-		final Attribute mapped3 = new Attribute();
+		final BaukAttribute mapped3 = new BaukAttribute();
 		mapped3.setName("mapped3");
 		attributes.add(mapped3);
 
-		final Attribute mapped2 = new Attribute();
+		final BaukAttribute mapped2 = new BaukAttribute();
 		mapped2.setName("mapped2");
 		attributes.add(mapped2);
 

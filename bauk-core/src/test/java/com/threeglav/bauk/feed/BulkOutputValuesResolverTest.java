@@ -16,7 +16,7 @@ import org.mockito.stubbing.Answer;
 
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
@@ -115,23 +115,23 @@ public class BulkOutputValuesResolverTest {
 		Assert.assertEquals("2", String.valueOf(lastLineValue[0]));
 	}
 
-	private ArrayList<Attribute> createFactFeedAttributes(final int num) {
-		final ArrayList<Attribute> attrs = new ArrayList<Attribute>();
+	private ArrayList<BaukAttribute> createFactFeedAttributes(final int num) {
+		final ArrayList<BaukAttribute> attrs = new ArrayList<BaukAttribute>();
 		for (int i = 0; i < num; i++) {
-			final Attribute at = new Attribute();
+			final BaukAttribute at = new BaukAttribute();
 			at.setName("at_" + i);
 			attrs.add(at);
-			final Attribute at1 = new Attribute();
+			final BaukAttribute at1 = new BaukAttribute();
 			at1.setName("nk" + i);
 			attrs.add(at1);
 		}
 		return attrs;
 	}
 
-	private ArrayList<Attribute> createBulkOutputAttributes(final int num) {
-		final ArrayList<Attribute> attrs = new ArrayList<Attribute>();
+	private ArrayList<BaukAttribute> createBulkOutputAttributes(final int num) {
+		final ArrayList<BaukAttribute> attrs = new ArrayList<BaukAttribute>();
 		for (int i = 0; i < num; i++) {
-			final Attribute at = new Attribute();
+			final BaukAttribute at = new BaukAttribute();
 			if (i % 2 == 0) {
 				at.setName("dimension.dim_" + i);
 			} else if (i != 3) {

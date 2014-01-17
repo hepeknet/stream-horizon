@@ -21,7 +21,7 @@ import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.GlobalAttributeMappingHandler;
 import com.threeglav.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.bauk.dimension.cache.CacheInstanceManager;
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadFormatDefinition;
@@ -87,7 +87,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 					.getName());
 			return;
 		}
-		final ArrayList<Attribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes();
+		final ArrayList<BaukAttribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes();
 		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(bulkOutputAttributes);
 		if (log.isDebugEnabled()) {
 			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
@@ -128,12 +128,12 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 	}
 
-	private void createBulkOutputHandler(final String routeIdentifier, final ArrayList<Attribute> bulkOutputAttributes,
+	private void createBulkOutputHandler(final String routeIdentifier, final ArrayList<BaukAttribute> bulkOutputAttributes,
 			final String[] bulkOutputAttributeNames, final int feedDataLineOffset, final Map<String, Integer> feedAttributeNamesAndPositions,
 			final int bulkHandlerPosition) {
 		final String bulkOutputAttributeName = bulkOutputAttributeNames[bulkHandlerPosition];
 		if (StringUtil.isEmpty(bulkOutputAttributeName)) {
-			final Attribute attr = bulkOutputAttributes.get(bulkHandlerPosition);
+			final BaukAttribute attr = bulkOutputAttributes.get(bulkHandlerPosition);
 			final String value = attr.getConstantValue();
 			outputValueHandlers[bulkHandlerPosition] = new ConstantOutputValueHandler(value);
 			log.debug("Value at position {} in bulk output load will be constant value {}", bulkHandlerPosition, value);

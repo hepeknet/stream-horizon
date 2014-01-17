@@ -14,13 +14,13 @@ public class BulkLoadFormatDefinition {
 
 	@XmlElementWrapper
 	@XmlElement(name = "attribute")
-	private ArrayList<Attribute> attributes;
+	private ArrayList<BaukAttribute> attributes;
 
-	public ArrayList<Attribute> getAttributes() {
+	public ArrayList<BaukAttribute> getAttributes() {
 		return attributes;
 	}
 
-	public void setAttributes(final ArrayList<Attribute> attributes) {
+	public void setAttributes(final ArrayList<BaukAttribute> attributes) {
 		this.attributes = attributes;
 	}
 

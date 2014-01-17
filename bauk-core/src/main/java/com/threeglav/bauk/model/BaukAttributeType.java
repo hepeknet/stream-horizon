@@ -6,21 +6,15 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType
 @XmlEnum
-public enum BulkLoadDefinitionOutputType {
+public enum BaukAttributeType {
 
-	@XmlEnumValue("file")
-	FILE,
+	@XmlEnumValue("int")
+	INT,
 
-	@XmlEnumValue("zip")
-	ZIP,
+	@XmlEnumValue("float")
+	FLOAT,
 
-	@XmlEnumValue("gz")
-	GZ,
-
-	@XmlEnumValue("jdbc")
-	JDBC,
-
-	@XmlEnumValue("none")
-	NONE;
+	@XmlEnumValue("string")
+	STRING,
 
 }

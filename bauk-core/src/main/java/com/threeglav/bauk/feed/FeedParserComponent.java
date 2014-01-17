@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.DataProcessingType;
 import com.threeglav.bauk.model.FactFeed;
@@ -88,7 +88,7 @@ public class FeedParserComponent extends ConfigAware {
 	private int getExpectedAttributesNumber(final FactFeed ff) {
 		final boolean expectFirstAttribute = !StringUtil.isEmpty(ff.getData().getEachLineStartsWithCharacter());
 		int expectedTokens;
-		final ArrayList<Attribute> attributes = ff.getData().getAttributes();
+		final ArrayList<BaukAttribute> attributes = ff.getData().getAttributes();
 		if (expectFirstAttribute) {
 			expectedTokens = attributes.size() + 1;
 		} else {

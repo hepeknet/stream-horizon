@@ -19,7 +19,7 @@ import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.header.DefaultHeaderParser;
 import com.threeglav.bauk.header.HeaderParser;
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.FactFeedType;
@@ -311,7 +311,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 		final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		final String[] splitLine = feedParser.parse(feedDataLine);
-		final ArrayList<Attribute> ffDataAttrs = this.getFactFeed().getData().getAttributes();
+		final ArrayList<BaukAttribute> ffDataAttrs = this.getFactFeed().getData().getAttributes();
 		if (splitLine.length != ffDataAttrs.size()) {
 			log.error("Control feed " + ffName + " declared " + ffDataAttrs.size() + " data attributes but last line only has " + splitLine.length
 					+ " values!");
@@ -319,7 +319,7 @@ public class TextFileReaderComponent extends ConfigAware {
 					+ splitLine.length + " values!");
 		}
 		for (int i = 0; i < ffDataAttrs.size(); i++) {
-			final Attribute attr = ffDataAttrs.get(i);
+			final BaukAttribute attr = ffDataAttrs.get(i);
 			final String attrName = attr.getName();
 			globalAttributes.put(attrName, splitLine[i]);
 			log.debug("Added {}={} to global attributes for control feed {}", attrName, splitLine[i], ffName);

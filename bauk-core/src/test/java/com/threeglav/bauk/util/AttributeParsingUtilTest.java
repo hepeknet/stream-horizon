@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.util.AttributeParsingUtil;
 
 public class AttributeParsingUtilTest {
@@ -52,10 +52,10 @@ public class AttributeParsingUtilTest {
 		Assert.assertEquals(new Integer(2), np.get("a_2"));
 	}
 
-	private ArrayList<Attribute> createAttributes(final int count) {
-		final ArrayList<Attribute> attrs = new ArrayList<>();
+	private ArrayList<BaukAttribute> createAttributes(final int count) {
+		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
-			final Attribute a = new Attribute();
+			final BaukAttribute a = new BaukAttribute();
 			a.setName("a_" + i);
 			attrs.add(a);
 		}

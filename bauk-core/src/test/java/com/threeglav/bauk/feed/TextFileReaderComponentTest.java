@@ -15,7 +15,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
-import com.threeglav.bauk.model.Attribute;
+import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Data;
 import com.threeglav.bauk.model.FactFeed;
@@ -222,9 +222,9 @@ public class TextFileReaderComponentTest {
 		}
 		final Data data = Mockito.mock(Data.class);
 		when(ff.getData()).thenReturn(data);
-		final ArrayList<Attribute> attrs = new ArrayList<>();
+		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
-			final Attribute attr = new Attribute();
+			final BaukAttribute attr = new BaukAttribute();
 			attr.setName("a_" + i);
 			attrs.add(attr);
 		}
