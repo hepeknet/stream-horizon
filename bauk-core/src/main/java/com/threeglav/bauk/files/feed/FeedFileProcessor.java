@@ -2,19 +2,16 @@ package com.threeglav.bauk.files.feed;
 
 import gnu.trove.map.hash.THashMap;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +26,7 @@ import com.threeglav.bauk.feed.FeedFileNameProcessor;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.feed.processing.SingleThreadedFeedDataProcessor;
+import com.threeglav.bauk.files.BaukFile;
 import com.threeglav.bauk.files.FileProcessingErrorHandler;
 import com.threeglav.bauk.files.FileProcessor;
 import com.threeglav.bauk.files.MoveFileErrorHandler;
@@ -45,6 +43,10 @@ public class FeedFileProcessor implements FileProcessor {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final AtomicInteger COUNTER = new AtomicInteger(0);
+
+	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern(BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
+
+	private final Map<String, String> implicitAttributes = new THashMap<String, String>(30);
 
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
@@ -94,10 +96,9 @@ public class FeedFileProcessor implements FileProcessor {
 	}
 
 	@Override
-	public void process(final File file, final BasicFileAttributes attributes) throws IOException {
-		final String fullFileName = file.getAbsolutePath();
-		attributes.lastModifiedTime().toMillis();
-		final Long fileLength = attributes.size();
+	public void process(final BaukFile file) throws IOException {
+		final String fullFileName = file.getFullFilePath();
+		final Long fileLength = file.getSize();
 		if (inputFeedSizeMegabytesHistogram != null) {
 			final long fileLengthMb = fileLength / BaukConstants.ONE_MEGABYTE;
 			inputFeedSizeMegabytesHistogram.update(fileLengthMb);
@@ -108,7 +109,7 @@ public class FeedFileProcessor implements FileProcessor {
 		}
 		boolean successfullyProcessed = false;
 		if (lowerCaseFilePath.endsWith(".zip")) {
-			final ZipFile zipFile = new ZipFile(file);
+			final ZipFile zipFile = new ZipFile(file.asFile());
 			if (!zipFile.entries().hasMoreElements()) {
 				IOUtils.closeQuietly(zipFile);
 				throw new IllegalStateException("Did not find any entries inside " + fullFileName);
@@ -117,27 +118,27 @@ public class FeedFileProcessor implements FileProcessor {
 				log.error("Will process only one zipped entry inside {} and will skip all others. Found {} entries", fullFileName);
 			}
 			final InputStream inputStream = zipFile.getInputStream(zipFile.entries().nextElement());
-			this.processInputStream(inputStream, file, attributes);
+			this.processInputStream(inputStream, file);
 			IOUtils.closeQuietly(zipFile);
 			IOUtils.closeQuietly(inputStream);
 			successfullyProcessed = true;
 		} else if (lowerCaseFilePath.endsWith(".gz")) {
-			final InputStream fileInputStream = new FileInputStream(file);
+			final InputStream fileInputStream = new FileInputStream(file.asFile());
 			final InputStream inputStream = StreamUtil.ungzipInputStream(fileInputStream);
-			this.processInputStream(inputStream, file, attributes);
+			this.processInputStream(inputStream, file);
 			IOUtils.closeQuietly(inputStream);
 			IOUtils.closeQuietly(fileInputStream);
 			successfullyProcessed = true;
 		} else {
-			final InputStream inputStream = new FileInputStream(file);
-			this.processInputStream(inputStream, file, attributes);
+			final InputStream inputStream = new FileInputStream(file.asFile());
+			this.processInputStream(inputStream, file);
 			IOUtils.closeQuietly(inputStream);
 			successfullyProcessed = true;
 		}
 		if (successfullyProcessed) {
 			try {
 				if (moveToArchiveFileProcessor != null) {
-					moveToArchiveFileProcessor.handleError(file, null);
+					moveToArchiveFileProcessor.handleError(file.getPath(), null);
 				} else {
 					file.delete();
 				}
@@ -222,37 +223,33 @@ public class FeedFileProcessor implements FileProcessor {
 		feedCompletionProcessor.process(globalAttributes);
 	}
 
-	private void processInputStream(final InputStream inputStream, final File file, final BasicFileAttributes fileAttributes) {
-		if (inputStream != null) {
-			final long start = System.currentTimeMillis();
+	private void processInputStream(final InputStream inputStream, final BaukFile file) {
+		final long start = System.currentTimeMillis();
+		if (isDebugEnabled) {
+			log.debug("Received filePath={}", file.getFullFilePath());
+		}
+		try {
+			final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(file);
+			if (beforeFeedProcessingProcessor != null) {
+				beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
+			}
+			if (feedCompletionProcessor == null) {
+				textFileReaderComponent.process(inputStream, globalAttributes);
+			} else {
+				this.processStreamWithCompletion(inputStream, globalAttributes);
+			}
+		} finally {
+			IOUtils.closeQuietly(inputStream);
+			final long total = System.currentTimeMillis() - start;
+			if (inputFeedsProcessed != null) {
+				inputFeedsProcessed.mark();
+			}
+			if (inputFeedProcessingTime != null) {
+				inputFeedProcessingTime.update(total);
+			}
 			if (isDebugEnabled) {
-				log.debug("Received filePath={}, attributes = {}", file.getAbsolutePath(), fileAttributes);
+				log.debug("Finished processing [{}] in {}ms", file.getFullFilePath(), total);
 			}
-			try {
-				final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(file, fileAttributes);
-				if (beforeFeedProcessingProcessor != null) {
-					beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
-				}
-				if (feedCompletionProcessor == null) {
-					textFileReaderComponent.process(inputStream, globalAttributes);
-				} else {
-					this.processStreamWithCompletion(inputStream, globalAttributes);
-				}
-			} finally {
-				IOUtils.closeQuietly(inputStream);
-				final long total = System.currentTimeMillis() - start;
-				if (inputFeedsProcessed != null) {
-					inputFeedsProcessed.mark();
-				}
-				if (inputFeedProcessingTime != null) {
-					inputFeedProcessingTime.update(total);
-				}
-				if (isDebugEnabled) {
-					log.debug("Finished processing [{}] in {}ms", file.getAbsolutePath(), total);
-				}
-			}
-		} else {
-			log.warn("Stream is null - unable to process file");
 		}
 	}
 
@@ -264,11 +261,18 @@ public class FeedFileProcessor implements FileProcessor {
 				+ fileExtension;
 	}
 
-	private Map<String, String> createImplicitGlobalAttributes(final File file, final BasicFileAttributes fileAttributes) {
-		final DateFormat dateFormat = new SimpleDateFormat(BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
-		log.info("All date/time values will be in format {}", BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
-		final Map<String, String> attributes = new THashMap<String, String>();
-		final String fileNameOnly = file.getName();
+	private void clearImplicitAttributes() {
+		implicitAttributes.clear();
+		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID, processorId);
+	}
+
+	private Map<String, String> createImplicitGlobalAttributes(final BaukFile file) {
+		if (isDebugEnabled) {
+			log.debug("All date/time values will be in format {}", BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
+		}
+		this.clearImplicitAttributes();
+		final Map<String, String> attributes = implicitAttributes;
+		final String fileNameOnly = file.getFileNameOnly();
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
 		final Map<String, String> parsedAttributesFromFeedFileName = feedFileNameProcessor.parseFeedFileName(fileNameOnly);
 		if (parsedAttributesFromFeedFileName != null && !parsedAttributesFromFeedFileName.isEmpty()) {
@@ -276,18 +280,14 @@ public class FeedFileProcessor implements FileProcessor {
 		} else {
 			log.info("Null or empty attributes returned by feed file name parser!");
 		}
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, file.getAbsolutePath());
-		final Long lastModifiedFeedFile = fileAttributes.lastModifiedTime().toMillis();
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, "" + lastModifiedFeedFile);
-		final Date lastModifiedFileDate = new Date();
-		lastModifiedFileDate.setTime(lastModifiedFeedFile);
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME, dateFormat.format(lastModifiedFileDate));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(fileAttributes.size()));
-		final Date now = new Date();
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getTime());
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, dateFormat.format(now));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, file.getFullFilePath());
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, "" + file.getLastModifiedTime());
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME, DATE_FORMATTER.print(file.getLastModifiedTime()));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(file.getSize()));
+		final long now = System.currentTimeMillis();
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, DATE_FORMATTER.print(now));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID, processorId);
 		if (isDebugEnabled) {
 			log.debug("Created global attributes {}", attributes);
 		}

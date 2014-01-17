@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.files.FileAttributesHashedNameFilter;
 import com.threeglav.bauk.files.FileFindingHandler;
 import com.threeglav.bauk.files.FileProcessingErrorHandler;
@@ -22,6 +24,9 @@ public class BulkFilesHandler {
 	private final BaukConfiguration config;
 	private int bulkProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
+	private final int bulkFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
+			SystemConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS,
+			SystemConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
 
 	public BulkFilesHandler(final FactFeed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
@@ -58,7 +63,8 @@ public class BulkFilesHandler {
 	private void createSingleFileHandler(final int routeId, final ExecutorService exec) {
 		final BulkFileProcessor bfp = new BulkFileProcessor(factFeed, config);
 		final String fullFileMask = ".*" + factFeed.getBulkLoadDefinition().getBulkLoadOutputExtension();
-		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, bulkProcessingThreads);
+		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, bulkProcessingThreads,
+				bulkFileAcceptanceTimeoutMillis);
 		final FileFindingHandler ffh = new FileFindingHandler(config.getBulkOutputDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
 		exec.submit(ffh);
 	}

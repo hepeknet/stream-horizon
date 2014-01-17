@@ -32,6 +32,13 @@
 		<property name="output.processing.statistics">false</property>
 		<!-- when outputting null value what should actually be written to output file, by default this is empty string - nothing will be written -->
 		<property name="bulk.output.file.null.value.string"></property>
+		<!-- how often to poll for input files (feed, bulk) -->
+		<property name="file.polling.delay.millis">1000</property>
+		<!-- following two properties can be 0 if file system allows atomic renames/moves of files. Data corruption can happen in case someone is writing to files while engine is consuming them -->
+		<!-- how old must be feed file before it can be accepted for processing. Can be 0 to immediately process files -->
+		<property name="feed.file.acceptance.timeout.millis">2000</property>
+		<!-- how old must be bulk file before it can be accepted for processing. Can be 0 to immediately process files -->
+		<property name="bulk.file.acceptance.timeout.millis">2000</property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>

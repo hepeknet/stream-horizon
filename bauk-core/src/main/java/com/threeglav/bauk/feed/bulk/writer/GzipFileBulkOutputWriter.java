@@ -1,9 +1,11 @@
 package com.threeglav.bauk.feed.bulk.writer;
 
-import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Map;
+import java.util.zip.Deflater;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -30,7 +32,7 @@ public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 				log.debug("Creating zip writer to [{}]", temporaryBulkOutputFilePath);
 			}
 			final FileOutputStream fos = new FileOutputStream(temporaryBulkOutputFilePath);
-			gzipOutStream = new GZIPOutputStream(new BufferedOutputStream(fos, bufferSize));
+			gzipOutStream = new CustomGzip(fos, bufferSize);
 			if (isDebugEnabled) {
 				log.debug("Successfully created writer to [{}]", temporaryBulkOutputFilePath);
 			}
@@ -79,6 +81,15 @@ public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 		this.renameOutputFile(finalBulkOutputFilePath, globalAttributes);
 		finalBulkOutputFilePath = null;
 		temporaryBulkOutputFilePath = null;
+	}
+
+	static class CustomGzip extends GZIPOutputStream {
+
+		public CustomGzip(final OutputStream out, final int size) throws IOException {
+			super(out, size);
+			def.setLevel(Deflater.BEST_SPEED);
+		}
+
 	}
 
 }

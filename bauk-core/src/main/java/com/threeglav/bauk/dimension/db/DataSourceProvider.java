@@ -19,7 +19,7 @@ public class DataSourceProvider {
 	// as recommended in bonecp documentation
 	private static final int DEFAULT_PARTITION_COUNT = 3;
 
-	private static final int DEFAULT_ACQUIRE_INCREMENT = 5;
+	private static final int DEFAULT_ACQUIRE_INCREMENT = 10;
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final BoneCPDataSource dataSource = new BoneCPDataSource();
@@ -70,6 +70,8 @@ public class DataSourceProvider {
 			dataSource.setMinConnectionsPerPartition(connectionsPerPartition);
 			dataSource.setMaxConnectionsPerPartition(connectionsPerPartition);
 			dataSource.setAcquireIncrement(DEFAULT_ACQUIRE_INCREMENT);
+			dataSource.setDisableJMX(true);
+			dataSource.setStatisticsEnabled(false);
 			return dataSource;
 		} catch (final Exception e) {
 			log.error("Exception starting connection pool", e);
@@ -86,6 +88,9 @@ public class DataSourceProvider {
 			throw new IllegalArgumentException("JDBC url must not be null or empty");
 		}
 		final BoneCPDataSource dataSource = new BoneCPDataSource();
+		dataSource.setAcquireIncrement(DEFAULT_ACQUIRE_INCREMENT);
+		dataSource.setDisableJMX(true);
+		dataSource.setStatisticsEnabled(false);
 		dataSource.setJdbcUrl(jdbcUrl);
 		return dataSource;
 	}

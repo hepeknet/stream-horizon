@@ -10,7 +10,7 @@ public interface FeedFileNameProcessor {
 	 * 
 	 * @param feedFileName
 	 *            the name of original feed file
-	 * @return map of context attribute names and values
+	 * @return map of context attribute names and values. Can return null
 	 */
 	Map<String, String> parseFeedFileName(String feedFileName);
 

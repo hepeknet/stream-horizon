@@ -8,10 +8,13 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.threeglav.bauk.files.BaukFile;
 
 public abstract class FileUtil {
 
@@ -56,6 +59,16 @@ public abstract class FileUtil {
 			LOG.error("IOException while moving files", ie);
 			throw new RuntimeException(ie);
 		}
+	}
+
+	public static BaukFile createBaukFile(final Path p, final BasicFileAttributes bfa) {
+		final BaukFile bf = new BaukFile();
+		bf.setLastModifiedTime(bfa.lastModifiedTime().toMillis());
+		bf.setSize(bfa.size());
+		bf.setFileNameOnly(p.getFileName().toString());
+		bf.setFullFilePath(p.toString());
+		bf.setPath(p);
+		return bf;
 	}
 
 }

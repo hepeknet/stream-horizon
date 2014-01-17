@@ -1,17 +1,19 @@
 package com.threeglav.bauk.files;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.util.StringUtil;
 
-public final class FileAttributesHashedNameFilter implements FileFilter {
+public final class FileAttributesHashedNameFilter implements DirectoryStream.Filter<Path> {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -19,10 +21,11 @@ public final class FileAttributesHashedNameFilter implements FileFilter {
 	private final int orderNum;
 	private final int totalNumberOfFilters;
 	private final boolean isDebugEnabled;
-	private final long createdTimeDifferenceMillis = 4000;
-	private final long lastModifiedDifferenceMillis = 2000;
+	private final long fileAcceptanceTimeoutMillis;
+	private final Pattern pattern;
 
-	public FileAttributesHashedNameFilter(final String fileMask, final int orderNum, final int totalNumberOfFilters) {
+	public FileAttributesHashedNameFilter(final String fileMask, final int orderNum, final int totalNumberOfFilters,
+			final int fileAcceptanceTimeoutMillis) {
 		if (StringUtil.isEmpty(fileMask)) {
 			throw new IllegalArgumentException("File mask must not be null or empty");
 		}
@@ -30,46 +33,48 @@ public final class FileAttributesHashedNameFilter implements FileFilter {
 			throw new IllegalArgumentException("Order must be lower than " + totalNumberOfFilters + ", currently it is " + orderNum);
 		}
 		this.fileMask = fileMask;
+		pattern = Pattern.compile(fileMask);
 		this.orderNum = orderNum;
 		this.totalNumberOfFilters = totalNumberOfFilters;
+		this.fileAcceptanceTimeoutMillis = fileAcceptanceTimeoutMillis;
 		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	@Override
-	public boolean accept(final File file) {
-		final String fileName = file.getName();
-		if (file.isDirectory()) {
-			log.debug("{} is directory. Skipping", fileName);
-			return false;
-		}
-		if (!fileName.matches(fileMask)) {
+	public boolean accept(final Path path) throws IOException {
+		final String fileName = path.getFileName().toString();
+		final Matcher m = pattern.matcher(fileName);
+		if (!m.matches()) {
 			if (isDebugEnabled) {
 				log.debug("{} does not match pattern {}. Skipping", fileName, fileMask);
 			}
 			return false;
 		}
-		try {
-			final BasicFileAttributes bfa = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+		final BasicFileAttributes bfa = Files.readAttributes(path, BasicFileAttributes.class);
+		if (bfa.isDirectory()) {
+			log.debug("{} is directory. Skipping", fileName);
+			return false;
+		}
+		if (fileAcceptanceTimeoutMillis > 0) {
 			final long lastModifiedFile = bfa.lastModifiedTime().toMillis();
 			final long fileCreated = bfa.creationTime().toMillis();
 			final long now = System.currentTimeMillis();
-			if (now - lastModifiedFile < lastModifiedDifferenceMillis) {
-				log.info("File {} was modified within last {}ms and will not accept to process it", fileName, lastModifiedDifferenceMillis);
-				return false;
-			} else if (now - fileCreated < createdTimeDifferenceMillis) {
-				log.info("File {} was created within last {}ms and will not accept to process it", fileName, createdTimeDifferenceMillis);
+			if (now - lastModifiedFile < fileAcceptanceTimeoutMillis) {
+				log.info("File {} was modified within last {}ms and will not accept to process it", fileName, fileAcceptanceTimeoutMillis);
 				return false;
 			}
-		} catch (final IOException ie) {
-			log.error("Was not able to get file attributes for {}. Details {}", fileName, ie.getMessage());
+			if (now - fileCreated < fileAcceptanceTimeoutMillis) {
+				log.info("File {} was created within last {}ms and will not accept to process it", fileName, fileAcceptanceTimeoutMillis);
+				return false;
+			}
 		}
 		if (isDebugEnabled) {
 			log.debug("{} matches pattern {}. Checking if this thread should process it!", fileName, fileMask);
 		}
-		final String fullFileName = file.getAbsolutePath();
+		final String fullFileName = path.toString();
 		int hash = fullFileName.hashCode();
-		final long fileSize = file.length();
-		final int additionalSeed = (int) (file.lastModified() / 31 + fileSize / 17);
+		final long fileSize = bfa.size();
+		final int additionalSeed = (int) (fileSize / 17);
 		hash = hash + additionalSeed * 11;
 		if (hash < 0) {
 			hash = -hash;

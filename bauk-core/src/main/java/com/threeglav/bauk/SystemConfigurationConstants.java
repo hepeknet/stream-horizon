@@ -60,4 +60,16 @@ public interface SystemConfigurationConstants {
 	 */
 	public static final String BULK_OUTPUT_FILE_NULL_VALUE_DEFAULT = "";
 
+	public static final String FILE_POLLING_DELAY_MILLIS_PARAM_NAME = "file.polling.delay.millis";
+
+	public static final int FILE_POLLING_DELAY_MILLIS_DEFAULT = 1000;
+
+	public static final String FEED_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS = "feed.file.acceptance.timeout.millis";
+
+	public static final int FEED_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT = 2000;
+
+	public static final String BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS = "bulk.file.acceptance.timeout.millis";
+
+	public static final int BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT = 2000;
+
 }

@@ -1,7 +1,6 @@
 package com.threeglav.bauk.files;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 
 import org.slf4j.Logger;
@@ -34,28 +33,20 @@ public class MoveFileErrorHandler implements FileProcessingErrorHandler {
 	}
 
 	@Override
-	public void handleError(final File f, final Exception exc) throws IOException {
-		final String originalFilePath = f.getAbsolutePath();
+	public void handleError(final Path path, final Exception exc) {
 		if (exc != null) {
-			log.error("Caught exception while processing file {}. Triggering error handling!", originalFilePath);
+			log.error("Caught exception while processing file {}. Triggering error handling!", path.toString());
 			log.error("Exception ", exc);
 		}
-		if (StringUtil.isEmpty(originalFilePath)) {
-			throw new IllegalArgumentException("Was not able to find file to be moved");
+		final Path destinationPath = targetFolderPath.resolve(path.getFileName());
+		final long start = System.currentTimeMillis();
+		FileUtil.moveFile(path, destinationPath);
+		final long total = System.currentTimeMillis() - start;
+		if (isDebugEnabled) {
+			log.debug("Moved {} to {}. In total took {}ms to move this file", path, targetFolderPath, total);
 		}
-		final File originalFile = new File(originalFilePath);
-		if (originalFile.isFile() && originalFile.exists()) {
-			final Path originalPath = originalFile.toPath();
-			final Path destinationPath = targetFolderPath.resolve(originalPath.getFileName());
-			final long start = System.currentTimeMillis();
-			FileUtil.moveFile(originalPath, destinationPath);
-			final long total = System.currentTimeMillis() - start;
-			if (isDebugEnabled) {
-				log.debug("Moved {} to {}. In total took {}ms to move this file", originalFilePath, targetFolderPath, total);
-			}
-			if (moveFilesTimeTakenHistogram != null) {
-				moveFilesTimeTakenHistogram.update(total);
-			}
+		if (moveFilesTimeTakenHistogram != null) {
+			moveFilesTimeTakenHistogram.update(total);
 		}
 	}
 

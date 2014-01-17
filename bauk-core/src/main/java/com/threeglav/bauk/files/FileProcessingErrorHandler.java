@@ -1,10 +1,9 @@
 package com.threeglav.bauk.files;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
 
 public interface FileProcessingErrorHandler {
 
-	void handleError(File f, Exception exc) throws IOException;
+	void handleError(Path path, Exception exc);
 
 }

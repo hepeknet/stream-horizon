@@ -1,6 +1,8 @@
 <configuration scan="true">
 
+	<!--
 	<jmxConfigurator />
+	-->
 
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>../log/bauk.log</file>

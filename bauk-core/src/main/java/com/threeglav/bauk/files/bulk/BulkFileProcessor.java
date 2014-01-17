@@ -2,8 +2,7 @@ package com.threeglav.bauk.files.bulk;
 
 import gnu.trove.map.hash.THashMap;
 
-import java.io.File;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,6 +15,7 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.files.BaukFile;
 import com.threeglav.bauk.files.FileProcessor;
 import com.threeglav.bauk.model.AfterBulkLoadSuccess;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -29,6 +29,8 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final AtomicInteger COUNTER = new AtomicInteger(0);
+
+	private final Map<String, String> implicitAttributes = new THashMap<String, String>();
 
 	private final Meter successfullyLoadedBulkFilesMeter;
 	private final String dbStringLiteral;
@@ -61,13 +63,13 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	}
 
 	@Override
-	public void process(final File file, final BasicFileAttributes attributes) {
-		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(attributes, file);
+	public void process(final BaukFile file) {
+		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(file);
 		final String bulkLoadFilePath = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
 		if (isDebugEnabled) {
 			log.debug("Bulk loading {}", bulkLoadFilePath);
 		}
-		final String fileNameOnly = file.getName();
+		final String fileNameOnly = file.getFileNameOnly();
 		final boolean alreadySubmitted = fileSubmissionRecorder.wasAlreadySubmitted(fileNameOnly);
 		if (alreadySubmitted) {
 			if (isDebugEnabled) {
@@ -85,9 +87,10 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		}
 		this.executeBulkLoadingCommandSequence(globalAttributes, bulkLoadStatement);
 		fileSubmissionRecorder.deleteLoadedFile(fileNameOnly);
-		final boolean deleted = file.delete();
-		if (!deleted) {
-			log.error("Was not able to delete {}", bulkLoadFilePath);
+		try {
+			file.delete();
+		} catch (final IOException ie) {
+			log.error("Exception while deleting bulk file", ie);
 		}
 	}
 
@@ -146,20 +149,27 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		}
 	}
 
-	private Map<String, String> createImplicitGlobalAttributes(final BasicFileAttributes bfa, final File file) {
-		final Map<String, String> attributes = new THashMap<String, String>();
-		final String fileNameOnly = file.getName();
-		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
-		final String inputFileAbsolutePath = file.getAbsolutePath();
-		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH, StringUtil.fixFilePath(inputFileAbsolutePath));
-		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP,
-				String.valueOf(bfa.lastModifiedTime().toMillis()));
-		attributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
+	private void clearImplicitAttributes() {
+		implicitAttributes.clear();
+		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
+	}
+
+	private Map<String, String> createImplicitGlobalAttributes(final BaukFile file) {
+		final String fileNameOnly = file.getFileNameOnly();
+		this.clearImplicitAttributes();
+		implicitAttributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
+		final String inputFileAbsolutePath = file.getFullFilePath();
+		implicitAttributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH,
+				StringUtil.fixFilePath(inputFileAbsolutePath));
+		implicitAttributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_TIMESTAMP,
+				String.valueOf(file.getLastModifiedTime()));
+		implicitAttributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_PROCESSED_TIMESTAMP,
+				String.valueOf(System.currentTimeMillis()));
+		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
 		if (isDebugEnabled) {
-			log.debug("Created global attributes {}", attributes);
+			log.debug("Created global attributes {}", implicitAttributes);
 		}
-		return attributes;
+		return implicitAttributes;
 	}
 
 }

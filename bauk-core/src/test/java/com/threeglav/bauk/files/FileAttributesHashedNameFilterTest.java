@@ -11,13 +11,13 @@ import org.junit.Test;
 public class FileAttributesHashedNameFilterTest {
 
 	@Test
-	public void test() throws Exception {
+	public void testWithDelay() throws Exception {
 		final Random r = new Random();
 		final int maxNum = r.nextInt(11);
 		final String extension = "baukAbc";
 		final FileAttributesHashedNameFilter[] filters = new FileAttributesHashedNameFilter[maxNum];
 		for (int i = 0; i < maxNum; i++) {
-			filters[i] = new FileAttributesHashedNameFilter(".*" + extension, i, maxNum);
+			filters[i] = new FileAttributesHashedNameFilter(".*" + extension, i, maxNum, 3000);
 		}
 		final int tests = 10;
 		final File[] files = new File[tests];
@@ -30,7 +30,33 @@ public class FileAttributesHashedNameFilterTest {
 			int countMatches = 0;
 			final File file = files[i];
 			for (final FileAttributesHashedNameFilter filter : filters) {
-				if (filter.accept(file)) {
+				if (filter.accept(file.toPath())) {
+					countMatches++;
+				}
+			}
+			Assert.assertEquals(1, countMatches);
+		}
+	}
+
+	@Test
+	public void testNoDelay() throws Exception {
+		final Random r = new Random();
+		final int maxNum = r.nextInt(11);
+		final String extension = "baukAbc";
+		final FileAttributesHashedNameFilter[] filters = new FileAttributesHashedNameFilter[maxNum];
+		for (int i = 0; i < maxNum; i++) {
+			filters[i] = new FileAttributesHashedNameFilter(".*" + extension, i, maxNum, 0);
+		}
+		final int tests = 10;
+		final File[] files = new File[tests];
+		for (int i = 0; i < tests; i++) {
+			files[i] = this.createAndFillTemporaryFile(extension);
+		}
+		for (int i = 0; i < 10; i++) {
+			int countMatches = 0;
+			final File file = files[i];
+			for (final FileAttributesHashedNameFilter filter : filters) {
+				if (filter.accept(file.toPath())) {
 					countMatches++;
 				}
 			}
