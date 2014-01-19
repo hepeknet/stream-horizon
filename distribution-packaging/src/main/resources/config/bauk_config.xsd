@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <xs:element name="afterBulkLoadSuccess" type="afterBulkLoadSuccess"/>
-
   <xs:element name="baukAttribute" type="baukAttribute"/>
+
+  <xs:element name="baukCommand" type="baukCommand"/>
 
   <xs:element name="baukProperty" type="baukProperty"/>
 
@@ -92,13 +92,6 @@
       <xs:element ref="data" minOccurs="0"/>
       <xs:element ref="footer" minOccurs="0"/>
       <xs:element ref="bulkLoadDefinition" minOccurs="0"/>
-      <xs:element name="afterFeedProcessingCompletion" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="sqlStatement" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
       <xs:element name="beforeFeedProcessing" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
@@ -107,6 +100,20 @@
         </xs:complexType>
       </xs:element>
       <xs:element ref="threadPoolSizes" minOccurs="0"/>
+      <xs:element name="onStartupCommands" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="afterFeedCompletion" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:all>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="type" type="factFeedType" use="required"/>
@@ -172,7 +179,13 @@
       <xs:element name="bulkLoadFileDelimiter" type="xs:string" default="," minOccurs="0"/>
       <xs:element ref="bulkLoadFormatDefinition" minOccurs="0"/>
       <xs:element name="bulkLoadInsertStatement" type="xs:string" minOccurs="0"/>
-      <xs:element ref="afterBulkLoadSuccess" minOccurs="0"/>
+      <xs:element name="afterBulkLoadSuccess" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="output-file-name-pattern" type="xs:string" minOccurs="0"/>
     </xs:all>
     <xs:attribute name="outputType" type="bulkLoadDefinitionOutputType"/>
@@ -190,16 +203,12 @@
     </xs:sequence>
   </xs:complexType>
 
-  <xs:complexType name="afterBulkLoadSuccess">
-    <xs:sequence>
-      <xs:element name="sqlStatements" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="sqlStatement" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-    </xs:sequence>
+  <xs:complexType name="baukCommand">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="commandType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
   <xs:complexType name="mappedResultsSQLStatement">
@@ -294,6 +303,13 @@
       <xs:enumeration value="strict"/>
       <xs:enumeration value="no_footer"/>
       <xs:enumeration value="skip"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="commandType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sql"/>
+      <xs:enumeration value="shell"/>
     </xs:restriction>
   </xs:simpleType>
 

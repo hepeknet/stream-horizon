@@ -21,6 +21,8 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final int[] sqlTypes;
 	private PreparedStatement preparedStatement;
 	private final int warningThreshold;
+	private final int batchSize;
+	private int rowCounter = 0;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -44,6 +46,9 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		this.initializePreparedStatement();
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
+		batchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
+				SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
+		log.info("Will use {} batch size for loading bulk data", batchSize);
 	}
 
 	private int convertTypeToInt(final BaukAttributeType type) {
@@ -72,10 +77,17 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void doOutput(final Object[] resolvedData) {
 		try {
+			rowCounter++;
 			for (int i = 0; i < resolvedData.length; i++) {
 				preparedStatement.setObject(i + 1, resolvedData[i], sqlTypes[i]);
 			}
 			preparedStatement.addBatch();
+			if (rowCounter == batchSize) {
+				if (isDebugEnabled) {
+					log.debug("Executing jdbc batch of size {}", batchSize);
+				}
+				this.doExecuteJdbcBatch();
+			}
 		} catch (final SQLException e) {
 			throw new RuntimeException("Problem while populating batch in JDBC statement", e);
 		}
@@ -86,8 +98,13 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (preparedStatement == null) {
 			throw new IllegalStateException("Prepared statement is null! Should not happen!");
 		}
+		this.doExecuteJdbcBatch();
+	}
+
+	private void doExecuteJdbcBatch() {
 		try {
 			final long start = System.currentTimeMillis();
+			rowCounter = 0;
 			final int[] values = preparedStatement.executeBatch();
 			if (isDebugEnabled) {
 				int count = 0;

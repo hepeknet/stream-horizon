@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.model.FactFeed;
@@ -169,9 +170,9 @@ class ConfigurationValidator {
 			}
 		}
 		if (ff.getAfterFeedProcessingCompletion() != null) {
-			for (final String stat : ff.getAfterFeedProcessingCompletion()) {
-				if (!StringUtil.isEmpty(stat)) {
-					final Set<String> used = StringUtil.collectAllAttributesFromString(stat);
+			for (final BaukCommand bc : ff.getAfterFeedProcessingCompletion()) {
+				if (!StringUtil.isEmpty(bc.getCommand())) {
+					final Set<String> used = StringUtil.collectAllAttributesFromString(bc.getCommand());
 					if (used != null) {
 						attrs.addAll(used);
 					}
@@ -187,9 +188,9 @@ class ConfigurationValidator {
 				}
 			}
 			if (ff.getBulkLoadDefinition().getAfterBulkLoadSuccess() != null) {
-				for (final String stat : ff.getBulkLoadDefinition().getAfterBulkLoadSuccess().getSqlStatements()) {
-					if (!StringUtil.isEmpty(stat)) {
-						final Set<String> used = StringUtil.collectAllAttributesFromString(stat);
+				for (final BaukCommand bc : ff.getBulkLoadDefinition().getAfterBulkLoadSuccess()) {
+					if (!StringUtil.isEmpty(bc.getCommand())) {
+						final Set<String> used = StringUtil.collectAllAttributesFromString(bc.getCommand());
 						if (used != null) {
 							attrs.addAll(used);
 						}

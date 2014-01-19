@@ -50,16 +50,20 @@ public class FactFeed {
 	@XmlElement
 	private BulkLoadDefinition bulkLoadDefinition;
 
-	@XmlElementWrapper(name = "afterFeedProcessingCompletion")
-	@XmlElement(name = "sqlStatement")
-	private List<String> afterFeedProcessingCompletion;
-
 	@XmlElementWrapper(name = "beforeFeedProcessing")
 	@XmlElement(name = "sqlStatement")
 	private List<MappedResultsSQLStatement> beforeFeedProcessing;
 
 	@XmlElement
 	private ThreadPoolSizes threadPoolSizes;
+
+	@XmlElementWrapper(name = "onStartupCommands")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> onStartup;
+
+	@XmlElementWrapper(name = "afterFeedCompletion")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> afterFeedProcessingCompletion;
 
 	public String getName() {
 		return name;
@@ -149,14 +153,6 @@ public class FactFeed {
 		this.threadPoolSizes = threadPoolSizes;
 	}
 
-	public List<String> getAfterFeedProcessingCompletion() {
-		return afterFeedProcessingCompletion;
-	}
-
-	public void setAfterFeedProcessingCompletion(final List<String> afterFeedProcessingCompletion) {
-		this.afterFeedProcessingCompletion = afterFeedProcessingCompletion;
-	}
-
 	public List<MappedResultsSQLStatement> getBeforeFeedProcessing() {
 		return beforeFeedProcessing;
 	}
@@ -171,6 +167,22 @@ public class FactFeed {
 
 	public void setFileNameProcessorClassName(final String fileNameProcessorClassName) {
 		this.fileNameProcessorClassName = fileNameProcessorClassName;
+	}
+
+	public ArrayList<BaukCommand> getOnStartup() {
+		return onStartup;
+	}
+
+	public void setOnStartup(final ArrayList<BaukCommand> onStartup) {
+		this.onStartup = onStartup;
+	}
+
+	public ArrayList<BaukCommand> getAfterFeedProcessingCompletion() {
+		return afterFeedProcessingCompletion;
+	}
+
+	public void setAfterFeedProcessingCompletion(final ArrayList<BaukCommand> afterFeedProcessingCompletion) {
+		this.afterFeedProcessingCompletion = afterFeedProcessingCompletion;
 	}
 
 }

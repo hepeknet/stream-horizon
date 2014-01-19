@@ -72,4 +72,8 @@ public interface SystemConfigurationConstants {
 
 	public static final int BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT = 2000;
 
+	public static final String JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME = "jdbc.bulk.loading.batch.size";
+
+	public static final int JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT = 10000;
+
 }

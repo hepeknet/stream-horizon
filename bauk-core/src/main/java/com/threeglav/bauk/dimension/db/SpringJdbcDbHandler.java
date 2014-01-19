@@ -56,12 +56,12 @@ public final class SpringJdbcDbHandler implements DbHandler {
 
 	@Override
 	public Long executeQueryStatementAndReturnKey(final String statement, final String dimensionName) {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
 		try {
-			if (StringUtil.isEmpty(statement)) {
-				throw new IllegalArgumentException("Statement must not be null or empty!");
-			}
 			if (isDebugEnabled) {
-				log.debug("About to execute query statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
+				log.debug("About to execute query statement [{}]. Will expect that it returns surrogate key as first field of type long", statement);
 			}
 			final long start = System.currentTimeMillis();
 			final List<Long> queryResults = jdbcTemplate.query(statement, new RowMapper<Long>() {
@@ -102,10 +102,10 @@ public final class SpringJdbcDbHandler implements DbHandler {
 
 	@Override
 	public Long executeInsertStatementAndReturnKey(final String statement, final String description) {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
 		try {
-			if (StringUtil.isEmpty(statement)) {
-				throw new IllegalArgumentException("Statement must not be null or empty!");
-			}
 			if (isDebugEnabled) {
 				log.debug("About to execute insert statement [{}], Will expect that it returns surrogate key as first field of type long", statement);
 			}
@@ -140,10 +140,10 @@ public final class SpringJdbcDbHandler implements DbHandler {
 
 	@Override
 	public void executeInsertOrUpdateStatement(final String statement, final String description) {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
 		try {
-			if (StringUtil.isEmpty(statement)) {
-				throw new IllegalArgumentException("Statement must not be null or empty!");
-			}
 			final long start = System.currentTimeMillis();
 			if (isDebugEnabled) {
 				log.debug("About to execute insert/update statement [{}]", statement);
@@ -172,13 +172,13 @@ public final class SpringJdbcDbHandler implements DbHandler {
 
 	@Override
 	public List<DimensionKeysPair> queryForDimensionKeys(final String dimensionName, final String statement, final int numberOfNaturalKeyColumns) {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null");
+		}
+		if (StringUtil.isEmpty(dimensionName)) {
+			throw new IllegalArgumentException("Dimension name must not be null");
+		}
 		try {
-			if (StringUtil.isEmpty(statement)) {
-				throw new IllegalArgumentException("Statement must not be null");
-			}
-			if (StringUtil.isEmpty(dimensionName)) {
-				throw new IllegalArgumentException("Dimension name must not be null");
-			}
 			final int expectedTotalValues = numberOfNaturalKeyColumns + 1;
 			final long start = System.currentTimeMillis();
 			log.debug("About to execute query statement [{}]", statement);
@@ -203,10 +203,10 @@ public final class SpringJdbcDbHandler implements DbHandler {
 
 	@Override
 	public Map<String, String> executeSelectStatement(final String statement, final String description) {
+		if (StringUtil.isEmpty(statement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
 		try {
-			if (StringUtil.isEmpty(statement)) {
-				throw new IllegalArgumentException("Statement must not be null or empty!");
-			}
 			if (isDebugEnabled) {
 				log.debug("About to execute query statement [{}], Will return all results as string values", statement);
 			}

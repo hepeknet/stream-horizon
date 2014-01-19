@@ -39,6 +39,8 @@
 		<property name="feed.file.acceptance.timeout.millis">2000</property>
 		<!-- how old must be bulk file before it can be accepted for processing. Can be 0 to immediately process files -->
 		<property name="bulk.file.acceptance.timeout.millis">2000</property>
+		<!-- batch size to be used when loading bulk using jdbc. Whenever number of batched values reaches this number it will be executed and batching will start again -->
+		<property name="jdbc.bulk.loading.batch.size">10000</property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
@@ -52,6 +54,13 @@
 		<!-- feed can be of type full, repetitive, delta and control -->
 		<!-- control feed can not have header and footer and it can have only one line, which will be exposed as context attributes -->
 		<factFeed name="NOTIF" type="control">
+			<!-- executed on startup, before any feed files are processed -->
+			<!-- order of commands is important, failure of one command will stop others to execute -->
+			<onStartupCommands>
+				<command type="shell">d:/first.bat</command>
+				<command type="sql">update fact_table set key=1 where key=-100</command>
+				<command type="shell">d:/second.bat</command>
+			</onStartupCommands>
 			<fileNameMasks>
 				<!-- masks must be valid Java regex -->
 				<fileNameMask>.*NOTIF.*</fileNameMask>
@@ -83,14 +92,7 @@
 			<!-- footer process can be skip or strict -->
 			<!-- skip means last line will be skipped, strict means that last line will be processed and validity of footer will be checked -->
 			<footer process="skip" />
-			<bulkLoadDefinition outputType="none" />			
-			<afterFeedProcessingCompletion>
-				<!-- any number of sql statements/procedure calls. Executed in sequential order -->
-				<sqlStatement>
-					CALL warehouse.NOTIFFEED('${guid}', '${runGuid}', ${taskCount}, ${fileCount}, ${persistedTaskCount}, ${persistedTradeCount}, ${persistedValidValuesCount}, ${persistedInvalidValuesCount}, ${notPersistedTaskCount}, ${notPersistedTradeCount},
-					'${feedInputFileName}', '${completionFeedProcessingErrorDescription}', CURRENT_TIMESTAMP, '', CURRENT_TIMESTAMP, 'SOURCE', 'NOTIF')
-				</sqlStatement>
-			</afterFeedProcessingCompletion>
+			<bulkLoadDefinition outputType="none" />
 			<threadPoolSizes>
 				<!-- 0 to turn off feature -->
 				<feedProcessingThreads>1</feedProcessingThreads>
@@ -231,22 +233,21 @@
 				<output-file-name-pattern></output-file-name-pattern>
 				<!-- executed by DB loading threads -->
 				<afterBulkLoadSuccess>
-					<!-- statements to be invoked after bulkLoadInsertStatement was successfully invoked. Same thread executes this! -->
-					<sqlStatements>
-						<!-- can be any sql statement/stored procedure. Invoked in sequential order -->
-						<sqlStatement>CALL simpleproc(@a)</sqlStatement>
-						<sqlStatement>CALL simpleproc(@b)</sqlStatement>
-					</sqlStatements>
+					<!-- statements to be invoked after bulkLoadInsertStatement was successfully invoked. Same thread executes this! Commands are executed in order -->
+					<command type="shell">d:/first.bat</command>
+					<command type="sql">CALL simpleproc1(@a)</command>
+					<command type="sql">CALL simpleproc2(@a)</command>
+					<command type="shell">d:/second.bat</command>
 				</afterBulkLoadSuccess>
 			</bulkLoadDefinition>
-			<!-- following is executed by feed processing threads -->
+			<!-- following is executed by feed processing threads in the order specified -->
 			<afterFeedProcessingCompletion>
-				<!-- can be any sql statement -->
-				<sqlStatement>
-					CALL warehouse.DATAFEED('${guid}', 'analyticsRequestGuid', '${runTag}', trunc(to_date('${businessDate}','DD/MM/YYYY')), '${rerunGuid}','requestName','batchType','${portfolio}', ${RWH_PORTFOLIO_DIM.sk}, ${completionNumberOfRowsInFeed},to_timestamp('${feedInputfileReceivedDateTime}', 'DD/MM/YYYY HH24:MI:SS.FF3'),
+				<command type="shell">d:/first.bat</command>
+				<!-- it is possible to use any context attributes here -->
+				<command type="sql">CALL warehouse.DATAFEED('${guid}', 'analyticsRequestGuid', '${runTag}', trunc(to_date('${businessDate}','DD/MM/YYYY')), '${rerunGuid}','requestName','batchType','${portfolio}', ${RWH_PORTFOLIO_DIM.sk}, ${completionNumberOfRowsInFeed},to_timestamp('${feedInputfileReceivedDateTime}', 'DD/MM/YYYY HH24:MI:SS.FF3'),
                       'CS', '${intradayName}', '${guid}','RISK', 'RISK_fileName', trunc(to_timestamp('${feedInputfileProcessingStartedDateTime}','DD/MM/YYYY HH24:MI:SS.FF3')), '${fileUserName}','${location}','${qlVersion}','${completionFeedProcessingSuccessFailureFlag}',
-                      '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')
-				</sqlStatement>
+                      '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')</command>
+				<command type="shell">d:/second.bat</command>
 			</afterFeedProcessingCompletion>
 			<threadPoolSizes>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->

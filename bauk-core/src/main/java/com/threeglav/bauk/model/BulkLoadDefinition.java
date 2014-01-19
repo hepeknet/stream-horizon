@@ -1,9 +1,12 @@
 package com.threeglav.bauk.model;
 
+import java.util.ArrayList;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -26,8 +29,9 @@ public class BulkLoadDefinition {
 	@XmlElement(required = false)
 	private String bulkLoadInsertStatement;
 
-	@XmlElement(required = false)
-	private AfterBulkLoadSuccess afterBulkLoadSuccess;
+	@XmlElementWrapper(name = "afterBulkLoadSuccess")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> afterBulkLoadSuccess;
 
 	@XmlAttribute(required = false)
 	private BulkLoadDefinitionOutputType outputType = BulkLoadDefinitionOutputType.FILE;
@@ -59,14 +63,6 @@ public class BulkLoadDefinition {
 		this.bulkLoadInsertStatement = bulkLoadInsertStatement;
 	}
 
-	public AfterBulkLoadSuccess getAfterBulkLoadSuccess() {
-		return afterBulkLoadSuccess;
-	}
-
-	public void setAfterBulkLoadSuccess(final AfterBulkLoadSuccess onBulkLoadSuccess) {
-		afterBulkLoadSuccess = onBulkLoadSuccess;
-	}
-
 	public BulkLoadDefinitionOutputType getOutputType() {
 		return outputType;
 	}
@@ -89,6 +85,14 @@ public class BulkLoadDefinition {
 
 	public void setBulkLoadFileDelimiter(final String bulkLoadFileDelimiter) {
 		this.bulkLoadFileDelimiter = bulkLoadFileDelimiter;
+	}
+
+	public ArrayList<BaukCommand> getAfterBulkLoadSuccess() {
+		return afterBulkLoadSuccess;
+	}
+
+	public void setAfterBulkLoadSuccess(final ArrayList<BaukCommand> afterBulkLoadSuccess) {
+		this.afterBulkLoadSuccess = afterBulkLoadSuccess;
 	}
 
 }

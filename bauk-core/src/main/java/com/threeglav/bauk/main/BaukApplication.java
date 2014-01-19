@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
 import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.files.bulk.BulkFilesHandler;
@@ -74,6 +75,7 @@ public class BaukApplication {
 	private static void createCamelRoutes(final BaukConfiguration config) throws Exception {
 		LOG.debug("Starting camel routes...");
 		for (final FactFeed feed : config.getFactFeeds()) {
+			executeOnStartupCommands(feed, config);
 			LOG.trace("Creating routes for feed [{}]", feed.getName());
 			try {
 				final FeedFilesHandler feedFilesHandler = new FeedFilesHandler(feed, config);
@@ -90,6 +92,19 @@ public class BaukApplication {
 		}
 		LOG.debug("Starting camel context");
 		LOG.debug("Successfully started camel context");
+	}
+
+	private static void executeOnStartupCommands(final FactFeed feed, final BaukConfiguration config) {
+		if (feed.getOnStartup() != null) {
+			try {
+				LOG.debug("Executing on-startup commands for feed {}", feed.getName());
+				final BaukCommandsExecutor bce = new BaukCommandsExecutor(feed, config);
+				bce.executeBaukCommandSequence(feed.getOnStartup(), null, "On startup commands for feed " + feed.getName());
+				LOG.debug("Finished executing on startup commands for {}", feed.getName());
+			} catch (final Exception exc) {
+				LOG.error("Exception while executing on startup commands. Will continue with processing.", exc);
+			}
+		}
 	}
 
 	private static final BaukConfiguration findConfiguration() {

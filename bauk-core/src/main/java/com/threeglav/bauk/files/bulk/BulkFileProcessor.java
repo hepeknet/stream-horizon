@@ -3,6 +3,7 @@ package com.threeglav.bauk.files.bulk;
 import gnu.trove.map.hash.THashMap;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,9 +16,10 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.files.BaukFile;
 import com.threeglav.bauk.files.FileProcessor;
-import com.threeglav.bauk.model.AfterBulkLoadSuccess;
+import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
@@ -41,7 +43,9 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private final boolean isDebugEnabled;
 	private final boolean outputProcessingStatistics;
 	private final String bulkLoadStatement;
+	private final boolean shouldExecuteOnBulkLoadSuccess;
 	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
+	private final BaukCommandsExecutor commandsExecutor;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -60,6 +64,9 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			throw new IllegalStateException("Could not find insert statement for bulk loading files!");
 		}
 		bulkLoadStatement = insertStatement;
+		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
+		shouldExecuteOnBulkLoadSuccess = onBulkLoadSuccess != null && !onBulkLoadSuccess.isEmpty();
+		commandsExecutor = new BaukCommandsExecutor(factFeed, config);
 	}
 
 	@Override
@@ -122,31 +129,20 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 					+ totalBulkLoadedFiles + " files so far";
 			BaukUtil.logBulkLoadEngineMessage(message);
 		}
-		this.executeOnSuccessBulkLoad(globalAttributes);
+		if (shouldExecuteOnBulkLoadSuccess) {
+			this.executeOnSuccessBulkLoad(globalAttributes);
+		}
 		if (successfullyLoadedBulkFilesMeter != null) {
 			successfullyLoadedBulkFilesMeter.mark();
 		}
 	}
 
 	private void executeOnSuccessBulkLoad(final Map<String, String> globalAttributes) {
-		final AfterBulkLoadSuccess onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
-		if (onBulkLoadSuccess != null) {
-			if (onBulkLoadSuccess.getSqlStatements() != null) {
-				if (isDebugEnabled) {
-					log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
-				}
-				for (final String sqlStatement : onBulkLoadSuccess.getSqlStatements()) {
-					final String replaced = StringUtil.replaceAllAttributes(sqlStatement, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
-					if (isDebugEnabled) {
-						log.debug("Trying to execute statement [{}]", replaced);
-					}
-					this.getDbHandler().executeInsertOrUpdateStatement(replaced, statementDescription);
-					if (isDebugEnabled) {
-						log.debug("Successfully finished execution of [{}]", replaced);
-					}
-				}
-			}
+		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
+		if (isDebugEnabled) {
+			log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
 		}
+		commandsExecutor.executeBaukCommandSequence(onBulkLoadSuccess, globalAttributes, "On bulk load success command-sequence");
 	}
 
 	private void clearImplicitAttributes() {
