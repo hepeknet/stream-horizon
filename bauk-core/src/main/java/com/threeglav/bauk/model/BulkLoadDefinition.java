@@ -33,6 +33,10 @@ public class BulkLoadDefinition {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> afterBulkLoadSuccess;
 
+	@XmlElementWrapper(name = "onBulkLoadFailure")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> onBulkLoadFailure;
+
 	@XmlAttribute(required = false)
 	private BulkLoadDefinitionOutputType outputType = BulkLoadDefinitionOutputType.FILE;
 
@@ -93,6 +97,14 @@ public class BulkLoadDefinition {
 
 	public void setAfterBulkLoadSuccess(final ArrayList<BaukCommand> afterBulkLoadSuccess) {
 		this.afterBulkLoadSuccess = afterBulkLoadSuccess;
+	}
+
+	public ArrayList<BaukCommand> getOnBulkLoadFailure() {
+		return onBulkLoadFailure;
+	}
+
+	public void setOnBulkLoadFailure(final ArrayList<BaukCommand> onBulkLoadFailure) {
+		this.onBulkLoadFailure = onBulkLoadFailure;
 	}
 
 }

@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface BulkOutputWriter {
 
-	public abstract void initialize(String outputFilePath);
+	public abstract void initialize(Map<String, String> globalAttributes);
 
 	public abstract void doOutput(Object[] resolvedData);
 

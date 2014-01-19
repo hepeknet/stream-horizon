@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
@@ -23,6 +24,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final int warningThreshold;
 	private final int batchSize;
 	private int rowCounter = 0;
+	private final boolean hasAnyGlobalAttributesToReplace;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -43,11 +45,12 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			sqlTypes[i] = this.convertTypeToInt(attr.getType());
 			log.debug("For attribute at position {} will use sql type {}", i, attr.getType());
 		}
-		this.initializePreparedStatement();
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		batchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
 				SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
+		final Set<String> allGlobalAttributesUsedInStatement = StringUtil.collectAllAttributesFromString(insertStatement);
+		hasAnyGlobalAttributesToReplace = allGlobalAttributesUsedInStatement != null && !allGlobalAttributesUsedInStatement.isEmpty();
 		log.info("Will use {} batch size for loading bulk data", batchSize);
 	}
 
@@ -61,17 +64,26 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 	}
 
-	private void initializePreparedStatement() {
+	private void initializePreparedStatement(final Map<String, String> globalAttributes) {
 		try {
-			preparedStatement = DataSourceProvider.getDataSource(this.getConfig()).getConnection().prepareStatement(insertStatement);
-			log.info("Successfully initialized prepared statement {}", insertStatement);
+			String statement = insertStatement;
+			if (hasAnyGlobalAttributesToReplace) {
+				statement = StringUtil.replaceAllAttributes(statement, globalAttributes, this.getConfig().getDatabaseStringLiteral(), this
+						.getConfig().getDatabaseStringEscapeLiteral());
+				if (isDebugEnabled) {
+					log.debug("After replacing all attributes insert statement looks like {}", statement);
+				}
+			}
+			preparedStatement = DataSourceProvider.getDataSource(this.getConfig()).getConnection().prepareStatement(statement);
+			log.info("Successfully initialized prepared statement {}", statement);
 		} catch (final SQLException e) {
 			throw new RuntimeException("Exception while initializing prepared statement for loading bulk values using jdbc", e);
 		}
 	}
 
 	@Override
-	public void initialize(final String outputFilePath) {
+	public void initialize(final Map<String, String> globalAttributes) {
+		this.initializePreparedStatement(globalAttributes);
 	}
 
 	@Override

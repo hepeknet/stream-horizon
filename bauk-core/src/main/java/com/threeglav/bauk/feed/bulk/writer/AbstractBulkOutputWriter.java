@@ -128,4 +128,14 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		return sb;
 	}
 
+	@Override
+	public void initialize(final Map<String, String> globalAttributes) {
+		final String bulkOutputPath = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH);
+		this.initialize(bulkOutputPath);
+	}
+
+	protected void initialize(final String bulkOutputPath) {
+
+	}
+
 }

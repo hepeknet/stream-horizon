@@ -76,4 +76,8 @@ public interface SystemConfigurationConstants {
 
 	public static final int JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT = 10000;
 
+	public static final String REMOTING_SERVER_PORT_PARAM_NAME = "remoting.server.port";
+
+	public static final int REMOTING_SERVER_PORT_DEFAULT = 11000;
+
 }

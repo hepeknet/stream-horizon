@@ -233,12 +233,19 @@
 				<output-file-name-pattern></output-file-name-pattern>
 				<!-- executed by DB loading threads -->
 				<afterBulkLoadSuccess>
-					<!-- statements to be invoked after bulkLoadInsertStatement was successfully invoked. Same thread executes this! Commands are executed in order -->
+					<!-- statements to be invoked after bulkLoadInsertStatement was successfully invoked. Thread that does bulk loading executes this! Commands are executed in order -->
 					<command type="shell">d:/first.bat</command>
 					<command type="sql">CALL simpleproc1(@a)</command>
 					<command type="sql">CALL simpleproc2(@a)</command>
 					<command type="shell">d:/second.bat</command>
 				</afterBulkLoadSuccess>
+				<onBulkLoadFailure>
+					<!-- statements to be invoked after loading of bulk data failed (regardless whether jdbc or file loading is used). Thread that does bulk loading executes this! Commands are executed in order -->
+					<command type="shell">d:/first.bat</command>
+					<command type="sql">CALL simpleproc1(@a)</command>
+					<command type="sql">CALL simpleproc2(@a)</command>
+					<command type="shell">d:/second.bat</command>
+				</onBulkLoadFailure>
 			</bulkLoadDefinition>
 			<!-- following is executed by feed processing threads in the order specified -->
 			<afterFeedProcessingCompletion>

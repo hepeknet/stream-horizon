@@ -30,6 +30,11 @@
 			<artifactId>joda-time</artifactId>
 			<version>${version.joda.time}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-server</artifactId>
+			<version>${version.jetty}</version>
+		</dependency>
 	</dependencies>
 
 </project>

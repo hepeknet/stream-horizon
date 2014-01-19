@@ -46,6 +46,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private final boolean shouldExecuteOnBulkLoadSuccess;
 	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 	private final BaukCommandsExecutor commandsExecutor;
+	private final boolean shouldExecuteOnBulkLoadFailure;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -66,6 +67,8 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		bulkLoadStatement = insertStatement;
 		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
 		shouldExecuteOnBulkLoadSuccess = onBulkLoadSuccess != null && !onBulkLoadSuccess.isEmpty();
+		final ArrayList<BaukCommand> onBulkLoadFail = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadFailure();
+		shouldExecuteOnBulkLoadFailure = onBulkLoadFail != null && !onBulkLoadFail.isEmpty();
 		commandsExecutor = new BaukCommandsExecutor(factFeed, config);
 	}
 
@@ -116,6 +119,11 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			log.error(
 					"Exception while trying to load bulk file using JDBC. Fully prepared load statement is {}. Available context attributes are {}",
 					replacedStatement, globalAttributes);
+			if (shouldExecuteOnBulkLoadFailure) {
+				log.info("Bulk loading failed. Executing rollback procedure as configured...");
+				commandsExecutor.executeBaukCommandSequence(this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadFailure(), globalAttributes,
+						"Bulk-load-failure commands for " + this.getFactFeed().getName());
+			}
 			throw exc;
 		}
 		if (isDebugEnabled) {

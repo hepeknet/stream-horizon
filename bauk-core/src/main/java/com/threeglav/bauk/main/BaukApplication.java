@@ -24,6 +24,7 @@ import com.threeglav.bauk.files.bulk.BulkFilesHandler;
 import com.threeglav.bauk.files.feed.FeedFilesHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.remoting.RemotingHandler;
 import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.CacheUtil;
 import com.threeglav.bauk.util.StringUtil;
@@ -36,6 +37,7 @@ public class BaukApplication {
 	private static final Logger LOG = LoggerFactory.getLogger(BaukApplication.class);
 
 	private static long instanceStartTime;
+	private static RemotingHandler remotingHandler;
 
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
@@ -47,7 +49,9 @@ public class BaukApplication {
 			ConfigurationProperties.setBaukProperties(conf.getProperties());
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
 			configValidator.validate();
-			createCamelRoutes(conf);
+			remotingHandler = new RemotingHandler();
+			remotingHandler.start();
+			createProcessingRoutes(conf);
 			final long total = System.currentTimeMillis() - start;
 			final long totalSec = total / 1000;
 			instanceStartTime = System.currentTimeMillis();
@@ -72,8 +76,8 @@ public class BaukApplication {
 		}
 	}
 
-	private static void createCamelRoutes(final BaukConfiguration config) throws Exception {
-		LOG.debug("Starting camel routes...");
+	private static void createProcessingRoutes(final BaukConfiguration config) throws Exception {
+		LOG.debug("Starting processing routes...");
 		for (final FactFeed feed : config.getFactFeeds()) {
 			executeOnStartupCommands(feed, config);
 			LOG.trace("Creating routes for feed [{}]", feed.getName());
@@ -160,6 +164,7 @@ public class BaukApplication {
 			BaukUtil.startShutdown();
 			CacheUtil.getCacheInstanceManager().stop();
 			printStatistics();
+			remotingHandler.stop();
 			BaukUtil.logEngineMessage("Engine is down!");
 		}
 	}

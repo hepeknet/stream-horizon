@@ -2,7 +2,6 @@ package com.threeglav.bauk.feed.processing;
 
 import java.util.Map;
 
-import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.bauk.feed.FeedParserComponent;
@@ -64,7 +63,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 			log.debug("Starting new feed with global attributes {}", globalAttributes);
 		}
 		bulkoutputResolver.startFeed(globalAttributes);
-		bulkOutputWriter.initialize(globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH));
+		bulkOutputWriter.initialize(globalAttributes);
 	}
 
 	@Override

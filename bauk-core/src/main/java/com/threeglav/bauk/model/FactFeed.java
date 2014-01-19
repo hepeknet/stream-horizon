@@ -61,7 +61,7 @@ public class FactFeed {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> onStartup;
 
-	@XmlElementWrapper(name = "afterFeedCompletion")
+	@XmlElementWrapper(name = "afterFeedProcessingCompletion")
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> afterFeedProcessingCompletion;
 
