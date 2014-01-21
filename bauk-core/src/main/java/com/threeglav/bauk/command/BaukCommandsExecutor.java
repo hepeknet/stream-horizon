@@ -29,7 +29,7 @@ public class BaukCommandsExecutor extends ConfigAware {
 			while ((line = reader.readLine()) != null) {
 				output.append(line + "\n");
 			}
-			log.debug("Execution of [{}] finished with exit value {} and data {}", command, p.exitValue(), output.toString());
+			log.debug("Execution of [{}] finished with exit value [{}] and data [{}]", command, p.exitValue(), output.toString());
 		} catch (final Exception e) {
 			log.error("Exception while executing shell command", e);
 		}

@@ -6,17 +6,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.events.EngineEvents;
 import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.FileUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public final class FileFindingHandler implements Runnable {
+public final class FileFindingHandler implements Runnable, Observer {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final String pathTofolder;
@@ -27,6 +31,7 @@ public final class FileFindingHandler implements Runnable {
 	private final FileProcessingErrorHandler errorHandler;
 	private final Path folderToPollPath;
 	private final boolean isDebugEnabled;
+	private boolean isProcessingPaused = false;
 
 	public FileFindingHandler(final String pathTofolder, final FileProcessor fileProcessor, final DirectoryStream.Filter<Path> fileFilter,
 			final FileProcessingErrorHandler errorHandler) {
@@ -52,6 +57,7 @@ public final class FileFindingHandler implements Runnable {
 			throw new IllegalStateException("Unable to find folder " + pathTofolder);
 		}
 		isDebugEnabled = log.isDebugEnabled();
+		EngineEvents.registerForProcessingEvents(this);
 	}
 
 	@Override
@@ -61,6 +67,7 @@ public final class FileFindingHandler implements Runnable {
 		while (true) {
 			try {
 				final boolean shouldStop = BaukUtil.shutdownStarted();
+				this.waitUntilProcessingAllowed();
 				if (shouldStop) {
 					log.debug("Stopping polling for files");
 					break;
@@ -84,6 +91,10 @@ public final class FileFindingHandler implements Runnable {
 					Path path = queuedFiles.poll();
 					while (path != null) {
 						this.processSingleFile(path);
+						if (isProcessingPaused) {
+							// skip to start and wait before starting to process next file
+							break;
+						}
 						path = queuedFiles.poll();
 					}
 				}
@@ -110,12 +121,39 @@ public final class FileFindingHandler implements Runnable {
 		try {
 			final BasicFileAttributes bfa = Files.readAttributes(path, BasicFileAttributes.class);
 			final BaukFile baukFile = FileUtil.createBaukFile(path, bfa);
+			EngineRegistry.reportJobInProgress();
 			fileProcessor.process(baukFile);
 			if (isDebugEnabled) {
 				log.debug("Successfully processed {}", path);
 			}
 		} catch (final Exception exc) {
 			errorHandler.handleError(path, exc);
+		} finally {
+			EngineRegistry.reportFinishedJob();
+		}
+	}
+
+	private void waitUntilProcessingAllowed() {
+		while (isProcessingPaused) {
+			try {
+				log.info("Processing paused.. will wait before accepting new tasks");
+				Thread.sleep(1000);
+			} catch (final InterruptedException e) {
+				//
+			}
+		}
+		log.debug("Allowed to continue processing...");
+	}
+
+	@Override
+	public void update(final Observable o, final Object arg) {
+		log.info("Received event {}", arg);
+		if (EngineEvents.PROCESSING_EVENT.PAUSE.equals(arg)) {
+			log.info("Pausing processing...");
+			isProcessingPaused = true;
+		} else if (EngineEvents.PROCESSING_EVENT.CONTINUE.equals(arg)) {
+			log.info("Continuing processing...");
+			isProcessingPaused = false;
 		}
 	}
 

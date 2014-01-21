@@ -42,4 +42,9 @@ public final class HazelcastCacheInstance implements CacheInstance {
 		cache.putAll(values);
 	}
 
+	@Override
+	public void clear() {
+		cache.clear();
+	}
+
 }

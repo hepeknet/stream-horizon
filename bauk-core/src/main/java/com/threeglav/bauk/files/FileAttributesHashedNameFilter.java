@@ -3,6 +3,7 @@ package com.threeglav.bauk.files;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.regex.Matcher;
@@ -50,7 +51,13 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 			}
 			return false;
 		}
-		final BasicFileAttributes bfa = Files.readAttributes(path, BasicFileAttributes.class);
+		BasicFileAttributes bfa = null;
+		try {
+			bfa = Files.readAttributes(path, BasicFileAttributes.class);
+		} catch (final NoSuchFileException nsfe) {
+			// ignore, probably someone else took this file to process it
+			return false;
+		}
 		if (bfa.isDirectory()) {
 			log.debug("{} is directory. Skipping", fileName);
 			return false;

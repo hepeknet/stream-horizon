@@ -288,6 +288,11 @@ public class DimensionHandlerTest {
 			public void putAll(final Map<String, Integer> values) {
 
 			}
+
+			@Override
+			public void clear() {
+
+			}
 		};
 	}
 

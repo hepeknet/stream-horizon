@@ -29,4 +29,9 @@ public class InfinispanCacheInstance implements CacheInstance {
 		cache.putAll(values);
 	}
 
+	@Override
+	public void clear() {
+		cache.clear();
+	}
+
 }

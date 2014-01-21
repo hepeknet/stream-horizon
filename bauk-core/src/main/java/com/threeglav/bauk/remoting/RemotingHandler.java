@@ -47,7 +47,7 @@ public class RemotingHandler {
 		context.setContextPath("/flushDimensionCache");
 		context.setResourceBase(".");
 		server.setHandler(context);
-		context.setHandler(new FlushDimensionCacheHandler());
+		context.setHandler(new FlushDimensionCacheRemoteHandler());
 	}
 
 	public void stop() {

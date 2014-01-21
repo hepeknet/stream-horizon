@@ -1,15 +1,18 @@
 package com.threeglav.bauk.dimension;
 
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Counter;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
+import com.threeglav.bauk.events.EngineEvents;
 import com.threeglav.bauk.util.MetricsUtil;
 
-public final class CachePreviousUsedRowPerThreadDimensionHandler implements BulkLoadOutputValueHandler {
+public final class CachePreviousUsedRowPerThreadDimensionHandler implements BulkLoadOutputValueHandler, Observer {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -18,13 +21,15 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	private Integer previouslyUsedValue;
 	private final Counter turboCacheHits;
 	private final Counter turboCacheMisses;
+	private final String dimensionName;
 
 	public CachePreviousUsedRowPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
 		this.delegate = (DimensionHandler) delegate;
-		final String dimName = this.delegate.getDimension().getName();
-		turboCacheHits = MetricsUtil.createCounter("Dimension [" + dimName + "] - turbo cache hits", true);
-		turboCacheMisses = MetricsUtil.createCounter("Dimension [" + dimName + "] - turbo cache misses", true);
-		log.info("Will cache previously used values for dimension {}", dimName);
+		dimensionName = this.delegate.getDimension().getName();
+		turboCacheHits = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache hits", true);
+		turboCacheMisses = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache misses", true);
+		log.info("Will cache previously used values for dimension {}", dimensionName);
+		EngineEvents.registerForFlushDimensionCache(this);
 	}
 
 	@Override
@@ -59,6 +64,15 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	@Override
 	public void closeCurrentFeed() {
 		delegate.closeCurrentFeed();
+	}
+
+	@Override
+	public void update(final Observable o, final Object arg) {
+		if (dimensionName.equals(arg)) {
+			log.debug("Asked to clear previously used kay and value for dimension {}", dimensionName);
+			previouslyUsedKey = null;
+			previouslyUsedValue = null;
+		}
 	}
 
 }

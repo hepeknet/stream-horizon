@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +16,11 @@ import com.codahale.metrics.Counter;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
+import com.threeglav.bauk.events.EngineEvents;
 import com.threeglav.bauk.model.Dimension;
 import com.threeglav.bauk.util.MetricsUtil;
 
-public final class DimensionCache {
+public final class DimensionCache implements Observer {
 
 	private static final int NO_ENTRY_INT_VALUE = Integer.MIN_VALUE;
 
@@ -36,6 +39,8 @@ public final class DimensionCache {
 	private final CacheInstance cacheInstance;
 
 	private Counter localCacheClearCounter;
+
+	private final Counter dimensionCacheFlushCounter;
 
 	private final Dimension dimension;
 
@@ -60,8 +65,10 @@ public final class DimensionCache {
 			localCacheClearCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - fast cache resets", false);
 			localCache = new TObjectIntHashMap<>(maxElementsInLocalCacheForDimension);
 		}
+		dimensionCacheFlushCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - cache flush executions", false);
 		maxElementsInLocalCache = maxElementsInLocalCacheForDimension;
 		isDebugEnabled = log.isDebugEnabled();
+		EngineEvents.registerForFlushDimensionCache(this);
 	}
 
 	public Integer getSurrogateKeyFromCache(final String cacheKey) {
@@ -122,6 +129,21 @@ public final class DimensionCache {
 			}
 		}
 		localCache.putIfAbsent(cacheKey, cachedValue);
+	}
+
+	@Override
+	public void update(final Observable o, final Object arg) {
+		final String dimensionName = (String) arg;
+		log.debug("Got request to flush cache for dimension {}", dimensionName);
+		if (dimensionName.equals(dimension.getName())) {
+			log.debug("Matches with dimension I am responsible for {}", dimensionName);
+			localCache.clear();
+			cacheInstance.clear();
+			if (dimensionCacheFlushCounter != null) {
+				dimensionCacheFlushCounter.inc();
+			}
+			log.info("Cleared cache for dimension {}", dimensionName);
+		}
 	}
 
 }
