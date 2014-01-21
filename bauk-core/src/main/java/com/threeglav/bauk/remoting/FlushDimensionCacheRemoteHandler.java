@@ -18,8 +18,6 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class FlushDimensionCacheRemoteHandler extends AbstractHandler {
 
-	private static final int MAX_RETRY_COUNT = 10;
-
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Override
@@ -44,42 +42,28 @@ public class FlushDimensionCacheRemoteHandler extends AbstractHandler {
 			}
 			if (success) {
 				final long total = System.currentTimeMillis() - start;
-				writer.println("Paused processing, flushed cache for dimension " + dimensionName
-						+ " and instructed processors to continue processing. All executed in " + total + "ms");
+				writer.println("SUMMARY: Paused processing, flushed cache for dimension " + dimensionName
+						+ " and then instructed processing threads to continue processing. All executed in " + total + "ms");
 			}
 		}
 	}
 
 	private boolean pauseProcessingFlushAndContinue(final String dimensionName, final PrintWriter pw) {
-		EngineEvents.notifyPauseProcessing();
-		pw.println("Asked processors to pause processing");
-		log.debug("Requested pausing of processing...");
-		int currentJobsInProgress = EngineRegistry.CURRENT_IN_PROGRESS_JOBS.get();
-		log.debug("Currently in progress have {} jobs", currentJobsInProgress);
-		int count = 0;
-		while (currentJobsInProgress > 0) {
-			if (count > MAX_RETRY_COUNT) {
-				pw.println("Could not stop processing in " + count + " attempts. Unable to flush dimension cache.");
-				EngineEvents.notifyContinueProcessing();
-				return false;
-			}
-			pw.println("Have " + currentJobsInProgress + " jobs in progress. Have to wait for them to finish...");
-			try {
-				Thread.sleep(1000);
-				count++;
-			} catch (final InterruptedException e) {
-				// ignore
-			}
-			currentJobsInProgress = EngineRegistry.CURRENT_IN_PROGRESS_JOBS.get();
+		pw.println("Trying to flush caches for dimension " + dimensionName + ". Asking all processing threads to pause processing");
+		final boolean allThreadsPaused = EngineRegistry.beginProcessingPause();
+		if (allThreadsPaused) {
+			log.debug("Requested pausing of processing...");
+			pw.println("All current processing threads paused their work. Flushing caches for dimension " + dimensionName);
+			EngineEvents.notifyFlushDimensionCache(dimensionName);
+			log.debug("Finished flushing caches for dimension {}", dimensionName);
+			pw.println("Caches for dimension " + dimensionName + " have been cleared! Continued processing again...");
+			log.debug("Notified all processors to continue processing...");
+			EngineRegistry.endProcessingPause();
+			return true;
+		} else {
+			pw.println("Could not pause all processing threads withing 10 seconds. Unable to flush dimension cache!");
+			return false;
 		}
-		log.debug("Ok to do dimension flush. Currently have {} jobs in progress...", EngineRegistry.CURRENT_IN_PROGRESS_JOBS.get());
-		pw.println("All current jobs finished. Flushing caches for dimension " + dimensionName);
-		EngineEvents.notifyFlushDimensionCache(dimensionName);
-		log.debug("Finished flushing caches for dimension {}", dimensionName);
-		pw.println("Caches for dimension " + dimensionName + " have been cleared! Continue processing again...");
-		EngineEvents.notifyContinueProcessing();
-		log.debug("Notified all processors to continue processing...");
-		return true;
 	}
 
 }

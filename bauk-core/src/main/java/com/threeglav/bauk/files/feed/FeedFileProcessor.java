@@ -112,27 +112,24 @@ public class FeedFileProcessor implements FileProcessor {
 			final ZipFile zipFile = new ZipFile(file.asFile());
 			if (!zipFile.entries().hasMoreElements()) {
 				IOUtils.closeQuietly(zipFile);
-				throw new IllegalStateException("Did not find any entries inside " + fullFileName);
+				throw new IllegalStateException("Did not find any zip entries inside " + fullFileName);
 			}
 			if (zipFile.size() > 1) {
-				log.error("Will process only one zipped entry inside {} and will skip all others. Found {} entries", fullFileName);
+				log.error("Will process only one zipped entry inside {} and will skip all others. Found {} entries", fullFileName, zipFile.size());
 			}
 			final InputStream inputStream = zipFile.getInputStream(zipFile.entries().nextElement());
 			this.processInputStream(inputStream, file);
 			IOUtils.closeQuietly(zipFile);
-			IOUtils.closeQuietly(inputStream);
 			successfullyProcessed = true;
 		} else if (lowerCaseFilePath.endsWith(".gz")) {
 			final InputStream fileInputStream = new FileInputStream(file.asFile());
 			final InputStream inputStream = StreamUtil.ungzipInputStream(fileInputStream);
 			this.processInputStream(inputStream, file);
-			IOUtils.closeQuietly(inputStream);
 			IOUtils.closeQuietly(fileInputStream);
 			successfullyProcessed = true;
 		} else {
 			final InputStream inputStream = new FileInputStream(file.asFile());
 			this.processInputStream(inputStream, file);
-			IOUtils.closeQuietly(inputStream);
 			successfullyProcessed = true;
 		}
 		if (successfullyProcessed) {

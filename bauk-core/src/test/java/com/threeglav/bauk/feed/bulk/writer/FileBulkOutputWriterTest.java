@@ -27,8 +27,8 @@ public class FileBulkOutputWriterTest {
 		when(ff.getBulkLoadDefinition()).thenReturn(bld);
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		final FileBulkOutputWriter fbowt = new FileBulkOutputWriter(ff, conf);
-		final StringBuilder sb = fbowt.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
-		Assert.assertEquals("1,,2,,3", sb.toString());
+		final String sb = fbowt.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
+		Assert.assertEquals("1,,2,,3\n", sb);
 	}
 
 	@Test
@@ -47,8 +47,8 @@ public class FileBulkOutputWriterTest {
 		when(conf.getProperties()).thenReturn(props);
 		ConfigurationProperties.setBaukProperties(props);
 		final FileBulkOutputWriter fbowt = new FileBulkOutputWriter(ff, conf);
-		final StringBuilder sb = fbowt.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
-		Assert.assertEquals("1,null,2,null,3", sb.toString());
+		final String sb = fbowt.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
+		Assert.assertEquals("1,null,2,null,3\n", sb);
 		bp = new BaukProperty();
 		bp.setName(SystemConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME);
 		bp.setValue("");
@@ -57,8 +57,8 @@ public class FileBulkOutputWriterTest {
 		when(conf.getProperties()).thenReturn(props);
 		ConfigurationProperties.setBaukProperties(props);
 		final FileBulkOutputWriter fbowt1 = new FileBulkOutputWriter(ff, conf);
-		final StringBuilder sb1 = fbowt1.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
-		Assert.assertEquals("1,,2,,3", sb1.toString());
+		final String sb1 = fbowt1.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
+		Assert.assertEquals("1,,2,,3\n", sb1);
 	}
 
 }

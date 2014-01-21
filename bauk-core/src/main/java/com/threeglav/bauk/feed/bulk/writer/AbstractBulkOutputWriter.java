@@ -29,6 +29,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	private final String nullReplacementString;
 	protected String finalBulkOutputFilePath;
 	protected String temporaryBulkOutputFilePath;
+	private final StringBuilder reusedForPerformance = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -109,23 +110,24 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		}
 	}
 
-	protected StringBuilder concatenateAllValues(final Object[] resolvedData) {
-		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
+	protected String concatenateAllValues(final Object[] resolvedData) {
+		reusedForPerformance.setLength(0);
 		for (int i = 0; i < resolvedData.length; i++) {
 			if (i != 0) {
 				if (isSingleCharacterDelimiter) {
-					sb.append(singleCharacterDelimiter);
+					reusedForPerformance.append(singleCharacterDelimiter);
 				} else {
-					sb.append(bulkOutputFileDelimiter);
+					reusedForPerformance.append(bulkOutputFileDelimiter);
 				}
 			}
 			if (resolvedData[i] == null) {
-				sb.append(nullReplacementString);
+				reusedForPerformance.append(nullReplacementString);
 			} else {
-				sb.append(resolvedData[i]);
+				reusedForPerformance.append(resolvedData[i]);
 			}
 		}
-		return sb;
+		reusedForPerformance.append(NEWLINE_STRING);
+		return reusedForPerformance.toString();
 	}
 
 	@Override

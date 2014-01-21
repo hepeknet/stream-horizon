@@ -50,9 +50,8 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void doOutput(final Object[] resolvedData) {
 		try {
-			final StringBuilder sb = this.concatenateAllValues(resolvedData);
-			writer.write(sb.toString());
-			writer.newLine();
+			final String str = this.concatenateAllValues(resolvedData);
+			writer.write(str);
 		} catch (final Exception exc) {
 			log.error("Exception while writing data", exc);
 		}

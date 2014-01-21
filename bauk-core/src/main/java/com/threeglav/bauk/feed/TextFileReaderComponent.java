@@ -178,7 +178,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		return lines.getSize() > 1;
 	}
 
-	enum FeedProcessingPhase {
+	static enum FeedProcessingPhase {
 		STOP_AND_COUNT, STOP, ONLY_FOOTER_LEFT, PROCESSED_DATA_LINE;
 	}
 
@@ -199,7 +199,6 @@ public class TextFileReaderComponent extends ConfigAware {
 				return FeedProcessingPhase.STOP_AND_COUNT;
 			}
 		} else {
-			lines.getSize();
 			final String line = lines.getLine();
 			this.fillBuffer(lines, br);
 			final boolean isLastLine = !this.hasMoreDataLines(lines);
@@ -362,8 +361,8 @@ public class TextFileReaderComponent extends ConfigAware {
 		return parsedHeaderValues;
 	}
 
-	public int process(final InputStream input, final Map<String, String> globalAttributes) {
-		return this.readFile(input, globalAttributes);
+	public int process(final InputStream inputStream, final Map<String, String> globalAttributes) {
+		return this.readFile(inputStream, globalAttributes);
 	}
 
 }

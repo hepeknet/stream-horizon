@@ -11,3 +11,11 @@
 - do not delete anything in $BAUK_HOME/data/ folder
 
 - in case when engine is not able to process input feed file error will be logged and .fail file will be created in <errorDirectory> containing the description of error
+
+HTTP commands
+
+1) Pausing processing, flushing dimension cache and continuing processing
+
+http://localhost:11000/flushDimensionCache/?dimension=DIMENSION_NAME_LIKE_IN_CONFIG
+
+http://localhost:11000/flushDimensionCache/?dimension=RWH_PORTFOLIO_DIM

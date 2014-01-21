@@ -137,12 +137,14 @@ public final class DimensionCache implements Observer {
 		log.debug("Got request to flush cache for dimension {}", dimensionName);
 		if (dimensionName.equals(dimension.getName())) {
 			log.debug("Matches with dimension I am responsible for {}", dimensionName);
-			localCache.clear();
+			if (!LOCAL_CACHE_DISABLED) {
+				localCache.clear();
+			}
 			cacheInstance.clear();
 			if (dimensionCacheFlushCounter != null) {
 				dimensionCacheFlushCounter.inc();
 			}
-			log.info("Cleared cache for dimension {}", dimensionName);
+			log.info("Cleared caches for dimension {}", dimensionName);
 		}
 	}
 

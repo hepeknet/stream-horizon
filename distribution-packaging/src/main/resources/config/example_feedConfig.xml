@@ -41,6 +41,8 @@
 		<property name="bulk.file.acceptance.timeout.millis">2000</property>
 		<!-- batch size to be used when loading bulk using jdbc. Whenever number of batched values reaches this number it will be executed and batching will start again -->
 		<property name="jdbc.bulk.loading.batch.size">10000</property>
+		<!-- port to be used by http server for remote commands -->
+		<property name="remoting.server.port">11000</property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>

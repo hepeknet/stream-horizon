@@ -23,36 +23,7 @@ public class EngineEvents {
 		}
 	}
 
-	static class ProcessingStatusEventsObservable extends Observable {
-		public void notifyToContinueProcessing() {
-			this.setChanged();
-			this.notifyObservers(PROCESSING_EVENT.CONTINUE);
-		}
-
-		public void notifyToPauseProcessing() {
-			this.setChanged();
-			this.notifyObservers(PROCESSING_EVENT.PAUSE);
-		}
-	}
-
-	private static final ProcessingStatusEventsObservable PROCESSING_STATUS_EVENTS = new ProcessingStatusEventsObservable();
-
 	private static final FlushDimensionObservable FLUSH_DIMENSION_CACHE = new FlushDimensionObservable();
-
-	public static void notifyPauseProcessing() {
-		LOG.debug("Notifying interested observers about processing pause event");
-		PROCESSING_STATUS_EVENTS.notifyToPauseProcessing();
-	}
-
-	public static void notifyContinueProcessing() {
-		LOG.debug("Notifying interested observers about continue processing event");
-		PROCESSING_STATUS_EVENTS.notifyToContinueProcessing();
-	}
-
-	public static void registerForProcessingEvents(final Observer observer) {
-		PROCESSING_STATUS_EVENTS.addObserver(observer);
-		LOG.debug("Added observer for engine events");
-	}
 
 	public static void registerForFlushDimensionCache(final Observer observer) {
 		FLUSH_DIMENSION_CACHE.addObserver(observer);

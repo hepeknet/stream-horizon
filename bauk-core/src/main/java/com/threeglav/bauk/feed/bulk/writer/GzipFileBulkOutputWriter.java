@@ -63,9 +63,7 @@ public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void doOutput(final Object[] resolvedData) {
 		try {
-			final StringBuilder sb = this.concatenateAllValues(resolvedData);
-			sb.append(NEWLINE_STRING);
-			final String dataStr = sb.toString();
+			final String dataStr = this.concatenateAllValues(resolvedData);
 			final byte[] dataBytes = dataStr.getBytes(UTF_8_CHARSET);
 			gzipOutStream.write(dataBytes);
 		} catch (final Exception exc) {

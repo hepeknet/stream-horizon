@@ -372,8 +372,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return replaced;
 	}
 
-	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
+	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes, final StringBuilder sb) {
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			final int key = naturalKeyPositionsInFeed[i];
 			String value = null;
@@ -399,6 +398,11 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			sb.append(value);
 		}
 		return sb.toString();
+	}
+
+	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
+		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
+		return this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes, sb);
 	}
 
 	/*
