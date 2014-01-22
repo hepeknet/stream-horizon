@@ -114,6 +114,13 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="onFeedProcessingFailure" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:all>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="type" type="factFeedType" use="required"/>

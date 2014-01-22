@@ -65,6 +65,10 @@ public class FactFeed {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> afterFeedProcessingCompletion;
 
+	@XmlElementWrapper(name = "onFeedProcessingFailure")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> onFeedProcessingFailure;
+
 	public String getName() {
 		return name;
 	}
@@ -183,6 +187,14 @@ public class FactFeed {
 
 	public void setAfterFeedProcessingCompletion(final ArrayList<BaukCommand> afterFeedProcessingCompletion) {
 		this.afterFeedProcessingCompletion = afterFeedProcessingCompletion;
+	}
+
+	public ArrayList<BaukCommand> getOnFeedProcessingFailure() {
+		return onFeedProcessingFailure;
+	}
+
+	public void setOnFeedProcessingFailure(final ArrayList<BaukCommand> onFeedProcessingFailure) {
+		this.onFeedProcessingFailure = onFeedProcessingFailure;
 	}
 
 }

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.BeforeFeedProcessingProcessor;
 import com.threeglav.bauk.feed.DefaultFeedFileNameProcessor;
@@ -62,6 +63,8 @@ public class FeedFileProcessor implements FileProcessor {
 	private final boolean isDebugEnabled;
 	private final String processorId;
 	private FileProcessingErrorHandler moveToArchiveFileProcessor;
+	private final boolean executeRollbackSequence;
+	private final BaukCommandsExecutor baukCommandsExec;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -93,6 +96,9 @@ public class FeedFileProcessor implements FileProcessor {
 			moveToArchiveFileProcessor = new MoveFileErrorHandler(archiveFolderPath);
 			log.info("Will move all successfully processed files to {}", archiveFolderPath);
 		}
+		executeRollbackSequence = factFeed.getOnFeedProcessingFailure() != null && !factFeed.getOnFeedProcessingFailure().isEmpty();
+		log.info("Will execute rollback commands for feed {} = {}", factFeed.getName(), executeRollbackSequence);
+		baukCommandsExec = new BaukCommandsExecutor(factFeed, config);
 	}
 
 	@Override
@@ -235,6 +241,13 @@ public class FeedFileProcessor implements FileProcessor {
 			} else {
 				this.processStreamWithCompletion(inputStream, globalAttributes);
 			}
+		} catch (final Exception exc) {
+			if (executeRollbackSequence) {
+				log.info("Executing rollback commands for feed {}", factFeed.getName());
+				baukCommandsExec.executeBaukCommandSequence(factFeed.getOnFeedProcessingFailure(), implicitAttributes,
+						"rollback command sequence for feed " + factFeed.getName());
+			}
+			throw exc;
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 			final long total = System.currentTimeMillis() - start;

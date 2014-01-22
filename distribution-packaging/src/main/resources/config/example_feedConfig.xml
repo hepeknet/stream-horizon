@@ -242,6 +242,7 @@
 					<command type="shell">d:/second.bat</command>
 				</afterBulkLoadSuccess>
 				<onBulkLoadFailure>
+					<!-- by default files are moved to error folder on processing failure -->
 					<!-- statements to be invoked after loading of bulk data failed (regardless whether jdbc or file loading is used). Thread that does bulk loading executes this! Commands are executed in order -->
 					<command type="shell">d:/first.bat</command>
 					<command type="sql">CALL simpleproc1(@a)</command>
@@ -258,6 +259,14 @@
                       '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')</command>
 				<command type="shell">d:/second.bat</command>
 			</afterFeedProcessingCompletion>
+			<!-- following is executed by feed processing thread in the order specified, only if feed processing failed -->
+			<onFeedProcessingFailure>
+				<!-- by default files are moved to error folder on processing failure -->
+				<command type="shell">d:/rollback.bat</command>
+				<!-- it is possible to use any context attributes here -->
+				<command type="sql">UPDATE some table for rollback</command>
+				<command type="shell">d:/second_rollback.bat</command>
+			</onFeedProcessingFailure>
 			<threadPoolSizes>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
 				<feedProcessingThreads>4</feedProcessingThreads>
