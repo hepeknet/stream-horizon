@@ -14,6 +14,7 @@ import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.util.BaukUtil;
+import com.threeglav.bauk.util.EmailSender;
 import com.threeglav.bauk.util.FileUtil;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -30,6 +31,7 @@ public final class FileFindingHandler implements Runnable {
 	private final FileProcessingErrorHandler errorHandler;
 	private final Path folderToPollPath;
 	private final boolean isDebugEnabled;
+	private final EmailSender emailSender;
 
 	public FileFindingHandler(final String pathTofolder, final FileProcessor fileProcessor, final DirectoryStream.Filter<Path> fileFilter,
 			final FileProcessingErrorHandler errorHandler) {
@@ -56,6 +58,7 @@ public final class FileFindingHandler implements Runnable {
 		}
 		isDebugEnabled = log.isDebugEnabled();
 		EngineRegistry.registerFeedProcessingThread();
+		emailSender = new EmailSender();
 	}
 
 	@Override
@@ -125,6 +128,7 @@ public final class FileFindingHandler implements Runnable {
 			}
 		} catch (final Exception exc) {
 			errorHandler.handleError(path, exc);
+			emailSender.sendProcessingErrorEmail(exc.getMessage());
 		}
 	}
 

@@ -43,6 +43,13 @@
 		<property name="jdbc.bulk.loading.batch.size">10000</property>
 		<!-- port to be used by http server for remote commands -->
 		<property name="remoting.server.port">11000</property>
+		<!-- used for email feature -->
+		<property name="email.server.host">localhost</property>
+		<property name="email.server.username"></property>
+		<property name="email.server.password"></property>
+		<property name="email.server.port">25</property>
+		<!-- where to send error emails -->
+		<property name="processing.error.email.recipients">a@b.com, c@d.com</property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>

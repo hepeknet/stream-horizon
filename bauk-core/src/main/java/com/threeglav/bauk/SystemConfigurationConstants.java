@@ -80,4 +80,14 @@ public interface SystemConfigurationConstants {
 
 	public static final int REMOTING_SERVER_PORT_DEFAULT = 11000;
 
+	public static final String EMAIL_HOST_PARAM_NAME = "email.server.host";
+
+	public static final String EMAIL_USERNAME_PARAM_NAME = "email.server.username";
+
+	public static final String EMAIL_PASSWORD_PARAM_NAME = "email.server.password";
+
+	public static final String EMAIL_HOST_PORT_PARAM_NAME = "email.server.port";
+
+	public static final String EMAIL_RECIPIENTS_LIST = "processing.error.email.recipients";
+
 }

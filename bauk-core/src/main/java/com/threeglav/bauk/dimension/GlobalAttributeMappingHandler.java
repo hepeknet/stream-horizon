@@ -12,8 +12,6 @@ public final class GlobalAttributeMappingHandler implements BulkLoadOutputValueH
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final String attributeName;
-	private Map<String, String> latestUsedGlobalMap;
-	private String latestGlobalValue;
 
 	public GlobalAttributeMappingHandler(final String attributeName) {
 		if (StringUtil.isEmpty(attributeName)) {
@@ -25,11 +23,7 @@ public final class GlobalAttributeMappingHandler implements BulkLoadOutputValueH
 
 	@Override
 	public String getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
-		if (globalValues != latestUsedGlobalMap) {
-			latestUsedGlobalMap = globalValues;
-			latestGlobalValue = globalValues.get(attributeName);
-		}
-		return latestGlobalValue;
+		return globalValues.get(attributeName);
 	}
 
 	@Override

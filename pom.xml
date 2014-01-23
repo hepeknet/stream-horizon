@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.threeglav.bauk</groupId>
 	<artifactId>bauk</artifactId>
@@ -12,7 +13,7 @@
 		<version.slf4j>1.7.5</version.slf4j>
 		<version.logback>1.0.13</version.logback>
 		<version.metrics>3.0.1</version.metrics>
-		<version.spring.jdbc>3.2.4.RELEASE</version.spring.jdbc>
+		<version.spring>4.0.0.RELEASE</version.spring>
 		<version.bonecp>0.8.0.RELEASE</version.bonecp>
 		<version.mariadb.jdbc.driver>5.1.18</version.mariadb.jdbc.driver>
 		<version.mockito>1.9.5</version.mockito>
@@ -26,6 +27,7 @@
 		<version.ispn>6.0.0.Final</version.ispn>
 		<version.joda.time>2.3</version.joda.time>
 		<version.jetty>9.1.0.v20131115</version.jetty>
+		<version.javax.mail>1.4.7</version.javax.mail>
 	</properties>
 
 	<dependencies>
@@ -53,7 +55,17 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>${version.spring.jdbc}</version>
+			<version>${version.spring}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${version.spring}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.mail</groupId>
+			<artifactId>mail</artifactId>
+			<version>${version.javax.mail}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jolbox</groupId>
