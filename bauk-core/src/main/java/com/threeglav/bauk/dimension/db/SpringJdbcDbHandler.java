@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -131,6 +132,8 @@ public final class SpringJdbcDbHandler implements DbHandler {
 				return null;
 			}
 			return num.longValue();
+		} catch (final DuplicateKeyException dke) {
+			throw dke;
 		} catch (final Exception exc) {
 			final String message = "Exception while executing insert statement for " + description + ". Statement is " + statement + ".";
 			log.error(message, exc);
