@@ -282,19 +282,21 @@ public class TextFileReaderComponent extends ConfigAware {
 
 	private void outputFeedProcessingStatistics(final int feedLinesNumber, final long start, final long filesProcessedSoFar) {
 		if (outputProcessingStatistics) {
-			final float total = System.currentTimeMillis() - start;
-			final float totalSec = total / 1000;
+			final float totalMillis = System.currentTimeMillis() - start;
+			final float totalSec = totalMillis / 1000;
 			String averagePerSec = "N/A";
 			if (totalSec > 0 && feedLinesNumber > 0) {
 				final float val = feedLinesNumber / totalSec;
 				averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/second";
-			} else if (totalSec == 0 && total > 0) {
-				final float val = feedLinesNumber / total;
+			} else if (totalSec == 0 && totalMillis > 0) {
+				final float val = feedLinesNumber / totalMillis;
 				averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/millisecond";
 			}
-			final String currentThreadName = Thread.currentThread().getName();
-			String messageToOutput = "(" + currentThreadName + ") Processed " + feedLinesNumber + " rows in " + total + "ms ("
-					+ String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, totalSec) + " sec). Average " + averagePerSec;
+			String messageToOutput = "Processed " + feedLinesNumber + " rows in " + totalMillis + "ms";
+			if (totalMillis > 1000) {
+				messageToOutput += " (" + String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, totalSec) + " sec)";
+			}
+			messageToOutput += ". Average " + averagePerSec;
 			if (filesProcessedSoFar > 0) {
 				messageToOutput += ". So far processed " + filesProcessedSoFar + " input feed files";
 			}

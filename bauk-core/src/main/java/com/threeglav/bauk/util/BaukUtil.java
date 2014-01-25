@@ -12,12 +12,10 @@ public abstract class BaukUtil {
 
 	public static void logEngineMessage(final String message) {
 		ENGINE_LOG.info(message);
-		System.out.println(message);
 	}
 
 	public static void logBulkLoadEngineMessage(final String message) {
 		BULK_LOAD_ENGINE_LOG.info(message);
-		System.out.println("BULK-LOAD " + message);
 	}
 
 	public static void startShutdown() {

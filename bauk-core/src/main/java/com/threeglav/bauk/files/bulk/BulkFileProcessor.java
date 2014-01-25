@@ -131,10 +131,13 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		}
 		final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
 		if (outputProcessingStatistics) {
-			final long total = System.currentTimeMillis() - start;
-			final float totalSec = total / 1000;
-			final String message = "Bulk loading of file took in total " + total + "ms (" + totalSec + " sec). In total bulk loaded "
-					+ totalBulkLoadedFiles + " files so far";
+			final long totalMillis = System.currentTimeMillis() - start;
+			final float totalSec = totalMillis / 1000;
+			String message = "Bulk loading of file took " + totalMillis + "ms";
+			if (totalMillis > 1000) {
+				message += " (" + totalSec + " sec)";
+			}
+			message += ". In total bulk loaded " + totalBulkLoadedFiles + " files so far";
 			BaukUtil.logBulkLoadEngineMessage(message);
 		}
 		if (shouldExecuteOnBulkLoadSuccess) {
