@@ -13,6 +13,9 @@ public final class SingleThreadedFeedDataProcessor extends AbstractFeedDataProce
 
 	@Override
 	public void processLine(final String line, final Map<String, String> globalAttributes) {
+		if (isDebugEnabled) {
+			log.debug("Processing line {} - attributes {}", line, globalAttributes);
+		}
 		final String[] parsedData = feedParserComponent.parseData(line);
 		final Object[] resolvedData = bulkoutputResolver.resolveValues(parsedData, globalAttributes);
 		bulkOutputWriter.doOutput(resolvedData);
@@ -20,6 +23,9 @@ public final class SingleThreadedFeedDataProcessor extends AbstractFeedDataProce
 
 	@Override
 	public void processLastLine(final String line, final Map<String, String> globalAttributes) {
+		if (isDebugEnabled) {
+			log.debug("Processing last line {} - attributes {}", line, globalAttributes);
+		}
 		final String[] parsedData = feedParserComponent.parseData(line);
 		final Object[] resolvedData = bulkoutputResolver.resolveLastLineValues(parsedData, globalAttributes);
 		bulkOutputWriter.doOutput(resolvedData);

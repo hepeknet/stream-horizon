@@ -22,7 +22,6 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	protected final BulkOutputWriter bulkOutputWriter;
 	protected final BulkOutputValuesResolver bulkoutputResolver;
 	protected final FeedParserComponent feedParserComponent;
-	private final boolean isDebugEnabled;
 
 	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier) {
 		super(factFeed, config);
@@ -51,7 +50,6 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		}
 		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, routeIdentifier, CacheUtil.getCacheInstanceManager());
 		feedParserComponent = new FeedParserComponent(factFeed, config, routeIdentifier);
-		isDebugEnabled = log.isDebugEnabled();
 	}
 
 	@Override

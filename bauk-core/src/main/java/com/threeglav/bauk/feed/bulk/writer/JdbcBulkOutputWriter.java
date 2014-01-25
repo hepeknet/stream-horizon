@@ -51,7 +51,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
 		final Set<String> allGlobalAttributesUsedInStatement = StringUtil.collectAllAttributesFromString(insertStatement);
 		hasAnyGlobalAttributesToReplace = allGlobalAttributesUsedInStatement != null && !allGlobalAttributesUsedInStatement.isEmpty();
-		log.info("Will use {} batch size for loading bulk data", batchSize);
+		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
 	}
 
 	private int convertTypeToInt(final BaukAttributeType type) {
@@ -90,6 +90,9 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void doOutput(final Object[] resolvedData) {
 		try {
 			rowCounter++;
+			if (isDebugEnabled) {
+				log.debug("Populating jdbc statement - row {}", rowCounter);
+			}
 			for (int i = 0; i < resolvedData.length; i++) {
 				preparedStatement.setObject(i + 1, resolvedData[i], sqlTypes[i]);
 			}
@@ -100,7 +103,11 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				}
 				this.doExecuteJdbcBatch();
 			}
-		} catch (final SQLException e) {
+			if (isDebugEnabled) {
+				log.debug("Successfully populated jdbc statement. Current row number {}", rowCounter);
+			}
+		} catch (final Exception e) {
+			log.error("Exception populating jdbc statement", e);
 			throw new RuntimeException("Problem while populating batch in JDBC statement", e);
 		}
 	}
@@ -109,6 +116,9 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void closeResources(final Map<String, String> globalAttributes) {
 		if (preparedStatement == null) {
 			throw new IllegalStateException("Prepared statement is null! Should not happen!");
+		}
+		if (isDebugEnabled) {
+			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
 		}
 		this.doExecuteJdbcBatch();
 	}
@@ -129,7 +139,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			if (total > warningThreshold) {
 				log.warn("It took more than {} to execute jdbc insert for bulk data. Statement is {}", warningThreshold, insertStatement);
 			}
-		} catch (final SQLException e) {
+		} catch (final Exception e) {
 			log.error("Exception while insert bulk values using jdbc", e);
 			throw new RuntimeException(e);
 		}

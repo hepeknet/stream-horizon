@@ -262,7 +262,9 @@ public class TextFileReaderComponent extends ConfigAware {
 			}
 			return feedLinesNumber;
 		} catch (final IOException ie) {
-			throw new IllegalStateException("IOException while processing feed", ie);
+			throw new IllegalStateException("IOException while processing feed. Total lines processed so far " + feedLinesNumber, ie);
+		} catch (final Exception exc) {
+			throw new RuntimeException("Exception while processing feed. Total lines processed so far " + feedLinesNumber, exc);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
 			long filesProcessedSoFar = 0;

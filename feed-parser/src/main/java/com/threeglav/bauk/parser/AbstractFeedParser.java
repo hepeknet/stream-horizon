@@ -63,7 +63,11 @@ public abstract class AbstractFeedParser implements FeedParser {
 		} catch (final Exception exc) {
 			log.error("Exception while parsing line [{}], skipCharacters {}, delimiter {}, expectedTokens {}", new Object[] { line, skipCharacters,
 					delimiter, expectedTokens });
-			log.error("Details", exc);
+			Throwable cause = exc;
+			while (cause != null) {
+				log.error("Details", cause);
+				cause = cause.getCause();
+			}
 			return null;
 		}
 	}

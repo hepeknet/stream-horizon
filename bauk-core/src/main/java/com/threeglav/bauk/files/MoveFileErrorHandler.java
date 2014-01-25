@@ -34,9 +34,11 @@ public class MoveFileErrorHandler implements FileProcessingErrorHandler {
 
 	@Override
 	public void handleError(final Path path, final Exception exc) {
-		if (exc != null) {
+		Throwable cause = exc;
+		while (cause != null) {
 			log.error("Caught exception while processing file {}. Triggering error handling!", path.toString());
-			log.error("Exception ", exc);
+			log.error("Exception ", cause);
+			cause = cause.getCause();
 		}
 		final Path destinationPath = targetFolderPath.resolve(path.getFileName());
 		final long start = System.currentTimeMillis();

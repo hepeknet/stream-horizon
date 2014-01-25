@@ -66,6 +66,6 @@ public class BulkFilesHandler {
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, bulkProcessingThreads,
 				bulkFileAcceptanceTimeoutMillis);
 		final FileFindingHandler ffh = new FileFindingHandler(config.getBulkOutputDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
-		exec.submit(ffh);
+		exec.execute(ffh);
 	}
 }

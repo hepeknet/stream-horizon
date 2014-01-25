@@ -50,7 +50,7 @@ public class FeedFilesHandler {
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, feedProcessingThreads,
 				feedFileAcceptanceTimeoutMillis);
 		final FileFindingHandler ffh = new FileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
-		exec.submit(ffh);
+		exec.execute(ffh);
 	}
 
 	public void startHandlingFiles() {

@@ -36,6 +36,7 @@ public class RemotingHandler {
 					server.start();
 					server.join();
 				} catch (final Exception exc) {
+					log.error("Exception while starting jetty server", exc);
 					throw new RuntimeException("Exception while starting jetty server", exc);
 				}
 			}
