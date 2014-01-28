@@ -130,7 +130,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		final Header header = this.getFactFeed().getHeader();
 		final String startsWithString = header.getEachLineStartsWithCharacter();
 		final String delimiterString = this.getFactFeed().getDelimiterString();
-		headerParser.init(startsWithString, delimiterString);
+		headerParser.init(startsWithString, delimiterString, ConfigurationProperties.getEngineConfigurationProperties());
 	}
 
 	private void validate() {
@@ -151,7 +151,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (headerShouldExist) {
 			final String line = lines.getLine();
 			if (!skipHeader) {
-				final Map<String, String> headerAttributes = this.processHeader(line);
+				final Map<String, String> headerAttributes = this.processHeader(line, globalAttributes);
 				if (headerAttributes != null) {
 					globalAttributes.putAll(headerAttributes);
 					if (isTraceEnabled) {
@@ -262,8 +262,10 @@ public class TextFileReaderComponent extends ConfigAware {
 			}
 			return feedLinesNumber;
 		} catch (final IOException ie) {
+			log.error("IOException while processing feed", ie);
 			throw new IllegalStateException("IOException while processing feed. Total lines processed so far " + feedLinesNumber, ie);
 		} catch (final Exception exc) {
+			log.error("Exception while processing feed", exc);
 			throw new RuntimeException("Exception while processing feed. Total lines processed so far " + feedLinesNumber, exc);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
@@ -356,8 +358,8 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	private Map<String, String> processHeader(final String line) {
-		final Map<String, String> parsedHeaderValues = headerParser.parseHeader(line, declaredHeaderAttributes);
+	private Map<String, String> processHeader(final String line, final Map<String, String> globalAttrs) {
+		final Map<String, String> parsedHeaderValues = headerParser.parseHeader(line, declaredHeaderAttributes, globalAttrs);
 		if (isDebugEnabled) {
 			final String feedName = this.getFactFeed().getName();
 			log.debug("Parsed header values for {} are {}", feedName, parsedHeaderValues);

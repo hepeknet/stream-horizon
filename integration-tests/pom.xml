@@ -1,10 +1,30 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.threeglav.bauk</groupId>
-    <artifactId>bauk</artifactId>
-    <version>0.0.11-SNAPSHOT</version>
-  </parent>
-  <artifactId>integration-tests</artifactId>
-  <name>Bauk Integration Tests</name>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.threeglav.bauk</groupId>
+		<artifactId>bauk</artifactId>
+		<version>0.0.11-SNAPSHOT</version>
+	</parent>
+	<artifactId>integration-tests</artifactId>
+	<name>Bauk Integration Tests</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bauk-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>feed-parser</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>${version.joda.time}</version>
+		</dependency>
+	</dependencies>
+
 </project>

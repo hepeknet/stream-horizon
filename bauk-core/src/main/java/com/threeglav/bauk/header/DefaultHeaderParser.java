@@ -23,7 +23,7 @@ public final class DefaultHeaderParser implements HeaderParser {
 	}
 
 	@Override
-	public Map<String, String> parseHeader(final String headerLine, final String[] declaredAttributeNames) {
+	public Map<String, String> parseHeader(final String headerLine, final String[] declaredAttributeNames, final Map<String, String> globalAttributes) {
 		if (headerLine == null) {
 			return new HashMap<String, String>();
 		}
@@ -48,7 +48,7 @@ public final class DefaultHeaderParser implements HeaderParser {
 	}
 
 	@Override
-	public void init(final String configuredHeaderStartsWithString, final String configuredDelimiter) {
+	public void init(final String configuredHeaderStartsWithString, final String configuredDelimiter, final Map<String, String> engineConfigProperties) {
 		startsWithString = configuredHeaderStartsWithString;
 		fullFeedParser = new FullFeedParser(configuredDelimiter);
 		if (startsWithString == null) {

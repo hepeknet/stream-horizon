@@ -1,7 +1,10 @@
 package com.threeglav.bauk;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +22,20 @@ public abstract class ConfigurationProperties {
 	public static void setBaukProperties(final List<BaukProperty> baukProps) {
 		BAUK_PROPERTIES = baukProps;
 		BaukUtil.logEngineMessage("Bauk properties are " + BAUK_PROPERTIES);
+	}
+
+	public static Map<String, String> getEngineConfigurationProperties() {
+		final Map<String, String> engineConfigProperties = new THashMap<>();
+		if (BAUK_PROPERTIES != null) {
+			for (final BaukProperty bp : BAUK_PROPERTIES) {
+				final String propName = bp.getName();
+				final String propValue = bp.getValue();
+				if (!StringUtil.isEmpty(propName) && !StringUtil.isEmpty(propValue)) {
+					engineConfigProperties.put(propName, propValue);
+				}
+			}
+		}
+		return engineConfigProperties;
 	}
 
 	private static String getBaukProperty(final String propName) {

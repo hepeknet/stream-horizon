@@ -16,9 +16,11 @@ public class CustomHeaderParser implements HeaderParser {
 	 *            read from configuration file. String with which header line should start with
 	 * @param configuredDelimiter
 	 *            read from configuration file. Delimiter string used to split header values
+	 *  @param engineConfigurationProperties
+	 *            configuration properties supplied to engine at startup           
 	 */
 	@Override
-	public void init(final String configuredHeaderStartsWithString, final String configuredDelimiter){
+	public void init(final String configuredHeaderStartsWithString, final String configuredDelimiter, final Map<String, String> engineConfigProperties){
 		this.configuredHeaderStartsWithString = configuredHeaderStartsWithString;
 		this.configuredDelimiter = configuredDelimiter;
 		// do init some other expensive resources
@@ -31,11 +33,15 @@ public class CustomHeaderParser implements HeaderParser {
 	 *            full, unparsed header line. Might start with control character.
 	 * @param declaredHeaderAttributeNames
 	 *            all declared header attributes (as in configuration)
+	 * * @param globalAttributes
+	 *            global attributes available before header parsing (engine specific or attributes derived from file
+	 *            name)
+	 *                       
 	 * @return map of all parsed header attributes. This map is later passed as-is and used later in processing. Must
 	 *         not return null.
 	 */
 	@Override
-	public Map<String, String> parseHeader(final String headerLine, final String[] declaredHeaderAttributeNames){
+	public Map<String, String> parseHeader(final String headerLine, final String[] declaredHeaderAttributeNames, final Map<String, String> globalAttributes){
 			Map<String, String> headerValues = new HashMap();
 			header.values.put("abc", "someCustomValue");
 			return headerValues;		
