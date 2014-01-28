@@ -23,7 +23,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 	/*
 	 * what divisor value to use when calculating module for feedProcessingThreadID
 	 */
-	private static final int FEED_PROCESSING_THREAD_ID_MODULO = 50;
+	private static final int FEED_PROCESSING_THREAD_ID_MODULO = 10;
 
 	/*
 	 * under what attribute name we can find feed processing thread id

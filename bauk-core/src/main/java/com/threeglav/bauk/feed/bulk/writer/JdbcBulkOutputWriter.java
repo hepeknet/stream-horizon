@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.StringUtils;
+
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.db.DataSourceProvider;
@@ -45,6 +47,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			sqlTypes[i] = this.convertTypeToInt(attr.getType());
 			log.debug("For attribute at position {} will use sql type {}", i, attr.getType());
 		}
+		this.validate(attributes.size());
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		batchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
@@ -52,6 +55,16 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		final Set<String> allGlobalAttributesUsedInStatement = StringUtil.collectAllAttributesFromString(insertStatement);
 		hasAnyGlobalAttributesToReplace = allGlobalAttributesUsedInStatement != null && !allGlobalAttributesUsedInStatement.isEmpty();
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
+	}
+
+	private void validate(final int attributesNumber) {
+		final int occurenceOfPreparedStatementPlaceholders = StringUtils.countOccurrencesOf(insertStatement, "?");
+		if (attributesNumber != occurenceOfPreparedStatementPlaceholders) {
+			log.warn("Found {} occurrences of ? in statement {} but found {} declared attributes! This is probably error in configuration!",
+					occurenceOfPreparedStatementPlaceholders, insertStatement, attributesNumber);
+		} else {
+			log.debug("{} has {} of ? - same as number of declared attributes", insertStatement, occurenceOfPreparedStatementPlaceholders);
+		}
 	}
 
 	private int convertTypeToInt(final BaukAttributeType type) {
