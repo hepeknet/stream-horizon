@@ -1,9 +1,11 @@
 package com.threeglav.bauk.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,13 +30,15 @@ public abstract class FileUtil {
 		if (!f.exists() && f.canRead() && f.isFile()) {
 			throw new IllegalArgumentException("Unable to find readable file at path [" + filePath + "]");
 		}
-		final StringBuilder sb = new StringBuilder();
+		final StringWriter strWriter = new StringWriter();
+		final BufferedWriter writer = new BufferedWriter(strWriter);
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(f));
 			String line = reader.readLine();
 			while (line != null) {
-				sb.append(line);
+				writer.write(line);
+				writer.newLine();
 				line = reader.readLine();
 			}
 		} catch (final IOException ie) {
@@ -42,9 +46,11 @@ public abstract class FileUtil {
 			LOG.error("Details: ", ie);
 		} finally {
 			IOUtils.closeQuietly(reader);
+			IOUtils.closeQuietly(writer);
 		}
-		LOG.debug("Content for {} is {}", filePath, sb);
-		return sb.toString();
+		final String content = strWriter.toString();
+		LOG.debug("Content for {} is {}", filePath, content);
+		return content;
 	}
 
 	public static void moveFile(final Path originalPath, final Path destinationPath) {

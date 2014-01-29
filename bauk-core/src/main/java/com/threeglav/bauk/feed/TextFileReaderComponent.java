@@ -127,6 +127,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		final CustomProcessorResolver<HeaderParser> headerParserInstanceResolver = new CustomProcessorResolver<>(headerParserClassName,
 				HeaderParser.class);
 		headerParser = headerParserInstanceResolver.resolveInstance();
+		if (headerParser == null) {
+			throw new IllegalStateException("Problem while loading header parser class! Possibly problems with compilation!");
+		}
 		final Header header = this.getFactFeed().getHeader();
 		final String startsWithString = header.getEachLineStartsWithCharacter();
 		final String delimiterString = this.getFactFeed().getDelimiterString();

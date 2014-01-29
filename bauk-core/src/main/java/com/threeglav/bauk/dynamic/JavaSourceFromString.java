@@ -18,4 +18,9 @@ class JavaSourceFromString extends SimpleJavaFileObject {
 		return code;
 	}
 
+	@Override
+	public String toString() {
+		return "[code=" + code + "]";
+	}
+
 }

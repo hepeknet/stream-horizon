@@ -74,7 +74,6 @@ public class ClassResolver<T> {
 		final DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		final JavaFileManager fileManager = new ClassFileManager(compiler.getStandardFileManager(null, null, null));
 		final JavaFileObject file = new JavaSourceFromString(fullClassName, sourceCode);
-
 		final Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(file);
 		final CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 		final boolean success = task.call();
@@ -83,6 +82,8 @@ public class ClassResolver<T> {
 			log.error("cd position: {}, start {}, end {}", diagnostic.getPosition(), diagnostic.getStartPosition(), diagnostic.getEndPosition());
 			log.error("cd source {}", diagnostic.getSource());
 			log.error("cd message: {}", diagnostic.getMessage(null));
+			log.error("cd line number: {}", diagnostic.getLineNumber());
+			log.error("cd column number: {}", diagnostic.getColumnNumber());
 		}
 		if (success) {
 			log.debug("Successfully compiled {}", sourceCode);
@@ -101,8 +102,27 @@ public class ClassResolver<T> {
 			} catch (final ClassNotFoundException e) {
 				log.error("Error ", e);
 			}
+		} else {
+			final String diagnostic = this.getDiagnosticData(sourceCode);
+			log.error("Was not able to compile customisation. Details: {}", diagnostic);
 		}
 		return null;
+	}
+
+	private String getDiagnosticData(final String code) {
+		final StringBuilder sb = new StringBuilder();
+		final String javaVersion = System.getProperty("java.version");
+		sb.append("Java version: ").append(javaVersion);
+		sb.append("\n");
+		sb.append("Full class name: ").append(fullClassName);
+		sb.append("\n");
+		final Package runtimePackage = Runtime.class.getPackage();
+		sb.append("Implementation vendor: ").append(runtimePackage.getImplementationVendor());
+		sb.append("\n");
+		sb.append("Implementation version: ").append(runtimePackage.getImplementationVersion());
+		sb.append("\n");
+		sb.append("Source code: \n").append(code);
+		return sb.toString();
 	}
 
 }
