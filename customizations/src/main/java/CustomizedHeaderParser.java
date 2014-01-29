@@ -11,19 +11,22 @@ import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.header.HeaderParser;
 import com.threeglav.bauk.parser.FullFeedParser;
+import com.threeglav.bauk.util.StringUtil;
 
 public class CustomizedHeaderParser implements HeaderParser {
 
+	public static final String CUSTOMIZED_FEED_PROCESSSING_THREAD_MODULO_PARAM_NAME = "customized.feed.processsing.thread.modulo";
+	public static final String CUSTOMIZED_DATE_POSITION_IN_HEADER_PARAM_NAME = "customized.date.position.in.header";
 	/*
 	 * zero based counter - pointing to position where header date is, including first (control) character
 	 */
-	private static final int DATE_POSITION_IN_HEADER = 10;
-	private static final String INPUT_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
-	private static final String OUTPUT_DATE_FORMAT = "yyyyMMdd";
+	private static final int DEFAULT_DATE_POSITION_IN_HEADER = 10;
+	private static final String DEFAULT_INPUT_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
+	private static final String DEFAULT_OUTPUT_DATE_FORMAT = "yyyyMMdd";
 	/*
 	 * what divisor value to use when calculating module for feedProcessingThreadID
 	 */
-	private static final int FEED_PROCESSING_THREAD_ID_MODULO = 10;
+	private static final int DEFAULT_FEED_PROCESSING_THREAD_ID_MODULO = 50;
 
 	/*
 	 * under what attribute name we can find feed processing thread id
@@ -36,13 +39,16 @@ public class CustomizedHeaderParser implements HeaderParser {
 	private static final String FORMATTED_DATE_IN_HEADER_ATTRIBUTE_NAME = "customized.formattedHeaderDate";
 	private static final String FEED_PROCESSING_THREAD_ID_MODULO_ATTRIBUTE_NAME = "customized.feedProcessingThreadID.modulo";
 
-	private static final DateTimeFormatter INPUT_DATE_FORMATTER = DateTimeFormat.forPattern(INPUT_DATE_FORMAT);
-	private static final DateTimeFormatter OUTPUT_DATE_FORMATTER = DateTimeFormat.forPattern(OUTPUT_DATE_FORMAT);
+	private static final DateTimeFormatter INPUT_DATE_FORMATTER = DateTimeFormat.forPattern(DEFAULT_INPUT_DATE_FORMAT);
+	private static final DateTimeFormatter OUTPUT_DATE_FORMATTER = DateTimeFormat.forPattern(DEFAULT_OUTPUT_DATE_FORMAT);
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private String startsWithString;
 	private FullFeedParser fullFeedParser;
 	private final boolean isDebugEnabled;
+
+	private int datePositionInHeader = DEFAULT_DATE_POSITION_IN_HEADER;
+	private int feedProcessingThreadModulo = DEFAULT_FEED_PROCESSING_THREAD_ID_MODULO;
 
 	public CustomizedHeaderParser() {
 		isDebugEnabled = log.isDebugEnabled();
@@ -60,6 +66,25 @@ public class CustomizedHeaderParser implements HeaderParser {
 		}
 		if (isDebugEnabled) {
 			log.debug("Expected character is header line should start with is [{}]", startsWithString);
+		}
+		if (engineConfigurationProperties != null) {
+			final String configuredDatePositionInHeader = engineConfigurationProperties.get(CUSTOMIZED_DATE_POSITION_IN_HEADER_PARAM_NAME);
+			if (!StringUtil.isEmpty(configuredDatePositionInHeader)) {
+				log.info("Found {} = {}", CUSTOMIZED_DATE_POSITION_IN_HEADER_PARAM_NAME, configuredDatePositionInHeader);
+				datePositionInHeader = Integer.parseInt(configuredDatePositionInHeader);
+			} else {
+				log.info("Did not find {} in configuration paramters. Will use default value {}", CUSTOMIZED_DATE_POSITION_IN_HEADER_PARAM_NAME,
+						DEFAULT_DATE_POSITION_IN_HEADER);
+			}
+			final String configuredFeedProcessingThreadModulo = engineConfigurationProperties
+					.get(CUSTOMIZED_FEED_PROCESSSING_THREAD_MODULO_PARAM_NAME);
+			if (!StringUtil.isEmpty(configuredFeedProcessingThreadModulo)) {
+				log.info("Found {} = {}", CUSTOMIZED_FEED_PROCESSSING_THREAD_MODULO_PARAM_NAME, configuredDatePositionInHeader);
+				feedProcessingThreadModulo = Integer.parseInt(configuredFeedProcessingThreadModulo);
+			} else {
+				log.info("Did not find {} in configuration paramters. Will use default value {}",
+						CUSTOMIZED_FEED_PROCESSSING_THREAD_MODULO_PARAM_NAME, DEFAULT_DATE_POSITION_IN_HEADER);
+			}
 		}
 	}
 
@@ -96,7 +121,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 
 	private void addCustomAttributes(final String[] parsed, final Map<String, String> globalAttributes, final Map<String, String> headerValues) {
 		// find and convert date
-		final String inputDateValue = parsed[DATE_POSITION_IN_HEADER];
+		final String inputDateValue = parsed[datePositionInHeader];
 		final long headerDateInMillis = INPUT_DATE_FORMATTER.parseMillis(inputDateValue);
 		final String formattedOutputDate = OUTPUT_DATE_FORMATTER.print(headerDateInMillis);
 		headerValues.put(FORMATTED_DATE_IN_HEADER_ATTRIBUTE_NAME, formattedOutputDate);
@@ -108,7 +133,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 		final String feedProcessingThreadId = globalAttributes.get(FEED_PROCESSING_THREAD_ID_PARAM_NAME);
 		if (feedProcessingThreadId != null) {
 			final int feedProcessingThread = Integer.parseInt(feedProcessingThreadId);
-			final int feedProcessingThreadModuloValue = feedProcessingThread % FEED_PROCESSING_THREAD_ID_MODULO;
+			final int feedProcessingThreadModuloValue = feedProcessingThread % feedProcessingThreadModulo;
 			headerValues.put(FEED_PROCESSING_THREAD_ID_MODULO_ATTRIBUTE_NAME, String.valueOf(feedProcessingThreadModuloValue));
 			if (isDebugEnabled) {
 				log.debug("Adding customized header attribute {}={}", FEED_PROCESSING_THREAD_ID_MODULO_ATTRIBUTE_NAME,

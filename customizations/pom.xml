@@ -6,13 +6,18 @@
 		<artifactId>bauk</artifactId>
 		<version>0.0.11-SNAPSHOT</version>
 	</parent>
-	<artifactId>integration-tests</artifactId>
+	<artifactId>customizations</artifactId>
 	<name>Bauk Integration Tests</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>bauk-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>bauk-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
