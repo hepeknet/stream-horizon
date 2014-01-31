@@ -115,18 +115,26 @@ public class CustomizedHeaderParser implements HeaderParser {
 			this.addCustomAttributes(parsed, globalAttributes, headerValues);
 		} catch (final Exception exc) {
 			log.error("Exception while adding custom attributes!", exc);
+			log.error("Line for processing was {}. Parsed attributes are {}", headerLine, headerValues);
 		}
 		return headerValues;
 	}
 
-	private void addCustomAttributes(final String[] parsed, final Map<String, String> globalAttributes, final Map<String, String> headerValues) {
+	private final void addCustomAttributes(final String[] parsed, final Map<String, String> globalAttributes, final Map<String, String> headerValues) {
 		// find and convert date
 		final String inputDateValue = parsed[datePositionInHeader];
-		final long headerDateInMillis = INPUT_DATE_FORMATTER.parseMillis(inputDateValue);
-		final String formattedOutputDate = OUTPUT_DATE_FORMATTER.print(headerDateInMillis);
-		headerValues.put(FORMATTED_DATE_IN_HEADER_ATTRIBUTE_NAME, formattedOutputDate);
-		if (isDebugEnabled) {
-			log.debug("Added customized header attribute {}={}", FORMATTED_DATE_IN_HEADER_ATTRIBUTE_NAME, formattedOutputDate);
+		try {
+			final long headerDateInMillis = INPUT_DATE_FORMATTER.parseMillis(inputDateValue);
+			final String formattedOutputDate = OUTPUT_DATE_FORMATTER.print(headerDateInMillis);
+			headerValues.put(FORMATTED_DATE_IN_HEADER_ATTRIBUTE_NAME, formattedOutputDate);
+			if (isDebugEnabled) {
+				log.debug("Added customized header attribute {}={}", FORMATTED_DATE_IN_HEADER_ATTRIBUTE_NAME, formattedOutputDate);
+			}
+		} catch (final Exception exc) {
+			log.error(
+					"Error while formatting [{}] into date. Required input date format {}, required output date format {}. Date position in header {}. All parsed values {}",
+					new Object[] { inputDateValue, DEFAULT_INPUT_DATE_FORMAT, DEFAULT_OUTPUT_DATE_FORMAT, datePositionInHeader,
+							Arrays.toString(parsed) });
 		}
 
 		// calculate modulo
