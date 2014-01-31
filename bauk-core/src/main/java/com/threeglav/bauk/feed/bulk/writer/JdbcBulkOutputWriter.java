@@ -1,7 +1,6 @@
 package com.threeglav.bauk.feed.bulk.writer;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Map;
@@ -42,7 +41,8 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		for (int i = 0; i < attributes.size(); i++) {
 			final BaukAttribute attr = attributes.get(i);
 			if (attr.getType() == null) {
-				throw new IllegalArgumentException("Unable to use jdbc bulk loader when attributes types are not declared for all attributes!");
+				throw new IllegalArgumentException(
+						"Unable to use jdbc bulk loader when attribute types are not declared for all declared attributes!");
 			}
 			sqlTypes[i] = this.convertTypeToInt(attr.getType());
 			log.debug("For attribute at position {} will use sql type {}", i, attr.getType());
@@ -89,7 +89,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			}
 			preparedStatement = DataSourceProvider.getDataSource(this.getConfig()).getConnection().prepareStatement(statement);
 			log.info("Successfully initialized prepared statement {}", statement);
-		} catch (final SQLException e) {
+		} catch (final Exception e) {
 			throw new RuntimeException("Exception while initializing prepared statement for loading bulk values using jdbc", e);
 		}
 	}

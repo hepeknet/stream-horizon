@@ -154,14 +154,18 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (headerShouldExist) {
 			final String line = lines.getLine();
 			if (!skipHeader) {
-				final Map<String, String> headerAttributes = this.processHeader(line, globalAttributes);
-				if (headerAttributes != null) {
-					globalAttributes.putAll(headerAttributes);
-					if (isTraceEnabled) {
-						log.trace(
-								"Added all attributes {} from header to global attributes. All attributes, before starting to process body for feed {} are {}",
-								headerAttributes, this.getFactFeed().getName(), globalAttributes);
+				try {
+					final Map<String, String> headerAttributes = this.processHeader(line, globalAttributes);
+					if (headerAttributes != null) {
+						globalAttributes.putAll(headerAttributes);
+						if (isTraceEnabled) {
+							log.trace(
+									"Added all attributes {} from header to global attributes. All attributes, before starting to process body for feed {} are {}",
+									headerAttributes, this.getFactFeed().getName(), globalAttributes);
+						}
 					}
+				} catch (final Exception exc) {
+					log.error("Exception while parsing header values! Header attributes will not be available!", exc);
 				}
 			} else if (isDebugEnabled) {
 				log.debug("Skipping header line {} for feed {}", line, this.getFactFeed().getName());
