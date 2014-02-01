@@ -1,16 +1,21 @@
 package com.threeglav.bauk.remoting;
 
+import java.io.File;
+import java.io.FileFilter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.util.BaukThreadFactory;
+import com.threeglav.bauk.util.StringUtil;
 
 public class RemotingHandler {
 
@@ -43,11 +48,56 @@ public class RemotingHandler {
 		});
 	}
 
+	private String findMonitoringWarName() {
+		final File webappFolder = new File(ConfigurationProperties.getWebAppsFolder());
+		if (!webappFolder.exists() || !webappFolder.canRead()) {
+			log.warn("Unable to find monitoring application.");
+			return null;
+		}
+		final File[] webapps = webappFolder.listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(final File pathname) {
+				final String lowerCaseName = pathname.getName();
+				return lowerCaseName.startsWith("monitor") && lowerCaseName.endsWith(".war");
+			}
+		});
+		if (webapps != null) {
+			if (webapps.length == 1) {
+				final String warName = webapps[0].getName();
+				log.debug("Found single monitoring application {}", warName);
+				return warName;
+			} else {
+				log.warn("Found multiple possible candidates for monitoring app");
+				return null;
+			}
+		} else {
+			log.warn("Could not find any web applications!");
+			return null;
+		}
+	}
+
 	private void addHandlers() {
 		final ContextHandler context = new ContextHandler();
 		context.setContextPath("/flushDimensionCache");
 		context.setResourceBase(".");
-		server.setHandler(context);
+
+		final ContextHandlerCollection contexts = new ContextHandlerCollection();
+		contexts.addHandler(context);
+
+		final String monitoringWarName = this.findMonitoringWarName();
+
+		if (!StringUtil.isEmpty(monitoringWarName)) {
+			final WebAppContext webapp = new WebAppContext();
+			webapp.setContextPath("/monitor");
+			webapp.setWar(ConfigurationProperties.getWebAppsFolder() + monitoringWarName);
+			contexts.addHandler(webapp);
+			log.debug("Turned on monitoring feature!");
+		} else {
+			log.warn("Monitoring feature will be disabled!");
+		}
+
+		server.setHandler(contexts);
 		context.setHandler(new FlushDimensionCacheRemoteHandler());
 	}
 

@@ -14,6 +14,7 @@ import com.codahale.metrics.Histogram;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
@@ -267,12 +268,14 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (!metricsOff) {
 				TOTAL_ROWS_PROCESSED.addAndGet(feedLinesNumber);
 			}
+			EngineRegistry.registerProcessedFeedRows(feedLinesNumber);
 			return feedLinesNumber;
 		} catch (final IOException ie) {
 			log.error("IOException while processing feed", ie);
 			throw new IllegalStateException("IOException while processing feed. Total lines processed so far " + feedLinesNumber, ie);
 		} catch (final Exception exc) {
 			log.error("Exception while processing feed", exc);
+			EngineRegistry.registerFailedFeedFile();
 			throw new RuntimeException("Exception while processing feed. Total lines processed so far " + feedLinesNumber, exc);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);

@@ -140,7 +140,15 @@ public abstract class ConfigurationProperties {
 	}
 
 	public static String getConfigFolder() {
-		return getApplicationHome() + "/config/";
+		return getApplicationHome() + SystemConfigurationConstants.CONFIG_FOLDER_NAME;
+	}
+
+	public static String getPluginFolder() {
+		return getApplicationHome() + SystemConfigurationConstants.PLUGINS_FOLDER_NAME;
+	}
+
+	public static String getWebAppsFolder() {
+		return getApplicationHome() + SystemConfigurationConstants.WEB_APPS_FOLDER_NAME;
 	}
 
 	public static String getDbDataFolder() {

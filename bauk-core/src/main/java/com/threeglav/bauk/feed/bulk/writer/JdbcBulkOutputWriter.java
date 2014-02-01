@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.util.StringUtils;
 
 import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.dimension.db.DataSourceProvider;
 import com.threeglav.bauk.model.BaukAttribute;
@@ -148,6 +149,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 		this.doExecuteJdbcBatch();
 		DataSourceProvider.close(connection);
+		EngineRegistry.registerSuccessfulBulkFile();
 		if (outputProcessingStatistics) {
 			final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
 			final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + totalBulkLoadedFiles + " files so far!";

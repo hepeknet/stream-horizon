@@ -8,14 +8,17 @@
 - any additional classpath dependencies should be added to $BAUK_HOME/extras/
 - all log files will be created in $BAUK_HOME/log/ folder
 - JMX metrics are exposed by default under metrics subtree (use JVisualVM or JConsole)
-- do not delete anything in $BAUK_HOME/data/ folder
-
-- in case when engine is not able to process input feed file error will be logged and .fail file will be created in <errorDirectory> containing the description of error
+- do not delete or create anything in $BAUK_HOME/data/ folder - this folder is used for housekeeping
 
 HTTP commands
 
 1) Pausing processing, flushing dimension cache and continuing processing
 
-http://localhost:11000/flushDimensionCache/?dimension=DIMENSION_NAME_LIKE_IN_CONFIG
+http://localhost:11000/flushDimensionCache/?dimension=DIMENSION_NAME_AS_DEFINED_IN_CONFIG
 
-http://localhost:11000/flushDimensionCache/?dimension=RWH_PORTFOLIO_DIM
+http://localhost:11000/flushDimensionCache/?dimension=PORTFOLIO_DIMENSION
+
+
+2) Accessing monitoring page
+
+http://localhost:11000/monitor/

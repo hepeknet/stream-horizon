@@ -15,6 +15,7 @@ import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.files.BaukFile;
@@ -115,7 +116,9 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		}
 		try {
 			this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement, statementDescription);
+			EngineRegistry.registerSuccessfulBulkFile();
 		} catch (final Exception exc) {
+			EngineRegistry.registerFailedBulkFile();
 			log.error(
 					"Exception while trying to load bulk file using JDBC. Fully prepared load statement is {}. Available context attributes are {}",
 					replacedStatement, globalAttributes);

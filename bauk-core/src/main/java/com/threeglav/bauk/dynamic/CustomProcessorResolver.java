@@ -12,8 +12,6 @@ public class CustomProcessorResolver<T> {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private static final String CUSTOMISATIONS_DIRECTORY_NAME = "/customisations/";
-
 	private final String fullClassName;
 	private final Class<T> expectedType;
 
@@ -39,7 +37,7 @@ public class CustomProcessorResolver<T> {
 						SystemConfigurationConstants.APP_HOME_SYS_PARAM_NAME);
 				return null;
 			}
-			final String fullCustomProcessorFilePath = appHome + CUSTOMISATIONS_DIRECTORY_NAME + simpleClassName + ".java";
+			final String fullCustomProcessorFilePath = ConfigurationProperties.getPluginFolder() + simpleClassName + ".java";
 			log.debug("Will try to find customisation for {} at path {}", fullClassName, fullCustomProcessorFilePath);
 			final String fileText = FileUtil.getFileAsText(fullCustomProcessorFilePath);
 			if (!StringUtil.isEmpty(fileText)) {

@@ -8,6 +8,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
+import com.threeglav.bauk.util.MetricsUtil;
+
 public abstract class EngineRegistry {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EngineRegistry.class);
@@ -19,6 +23,16 @@ public abstract class EngineRegistry {
 	private static CountDownLatch THREADS_REPORTED_PAUSED;
 
 	private static CountDownLatch CONTINUE_PROCESSING_SIGNAL;
+
+	private static final Meter PROCESSED_FEED_ROWS_METER = MetricsUtil.createMeter("Processed feed rows");
+
+	private static final Counter SUCCESSFUL_INPUT_FILES_COUNTER = MetricsUtil.createCounter("Processed feed files", false);
+
+	private static final Counter FAILED_FEED_FILES_COUNTER = MetricsUtil.createCounter("Failed feed files", false);
+
+	private static final Counter FAILED_BULK_FILES_COUNTER = MetricsUtil.createCounter("Failed bulk files", false);
+
+	private static final Counter SUCCESSFUL_BULK_FILES_COUNTER = MetricsUtil.createCounter("Bulk loaded files", false);
 
 	private static AtomicBoolean SHOULD_PAUSE = new AtomicBoolean(false);
 
@@ -65,6 +79,66 @@ public abstract class EngineRegistry {
 			}
 			LOG.info("Continuing processing...");
 		}
+	}
+
+	public static void registerProcessedFeedRows(final int rows) {
+		if (PROCESSED_FEED_ROWS_METER != null) {
+			PROCESSED_FEED_ROWS_METER.mark(rows);
+			SUCCESSFUL_INPUT_FILES_COUNTER.inc();
+		}
+	}
+
+	public static double getProcessedRowsInTheLastMinute() {
+		if (MetricsUtil.isMetricsOff()) {
+			return 0;
+		}
+		return PROCESSED_FEED_ROWS_METER.getOneMinuteRate();
+	}
+
+	public static long getProcessedFeedFilesCount() {
+		if (MetricsUtil.isMetricsOff()) {
+			return 0;
+		}
+		return SUCCESSFUL_INPUT_FILES_COUNTER.getCount();
+	}
+
+	public static void registerFailedFeedFile() {
+		if (FAILED_FEED_FILES_COUNTER != null) {
+			FAILED_FEED_FILES_COUNTER.inc();
+		}
+	}
+
+	public static long getFailedFeedFilesCount() {
+		if (MetricsUtil.isMetricsOff()) {
+			return 0;
+		}
+		return FAILED_FEED_FILES_COUNTER.getCount();
+	}
+
+	public static void registerFailedBulkFile() {
+		if (FAILED_BULK_FILES_COUNTER != null) {
+			FAILED_BULK_FILES_COUNTER.inc();
+		}
+	}
+
+	public static long getFailedBulkFilesCount() {
+		if (MetricsUtil.isMetricsOff()) {
+			return 0;
+		}
+		return FAILED_BULK_FILES_COUNTER.getCount();
+	}
+
+	public static void registerSuccessfulBulkFile() {
+		if (SUCCESSFUL_BULK_FILES_COUNTER != null) {
+			SUCCESSFUL_BULK_FILES_COUNTER.inc();
+		}
+	}
+
+	public static long getSuccessfulBulkFilesCount() {
+		if (MetricsUtil.isMetricsOff()) {
+			return 0;
+		}
+		return SUCCESSFUL_BULK_FILES_COUNTER.getCount();
 	}
 
 }

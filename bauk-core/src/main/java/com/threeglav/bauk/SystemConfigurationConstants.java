@@ -24,6 +24,12 @@ public interface SystemConfigurationConstants {
 	 */
 	public static final String DB_DATA_FOLDER = "/data/db/";
 
+	public static final String PLUGINS_FOLDER_NAME = "/plugins/";
+
+	public static final String CONFIG_FOLDER_NAME = "/config/";
+
+	public static final String WEB_APPS_FOLDER_NAME = "/data/web/";
+
 	public static final int SQL_EXECUTION_WARNING_THRESHOLD_MILLIS = 1000 * 10;
 	public static final String SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME = "sql.execution.warning.threshold.millis";
 
