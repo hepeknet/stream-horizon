@@ -1,5 +1,6 @@
 package com.threeglav.bauk.feed.bulk.writer;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final String insertStatement;
 	private final int[] sqlTypes;
 	private PreparedStatement preparedStatement;
+	private Connection connection;
 	private final int warningThreshold;
 	private final int batchSize;
 	private int rowCounter = 0;
@@ -96,7 +98,9 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 					log.debug("After replacing all attributes insert statement looks like {}", statement);
 				}
 			}
-			preparedStatement = DataSourceProvider.getDataSource(this.getConfig()).getConnection().prepareStatement(statement);
+			connection = DataSourceProvider.getDataSource(this.getConfig()).getConnection();
+			connection.setAutoCommit(false);
+			preparedStatement = connection.prepareStatement(statement);
 			log.info("Successfully initialized prepared statement {}", statement);
 		} catch (final Exception e) {
 			throw new RuntimeException("Exception while initializing prepared statement for loading bulk values using jdbc", e);
@@ -143,6 +147,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
 		}
 		this.doExecuteJdbcBatch();
+		DataSourceProvider.close(connection);
 		if (outputProcessingStatistics) {
 			final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
 			final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + totalBulkLoadedFiles + " files so far!";

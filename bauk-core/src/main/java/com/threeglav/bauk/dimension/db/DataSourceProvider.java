@@ -1,5 +1,7 @@
 package com.threeglav.bauk.dimension.db;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -21,7 +23,7 @@ public class DataSourceProvider {
 
 	private static final int DEFAULT_ACQUIRE_INCREMENT = 10;
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
+	private static final Logger log = LoggerFactory.getLogger(DataSourceProvider.class);
 	private final BoneCPDataSource dataSource = new BoneCPDataSource();
 
 	private static final DataSourceProvider INSTANCE = new DataSourceProvider();
@@ -93,5 +95,20 @@ public class DataSourceProvider {
 		dataSource.setStatisticsEnabled(false);
 		dataSource.setJdbcUrl(jdbcUrl);
 		return dataSource;
+	}
+
+	public static void close(final Connection connection) {
+		if (connection != null) {
+			try {
+				connection.commit();
+			} catch (final SQLException se) {
+				log.error("Exception while commiting connection", se);
+			}
+			try {
+				connection.close();
+			} catch (final SQLException se) {
+				log.error("Exception while closing connection", se);
+			}
+		}
 	}
 }
