@@ -5,6 +5,7 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.util.StringUtils;
 
@@ -15,9 +16,12 @@ import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukAttributeType;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
+import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
+
+	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 
 	private final String insertStatement;
 	private final int[] sqlTypes;
@@ -26,6 +30,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final int batchSize;
 	private int rowCounter = 0;
 	private final boolean hasAnyGlobalAttributesToReplace;
+	private final boolean outputProcessingStatistics;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -55,6 +60,8 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		final Set<String> allGlobalAttributesUsedInStatement = StringUtil.collectAllAttributesFromString(insertStatement);
 		hasAnyGlobalAttributesToReplace = allGlobalAttributesUsedInStatement != null && !allGlobalAttributesUsedInStatement.isEmpty();
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
+				false);
 	}
 
 	private void validate(final int attributesNumber) {
@@ -72,8 +79,10 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			return Types.VARCHAR;
 		} else if (type == BaukAttributeType.INT) {
 			return Types.INTEGER;
-		} else {
+		} else if (type == BaukAttributeType.FLOAT) {
 			return Types.FLOAT;
+		} else {
+			throw new IllegalArgumentException("Unsupported attribute type " + type);
 		}
 	}
 
@@ -134,6 +143,11 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
 		}
 		this.doExecuteJdbcBatch();
+		if (outputProcessingStatistics) {
+			final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
+			final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + totalBulkLoadedFiles + " files so far!";
+			BaukUtil.logBulkLoadEngineMessage(message);
+		}
 	}
 
 	private void doExecuteJdbcBatch() {

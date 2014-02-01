@@ -284,10 +284,9 @@ class ConfigurationValidator {
 		sb.append("Implicitly available attributes are:");
 		sb.append("\n\n");
 		sb.append(attrs);
-		sb.append("\n");
+		sb.append("\n\n");
 		sb.append("========================================================");
 		sb.append("\n\n");
-		log.warn(sb.toString());
 		BaukUtil.logEngineMessage(sb.toString());
 		return attrs;
 	}

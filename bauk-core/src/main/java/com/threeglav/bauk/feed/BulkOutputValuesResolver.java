@@ -4,10 +4,13 @@ import gnu.trove.map.hash.THashMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -42,7 +45,9 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private final CacheInstanceManager cacheInstanceManager;
 
 	// one handler per dimension only
-	private static final Map<String, DimensionHandler> cachedDimensionHandlers = new THashMap<String, DimensionHandler>();
+	static final Map<String, DimensionHandler> cachedDimensionHandlers = new THashMap<String, DimensionHandler>();
+
+	static final Set<String> alreadyStartedCreatingDimensionNames = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
 	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
 			final CacheInstanceManager cacheInstanceManager) {
@@ -87,7 +92,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 					.getName());
 			return;
 		}
-		final ArrayList<BaukAttribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes();
+		final ArrayList<BaukAttribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition()
+				.getAttributes();
 		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(bulkOutputAttributes);
 		if (log.isDebugEnabled()) {
 			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
@@ -98,22 +104,38 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		if (!StringUtil.isEmpty(firstStringInEveryLine)) {
 			feedDataLineOffset = 1;
 		}
+		this.createDimensionHandlersInParallel(feedDataLineOffset, bulkOutputAttributeNames, routeIdentifier);
 		final Map<String, Integer> feedAttributeNamesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(feedData.getAttributes());
-		final BaukThreadFactory btf = new BaukThreadFactory("bauk-bulk-handlers", "handler-creator-" + routeIdentifier);
-		final ExecutorService exec = Executors.newFixedThreadPool(bulkOutputAttributeNames.length, btf);
-		final List<Future<Boolean>> futures = new LinkedList<>();
 		final int feedDataLineOffsetFinal = feedDataLineOffset;
 		for (int i = 0; i < bulkOutputAttributeNames.length; i++) {
 			final int bulkOutputHandlerPosition = i;
-			final Future<Boolean> fut = exec.submit(new Callable<Boolean>() {
-				@Override
-				public Boolean call() throws Exception {
-					BulkOutputValuesResolver.this.createBulkOutputHandler(routeIdentifier, bulkOutputAttributes, bulkOutputAttributeNames,
-							feedDataLineOffsetFinal, feedAttributeNamesAndPositions, bulkOutputHandlerPosition);
-					return true;
+			this.createOrAssignBulkOutputHandler(routeIdentifier, bulkOutputAttributes, bulkOutputAttributeNames, feedDataLineOffsetFinal,
+					feedAttributeNamesAndPositions, bulkOutputHandlerPosition);
+		}
+	}
+
+	private void createDimensionHandlersInParallel(final int feedDataLineOffset, final String[] bulkOutputAttributeNames, final String routeIdentifier) {
+		final BaukThreadFactory btf = new BaukThreadFactory("bauk-bulk-handlers", "handler-creator-" + routeIdentifier);
+		final ExecutorService exec = Executors.newFixedThreadPool(bulkOutputAttributeNames.length, btf);
+		final List<Future<Boolean>> futures = new LinkedList<>();
+		for (final String bulkOutputAttributeName : bulkOutputAttributeNames) {
+			if (!StringUtil.isEmpty(bulkOutputAttributeName) && bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
+				final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
+				final boolean canStartProcessing = alreadyStartedCreatingDimensionNames.add(requiredDimensionName);
+				if (canStartProcessing) {
+					log.debug("Starting creation of dimension handler for {}", requiredDimensionName);
+					final Future<Boolean> fut = exec.submit(new Callable<Boolean>() {
+						@Override
+						public Boolean call() throws Exception {
+							BulkOutputValuesResolver.this.createAndCacheDimensionHandler(feedDataLineOffset, requiredDimensionName);
+							return true;
+						}
+					});
+					futures.add(fut);
+				} else {
+					log.debug("Someone already started creating dimension handler for {}", requiredDimensionName);
 				}
-			});
-			futures.add(fut);
+			}
 		}
 		try {
 			for (final Future<Boolean> fut : futures) {
@@ -123,12 +145,14 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				}
 			}
 			exec.shutdown();
+			log.debug("Successfully finished creation of all dimension handlers");
 		} catch (final Exception exc) {
+			log.error("Exception while waiting for dimension handlers to finish", exc);
 			throw new RuntimeException(exc);
 		}
 	}
 
-	private void createBulkOutputHandler(final String routeIdentifier, final ArrayList<BaukAttribute> bulkOutputAttributes,
+	private void createOrAssignBulkOutputHandler(final String routeIdentifier, final ArrayList<BaukAttribute> bulkOutputAttributes,
 			final String[] bulkOutputAttributeNames, final int feedDataLineOffset, final Map<String, Integer> feedAttributeNamesAndPositions,
 			final int bulkHandlerPosition) {
 		final String bulkOutputAttributeName = bulkOutputAttributeNames[bulkHandlerPosition];
@@ -146,23 +170,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 						cachedDimensionHandler);
 				outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
 			} else {
-				final Dimension dim = this.getConfig().getDimensionMap().get(requiredDimensionName);
-				if (dim == null) {
-					throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name [" + requiredDimensionName
-							+ "]. This dimension is used to create bulk output! Please check your configuration!");
-				}
-				final boolean cachePerFeedDimension = !StringUtil.isEmpty(dim.getCacheKeyPerFeedInto());
-				DimensionHandler dimHandler = null;
-				if (cachePerFeedDimension) {
-					dimHandler = new CachedPerFeedDimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
-							feedDataLineOffset, this.getConfig());
-				} else {
-					dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
-							feedDataLineOffset, this.getConfig());
-				}
-				cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
-				final CachePreviousUsedRowPerThreadDimensionHandler proxyDimHandler = new CachePreviousUsedRowPerThreadDimensionHandler(dimHandler);
-				outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
+				throw new IllegalStateException("Was not able to find previously cached dimension handler for " + requiredDimensionName);
 			}
 			log.debug("Value at position {} in bulk output load will be mapped using dimension {}", bulkHandlerPosition, requiredDimensionName);
 		} else if (bulkOutputAttributeName.startsWith(FEED_PREFIX)) {
@@ -183,6 +191,27 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			outputValueHandlers[bulkHandlerPosition] = cmh;
 			log.debug("Value at position {} in bulk output load will be mapped value derived from {}", bulkHandlerPosition, bulkOutputAttributeName);
 		}
+	}
+
+	private void createAndCacheDimensionHandler(final int feedDataLineOffset, final String requiredDimensionName) {
+		if (cachedDimensionHandlers.containsKey(requiredDimensionName)) {
+			throw new IllegalStateException("Handler for dimension " + requiredDimensionName + " has already been created and cached!");
+		}
+		final Dimension dim = this.getConfig().getDimensionMap().get(requiredDimensionName);
+		if (dim == null) {
+			throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name [" + requiredDimensionName
+					+ "]. This dimension is used to create bulk output! Please check your configuration!");
+		}
+		final boolean cachePerFeedDimension = !StringUtil.isEmpty(dim.getCacheKeyPerFeedInto());
+		DimensionHandler dimHandler = null;
+		if (cachePerFeedDimension) {
+			dimHandler = new CachedPerFeedDimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
+					feedDataLineOffset, this.getConfig());
+		} else {
+			dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset,
+					this.getConfig());
+		}
+		cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 	}
 
 	public void startFeed(final Map<String, String> globalData) {

@@ -49,6 +49,8 @@ public class BulkOutputValuesResolverTest {
 
 	@Test
 	public void testSimple() {
+		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
+		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(5));
@@ -85,6 +87,8 @@ public class BulkOutputValuesResolverTest {
 
 	@Test
 	public void testSmallerFeed() {
+		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
+		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(4));

@@ -61,7 +61,7 @@ public class BaukApplication {
 				final int numberOfInstances = HazelcastCacheInstanceManager.getNumberOfBaukInstances();
 				BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);
 			}
-			BaukUtil.logEngineMessage("Bauk engine started successfully in " + total + "ms (" + totalSec + " seconds). Ready for feed files...");
+			BaukUtil.logEngineMessage("Bauk engine started successfully in " + total + "ms (" + totalSec + " seconds). Waiting for feed files...\n\n");
 		} else {
 			LOG.error(
 					"Unable to find valid configuration file! Check your startup scripts and make sure system property {} points to valid feed configuration file. Aborting!",
@@ -94,8 +94,6 @@ public class BaukApplication {
 				throw exc;
 			}
 		}
-		LOG.debug("Starting camel context");
-		LOG.debug("Successfully started camel context");
 	}
 
 	private static void executeOnStartupCommands(final FactFeed feed, final BaukConfiguration config) {

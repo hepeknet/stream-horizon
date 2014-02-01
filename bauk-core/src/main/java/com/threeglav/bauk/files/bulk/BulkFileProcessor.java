@@ -129,8 +129,8 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		if (isDebugEnabled) {
 			log.debug("Successfully executed statement {}", replacedStatement);
 		}
-		final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
 		if (outputProcessingStatistics) {
+			final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
 			final long totalMillis = System.currentTimeMillis() - start;
 			final float totalSec = totalMillis / 1000;
 			String message = "Bulk loading of file took " + totalMillis + "ms";
