@@ -235,9 +235,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		String footerLine = null;
 		try {
 			final LineBuffer lineBuffer = new LineBuffer();
-			feedDataProcessor.startFeed(globalAttributes);
 			this.fillBuffer(lineBuffer, br);
 			this.processFirstLine(lineBuffer, globalAttributes);
+			feedDataProcessor.startFeed(globalAttributes);
 			while (true) {
 				this.fillBuffer(lineBuffer, br);
 				final FeedProcessingPhase fpp = this.doProcessSingleLine(lineBuffer, globalAttributes, br);

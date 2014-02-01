@@ -37,14 +37,14 @@
 			<directory>src/main/resources/</directory>
 			<outputDirectory></outputDirectory>
 			<includes>
-				<include>README.TXT</include>
+				<include>BAUK_README.TXT</include>
 			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/resources/config/</directory>
 			<outputDirectory>log</outputDirectory>
 			<includes>
-				<include>README.TXT</include>
+				<include>CONFIG_README.TXT</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -56,8 +56,8 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/resources/customisations/</directory>
-			<outputDirectory>customisations</outputDirectory>
+			<directory>src/main/resources/plugins/</directory>
+			<outputDirectory>plugins</outputDirectory>
 			<includes>
 				<include>*.*</include>
 			</includes>
@@ -73,7 +73,7 @@
 			<directory>src/main/resources/data/</directory>
 			<outputDirectory>data/db</outputDirectory>
 			<includes>
-				<include>README.TXT</include>
+				<include>DATA_README.TXT</include>
 			</includes>
 		</fileSet>
 	</fileSets>

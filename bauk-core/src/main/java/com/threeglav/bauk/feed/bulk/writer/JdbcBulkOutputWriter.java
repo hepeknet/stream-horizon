@@ -95,7 +95,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				statement = StringUtil.replaceAllAttributes(statement, globalAttributes, this.getConfig().getDatabaseStringLiteral(), this
 						.getConfig().getDatabaseStringEscapeLiteral());
 				if (isDebugEnabled) {
-					log.debug("After replacing all attributes insert statement looks like {}", statement);
+					log.debug("After replacing all attributes insert statement looks like {}. Global attributes are {}", statement, globalAttributes);
 				}
 			}
 			connection = DataSourceProvider.getDataSource(this.getConfig()).getConnection();
