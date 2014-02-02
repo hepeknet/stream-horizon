@@ -1,4 +1,4 @@
-package com.threeglav.bauk.remoting;
+package com.threeglav.bauk.remoting.handlers;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -42,7 +42,7 @@
 		<!-- batch size to be used when loading bulk using jdbc. Whenever number of batched values reaches this number it will be executed and batching will start again -->
 		<property name="jdbc.bulk.loading.batch.size">10000</property>
 		<!-- port to be used by http server for remote commands -->
-		<property name="remoting.server.port">11000</property>
+		<property name="remoting.server.port">21000</property>
 		<!-- used for email feature -->
 		<property name="email.server.host">localhost</property>
 		<property name="email.server.username"></property>

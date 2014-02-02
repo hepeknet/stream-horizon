@@ -84,7 +84,7 @@ public interface SystemConfigurationConstants {
 
 	public static final String REMOTING_SERVER_PORT_PARAM_NAME = "remoting.server.port";
 
-	public static final int REMOTING_SERVER_PORT_DEFAULT = 11000;
+	public static final int REMOTING_SERVER_PORT_DEFAULT = 21000;
 
 	public static final String EMAIL_HOST_PARAM_NAME = "email.server.host";
 

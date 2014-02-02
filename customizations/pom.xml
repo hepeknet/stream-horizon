@@ -6,7 +6,7 @@
 		<version>0.0.12-SNAPSHOT</version>
 	</parent>
 	<artifactId>customizations</artifactId>
-	<name>Bauk Integration Tests</name>
+	<name>Bauk Plugins</name>
 
 	<dependencies>
 		<dependency>

@@ -70,7 +70,6 @@
 		<module>bauk-core</module>
 		<module>bauk-api</module>
 		<module>customizations</module>
-		<module>monitor</module>
 	</modules>
 
 	<scm>

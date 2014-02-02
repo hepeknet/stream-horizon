@@ -24,7 +24,7 @@ import com.threeglav.bauk.files.bulk.BulkFilesHandler;
 import com.threeglav.bauk.files.feed.FeedFilesHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
-import com.threeglav.bauk.remoting.RemotingHandler;
+import com.threeglav.bauk.remoting.RemotingServer;
 import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.CacheUtil;
 import com.threeglav.bauk.util.StringUtil;
@@ -37,7 +37,7 @@ public class BaukApplication {
 	private static final Logger LOG = LoggerFactory.getLogger(BaukApplication.class);
 
 	private static long instanceStartTime;
-	private static RemotingHandler remotingHandler;
+	private static RemotingServer remotingHandler;
 
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
@@ -49,7 +49,7 @@ public class BaukApplication {
 			ConfigurationProperties.setBaukProperties(conf.getProperties());
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
 			configValidator.validate();
-			remotingHandler = new RemotingHandler();
+			remotingHandler = new RemotingServer();
 			remotingHandler.start();
 			createProcessingRoutes(conf);
 			final long total = System.currentTimeMillis() - start;

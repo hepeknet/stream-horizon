@@ -96,12 +96,5 @@
 				<exclude>com.threeglav.bauk:feed-parser</exclude>
 			</excludes>
 		</dependencySet>
-		<dependencySet>
-			<outputDirectory>data/web</outputDirectory>
-			<fileMode>666</fileMode>
-			<includes>
-				<include>*:war:*</include>
-			</includes>
-		</dependencySet>
 	</dependencySets>
 </assembly>

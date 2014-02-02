@@ -14,11 +14,11 @@ HTTP commands
 
 1) Pausing processing, flushing dimension cache and continuing processing
 
-http://localhost:11000/flushDimensionCache/?dimension=DIMENSION_NAME_AS_DEFINED_IN_CONFIG
+http://localhost:21000/flushDimensionCache/?dimension=DIMENSION_NAME_AS_DEFINED_IN_CONFIG
 
-http://localhost:11000/flushDimensionCache/?dimension=PORTFOLIO_DIMENSION
+http://localhost:21000/flushDimensionCache/?dimension=PORTFOLIO_DIMENSION
 
 
 2) Accessing monitoring page
 
-http://localhost:11000/monitor/
+http://localhost:21000/monitor/
