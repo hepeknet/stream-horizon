@@ -137,6 +137,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			}
 		} catch (final Exception e) {
 			log.error("Exception populating jdbc statement", e);
+			log.error("Prepared statement was {}", currentStatementWithReplacedValues);
 			throw new RuntimeException("Problem while populating batch in JDBC statement", e);
 		}
 	}
