@@ -34,6 +34,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private int rowCounter = 0;
 	private final boolean hasAnyGlobalAttributesToReplace;
 	private final boolean outputProcessingStatistics;
+	private String currentStatementWithReplacedValues;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -95,6 +96,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			if (hasAnyGlobalAttributesToReplace) {
 				statement = StringUtil.replaceAllAttributes(statement, globalAttributes, this.getConfig().getDatabaseStringLiteral(), this
 						.getConfig().getDatabaseStringEscapeLiteral());
+				currentStatementWithReplacedValues = statement;
 				if (isDebugEnabled) {
 					log.debug("After replacing all attributes insert statement looks like {}. Global attributes are {}", statement, globalAttributes);
 				}
@@ -175,6 +177,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			}
 		} catch (final Exception e) {
 			log.error("Exception while insert bulk values using jdbc", e);
+			log.error("Prepared statement was {}", currentStatementWithReplacedValues);
 			throw new RuntimeException(e);
 		}
 	}
