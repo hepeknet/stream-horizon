@@ -1,6 +1,7 @@
 package com.threeglav.bauk.dimension.db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Properties;
 
@@ -108,6 +109,16 @@ public class DataSourceProvider {
 				connection.close();
 			} catch (final SQLException se) {
 				log.error("Exception while closing connection", se);
+			}
+		}
+	}
+
+	public static void close(final PreparedStatement ps) {
+		if (ps != null) {
+			try {
+				ps.close();
+			} catch (final SQLException se) {
+				log.error("Exception while closing prepared statement", se);
 			}
 		}
 	}

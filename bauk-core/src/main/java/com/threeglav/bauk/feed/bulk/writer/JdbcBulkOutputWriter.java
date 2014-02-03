@@ -2,11 +2,14 @@ package com.threeglav.bauk.feed.bulk.writer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.sql.DataSource;
 
 import org.springframework.util.StringUtils;
 
@@ -21,7 +24,7 @@ import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
+public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 
@@ -35,6 +38,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final boolean hasAnyGlobalAttributesToReplace;
 	private final boolean outputProcessingStatistics;
 	private String currentStatementWithReplacedValues;
+	private final DataSource dataSource;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -66,6 +70,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
 				false);
+		dataSource = DataSourceProvider.getDataSource(this.getConfig());
 	}
 
 	private void validate(final int attributesNumber) {
@@ -101,10 +106,12 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 					log.debug("After replacing all attributes insert statement looks like {}. Global attributes are {}", statement, globalAttributes);
 				}
 			}
-			connection = DataSourceProvider.getDataSource(this.getConfig()).getConnection();
+			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);
 			preparedStatement = connection.prepareStatement(statement);
-			log.info("Successfully initialized prepared statement {}", statement);
+			if (isDebugEnabled) {
+				log.debug("Successfully initialized prepared statement {}", statement);
+			}
 		} catch (final Exception e) {
 			throw new RuntimeException("Exception while initializing prepared statement for loading bulk values using jdbc", e);
 		}
@@ -124,6 +131,8 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			}
 			for (int i = 0; i < resolvedData.length; i++) {
 				preparedStatement.setObject(i + 1, resolvedData[i], sqlTypes[i]);
+				// help GC
+				resolvedData[i] = null;
 			}
 			preparedStatement.addBatch();
 			if (rowCounter == batchSize) {
@@ -151,6 +160,7 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
 		}
 		this.doExecuteJdbcBatch();
+		DataSourceProvider.close(preparedStatement);
 		DataSourceProvider.close(connection);
 		EngineRegistry.registerSuccessfulBulkFile();
 		if (outputProcessingStatistics) {
@@ -177,9 +187,21 @@ public class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				log.warn("It took more than {} to execute jdbc insert for bulk data. Statement is {}", warningThreshold, insertStatement);
 			}
 		} catch (final Exception e) {
+			try {
+				connection.rollback();
+			} catch (final Exception exc) {
+				log.error("Exception while performing rollback", exc);
+			}
 			log.error("Exception while insert bulk values using jdbc", e);
 			log.error("Prepared statement was {}", currentStatementWithReplacedValues);
+			DataSourceProvider.close(preparedStatement);
 			throw new RuntimeException(e);
+		} finally {
+			try {
+				preparedStatement.clearBatch();
+			} catch (final SQLException e) {
+				log.error("Exception while clearing batch", e);
+			}
 		}
 	}
 
