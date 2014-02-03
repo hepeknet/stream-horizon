@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sql.DataSource;
@@ -22,6 +21,7 @@ import com.threeglav.bauk.model.BaukAttributeType;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
+import com.threeglav.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.bauk.util.StringUtil;
 
 public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
@@ -35,10 +35,10 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final int warningThreshold;
 	private final int batchSize;
 	private int rowCounter = 0;
-	private final boolean hasAnyGlobalAttributesToReplace;
 	private final boolean outputProcessingStatistics;
 	private String currentStatementWithReplacedValues;
 	private final DataSource dataSource;
+	private final StatefulAttributeReplacer statefulReplacer;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -65,12 +65,12 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		batchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
 				SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
-		final Set<String> allGlobalAttributesUsedInStatement = StringUtil.collectAllAttributesFromString(insertStatement);
-		hasAnyGlobalAttributesToReplace = allGlobalAttributesUsedInStatement != null && !allGlobalAttributesUsedInStatement.isEmpty();
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
 				false);
 		dataSource = DataSourceProvider.getDataSource(this.getConfig());
+		statefulReplacer = new StatefulAttributeReplacer(insertStatement, this.getConfig().getDatabaseStringLiteral(), this.getConfig()
+				.getDatabaseStringEscapeLiteral());
 	}
 
 	private void validate(final int attributesNumber) {
@@ -97,14 +97,10 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private void initializePreparedStatement(final Map<String, String> globalAttributes) {
 		try {
-			String statement = insertStatement;
-			if (hasAnyGlobalAttributesToReplace) {
-				statement = StringUtil.replaceAllAttributes(statement, globalAttributes, this.getConfig().getDatabaseStringLiteral(), this
-						.getConfig().getDatabaseStringEscapeLiteral());
-				currentStatementWithReplacedValues = statement;
-				if (isDebugEnabled) {
-					log.debug("After replacing all attributes insert statement looks like {}. Global attributes are {}", statement, globalAttributes);
-				}
+			final String statement = statefulReplacer.replaceAttributes(globalAttributes);
+			currentStatementWithReplacedValues = statement;
+			if (isDebugEnabled) {
+				log.debug("After replacing all attributes insert statement looks like {}. Global attributes are {}", statement, globalAttributes);
 			}
 			connection = dataSource.getConnection();
 			connection.setAutoCommit(false);

@@ -25,6 +25,7 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.MetricsUtil;
+import com.threeglav.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.bauk.util.StringUtil;
 
 public class BulkFileProcessor extends ConfigAware implements FileProcessor {
@@ -48,6 +49,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 	private final BaukCommandsExecutor commandsExecutor;
 	private final boolean shouldExecuteOnBulkLoadFailure;
+	private final StatefulAttributeReplacer statefulReplacer;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -71,6 +73,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		final ArrayList<BaukCommand> onBulkLoadFail = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadFailure();
 		shouldExecuteOnBulkLoadFailure = onBulkLoadFail != null && !onBulkLoadFail.isEmpty();
 		commandsExecutor = new BaukCommandsExecutor(factFeed, config);
+		statefulReplacer = new StatefulAttributeReplacer(bulkLoadStatement, dbStringLiteral, dbStringEscapeLiteral);
 	}
 
 	@Override
@@ -110,7 +113,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		if (isDebugEnabled) {
 			log.debug("Insert statement for bulk loading files is {}", insertStatement);
 		}
-		final String replacedStatement = StringUtil.replaceAllAttributes(insertStatement, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
+		final String replacedStatement = statefulReplacer.replaceAttributes(globalAttributes);
 		if (isDebugEnabled) {
 			log.debug("Statement to execute is {}", replacedStatement);
 		}
