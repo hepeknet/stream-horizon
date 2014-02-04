@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import com.threeglav.bauk.ConfigAware;
+import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.CommandType;
@@ -14,12 +15,17 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class BaukCommandsExecutor extends ConfigAware {
 
+	private final DbHandler databaseHandler;
+
 	public BaukCommandsExecutor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
+		databaseHandler = this.getDbHandler();
 	}
 
 	private String executeShellCommand(final String command) {
-		log.debug("Executing shell command [{}]", command);
+		if (isDebugEnabled) {
+			log.debug("Executing shell command [{}]", command);
+		}
 		final StringBuffer output = new StringBuffer();
 		try {
 			final Process p = Runtime.getRuntime().exec(command);
@@ -29,7 +35,9 @@ public class BaukCommandsExecutor extends ConfigAware {
 			while ((line = reader.readLine()) != null) {
 				output.append(line + "\n");
 			}
-			log.debug("Execution of [{}] finished with exit value [{}] and data [{}]", command, p.exitValue(), output.toString());
+			if (isDebugEnabled) {
+				log.debug("Execution of [{}] finished with exit value [{}] and data [{}]", command, p.exitValue(), output.toString());
+			}
 		} catch (final Exception e) {
 			log.error("Exception while executing shell command", e);
 		}
@@ -41,7 +49,9 @@ public class BaukCommandsExecutor extends ConfigAware {
 			log.debug("No commands provided - nothing to execute");
 			return;
 		}
-		log.debug("About to execute following {}", commands);
+		if (isDebugEnabled) {
+			log.debug("About to execute following {}", commands);
+		}
 		for (final BaukCommand bc : commands) {
 			if (bc.getType() == CommandType.SHELL) {
 				this.executeShellCommand(bc.getCommand());
@@ -53,7 +63,7 @@ public class BaukCommandsExecutor extends ConfigAware {
 				if (isDebugEnabled) {
 					log.debug("Executing {} as part of {}", stat, description);
 				}
-				this.getDbHandler().executeInsertOrUpdateStatement(stat, description);
+				databaseHandler.executeInsertOrUpdateStatement(stat, description);
 			}
 		}
 	}

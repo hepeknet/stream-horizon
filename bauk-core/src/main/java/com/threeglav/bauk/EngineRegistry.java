@@ -24,15 +24,15 @@ public abstract class EngineRegistry {
 
 	private static CountDownLatch CONTINUE_PROCESSING_SIGNAL;
 
-	private static final Meter PROCESSED_FEED_ROWS_METER = MetricsUtil.createMeter("Processed feed rows");
+	private static final Meter PROCESSED_FEED_ROWS_METER = MetricsUtil.createMeter("Processed feed rows in total");
 
-	private static final Counter SUCCESSFUL_INPUT_FILES_COUNTER = MetricsUtil.createCounter("Processed feed files", false);
+	private static final Counter SUCCESSFUL_INPUT_FILES_COUNTER = MetricsUtil.createCounter("Successfully processed feed files count");
 
-	private static final Counter FAILED_FEED_FILES_COUNTER = MetricsUtil.createCounter("Failed feed files", false);
+	private static final Counter FAILED_FEED_FILES_COUNTER = MetricsUtil.createCounter("Failed processing feed files count");
 
-	private static final Counter FAILED_BULK_FILES_COUNTER = MetricsUtil.createCounter("Failed bulk files", false);
+	private static final Counter FAILED_BULK_FILES_COUNTER = MetricsUtil.createCounter("Failed bulk-loading files count");
 
-	private static final Counter SUCCESSFUL_BULK_FILES_COUNTER = MetricsUtil.createCounter("Bulk loaded files", false);
+	private static final Counter SUCCESSFUL_BULK_FILES_COUNTER = MetricsUtil.createCounter("Successfully bulk-loaded files count");
 
 	private static AtomicBoolean SHOULD_PAUSE = new AtomicBoolean(false);
 

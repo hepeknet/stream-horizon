@@ -36,8 +36,8 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	public CachePreviousUsedRowPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
 		this.delegate = (DimensionHandler) delegate;
 		dimensionName = this.delegate.getDimension().getName();
-		turboCacheHits = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache hits", true);
-		turboCacheMisses = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache misses", true);
+		turboCacheHits = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache hits");
+		turboCacheMisses = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache misses");
 		log.info("Will cache previously used values for dimension {}", dimensionName);
 		EngineEvents.registerForFlushDimensionCache(this);
 	}

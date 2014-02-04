@@ -40,7 +40,7 @@ public class StatefulAttributeReplacerTest {
 
 	@Test
 	public void testSimple1() {
-		final StatefulAttributeReplacer sar = new StatefulAttributeReplacer("select ${a}+${a} from ${b} where ${a}=${c}", "'", "''");
+		final StatefulAttributeReplacer sar = new StatefulAttributeReplacer("select ${a}+${a} from ${c} where ${a}=${b}", "'", "''");
 		Assert.assertTrue(sar.isHasReplacementToDo());
 		Assert.assertEquals(3, sar.getAttributeNamePlaceholdersToReplace().length);
 		Assert.assertEquals(3, sar.getAttributeNamesToReplace().length);
@@ -52,8 +52,8 @@ public class StatefulAttributeReplacerTest {
 		Assert.assertEquals("${c}", sar.getAttributeNamePlaceholdersToReplace()[2]);
 		final Map<String, String> globalAttrs = new HashMap<String, String>();
 		globalAttrs.put("a", "1");
-		globalAttrs.put("b", "'2");
-		globalAttrs.put("c", "3");
+		globalAttrs.put("b", "3");
+		globalAttrs.put("c", "'2");
 		final String replaced = sar.replaceAttributes(globalAttrs);
 		Assert.assertEquals("select 1+1 from ''2 where 1=3", replaced);
 	}

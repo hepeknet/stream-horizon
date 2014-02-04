@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,7 +37,7 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class TextFileReaderComponent extends ConfigAware {
 
-	private static final String AVERAGE_NUMBER_OUTPUT_FORMAT = "%.1f";
+	private static final DecimalFormat DEC_FORMAT = new DecimalFormat("#########.#");
 
 	private final int bufferSize;
 	private HeaderParser headerParser;
@@ -190,7 +191,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		STOP_AND_COUNT, STOP, ONLY_FOOTER_LEFT, PROCESSED_DATA_LINE;
 	}
 
-	private FeedProcessingPhase doProcessSingleLine(final LineBuffer lines, final Map<String, String> globalAttributes, final BufferedReader br)
+	private final FeedProcessingPhase doProcessSingleLine(final LineBuffer lines, final Map<String, String> globalAttributes, final BufferedReader br)
 			throws IOException {
 		final boolean noMoreLinesAvailable = !this.hasAnyOtherLines(lines);
 		if (noMoreLinesAvailable) {
@@ -199,13 +200,14 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (isControlFeed) {
 				this.exposeControlFeedDataAsAttributes(line, globalAttributes);
 				return FeedProcessingPhase.STOP;
-			} else if (processAndValidateFooter) {
+			}
+			if (processAndValidateFooter) {
 				lines.add(line);
 				return FeedProcessingPhase.ONLY_FOOTER_LEFT;
-			} else {
-				feedDataProcessor.processLastLine(line, globalAttributes);
-				return FeedProcessingPhase.STOP_AND_COUNT;
 			}
+			// else
+			feedDataProcessor.processLastLine(line, globalAttributes);
+			return FeedProcessingPhase.STOP_AND_COUNT;
 		} else {
 			final String line = lines.getLine();
 			this.fillBuffer(lines, br);
@@ -219,7 +221,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	private void fillBuffer(final LineBuffer buffer, final BufferedReader br) throws IOException {
+	private final void fillBuffer(final LineBuffer buffer, final BufferedReader br) throws IOException {
 		while (buffer.canAdd()) {
 			final String line = br.readLine();
 			if (line == null) {
@@ -296,17 +298,19 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (outputProcessingStatistics) {
 			final float totalMillis = System.currentTimeMillis() - start;
 			final float totalSec = totalMillis / 1000;
-			String averagePerSec = "N/A";
+			String averagePerSec;
 			if (totalSec > 0 && feedLinesNumber > 0) {
 				final float val = feedLinesNumber / totalSec;
-				averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/second";
+				averagePerSec = DEC_FORMAT.format(val) + " rows/second";
 			} else if (totalSec == 0 && totalMillis > 0) {
 				final float val = feedLinesNumber / totalMillis;
-				averagePerSec = String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, val) + " rows/millisecond";
+				averagePerSec = DEC_FORMAT.format(val) + " rows/millisecond";
+			} else {
+				averagePerSec = "N/A";
 			}
 			String messageToOutput = "Processed " + feedLinesNumber + " rows in " + totalMillis + "ms";
 			if (totalMillis > 1000) {
-				messageToOutput += " (" + String.format(AVERAGE_NUMBER_OUTPUT_FORMAT, totalSec) + " sec)";
+				messageToOutput += " (" + DEC_FORMAT.format(totalSec) + " sec)";
 			}
 			messageToOutput += ". Average " + averagePerSec;
 			if (filesProcessedSoFar > 0) {

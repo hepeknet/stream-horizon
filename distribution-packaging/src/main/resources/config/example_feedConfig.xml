@@ -212,6 +212,13 @@
 					'\n'</bulkLoadInsertStatement>
 				<bulkLoadFormatDefinition>
 					<attributes>
+						<!-- 
+							attributes can come from 
+								feed (feed. prefix), 
+								dimension SK (dimension. prefix), 
+								can be constants (no name given) or 
+								can be mapped to any context attribute (just use context attribute name, no need for ${} characters 
+						 -->
 						<!-- order of attributes is important -->
 						<!-- dimension.XYZ means output calculated SK for dimension XYZ (based on dimension definition) -->
 						<attribute name="dimension.RWH_DEAL_DIM" type="int" />
@@ -232,6 +239,8 @@
 						<attribute name="feed.localValue" />
 						<attribute name="feed.baseValue" />
 						<attribute name="feed.riskValue" />
+						<!-- attribute value will be looked in context, can be implicit or custom -->
+						<attribute name="customized.attribute.from.context" />
 					</attributes>
 				</bulkLoadFormatDefinition>
 				<!-- if we want bulk output file to be renamed to something after created (but before loaded) we set this value -->

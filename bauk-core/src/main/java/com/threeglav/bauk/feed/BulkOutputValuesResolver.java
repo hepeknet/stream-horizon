@@ -35,6 +35,12 @@ import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.BaukThreadFactory;
 import com.threeglav.bauk.util.StringUtil;
 
+/**
+ * This class is single threaded
+ * 
+ * @author Borisa
+ * 
+ */
 public class BulkOutputValuesResolver extends ConfigAware {
 
 	private static final String DIMENSION_PREFIX = "dimension.";
@@ -227,19 +233,19 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	public final Object[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
-		final Object[] output = new Object[bulkOutputFileNumberOfValues];
+		final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-			output[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+			reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
 		}
-		return output;
+		return reusedForPerformanceOutputValues;
 	}
 
 	public final Object[] resolveLastLineValues(final String[] inputValues, final Map<String, String> globalData) {
-		final Object[] output = new Object[bulkOutputFileNumberOfValues];
+		final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
 		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-			output[i] = outputValueHandlers[i].getLastLineBulkLoadValue(inputValues, globalData);
+			reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getLastLineBulkLoadValue(inputValues, globalData);
 		}
-		return output;
+		return reusedForPerformanceOutputValues;
 	}
 
 	public void closeCurrentFeed() {

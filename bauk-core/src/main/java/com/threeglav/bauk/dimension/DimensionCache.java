@@ -62,10 +62,10 @@ public final class DimensionCache implements Observer {
 		log.info("For dimension {} local cache will hold at most {} elements", dimension.getName(), maxElementsInLocalCacheForDimension);
 		this.cacheInstance = cacheInstance;
 		if (!LOCAL_CACHE_DISABLED) {
-			localCacheClearCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - fast cache resets", false);
+			localCacheClearCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - fast cache resets");
 			localCache = new TObjectIntHashMap<>(maxElementsInLocalCacheForDimension);
 		}
-		dimensionCacheFlushCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - cache flush executions", false);
+		dimensionCacheFlushCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - cache flush executions");
 		maxElementsInLocalCache = maxElementsInLocalCacheForDimension;
 		isDebugEnabled = log.isDebugEnabled();
 		EngineEvents.registerForFlushDimensionCache(this);

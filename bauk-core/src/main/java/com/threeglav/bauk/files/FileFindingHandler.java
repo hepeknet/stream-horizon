@@ -91,6 +91,11 @@ public final class FileFindingHandler implements Runnable {
 					Path path = queuedFiles.poll();
 					while (path != null) {
 						this.processSingleFile(path);
+						final boolean checkShouldStop = BaukUtil.shutdownStarted();
+						if (checkShouldStop) {
+							log.debug("Stopping processing files because shutdown signal was caught!");
+							return;
+						}
 						EngineRegistry.pauseProcessingIfNeeded();
 						path = queuedFiles.poll();
 					}

@@ -75,10 +75,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		mappedColumnsPositionOffset = naturalKeyPositionOffset;
 		this.calculatePositionOfMappedColumnValues();
 		hasNaturalKeysNotPresentInFeed = this.calculatePositionOfNaturalKeyValues();
-		dbAccessSelectCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database selects executed", false);
-		dbAccessInsertCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database inserts executed", false);
-		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total pre-cached values retrieved",
-				false);
+		dbAccessSelectCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database selects executed");
+		dbAccessInsertCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database inserts executed");
+		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total pre-cached values retrieved");
 		final int numberOfNaturalKeys = this.dimension.getNumberOfNaturalKeys();
 		if (numberOfNaturalKeys == 0) {
 			noNaturalKeyColumnsDefined = true;
@@ -243,7 +242,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	/*
 	 * Used for delegates - no need to calculate lookup key again in case when previous line cache failed.
 	 */
-	public Object getBulkLoadValueByPrecalculatedLookupKey(final String[] parsedLine, final Map<String, String> globalAttributes,
+	Object getBulkLoadValueByPrecalculatedLookupKey(final String[] parsedLine, final Map<String, String> globalAttributes,
 			final String naturalCacheKey) {
 		Integer surrogateKey = null;
 		if (naturalCacheKey != null) {
@@ -330,7 +329,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private String prepareStatement(final String statement, final String[] parsedLine, final Map<String, String> globalAttributes) {
-		if (log.isDebugEnabled()) {
+		if (isDebugEnabled) {
 			final String placeHolderFormat = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + "ATTRIBUTE_NAME"
 					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
 			log.debug("Will prepare statement {}. Replacing all placeholders {} with their real values (from feed or header)", statement,

@@ -24,7 +24,7 @@ public class FeedParserComponent extends ConfigAware {
 	private final boolean checkEveryLineValidity;
 	private final String firstStringInEveryLine;
 	private final int expectedTokensInEveryDataLine;
-	private FeedDataLineProcessor feedProcessor;
+	private FeedDataLineProcessor feedDataLineProcessor;
 
 	public FeedParserComponent(final FactFeed ff, final BaukConfiguration config, final String routeIdentifier) {
 		super(ff, config);
@@ -71,7 +71,7 @@ public class FeedParserComponent extends ConfigAware {
 			log.info("Will try to resolve feed data processor class [{}]", dataMappingClassName);
 			final CustomProcessorResolver<FeedDataLineProcessor> headerParserInstanceResolver = new CustomProcessorResolver<>(dataMappingClassName,
 					FeedDataLineProcessor.class);
-			feedProcessor = headerParserInstanceResolver.resolveInstance();
+			feedDataLineProcessor = headerParserInstanceResolver.resolveInstance();
 			log.debug("Found data mapper {}", feedParser);
 		} else {
 			log.info("Will not use any custom data mapping logic");
@@ -122,8 +122,8 @@ public class FeedParserComponent extends ConfigAware {
 		if (parsedLinesMeter != null) {
 			parsedLinesMeter.mark();
 		}
-		if (feedProcessor != null) {
-			return feedProcessor.preProcessDataLine(parsed);
+		if (feedDataLineProcessor != null) {
+			return feedDataLineProcessor.preProcessDataLine(parsed);
 		}
 		return parsed;
 	}

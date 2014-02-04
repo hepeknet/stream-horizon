@@ -1,8 +1,6 @@
 package com.threeglav.bauk.util;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.SortedMap;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Histogram;
@@ -13,8 +11,6 @@ import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.SystemConfigurationConstants;
 
 public abstract class MetricsUtil {
-
-	private static final Map<String, AtomicInteger> USED_NAMES = new HashMap<String, AtomicInteger>();
 
 	private static final boolean metricsOff;
 
@@ -33,39 +29,38 @@ public abstract class MetricsUtil {
 		return metricsOff;
 	}
 
-	private synchronized static String getUniqueName(final String name) {
-		AtomicInteger usedCounter = USED_NAMES.get(name);
-		if (usedCounter == null) {
-			usedCounter = new AtomicInteger(1);
-			USED_NAMES.put(name, usedCounter);
-		} else {
-			usedCounter.incrementAndGet();
-			USED_NAMES.put(name, usedCounter);
-		}
-		return "(" + usedCounter.get() + ") " + name;
-	}
-
-	public static Meter createMeter(final String name) {
+	public static synchronized Meter createMeter(final String name) {
 		if (!metricsOff) {
-			return registry.meter(getUniqueName(name));
-		}
-		return null;
-	}
-
-	public static Counter createCounter(final String name, final boolean uniqueName) {
-		if (!metricsOff) {
-			String counterName = name;
-			if (uniqueName) {
-				counterName = getUniqueName(name);
+			final SortedMap<String, Meter> meters = registry.getMeters();
+			final Meter existingMeter = meters.get(name);
+			if (existingMeter != null) {
+				return existingMeter;
 			}
-			return registry.counter(counterName);
+			return registry.meter(name);
 		}
 		return null;
 	}
 
-	public static Histogram createHistogram(final String name) {
+	public static synchronized Counter createCounter(final String name) {
 		if (!metricsOff) {
-			return registry.histogram(getUniqueName(name));
+			final SortedMap<String, Counter> counters = registry.getCounters();
+			final Counter existingCounter = counters.get(name);
+			if (existingCounter != null) {
+				return existingCounter;
+			}
+			return registry.counter(name);
+		}
+		return null;
+	}
+
+	public static synchronized Histogram createHistogram(final String name) {
+		if (!metricsOff) {
+			final SortedMap<String, Histogram> histograms = registry.getHistograms();
+			final Histogram existingHistogram = histograms.get(name);
+			if (existingHistogram != null) {
+				return existingHistogram;
+			}
+			return registry.histogram(name);
 		}
 		return null;
 	}

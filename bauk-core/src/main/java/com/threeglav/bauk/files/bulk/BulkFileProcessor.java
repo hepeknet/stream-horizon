@@ -11,20 +11,19 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
+import com.threeglav.bauk.dimension.db.DbHandler;
 import com.threeglav.bauk.files.BaukFile;
 import com.threeglav.bauk.files.FileProcessor;
 import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
-import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.bauk.util.StringUtil;
 
@@ -36,7 +35,6 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private final Map<String, String> implicitAttributes = new THashMap<String, String>();
 
-	private final Meter successfullyLoadedBulkFilesMeter;
 	private final String dbStringLiteral;
 	private final String dbStringEscapeLiteral;
 	private final BulkFileSubmissionRecorder fileSubmissionRecorder;
@@ -50,13 +48,13 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private final BaukCommandsExecutor commandsExecutor;
 	private final boolean shouldExecuteOnBulkLoadFailure;
 	private final StatefulAttributeReplacer statefulReplacer;
+	private final DbHandler dbHandler;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
 		dbStringEscapeLiteral = this.getConfig().getDatabaseStringEscapeLiteral();
 		fileSubmissionRecorder = new BulkFileSubmissionRecorder();
-		successfullyLoadedBulkFilesMeter = MetricsUtil.createMeter("Successfully loaded bulk files");
 		statementDescription = "BulkFileProcessor for " + this.getFactFeed().getName();
 		processorId = String.valueOf(COUNTER.incrementAndGet());
 		isDebugEnabled = log.isDebugEnabled();
@@ -74,6 +72,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		shouldExecuteOnBulkLoadFailure = onBulkLoadFail != null && !onBulkLoadFail.isEmpty();
 		commandsExecutor = new BaukCommandsExecutor(factFeed, config);
 		statefulReplacer = new StatefulAttributeReplacer(bulkLoadStatement, dbStringLiteral, dbStringEscapeLiteral);
+		dbHandler = this.getDbHandler();
 	}
 
 	@Override
@@ -99,7 +98,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
 			fileSubmissionRecorder.recordSubmissionAttempt(fileNameOnly);
 		}
-		this.executeBulkLoadingCommandSequence(globalAttributes, bulkLoadStatement);
+		this.executeBulkLoadingCommandSequence(globalAttributes);
 		fileSubmissionRecorder.deleteLoadedFile(fileNameOnly);
 		try {
 			file.delete();
@@ -108,17 +107,17 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		}
 	}
 
-	private void executeBulkLoadingCommandSequence(final Map<String, String> globalAttributes, final String insertStatement) {
+	private void executeBulkLoadingCommandSequence(final Map<String, String> globalAttributes) {
 		final long start = System.currentTimeMillis();
 		if (isDebugEnabled) {
-			log.debug("Insert statement for bulk loading files is {}", insertStatement);
+			log.debug("Insert statement for bulk loading files is {}", bulkLoadStatement);
 		}
 		final String replacedStatement = statefulReplacer.replaceAttributes(globalAttributes);
 		if (isDebugEnabled) {
 			log.debug("Statement to execute is {}", replacedStatement);
 		}
 		try {
-			this.getDbHandler().executeInsertOrUpdateStatement(replacedStatement, statementDescription);
+			dbHandler.executeInsertOrUpdateStatement(replacedStatement, statementDescription);
 			EngineRegistry.registerSuccessfulBulkFile();
 		} catch (final Exception exc) {
 			EngineRegistry.registerFailedBulkFile();
@@ -148,9 +147,6 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		}
 		if (shouldExecuteOnBulkLoadSuccess) {
 			this.executeOnSuccessBulkLoad(globalAttributes);
-		}
-		if (successfullyLoadedBulkFilesMeter != null) {
-			successfullyLoadedBulkFilesMeter.mark();
 		}
 	}
 

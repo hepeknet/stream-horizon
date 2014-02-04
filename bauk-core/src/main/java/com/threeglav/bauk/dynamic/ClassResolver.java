@@ -52,7 +52,7 @@ public class ClassResolver<T> {
 				throw new IllegalStateException(clazz + " is not of expected type " + expectedType);
 			}
 		} catch (final ClassNotFoundException e) {
-			log.warn("Was not able to find class {} in classpath", fullClassName);
+			log.info("Was not able to find already compiled class [{}] in the classpath", fullClassName);
 		}
 		return null;
 	}

@@ -20,7 +20,7 @@ public abstract class InMemoryDbUtil {
 	public static String getJdbcUrl(final String databaseName) {
 		final String dbDataFolder = ConfigurationProperties.getDbDataFolder();
 		// cache size in KB
-		final String url = "jdbc:h2:" + dbDataFolder + "/" + databaseName + ";DB_CLOSE_DELAY=10;CACHE_SIZE=131072";
+		final String url = "jdbc:h2:" + dbDataFolder + "/" + databaseName + ";DB_CLOSE_DELAY=20;CACHE_SIZE=131072";
 		return url;
 	}
 
