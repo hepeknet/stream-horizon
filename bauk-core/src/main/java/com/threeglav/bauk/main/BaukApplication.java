@@ -176,12 +176,12 @@ public class BaukApplication {
 			final long remainedSeconds = totalUpTimeSec % 60;
 			final long averageFilesPerSecond = totalInputFeedFilesProcessed / totalUpTimeSec;
 			final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
-			BaukUtil.logEngineMessage("Uptime of this instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and " + remainedSeconds
-					+ " seconds) - including dimension precaching. In total processed " + totalInputFeedFilesProcessed + " input feed files and "
-					+ totalInputFeedRowsProcessed + " rows.");
-			BaukUtil.logEngineMessage("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
+			BaukUtil.logEngineMessageSync("Uptime of this instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and "
+					+ remainedSeconds + " seconds) - including dimension precaching. In total processed " + totalInputFeedFilesProcessed
+					+ " input feed files and " + totalInputFeedRowsProcessed + " rows.");
+			BaukUtil.logEngineMessageSync("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
 		} else {
-			BaukUtil.logEngineMessage("No files were processed or statistics are turned off.");
+			BaukUtil.logEngineMessageSync("No files were processed or statistics are turned off.");
 		}
 	}
 

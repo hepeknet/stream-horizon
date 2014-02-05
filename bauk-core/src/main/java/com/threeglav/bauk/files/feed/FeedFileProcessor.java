@@ -10,6 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
+import org.joda.time.Chronology;
+import org.joda.time.DateTime;
+import org.joda.time.chrono.ISOChronology;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -44,6 +47,8 @@ public class FeedFileProcessor implements FileProcessor {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final AtomicInteger COUNTER = new AtomicInteger(0);
+
+	private static final Chronology DEFAULT_CHRONOLOGY = ISOChronology.getInstance();
 
 	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern(BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
 
@@ -291,11 +296,12 @@ public class FeedFileProcessor implements FileProcessor {
 			log.info("Null or empty attributes returned by feed file name parser!");
 		}
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, file.getFullFilePath());
+		final DateTime fileLastModified = new DateTime(file.getLastModifiedTime(), DEFAULT_CHRONOLOGY);
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_TIMESTAMP, "" + file.getLastModifiedTime());
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME, DATE_FORMATTER.print(file.getLastModifiedTime()));
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_RECEIVED_DATE_TIME, DATE_FORMATTER.print(fileLastModified));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_SIZE, String.valueOf(file.getSize()));
-		final long now = System.currentTimeMillis();
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now);
+		final DateTime now = new DateTime(DEFAULT_CHRONOLOGY);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getMillis());
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, DATE_FORMATTER.print(now));
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
 		if (isDebugEnabled) {

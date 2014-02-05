@@ -231,7 +231,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	@Override
-	public Object getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	public Integer getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		String naturalCacheKey = null;
 		if (!noNaturalKeyColumnsDefined) {
 			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes);
@@ -242,7 +242,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	/*
 	 * Used for delegates - no need to calculate lookup key again in case when previous line cache failed.
 	 */
-	Object getBulkLoadValueByPrecalculatedLookupKey(final String[] parsedLine, final Map<String, String> globalAttributes,
+	Integer getBulkLoadValueByPrecalculatedLookupKey(final String[] parsedLine, final Map<String, String> globalAttributes,
 			final String naturalCacheKey) {
 		Integer surrogateKey = null;
 		if (naturalCacheKey != null) {
@@ -264,8 +264,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	@Override
-	public Object getLastLineBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		final Object surrogateKey = this.getBulkLoadValue(parsedLine, globalAttributes);
+	public Integer getLastLineBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+		final Integer surrogateKey = this.getBulkLoadValue(parsedLine, globalAttributes);
 		if (exposeLastLineValueInContext) {
 			if (globalAttributes != null) {
 				globalAttributes.put(dimensionLastLineSKAttributeName, String.valueOf(surrogateKey));

@@ -48,7 +48,7 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	}
 
 	@Override
-	public Object getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
+	public Integer getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
 		reusedForPerformance.setLength(0);
 		final String lookupKey = delegate.buildNaturalKeyForCacheLookup(parsedLine, globalValues, reusedForPerformance);
 		if (previouslyUsedKey.equals(lookupKey)) {
@@ -57,7 +57,7 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 			}
 			return previouslyUsedValue;
 		} else {
-			final Integer surrogateKey = (Integer) delegate.getBulkLoadValueByPrecalculatedLookupKey(parsedLine, globalValues, lookupKey);
+			final Integer surrogateKey = delegate.getBulkLoadValueByPrecalculatedLookupKey(parsedLine, globalValues, lookupKey);
 			previouslyUsedKey = lookupKey;
 			previouslyUsedValue = surrogateKey;
 			if (turboCacheMisses != null) {
@@ -68,7 +68,7 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	}
 
 	@Override
-	public Object getLastLineBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
+	public Integer getLastLineBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
 		return delegate.getLastLineBulkLoadValue(parsedLine, globalValues);
 	}
 
