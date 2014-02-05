@@ -5,13 +5,13 @@
 		<artifactId>bauk</artifactId>
 		<version>0.0.12-SNAPSHOT</version>
 	</parent>
-	<artifactId>distribution-packaging</artifactId>
+	<artifactId>bauk-distribution-packaging</artifactId>
 	<packaging>pom</packaging>
 
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>feed-parser</artifactId>
+			<artifactId>bauk-feed-parser</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>customizations</artifactId>
+			<artifactId>bauk-plugins</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
@@ -62,7 +62,7 @@
 									</inclusion>
 									<inclusion>
 										<groupId>${project.groupId}</groupId>
-										<artifactId>feed-parser</artifactId>
+										<artifactId>bauk-feed-parser</artifactId>
 									</inclusion>
 								</inclusions>
 							</assembly>

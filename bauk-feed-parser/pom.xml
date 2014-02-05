@@ -6,6 +6,6 @@
 		<artifactId>bauk</artifactId>
 		<version>0.0.12-SNAPSHOT</version>
 	</parent>
-	<artifactId>feed-parser</artifactId>
+	<artifactId>bauk-feed-parser</artifactId>
 
 </project>

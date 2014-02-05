@@ -5,7 +5,7 @@
 		<artifactId>bauk</artifactId>
 		<version>0.0.12-SNAPSHOT</version>
 	</parent>
-	<artifactId>customizations</artifactId>
+	<artifactId>bauk-plugins</artifactId>
 	<name>Bauk Plugins</name>
 
 	<dependencies>
@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>feed-parser</artifactId>
+			<artifactId>bauk-feed-parser</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

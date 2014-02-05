@@ -94,7 +94,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>feed-parser</artifactId>
+			<artifactId>bauk-feed-parser</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

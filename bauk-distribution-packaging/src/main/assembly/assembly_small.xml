@@ -93,7 +93,7 @@
 			</includes>
 			<excludes>
 				<exclude>com.threeglav.bauk:bauk-core</exclude>
-				<exclude>com.threeglav.bauk:feed-parser</exclude>
+				<exclude>com.threeglav.bauk:bauk-feed-parser</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

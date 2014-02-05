@@ -65,11 +65,11 @@
 	</build>
 
 	<modules>
-		<module>feed-parser</module>
-		<module>distribution-packaging</module>
+		<module>bauk-feed-parser</module>
+		<module>bauk-distribution-packaging</module>
 		<module>bauk-core</module>
 		<module>bauk-api</module>
-		<module>customizations</module>
+		<module>bauk-plugins</module>
 	</modules>
 
 	<scm>
