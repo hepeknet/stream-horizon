@@ -2,13 +2,19 @@
 DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 RESOLVED_HOME=$DIRNAME/../
 
+# first parameter - instance identifier
+# second parameter - heap size GB
+
+
 if [ -n "$1" ]; then BAUK_INSTANCE_ID="$1"; BAUK_INSTANCE_ID="0"; fi
+
+if [ -n "$2" ]; then heapSizeGb="$2"; heapSizeGb="2"; fi
 
 # following two lines are the only two lines that need to be changed
 # where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/feedConfig.xml
 BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/feedConfig.xml"
 # if needed increase the size of heap to be used
-HEAP_OPTS="-Xmx8G -Xms2G"
+HEAP_OPTS="-Xmx${heapSizeGb}G -Xms${heapSizeGb}G"
 
 
 GC_OPTS=""

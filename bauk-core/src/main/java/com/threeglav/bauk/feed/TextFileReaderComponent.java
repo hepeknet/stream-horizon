@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 
-import com.codahale.metrics.Histogram;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
@@ -31,7 +30,6 @@ import com.threeglav.bauk.parser.FeedParser;
 import com.threeglav.bauk.parser.FullFeedParser;
 import com.threeglav.bauk.util.AttributeParsingUtil;
 import com.threeglav.bauk.util.BaukUtil;
-import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public class TextFileReaderComponent extends ConfigAware {
@@ -41,7 +39,6 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final int bufferSize;
 	private HeaderParser headerParser;
 	private final boolean processAndValidateFooter;
-	private final Histogram feedFileSizeHistogram;
 	private final FeedParser footerLineParser;
 	private final String footerFirstString;
 	private final String[] declaredHeaderAttributes;
@@ -59,7 +56,6 @@ public class TextFileReaderComponent extends ConfigAware {
 		this.validate();
 		this.feedDataProcessor = feedDataProcessor;
 		processAndValidateFooter = factFeed.getFooter().getProcess() != FooterProcessingType.SKIP;
-		feedFileSizeHistogram = MetricsUtil.createHistogram("(" + routeIdentifier + ") - number of lines per feed");
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
 		footerRecordCountPosition = this.getFactFeed().getFooter().getRecordCountAttributePosition();
@@ -258,9 +254,6 @@ public class TextFileReaderComponent extends ConfigAware {
 			}
 			if (isDebugEnabled) {
 				log.debug("Successfully processed {} lines in file", feedLinesNumber);
-			}
-			if (feedFileSizeHistogram != null) {
-				feedFileSizeHistogram.update(feedLinesNumber);
 			}
 			EngineRegistry.registerProcessedFeedRows(feedLinesNumber);
 			return feedLinesNumber;

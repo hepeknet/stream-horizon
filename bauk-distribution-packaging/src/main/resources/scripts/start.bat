@@ -1,7 +1,7 @@
 @echo off
 
 rem first parameter - instance identifier
-rem second parameter - number of feed threads
+rem second parameter - heap size GB
 
 set DIRNAME=.\
 
@@ -12,12 +12,15 @@ popd
 set "BAUK_INSTANCE_ID=%1"
 IF "%BAUK_INSTANCE_ID%"=="" set "BAUK_INSTANCE_ID=0"
 
+set "heapSizeGb=%2"
+if "%heapSizeGb%"=="" set "heapSizeGb=2"
+
 rem following two lines are the only two lines that need to be changed
 rem where config file is, if not specified then default one will be used
 set "BAUK_CONFIG_FILE_LOCATION=%RESOLVED_HOME%\config\feedConfig.xml"
 
 rem if needed increase the size of heap to be used
-set "HEAP_OPTS=-Xmx8G -Xms2G"
+set "HEAP_OPTS=-Xmx%heapSizeGb%G -Xms%heapSizeGb%G"
 
 set "GC_OPTS="
 set "JAVA_OPTS=-server -d64 -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
