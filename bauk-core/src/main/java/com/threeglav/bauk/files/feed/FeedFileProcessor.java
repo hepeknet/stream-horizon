@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.BeforeFeedProcessingProcessor;
@@ -66,6 +68,8 @@ public class FeedFileProcessor implements FileProcessor {
 	private FileProcessingErrorHandler moveToArchiveFileProcessor;
 	private final boolean executeRollbackSequence;
 	private final BaukCommandsExecutor baukCommandsExec;
+	private final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
+			SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -114,15 +118,18 @@ public class FeedFileProcessor implements FileProcessor {
 		} finally {
 			IOUtils.closeQuietly(inputStream);
 		}
-		try {
-			if (moveToArchiveFileProcessor != null) {
-				moveToArchiveFileProcessor.handleError(file.getPath(), null);
-			} else {
-				file.delete();
+		// if testing throughput no need to move or delete file
+		if (!throughputTestingMode) {
+			try {
+				if (moveToArchiveFileProcessor != null) {
+					moveToArchiveFileProcessor.handleError(file.getPath(), null);
+				} else {
+					file.delete();
+				}
+			} catch (final IOException ie) {
+				log.error("Exception while moving file to archive folder. Exiting!", ie);
+				System.exit(-1);
 			}
-		} catch (final IOException ie) {
-			log.error("Exception while moving file to archive folder. Exiting!", ie);
-			System.exit(-1);
 		}
 	}
 

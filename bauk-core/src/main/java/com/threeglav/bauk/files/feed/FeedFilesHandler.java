@@ -17,6 +17,7 @@ import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.ThreadPoolSizes;
 import com.threeglav.bauk.util.BaukThreadFactory;
+import com.threeglav.bauk.util.BaukUtil;
 
 public class FeedFilesHandler {
 
@@ -54,6 +55,7 @@ public class FeedFilesHandler {
 				SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 		Runnable ffh;
 		if (throughputTestingMode) {
+			BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONLY ONE FILE WILL BE CACHED AND PROCESSED!!!");
 			ffh = new ThroughputTestingFileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
 		} else {
 			ffh = new FileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);

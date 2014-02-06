@@ -285,7 +285,7 @@ public class TextFileReaderComponent extends ConfigAware {
 
 	private void outputFeedProcessingStatistics(final int feedLinesNumber, final long start, final long filesProcessedSoFar) {
 		if (outputProcessingStatistics) {
-			final float totalMillis = System.currentTimeMillis() - start;
+			final long totalMillis = System.currentTimeMillis() - start;
 			final float totalSec = totalMillis / 1000;
 			String averagePerSec;
 			if (totalSec > 0 && feedLinesNumber > 0) {

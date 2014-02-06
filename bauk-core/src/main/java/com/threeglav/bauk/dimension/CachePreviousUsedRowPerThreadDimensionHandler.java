@@ -7,10 +7,8 @@ import java.util.Observer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.codahale.metrics.Counter;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.events.EngineEvents;
-import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 /**
@@ -28,16 +26,12 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	private final DimensionHandler delegate;
 	private String previouslyUsedKey = NOT_SET_PREVIOUS_KEY_VALUE;
 	private Integer previouslyUsedValue;
-	private final Counter turboCacheHits;
-	private final Counter turboCacheMisses;
 	private final String dimensionName;
 	private final StringBuilder reusedForPerformance = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 
 	public CachePreviousUsedRowPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
 		this.delegate = (DimensionHandler) delegate;
 		dimensionName = this.delegate.getDimension().getName();
-		turboCacheHits = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache hits");
-		turboCacheMisses = MetricsUtil.createCounter("Dimension [" + dimensionName + "] - turbo cache misses");
 		log.info("Will cache previously used values for dimension {}", dimensionName);
 		EngineEvents.registerForFlushDimensionCache(this);
 	}
@@ -52,17 +46,11 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 		reusedForPerformance.setLength(0);
 		final String lookupKey = delegate.buildNaturalKeyForCacheLookup(parsedLine, globalValues, reusedForPerformance);
 		if (previouslyUsedKey.equals(lookupKey)) {
-			if (turboCacheHits != null) {
-				turboCacheHits.inc();
-			}
 			return previouslyUsedValue;
 		} else {
 			final Integer surrogateKey = delegate.getBulkLoadValueByPrecalculatedLookupKey(parsedLine, globalValues, lookupKey);
 			previouslyUsedKey = lookupKey;
 			previouslyUsedValue = surrogateKey;
-			if (turboCacheMisses != null) {
-				turboCacheMisses.inc();
-			}
 			return surrogateKey;
 		}
 	}
