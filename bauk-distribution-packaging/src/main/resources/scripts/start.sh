@@ -2,6 +2,8 @@
 DIRNAME="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 RESOLVED_HOME=$DIRNAME/../
 
+if [ -n "$1" ]; then BAUK_INSTANCE_ID="$1"; BAUK_INSTANCE_ID="0"; fi
+
 # following two lines are the only two lines that need to be changed
 # where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/feedConfig.xml
 BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/feedConfig.xml"
@@ -12,6 +14,8 @@ HEAP_OPTS="-Xmx8G -Xms2G"
 GC_OPTS=""
 JAVA_OPTS="-server -d64 -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 JAVA_OPTS="$JAVA_OPTS -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
+JAVA_OPTS="$JAVA_OPTS -DBAUK_INSTANCE_ID=$BAUK_INSTANCE_ID"
+
 #JAVA_OPTS="$JAVA_OPTS -XX:NewSize=1G -XX:MaxNewSize=2G"
 
 #JAVA_OPTS="$JAVA_OPTS -XX:+UnlockCommercialFeatures -XX:+FlightRecorder"

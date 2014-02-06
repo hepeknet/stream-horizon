@@ -96,4 +96,6 @@ public interface SystemConfigurationConstants {
 
 	public static final String EMAIL_RECIPIENTS_LIST = "processing.error.email.recipients";
 
+	public static final String THROUGHPUT_TESTING_MODE_PARAM_NAME = "throughput.testing.mode";
+
 }

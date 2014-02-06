@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.IOUtils;
 
@@ -51,9 +50,6 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final boolean isControlFeed;
 	private final boolean headerShouldExist;
 	private final boolean skipHeader;
-	public static final AtomicLong TOTAL_INPUT_FILES_PROCESSED = new AtomicLong(0);
-	public static final AtomicLong TOTAL_ROWS_PROCESSED = new AtomicLong(0);
-	private final boolean metricsOff;
 	private final boolean outputProcessingStatistics;
 	private final int footerRecordCountPosition;
 
@@ -95,7 +91,6 @@ public class TextFileReaderComponent extends ConfigAware {
 			log.info("Feed {} will be treated as control feed", this.getFactFeed().getName());
 		}
 		skipHeader = headerProcessingType == HeaderProcessingType.SKIP;
-		metricsOff = MetricsUtil.isMetricsOff();
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
 				false);
 		if (outputProcessingStatistics) {
@@ -267,9 +262,6 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (feedFileSizeHistogram != null) {
 				feedFileSizeHistogram.update(feedLinesNumber);
 			}
-			if (!metricsOff) {
-				TOTAL_ROWS_PROCESSED.addAndGet(feedLinesNumber);
-			}
 			EngineRegistry.registerProcessedFeedRows(feedLinesNumber);
 			return feedLinesNumber;
 		} catch (final IOException ie) {
@@ -281,10 +273,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			throw new RuntimeException("Exception while processing feed. Total lines processed so far " + feedLinesNumber, exc);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
-			long filesProcessedSoFar = 0;
-			if (!metricsOff) {
-				filesProcessedSoFar = TOTAL_INPUT_FILES_PROCESSED.incrementAndGet();
-			}
+			final long filesProcessedSoFar = 0;
 			this.outputFeedProcessingStatistics(feedLinesNumber, start, filesProcessedSoFar);
 			if (processAndValidateFooter) {
 				this.processFooter(feedLinesNumber, footerLine);

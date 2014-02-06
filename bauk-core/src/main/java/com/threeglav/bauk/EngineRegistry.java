@@ -95,6 +95,13 @@ public abstract class EngineRegistry {
 		return PROCESSED_FEED_ROWS_METER.getOneMinuteRate();
 	}
 
+	public static long getProcessedFeedRowsTotal() {
+		if (MetricsUtil.isMetricsOff()) {
+			return 0;
+		}
+		return PROCESSED_FEED_ROWS_METER.getCount();
+	}
+
 	public static long getProcessedFeedFilesCount() {
 		if (MetricsUtil.isMetricsOff()) {
 			return 0;

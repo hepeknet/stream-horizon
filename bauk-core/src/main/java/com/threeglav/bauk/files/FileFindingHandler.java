@@ -18,20 +18,20 @@ import com.threeglav.bauk.util.EmailSender;
 import com.threeglav.bauk.util.FileUtil;
 import com.threeglav.bauk.util.StringUtil;
 
-public final class FileFindingHandler implements Runnable {
+public class FileFindingHandler implements Runnable {
 
 	private static final int MAX_FILES_PER_FOLDER_POLL = 100;
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final String pathTofolder;
-	private final int pollingDelayMillis = ConfigurationProperties.getSystemProperty(
+	protected final Logger log = LoggerFactory.getLogger(this.getClass());
+	protected final String pathTofolder;
+	protected final int pollingDelayMillis = ConfigurationProperties.getSystemProperty(
 			SystemConfigurationConstants.FILE_POLLING_DELAY_MILLIS_PARAM_NAME, SystemConfigurationConstants.FILE_POLLING_DELAY_MILLIS_DEFAULT);
-	private final FileProcessor fileProcessor;
+	protected final FileProcessor fileProcessor;
 	private final DirectoryStream.Filter<Path> fileFilter;
-	private final FileProcessingErrorHandler errorHandler;
+	protected final FileProcessingErrorHandler errorHandler;
 	private final Path folderToPollPath;
-	private final boolean isDebugEnabled;
-	private final EmailSender emailSender;
+	protected final boolean isDebugEnabled;
+	protected final EmailSender emailSender;
 
 	public FileFindingHandler(final String pathTofolder, final FileProcessor fileProcessor, final DirectoryStream.Filter<Path> fileFilter,
 			final FileProcessingErrorHandler errorHandler) {
@@ -106,7 +106,7 @@ public final class FileFindingHandler implements Runnable {
 		}
 	}
 
-	private void findAllMatchingFilesInFolder(final LinkedList<Path> queuedFiles) {
+	protected void findAllMatchingFilesInFolder(final LinkedList<Path> queuedFiles) {
 		try (DirectoryStream<Path> ds = Files.newDirectoryStream(folderToPollPath, fileFilter)) {
 			for (final Path p : ds) {
 				queuedFiles.add(p);

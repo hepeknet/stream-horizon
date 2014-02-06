@@ -2,7 +2,6 @@ package com.threeglav.bauk.feed;
 
 import java.util.ArrayList;
 
-import com.codahale.metrics.Meter;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.model.BaukAttribute;
@@ -14,13 +13,11 @@ import com.threeglav.bauk.parser.AbstractFeedParser;
 import com.threeglav.bauk.parser.DeltaFeedParser;
 import com.threeglav.bauk.parser.FullFeedParser;
 import com.threeglav.bauk.parser.RepetitiveFeedParser;
-import com.threeglav.bauk.util.MetricsUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public class FeedParserComponent extends ConfigAware {
 
 	private AbstractFeedParser feedParser;
-	private final Meter parsedLinesMeter;
 	private final boolean checkEveryLineValidity;
 	private final String firstStringInEveryLine;
 	private final int expectedTokensInEveryDataLine;
@@ -51,7 +48,6 @@ public class FeedParserComponent extends ConfigAware {
 			log.debug("For feed {} expect to find {} attributes in every data line, delimiter {}", ff.getName(), expectedTokensInEveryDataLine,
 					ff.getDelimiterString());
 		}
-		parsedLinesMeter = MetricsUtil.createMeter("(" + routeIdentifier + ") - Total parsed lines");
 		firstStringInEveryLine = this.getFactFeed().getData().getEachLineStartsWithCharacter();
 		/*
 		 * should we check every data line for validity or not?
@@ -118,9 +114,6 @@ public class FeedParserComponent extends ConfigAware {
 		final String[] parsed = feedParser.parse(line);
 		if (checkEveryLineValidity) {
 			this.checkDataLineIsValidAndSetToNull(parsed);
-		}
-		if (parsedLinesMeter != null) {
-			parsedLinesMeter.mark();
 		}
 		if (feedDataLineProcessor != null) {
 			return feedDataLineProcessor.preProcessDataLine(parsed);

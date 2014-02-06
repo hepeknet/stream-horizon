@@ -12,6 +12,7 @@ import com.threeglav.bauk.files.FileAttributesHashedNameFilter;
 import com.threeglav.bauk.files.FileFindingHandler;
 import com.threeglav.bauk.files.FileProcessingErrorHandler;
 import com.threeglav.bauk.files.MoveFileErrorHandler;
+import com.threeglav.bauk.files.ThroughputTestingFileFindingHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.model.ThreadPoolSizes;
@@ -49,7 +50,14 @@ public class FeedFilesHandler {
 		final FeedFileProcessor bfp = new FeedFileProcessor(factFeed, config, fullFileMask);
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, feedProcessingThreads,
 				feedFileAcceptanceTimeoutMillis);
-		final FileFindingHandler ffh = new FileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
+		final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
+				SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
+		Runnable ffh;
+		if (throughputTestingMode) {
+			ffh = new ThroughputTestingFileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
+		} else {
+			ffh = new FileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
+		}
 		exec.execute(ffh);
 	}
 

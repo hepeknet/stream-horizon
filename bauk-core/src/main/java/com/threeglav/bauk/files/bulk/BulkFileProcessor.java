@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,6 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private final boolean outputProcessingStatistics;
 	private final String bulkLoadStatement;
 	private final boolean shouldExecuteOnBulkLoadSuccess;
-	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 	private final BaukCommandsExecutor commandsExecutor;
 	private final boolean shouldExecuteOnBulkLoadFailure;
 	private final StatefulAttributeReplacer statefulReplacer;
@@ -135,7 +133,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			log.debug("Successfully executed statement {}", replacedStatement);
 		}
 		if (outputProcessingStatistics) {
-			final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
+			final long totalBulkLoadedFiles = EngineRegistry.getSuccessfulBulkFilesCount();
 			final long totalMillis = System.currentTimeMillis() - start;
 			final float totalSec = totalMillis / 1000;
 			String message = "Bulk loading of file took " + totalMillis + "ms";

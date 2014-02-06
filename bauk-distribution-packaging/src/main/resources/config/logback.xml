@@ -1,12 +1,14 @@
 <configuration scan="true">
 
 	<!-- <jmxConfigurator /> -->
+	
+	<contextName>${BAUK_INSTANCE_ID}</contextName>
 
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../log/bauk.log</file>
+		<file>../log/bauk-${BAUK_INSTANCE_ID}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>../log/bauk.%i.log.zip</fileNamePattern>
+			<fileNamePattern>../log/bauk-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>20</maxIndex>
 		</rollingPolicy>
@@ -17,16 +19,15 @@
 		</triggeringPolicy>
 
 		<encoder>
-			<pattern>%d{HH:mm:ss} [%thread] %-5level %logger{10} - %msg%n
-			</pattern>
+			<pattern>%d{HH:mm:ss} [%thread] %-5level %logger{10} - %msg%n</pattern>
 		</encoder>
 	</appender>
 
 	<appender name="ENGINE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../log/feedEngine.log</file>
+		<file>../log/feedEngine-${BAUK_INSTANCE_ID}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>../log/feedEngine.%i.log.zip</fileNamePattern>
+			<fileNamePattern>../log/feedEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>20</maxIndex>
 		</rollingPolicy>
@@ -43,9 +44,9 @@
 
 	<appender name="BULK_LOAD_ENGINE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../log/bulkLoadEngine.log</file>
+		<file>../log/bulkLoadEngine-${BAUK_INSTANCE_ID}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>../log/bulkLoadEngine.%i.log.zip</fileNamePattern>
+			<fileNamePattern>../log/bulkLoadEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>20</maxIndex>
 		</rollingPolicy>

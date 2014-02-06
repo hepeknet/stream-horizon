@@ -16,10 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
+import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
-import com.threeglav.bauk.feed.TextFileReaderComponent;
 import com.threeglav.bauk.files.bulk.BulkFilesHandler;
 import com.threeglav.bauk.files.feed.FeedFilesHandler;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -161,14 +161,14 @@ public class BaukApplication {
 			BaukUtil.startShutdown();
 			CacheUtil.getCacheInstanceManager().stop();
 			remotingHandler.stop();
-			BaukUtil.logEngineMessage("Engine is down!");
+			BaukUtil.logEngineMessage("Bauk engine is down!");
 			printStatistics();
 		}
 	}
 
 	private static void printStatistics() {
-		final long totalInputFeedFilesProcessed = TextFileReaderComponent.TOTAL_INPUT_FILES_PROCESSED.get();
-		final long totalInputFeedRowsProcessed = TextFileReaderComponent.TOTAL_ROWS_PROCESSED.get();
+		final long totalInputFeedFilesProcessed = EngineRegistry.getProcessedFeedFilesCount();
+		final long totalInputFeedRowsProcessed = EngineRegistry.getProcessedFeedRowsTotal();
 		if (totalInputFeedFilesProcessed > 0 && totalInputFeedRowsProcessed > 0) {
 			final long totalUpTimeMillis = System.currentTimeMillis() - instanceStartTime;
 			final long totalUpTimeSec = totalUpTimeMillis / 1000;

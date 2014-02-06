@@ -2,12 +2,10 @@ package com.threeglav.bauk.files.feed;
 
 import gnu.trove.map.hash.THashMap;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.ZipFile;
 
 import org.apache.commons.io.IOUtils;
 import org.joda.time.Chronology;
@@ -39,7 +37,6 @@ import com.threeglav.bauk.model.BulkLoadDefinition;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.MetricsUtil;
-import com.threeglav.bauk.util.StreamUtil;
 import com.threeglav.bauk.util.StringUtil;
 
 public class FeedFileProcessor implements FileProcessor {
@@ -57,7 +54,6 @@ public class FeedFileProcessor implements FileProcessor {
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
 	private final Meter inputFeedsProcessed;
-	private final Histogram inputFeedSizeMegabytesHistogram;
 	private final Histogram inputFeedProcessingTime;
 	private final TextFileReaderComponent textFileReaderComponent;
 	private final FeedDataProcessor feedDataProcessor;
@@ -90,7 +86,6 @@ public class FeedFileProcessor implements FileProcessor {
 		feedCompletionProcessor = this.createFeedCompletionProcessor();
 		beforeFeedProcessingProcessor = this.createBeforeFeedProcessingProcessor();
 		inputFeedsProcessed = MetricsUtil.createMeter("(" + cleanFileMask + ") - processed files count");
-		inputFeedSizeMegabytesHistogram = MetricsUtil.createHistogram("(" + cleanFileMask + ") - input feed file size (MB)");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
 		processorId = String.valueOf(COUNTER.incrementAndGet());
@@ -109,51 +104,25 @@ public class FeedFileProcessor implements FileProcessor {
 	@Override
 	public void process(final BaukFile file) throws IOException {
 		final String fullFileName = file.getFullFilePath();
-		final Long fileLength = file.getSize();
-		if (inputFeedSizeMegabytesHistogram != null) {
-			final long fileLengthMb = fileLength / BaukConstants.ONE_MEGABYTE;
-			inputFeedSizeMegabytesHistogram.update(fileLengthMb);
-		}
-		final String lowerCaseFilePath = fullFileName.toLowerCase();
 		if (isDebugEnabled) {
-			log.debug("Trying to process {}", lowerCaseFilePath);
+			log.debug("Trying to process {}", fullFileName);
 		}
-		boolean successfullyProcessed = false;
-		if (lowerCaseFilePath.endsWith(".zip")) {
-			final ZipFile zipFile = new ZipFile(file.asFile());
-			if (!zipFile.entries().hasMoreElements()) {
-				IOUtils.closeQuietly(zipFile);
-				throw new IllegalStateException("Did not find any zip entries inside " + fullFileName);
-			}
-			if (zipFile.size() > 1) {
-				log.error("Will process only one zipped entry inside {} and will skip all others. Found {} entries", fullFileName, zipFile.size());
-			}
-			final InputStream inputStream = zipFile.getInputStream(zipFile.entries().nextElement());
+		InputStream inputStream = null;
+		try {
+			inputStream = file.getInputStream();
 			this.processInputStream(inputStream, file);
-			IOUtils.closeQuietly(zipFile);
-			successfullyProcessed = true;
-		} else if (lowerCaseFilePath.endsWith(".gz")) {
-			final InputStream fileInputStream = new FileInputStream(file.asFile());
-			final InputStream inputStream = StreamUtil.ungzipInputStream(fileInputStream);
-			this.processInputStream(inputStream, file);
-			IOUtils.closeQuietly(fileInputStream);
-			successfullyProcessed = true;
-		} else {
-			final InputStream inputStream = new FileInputStream(file.asFile());
-			this.processInputStream(inputStream, file);
-			successfullyProcessed = true;
+		} finally {
+			IOUtils.closeQuietly(inputStream);
 		}
-		if (successfullyProcessed) {
-			try {
-				if (moveToArchiveFileProcessor != null) {
-					moveToArchiveFileProcessor.handleError(file.getPath(), null);
-				} else {
-					file.delete();
-				}
-			} catch (final IOException ie) {
-				log.error("Exception while moving file to archive folder. Exiting!", ie);
-				System.exit(-1);
+		try {
+			if (moveToArchiveFileProcessor != null) {
+				moveToArchiveFileProcessor.handleError(file.getPath(), null);
+			} else {
+				file.delete();
 			}
+		} catch (final IOException ie) {
+			log.error("Exception while moving file to archive folder. Exiting!", ie);
+			System.exit(-1);
 		}
 	}
 

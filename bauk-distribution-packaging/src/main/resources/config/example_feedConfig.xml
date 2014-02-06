@@ -41,6 +41,8 @@
 		<property name="bulk.file.acceptance.timeout.millis">2000</property>
 		<!-- batch size to be used when loading bulk using jdbc. Whenever number of batched values reaches this number it will be executed and batching will start again -->
 		<property name="jdbc.bulk.loading.batch.size">10000</property>
+		<!-- whether we should cache first found input feed file and send it over and over again - testing throughput and not reading input feed files from disk -->
+		<property name="throughput.testing.mode">false</property>
 		<!-- port to be used by http server for remote commands -->
 		<property name="remoting.server.port">21000</property>
 		<!-- used for email feature -->

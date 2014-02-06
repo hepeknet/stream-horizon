@@ -6,6 +6,9 @@ pushd %DIRNAME%..
 set "RESOLVED_HOME=%CD%"
 popd
 
+set "BAUK_INSTANCE_ID=%1"
+IF "%BAUK_INSTANCE_ID%"=="" set "BAUK_INSTANCE_ID=0"
+
 rem following two lines are the only two lines that need to be changed
 rem where config file is, if not specified then default one will be used
 set "BAUK_CONFIG_FILE_LOCATION=%RESOLVED_HOME%\config\feedConfig.xml"
@@ -16,6 +19,8 @@ set "HEAP_OPTS=-Xmx8G -Xms2G"
 set "GC_OPTS="
 set "JAVA_OPTS=-server -d64 -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
+set "JAVA_OPTS=%JAVA_OPTS% -DBAUK_INSTANCE_ID=%BAUK_INSTANCE_ID%"
+
 rem set "JAVA_OPTS=%JAVA_OPTS% -XX:NewSize=1G -XX:MaxNewSize=2G"
 
 rem set "JAVA_OPTS=%JAVA_OPTS% -XX:+UnlockCommercialFeatures -XX:+FlightRecorder"
