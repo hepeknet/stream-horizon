@@ -1,5 +1,8 @@
 @echo off
 
+rem first parameter - instance identifier
+rem second parameter - number of feed threads
+
 set DIRNAME=.\
 
 pushd %DIRNAME%..

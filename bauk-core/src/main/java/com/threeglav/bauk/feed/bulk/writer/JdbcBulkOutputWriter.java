@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.sql.DataSource;
 
@@ -25,8 +24,6 @@ import com.threeglav.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.bauk.util.StringUtil;
 
 public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
-
-	private static final AtomicLong TOTAL_BULK_LOADED_FILES = new AtomicLong(0);
 
 	private final String insertStatement;
 	private final int[] sqlTypes;
@@ -158,10 +155,10 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		this.doExecuteJdbcBatch();
 		DataSourceProvider.close(preparedStatement);
 		DataSourceProvider.close(connection);
-		EngineRegistry.registerSuccessfulBulkFile();
+		EngineRegistry.registerSuccessfulBulkFileLoad();
 		if (outputProcessingStatistics) {
-			final long totalBulkLoadedFiles = TOTAL_BULK_LOADED_FILES.incrementAndGet();
-			final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + totalBulkLoadedFiles + " files so far!";
+			final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + EngineRegistry.getSuccessfulBulkFilesCount()
+					+ " files so far!";
 			BaukUtil.logBulkLoadEngineMessage(message);
 		}
 	}

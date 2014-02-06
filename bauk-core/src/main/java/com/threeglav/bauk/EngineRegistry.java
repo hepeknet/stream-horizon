@@ -135,7 +135,7 @@ public abstract class EngineRegistry {
 		return FAILED_BULK_FILES_COUNTER.getCount();
 	}
 
-	public static void registerSuccessfulBulkFile() {
+	public static void registerSuccessfulBulkFileLoad() {
 		if (SUCCESSFUL_BULK_FILES_COUNTER != null) {
 			SUCCESSFUL_BULK_FILES_COUNTER.inc();
 		}

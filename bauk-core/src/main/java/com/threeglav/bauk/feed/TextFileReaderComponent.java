@@ -285,7 +285,7 @@ public class TextFileReaderComponent extends ConfigAware {
 
 	private void outputFeedProcessingStatistics(final int feedLinesNumber, final long start, final long filesProcessedSoFar) {
 		if (outputProcessingStatistics) {
-			final long totalMillis = System.currentTimeMillis() - start;
+			final float totalMillis = System.currentTimeMillis() - start;
 			final float totalSec = totalMillis / 1000;
 			String averagePerSec;
 			if (totalSec > 0 && feedLinesNumber > 0) {
@@ -297,7 +297,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			} else {
 				averagePerSec = "N/A";
 			}
-			String messageToOutput = "Processed " + feedLinesNumber + " rows in " + totalMillis + "ms";
+			String messageToOutput = "Processed " + feedLinesNumber + " rows in " + DEC_FORMAT.format(totalMillis) + "ms";
 			if (totalMillis > 1000) {
 				messageToOutput += " (" + DEC_FORMAT.format(totalSec) + " sec)";
 			}

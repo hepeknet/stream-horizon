@@ -116,7 +116,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		}
 		try {
 			dbHandler.executeInsertOrUpdateStatement(replacedStatement, statementDescription);
-			EngineRegistry.registerSuccessfulBulkFile();
+			EngineRegistry.registerSuccessfulBulkFileLoad();
 		} catch (final Exception exc) {
 			EngineRegistry.registerFailedBulkFile();
 			log.error(

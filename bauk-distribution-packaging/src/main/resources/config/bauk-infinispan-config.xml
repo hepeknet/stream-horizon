@@ -9,7 +9,9 @@
 	
 	<default>
 		<jmxStatistics enabled="false" />
+		<!--
   		<eviction maxEntries="20000000" strategy="LIRS" />
+  		-->
 		<transaction transactionMode="NON_TRANSACTIONAL" autoCommit="true" lockingMode="OPTIMISTIC" reaperWakeUpInterval="30000" />
 		<locking concurrencyLevel="50" isolationLevel="READ_COMMITTED" lockAcquisitionTimeout="500" useLockStriping="false" />
 	</default>

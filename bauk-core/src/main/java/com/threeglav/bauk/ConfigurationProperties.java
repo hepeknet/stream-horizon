@@ -59,10 +59,7 @@ public abstract class ConfigurationProperties {
 		if (StringUtil.isEmpty(systemPropertyName)) {
 			throw new IllegalArgumentException("System property name must not be null or empty");
 		}
-		String baukPropValue = getBaukProperty(systemPropertyName);
-		if (baukPropValue == null) {
-			baukPropValue = System.getProperty(systemPropertyName);
-		}
+		final String baukPropValue = getPropertyByName(systemPropertyName);
 		if (!StringUtil.isEmpty(baukPropValue)) {
 			return Boolean.valueOf(baukPropValue);
 		} else {
@@ -75,10 +72,7 @@ public abstract class ConfigurationProperties {
 		if (StringUtil.isEmpty(systemPropertyName)) {
 			throw new IllegalArgumentException("System property name must not be null or empty");
 		}
-		String baukPropValue = getBaukProperty(systemPropertyName);
-		if (baukPropValue == null) {
-			baukPropValue = System.getProperty(systemPropertyName);
-		}
+		final String baukPropValue = getPropertyByName(systemPropertyName);
 		if (!StringUtil.isEmpty(baukPropValue)) {
 			LOG.debug("Found {}={}. Will try to convert it to integer", systemPropertyName, baukPropValue);
 			try {
@@ -98,10 +92,7 @@ public abstract class ConfigurationProperties {
 		if (StringUtil.isEmpty(systemPropertyName)) {
 			throw new IllegalArgumentException("System property name must not be null or empty");
 		}
-		String baukPropValue = getBaukProperty(systemPropertyName);
-		if (baukPropValue == null) {
-			baukPropValue = System.getProperty(systemPropertyName);
-		}
+		final String baukPropValue = getPropertyByName(systemPropertyName);
 		if (!StringUtil.isEmpty(baukPropValue)) {
 			LOG.debug("Found {}={}. Will try to convert it to integer value", systemPropertyName, baukPropValue);
 			try {
@@ -117,14 +108,19 @@ public abstract class ConfigurationProperties {
 		return defaultValue;
 	}
 
+	private static String getPropertyByName(final String propertyName) {
+		String baukPropValue = System.getProperty(propertyName);
+		if (StringUtil.isEmpty(baukPropValue)) {
+			baukPropValue = getBaukProperty(propertyName);
+		}
+		return baukPropValue;
+	}
+
 	public static String getSystemProperty(final String systemPropertyName, final String defaultValue) {
 		if (StringUtil.isEmpty(systemPropertyName)) {
 			throw new IllegalArgumentException("System property name must not be null or empty");
 		}
-		String baukPropValue = getBaukProperty(systemPropertyName);
-		if (baukPropValue == null) {
-			baukPropValue = System.getProperty(systemPropertyName);
-		}
+		final String baukPropValue = getPropertyByName(systemPropertyName);
 		if (!StringUtil.isEmpty(baukPropValue)) {
 			return baukPropValue;
 		} else {
