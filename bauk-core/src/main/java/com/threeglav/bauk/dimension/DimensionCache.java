@@ -95,6 +95,7 @@ public final class DimensionCache implements Observer {
 		while (iter.hasNext()) {
 			if (valuesToCache.size() == batchSize) {
 				cacheInstance.putAll(valuesToCache);
+				localCache.putAll(valuesToCache);
 				valuesCached += valuesToCache.size();
 				valuesToCache.clear();
 			}
@@ -105,6 +106,7 @@ public final class DimensionCache implements Observer {
 		}
 		if (!valuesToCache.isEmpty()) {
 			cacheInstance.putAll(valuesToCache);
+			localCache.putAll(valuesToCache);
 			valuesCached += valuesToCache.size();
 			valuesToCache.clear();
 		}
