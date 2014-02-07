@@ -266,8 +266,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			throw new RuntimeException("Exception while processing feed. Total lines processed so far " + feedLinesNumber, exc);
 		} finally {
 			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
-			final long filesProcessedSoFar = 0;
-			this.outputFeedProcessingStatistics(feedLinesNumber, start, filesProcessedSoFar);
+			this.outputFeedProcessingStatistics(feedLinesNumber, start);
 			if (processAndValidateFooter) {
 				this.processFooter(feedLinesNumber, footerLine);
 			}
@@ -276,7 +275,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
-	private void outputFeedProcessingStatistics(final int feedLinesNumber, final long start, final long filesProcessedSoFar) {
+	private void outputFeedProcessingStatistics(final int feedLinesNumber, final long start) {
 		if (outputProcessingStatistics) {
 			final float totalMillis = System.currentTimeMillis() - start;
 			final float totalSec = totalMillis / 1000;
@@ -295,9 +294,6 @@ public class TextFileReaderComponent extends ConfigAware {
 				messageToOutput += " (" + DEC_FORMAT.format(totalSec) + " sec)";
 			}
 			messageToOutput += ". Average " + averagePerSec;
-			if (filesProcessedSoFar > 0) {
-				messageToOutput += ". So far processed " + filesProcessedSoFar + " input feed files";
-			}
 			BaukUtil.logEngineMessage(messageToOutput);
 		}
 	}

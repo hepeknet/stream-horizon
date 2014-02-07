@@ -23,7 +23,7 @@ rem if needed increase the size of heap to be used
 set "HEAP_OPTS=-Xmx%heapSizeGb%G -Xms%heapSizeGb%G"
 
 set "GC_OPTS="
-set "JAVA_OPTS=-server -d64 -XX:+UseConcMarkSweepGC -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
+set "JAVA_OPTS=-server -d64 -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
 set "JAVA_OPTS=%JAVA_OPTS% -DBAUK_INSTANCE_ID=%BAUK_INSTANCE_ID%"
 

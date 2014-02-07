@@ -116,6 +116,7 @@ public class FeedFileProcessor implements FileProcessor {
 			inputStream = file.getInputStream();
 			this.processInputStream(inputStream, file);
 		} finally {
+			file.closeResources();
 			IOUtils.closeQuietly(inputStream);
 		}
 		// if testing throughput no need to move or delete file

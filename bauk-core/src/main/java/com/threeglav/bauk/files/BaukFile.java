@@ -24,6 +24,8 @@ public class BaukFile {
 	private long lastModifiedTime;
 	private Path path;
 
+	private ZipFile zipFile;
+
 	public String getFullFilePath() {
 		return fullFilePath;
 	}
@@ -72,11 +74,15 @@ public class BaukFile {
 		Files.delete(path);
 	}
 
+	public void closeResources() {
+		IOUtils.closeQuietly(zipFile);
+	}
+
 	public InputStream getInputStream() throws IOException {
 		final String fullFileName = this.getFullFilePath();
 		final String lowerCaseFilePath = fullFileName.toLowerCase();
 		if (lowerCaseFilePath.endsWith(".zip")) {
-			final ZipFile zipFile = new ZipFile(this.asFile());
+			zipFile = new ZipFile(this.asFile());
 			if (!zipFile.entries().hasMoreElements()) {
 				IOUtils.closeQuietly(zipFile);
 				throw new IllegalStateException("Did not find any zip entries inside " + fullFileName);
