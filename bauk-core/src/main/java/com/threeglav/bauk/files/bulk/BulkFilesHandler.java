@@ -1,5 +1,7 @@
 package com.threeglav.bauk.files.bulk;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,6 +30,10 @@ public class BulkFilesHandler {
 			SystemConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS,
 			SystemConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
 
+	private final ExecutorService EXEC_SERVICE;
+
+	private final List<Runnable> runnables = new LinkedList<>();
+
 	public BulkFilesHandler(final FactFeed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
 		this.config = config;
@@ -40,6 +46,11 @@ public class BulkFilesHandler {
 		}
 		this.validate();
 		moveToErrorFileProcessor = new MoveFileErrorHandler(config.getErrorDirectory());
+		if (bulkProcessingThreads > 0) {
+			EXEC_SERVICE = Executors.newFixedThreadPool(bulkProcessingThreads, new BaukThreadFactory("bulkProcessingThreads", "bulk-processing"));
+		} else {
+			EXEC_SERVICE = null;
+		}
 	}
 
 	private void validate() {
@@ -49,23 +60,40 @@ public class BulkFilesHandler {
 		}
 	}
 
-	public void startHandlingFiles() {
+	public void createFileHandlers() {
 		if (bulkProcessingThreads > 0) {
-			final ExecutorService exec = Executors.newFixedThreadPool(bulkProcessingThreads, new BaukThreadFactory("bulkProcessingThreads",
-					"bulk-processing"));
+			Executors.newFixedThreadPool(bulkProcessingThreads, new BaukThreadFactory("bulkProcessingThreads", "bulk-processing"));
 			for (int i = 0; i < bulkProcessingThreads; i++) {
-				this.createSingleFileHandler(i, exec);
+				this.createSingleFileHandler(i);
 			}
 			log.debug("Created in total {} bulk processing routes", bulkProcessingThreads);
 		}
 	}
 
-	private void createSingleFileHandler(final int routeId, final ExecutorService exec) {
+	public int start() {
+		if (bulkProcessingThreads > 0) {
+			for (final Runnable r : runnables) {
+				EXEC_SERVICE.submit(r);
+			}
+			final int size = runnables.size();
+			runnables.clear();
+			return size;
+		}
+		return 0;
+	}
+
+	public void stop() {
+		if (bulkProcessingThreads > 0) {
+			EXEC_SERVICE.shutdown();
+		}
+	}
+
+	private void createSingleFileHandler(final int routeId) {
 		final BulkFileProcessor bfp = new BulkFileProcessor(factFeed, config);
 		final String fullFileMask = ".*" + factFeed.getBulkLoadDefinition().getBulkLoadOutputExtension();
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, bulkProcessingThreads,
 				bulkFileAcceptanceTimeoutMillis);
 		final FileFindingHandler ffh = new FileFindingHandler(config.getBulkOutputDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
-		exec.execute(ffh);
+		runnables.add(ffh);
 	}
 }

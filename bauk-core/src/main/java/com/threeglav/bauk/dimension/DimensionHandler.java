@@ -219,8 +219,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			}
 			log.debug("Pre-cached {} keys for {}", cachedValuesCount, dimension.getName());
 			final long total = System.currentTimeMillis() - start;
-			BaukUtil.logEngineMessage("For dimension " + dimension.getName() + " pre-cached " + cachedValuesCount + " values. Time taken " + total
-					+ "ms");
+			BaukUtil.logEngineMessageSync("For dimension " + dimension.getName() + " pre-cached " + cachedValuesCount + " values. Time taken "
+					+ total + "ms");
 			if (total > PRE_CACHE_EXECUTION_WARNING) {
 				log.warn("Precaching of values for dimension {} took in total {}ms. Number of pre-cached values is {}", dimension.getName(), total,
 						cachedValuesCount);

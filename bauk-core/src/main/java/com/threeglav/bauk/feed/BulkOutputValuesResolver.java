@@ -110,7 +110,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		if (!StringUtil.isEmpty(firstStringInEveryLine)) {
 			feedDataLineOffset = 1;
 		}
-		this.createDimensionHandlersInParallel(feedDataLineOffset, bulkOutputAttributeNames, routeIdentifier);
+		this.createDimensionHandlersInParallel(feedDataLineOffset, bulkOutputAttributeNames);
 		final Map<String, Integer> feedAttributeNamesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(feedData.getAttributes());
 		final int feedDataLineOffsetFinal = feedDataLineOffset;
 		for (int i = 0; i < bulkOutputAttributeNames.length; i++) {
@@ -120,8 +120,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 	}
 
-	private void createDimensionHandlersInParallel(final int feedDataLineOffset, final String[] bulkOutputAttributeNames, final String routeIdentifier) {
-		final BaukThreadFactory btf = new BaukThreadFactory("bauk-bulk-handlers", "handler-creator-" + routeIdentifier);
+	private void createDimensionHandlersInParallel(final int feedDataLineOffset, final String[] bulkOutputAttributeNames) {
+		final BaukThreadFactory btf = new BaukThreadFactory("bauk-bulk-handlers", "handler-creator");
 		final ExecutorService exec = Executors.newFixedThreadPool(bulkOutputAttributeNames.length, btf);
 		final List<Future<Boolean>> futures = new LinkedList<>();
 		for (final String bulkOutputAttributeName : bulkOutputAttributeNames) {

@@ -1,5 +1,7 @@
 package com.threeglav.bauk.dimension;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
@@ -29,6 +31,8 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	private final String dimensionName;
 	private final StringBuilder reusedForPerformance = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 
+	private final Map<String, Integer> cachedValues = new THashMap<>();
+
 	public CachePreviousUsedRowPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
 		this.delegate = (DimensionHandler) delegate;
 		dimensionName = this.delegate.getDimension().getName();
@@ -48,9 +52,14 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 		if (previouslyUsedKey.equals(lookupKey)) {
 			return previouslyUsedValue;
 		} else {
+			final Integer cached = cachedValues.get(lookupKey);
+			if (cached != null) {
+				return cached;
+			}
 			final Integer surrogateKey = delegate.getBulkLoadValueByPrecalculatedLookupKey(parsedLine, globalValues, lookupKey);
 			previouslyUsedKey = lookupKey;
 			previouslyUsedValue = surrogateKey;
+			cachedValues.put(lookupKey, surrogateKey);
 			return surrogateKey;
 		}
 	}
@@ -63,6 +72,7 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	@Override
 	public void closeCurrentFeed() {
 		delegate.closeCurrentFeed();
+		cachedValues.clear();
 	}
 
 	@Override

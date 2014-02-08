@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -31,6 +33,9 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class BaukApplication {
 
+	private static final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
+			SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
+
 	private static final String DEFAULT_CONFIG_FILE_NAME = "feedConfig.xml";
 	private static final String CONFIG_FILE_PROP_NAME = "bauk.config";
 
@@ -38,10 +43,12 @@ public class BaukApplication {
 
 	private static long instanceStartTime;
 	private static RemotingServer remotingHandler;
+	private static final List<FeedFilesHandler> feedFileHandlers = new LinkedList<>();
+	private static final List<BulkFilesHandler> bulkFileHandlers = new LinkedList<>();
 
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
-		instanceStartTime = System.currentTimeMillis();
+		final long start = System.currentTimeMillis();
 		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 		final BaukConfiguration conf = findConfiguration();
@@ -52,7 +59,13 @@ public class BaukApplication {
 			remotingHandler = new RemotingServer();
 			remotingHandler.start();
 			createProcessingRoutes(conf);
-			final long total = System.currentTimeMillis() - instanceStartTime;
+			if (throughputTestingMode) {
+				BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONLY ONE FILE WILL BE CACHED AND PROCESSED!!!");
+			}
+			instanceStartTime = System.currentTimeMillis();
+			BaukUtil.logEngineMessageSync("Finished initialization! Started counting uptime");
+			startProcessing();
+			final long total = System.currentTimeMillis() - start;
 			final long totalSec = total / 1000;
 			final boolean detectBaukInstances = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.DETECT_OTHER_BAUK_INSTANCES,
 					false);
@@ -75,6 +88,19 @@ public class BaukApplication {
 		}
 	}
 
+	private static void startProcessing() throws Exception {
+		int ffhStartedCount = 0;
+		for (final FeedFilesHandler ffh : feedFileHandlers) {
+			ffhStartedCount += ffh.start();
+		}
+		BaukUtil.logEngineMessageSync("Started in total " + ffhStartedCount + " feed processing threads!");
+		int bfhStartedCount = 0;
+		for (final BulkFilesHandler bfh : bulkFileHandlers) {
+			bfhStartedCount += bfh.start();
+		}
+		BaukUtil.logEngineMessageSync("Started in total " + bfhStartedCount + " bulk file processing threads!");
+	}
+
 	private static void createProcessingRoutes(final BaukConfiguration config) throws Exception {
 		LOG.debug("Starting processing routes...");
 		for (final FactFeed feed : config.getFactFeeds()) {
@@ -82,9 +108,11 @@ public class BaukApplication {
 			LOG.trace("Creating routes for feed [{}]", feed.getName());
 			try {
 				final FeedFilesHandler feedFilesHandler = new FeedFilesHandler(feed, config);
-				feedFilesHandler.startHandlingFiles();
+				feedFilesHandler.createFileHandlers();
+				feedFileHandlers.add(feedFilesHandler);
 				final BulkFilesHandler bulkFilesHandler = new BulkFilesHandler(feed, config);
-				bulkFilesHandler.startHandlingFiles();
+				bulkFilesHandler.createFileHandlers();
+				bulkFileHandlers.add(bulkFilesHandler);
 				LOG.debug("Successfully added routes for feed [{}]", feed.getName());
 			} catch (final Exception exc) {
 				BaukUtil.logEngineMessage(exc.getMessage());
@@ -161,6 +189,12 @@ public class BaukApplication {
 			BaukUtil.startShutdown();
 			CacheUtil.getCacheInstanceManager().stop();
 			remotingHandler.stop();
+			for (final FeedFilesHandler ffh : feedFileHandlers) {
+				ffh.stop();
+			}
+			for (final BulkFilesHandler bfh : bulkFileHandlers) {
+				bfh.stop();
+			}
 			BaukUtil.logEngineMessage("Bauk engine is down!");
 			printStatistics();
 		}
@@ -177,8 +211,8 @@ public class BaukApplication {
 			final long averageFilesPerSecond = totalInputFeedFilesProcessed / totalUpTimeSec;
 			final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
 			BaukUtil.logEngineMessageSync("Uptime of this instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and "
-					+ remainedSeconds + " seconds) - including dimension precaching. In total processed " + totalInputFeedFilesProcessed
-					+ " input feed files and " + totalInputFeedRowsProcessed + " rows.");
+					+ remainedSeconds + " seconds). In total processed " + totalInputFeedFilesProcessed + " input feed files and "
+					+ totalInputFeedRowsProcessed + " rows.");
 			BaukUtil.logEngineMessageSync("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
 		} else {
 			BaukUtil.logEngineMessageSync("No files were processed or statistics are turned off.");
