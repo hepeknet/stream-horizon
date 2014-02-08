@@ -10,12 +10,12 @@ public class RepetitiveFeedParserTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNegative() {
-		new RepetitiveFeedParser("||", -1);
+		new RepetitiveFeedParser("||", -1, 2);
 	}
 
 	@Test
 	public void test() {
-		final FeedParser fp = new RepetitiveFeedParser("||", 3);
+		final FeedParser fp = new RepetitiveFeedParser("||", 3, 5);
 		final String[] res = fp.parse("||||12||ab||cd");
 		Assert.assertEquals(5, res.length);
 		Assert.assertNull(res[0]);
@@ -55,7 +55,7 @@ public class RepetitiveFeedParserTest {
 
 	@Test
 	public void testComplex() {
-		final FeedParser fp = new RepetitiveFeedParser("|^", 4);
+		final FeedParser fp = new RepetitiveFeedParser("|^", 4, 8);
 		final String line = "|^|^|^|^a|^b|^c|^d";
 		final String[] res = fp.parse(line);
 		Assert.assertEquals(8, res.length);

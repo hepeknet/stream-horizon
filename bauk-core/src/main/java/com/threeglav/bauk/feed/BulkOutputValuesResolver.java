@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
 
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.ConfigAware;
-import com.threeglav.bauk.dimension.CachePreviousUsedRowPerThreadDimensionHandler;
+import com.threeglav.bauk.dimension.CachePreviouslyUsedValuesPerThreadDimensionHandler;
 import com.threeglav.bauk.dimension.CachedPerFeedDimensionHandler;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
@@ -172,7 +172,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
 			final DimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
 			if (cachedDimensionHandler != null) {
-				final CachePreviousUsedRowPerThreadDimensionHandler proxyDimHandler = new CachePreviousUsedRowPerThreadDimensionHandler(
+				final CachePreviouslyUsedValuesPerThreadDimensionHandler proxyDimHandler = new CachePreviouslyUsedValuesPerThreadDimensionHandler(
 						cachedDimensionHandler);
 				outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
 			} else {

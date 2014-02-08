@@ -18,6 +18,7 @@ public class BaukThreadFactory implements ThreadFactory {
 	public Thread newThread(final Runnable r) {
 		final ThreadGroup tg = new ThreadGroup(threadGroup);
 		final Thread t = new Thread(tg, r, threadNamePrefix + "-" + counter.incrementAndGet());
+		t.setPriority(Thread.MAX_PRIORITY);
 		return t;
 	}
 

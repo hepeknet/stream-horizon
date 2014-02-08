@@ -15,13 +15,13 @@ import com.threeglav.bauk.parser.FullFeedParser;
 import com.threeglav.bauk.parser.RepetitiveFeedParser;
 import com.threeglav.bauk.util.StringUtil;
 
-public class FeedParserComponent extends ConfigAware {
+public final class FeedParserComponent extends ConfigAware {
 
-	private AbstractFeedParser feedParser;
+	private final AbstractFeedParser feedParser;
 	private final boolean checkEveryLineValidity;
 	private final String firstStringInEveryLine;
 	private final int expectedTokensInEveryDataLine;
-	private FeedDataLineProcessor feedDataLineProcessor;
+	private final FeedDataLineProcessor feedDataLineProcessor;
 
 	public FeedParserComponent(final FactFeed ff, final BaukConfiguration config, final String routeIdentifier) {
 		super(ff, config);
@@ -30,20 +30,19 @@ public class FeedParserComponent extends ConfigAware {
 		if (StringUtil.isEmpty(delimiter)) {
 			throw new IllegalArgumentException("Delimiter must not be null or empty string");
 		}
+		expectedTokensInEveryDataLine = this.getExpectedAttributesNumber(ff);
 		if (fft == FactFeedType.DELTA) {
-			feedParser = new DeltaFeedParser(delimiter);
+			feedParser = new DeltaFeedParser(delimiter, expectedTokensInEveryDataLine);
 			feedParser.setNullString(ff.getNullString());
 			log.debug("Will use delta feed parser for feed {}. Null string is set to [{}]", ff.getName(), ff.getNullString());
 		} else if (fft == FactFeedType.FULL || fft == FactFeedType.CONTROL) {
-			feedParser = new FullFeedParser(delimiter);
+			feedParser = new FullFeedParser(delimiter, expectedTokensInEveryDataLine);
 		} else if (fft == FactFeedType.REPETITIVE) {
-			feedParser = new RepetitiveFeedParser(delimiter, 0);
+			feedParser = new RepetitiveFeedParser(delimiter, 0, expectedTokensInEveryDataLine);
 			log.debug("Will use repetitive feed parser for feed {}", ff.getName());
 		} else {
 			throw new IllegalStateException("Unknown fact feed type " + fft);
 		}
-		expectedTokensInEveryDataLine = this.getExpectedAttributesNumber(ff);
-		feedParser.setExpectedTokens(expectedTokensInEveryDataLine);
 		if (log.isDebugEnabled()) {
 			log.debug("For feed {} expect to find {} attributes in every data line, delimiter {}", ff.getName(), expectedTokensInEveryDataLine,
 					ff.getDelimiterString());
@@ -58,19 +57,21 @@ public class FeedParserComponent extends ConfigAware {
 		if (checkEveryLineValidity) {
 			log.debug("Will check validity of every line in feed by comparing first value in every line with [{}]", firstStringInEveryLine);
 		}
-		this.resolveFeedProcessor();
+		feedDataLineProcessor = this.resolveFeedProcessor();
 	}
 
-	private void resolveFeedProcessor() {
+	private FeedDataLineProcessor resolveFeedProcessor() {
 		final String dataMappingClassName = this.getFactFeed().getData().getFeedDataProcessorClassName();
 		if (!StringUtil.isEmpty(dataMappingClassName)) {
 			log.info("Will try to resolve feed data processor class [{}]", dataMappingClassName);
-			final CustomProcessorResolver<FeedDataLineProcessor> headerParserInstanceResolver = new CustomProcessorResolver<>(dataMappingClassName,
+			final CustomProcessorResolver<FeedDataLineProcessor> dataMapperInstanceResolver = new CustomProcessorResolver<>(dataMappingClassName,
 					FeedDataLineProcessor.class);
-			feedDataLineProcessor = headerParserInstanceResolver.resolveInstance();
+			final FeedDataLineProcessor fdlp = dataMapperInstanceResolver.resolveInstance();
 			log.debug("Found data mapper {}", feedParser);
+			return fdlp;
 		} else {
 			log.info("Will not use any custom data mapping logic");
+			return null;
 		}
 	}
 
@@ -98,7 +99,7 @@ public class FeedParserComponent extends ConfigAware {
 		return expectedTokens;
 	}
 
-	private void checkDataLineIsValidAndSetToNull(final String[] parsed) {
+	private final void checkDataLineIsValidAndSetToNull(final String[] parsed) {
 		if (parsed[0].equals(firstStringInEveryLine)) {
 			parsed[0] = null;
 		} else {
@@ -108,9 +109,6 @@ public class FeedParserComponent extends ConfigAware {
 	}
 
 	public String[] parseData(final String line) {
-		if (line == null) {
-			return null;
-		}
 		final String[] parsed = feedParser.parse(line);
 		if (checkEveryLineValidity) {
 			this.checkDataLineIsValidAndSetToNull(parsed);

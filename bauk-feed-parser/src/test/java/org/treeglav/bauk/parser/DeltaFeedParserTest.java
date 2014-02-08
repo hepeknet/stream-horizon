@@ -3,7 +3,6 @@ package org.treeglav.bauk.parser;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.threeglav.bauk.parser.AbstractFeedParser;
 import com.threeglav.bauk.parser.DeltaFeedParser;
 import com.threeglav.bauk.parser.FeedParser;
 
@@ -11,7 +10,7 @@ public class DeltaFeedParserTest {
 
 	@Test
 	public void testSimple() {
-		final FeedParser fp = new DeltaFeedParser("|^");
+		final FeedParser fp = new DeltaFeedParser("|^", 5);
 		final String[] res = fp.parse("ab|^cd|^12|^345|^");
 		Assert.assertEquals(5, res.length);
 		Assert.assertEquals("ab", res[0]);
@@ -40,9 +39,7 @@ public class DeltaFeedParserTest {
 
 	@Test
 	public void testAnother() {
-		final FeedParser fp = new DeltaFeedParser("@@");
-		final AbstractFeedParser afp = (AbstractFeedParser) fp;
-		afp.setExpectedTokens(5);
+		final FeedParser fp = new DeltaFeedParser("@@", 5);
 		final String[] res = fp.parse("cc@@pound@@GPB@@12@@1.2");
 		Assert.assertEquals(5, res.length);
 		Assert.assertEquals("cc", res[0]);

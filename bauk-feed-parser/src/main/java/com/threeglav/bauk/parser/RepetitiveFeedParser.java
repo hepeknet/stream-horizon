@@ -7,8 +7,8 @@ public final class RepetitiveFeedParser extends AbstractFeedParser {
 	private final String repeatedDelimitersOnly;
 	private final int charactersToSkip;
 
-	public RepetitiveFeedParser(final String delimiter, final int repetitionCount) {
-		super(delimiter);
+	public RepetitiveFeedParser(final String delimiter, final int repetitionCount, final int expectedTokens) {
+		super(delimiter, expectedTokens);
 		if (repetitionCount <= 0) {
 			throw new IllegalArgumentException("Repetition count must be positive integer");
 		}
@@ -21,6 +21,7 @@ public final class RepetitiveFeedParser extends AbstractFeedParser {
 		charactersToSkip = repeatedDelimitersOnly.length();
 	}
 
+	@Override
 	public String[] parse(final String line) {
 		// if (false && previousLine != null && line.indexOf(repeatedDelimitersOnly) == 0) {
 		// final String[] splitNonRepeatedPart = super.splitLine(line, charactersToSkip);
@@ -34,7 +35,7 @@ public final class RepetitiveFeedParser extends AbstractFeedParser {
 		// else do one by one
 		final String[] currentLine = super.splitLine(line);
 		if (previousLine != null) {
-			if (isParsedValueNull(currentLine[0])) {
+			if (this.isParsedValueNull(currentLine[0])) {
 				System.arraycopy(previousLine, 0, currentLine, 0, repetitionCount);
 			}
 		}

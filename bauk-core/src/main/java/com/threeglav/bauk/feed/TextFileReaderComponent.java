@@ -56,7 +56,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		this.validate();
 		this.feedDataProcessor = feedDataProcessor;
 		processAndValidateFooter = factFeed.getFooter().getProcess() != FooterProcessingType.SKIP;
-		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
+		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString(), 10);
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
 		footerRecordCountPosition = this.getFactFeed().getFooter().getRecordCountAttributePosition();
 		if (footerRecordCountPosition <= 0) {
@@ -306,9 +306,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (isDebugEnabled) {
 			log.debug("Exposing last line {} as global attributes for control feed {}", feedDataLine, ffName);
 		}
-		final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getDelimiterString());
-		final String[] splitLine = feedParser.parse(feedDataLine);
 		final ArrayList<BaukAttribute> ffDataAttrs = this.getFactFeed().getData().getAttributes();
+		final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getDelimiterString(), ffDataAttrs.size());
+		final String[] splitLine = feedParser.parse(feedDataLine);
 		if (splitLine.length != ffDataAttrs.size()) {
 			log.error("Control feed " + ffName + " declared " + ffDataAttrs.size() + " data attributes but last line only has " + splitLine.length
 					+ " values!");

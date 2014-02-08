@@ -59,7 +59,7 @@ public class BaukApplication {
 			final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
 					SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 			if (throughputTestingMode) {
-				BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONLY ONE FILE WILL BE CACHED AND PROCESSED!!!");
+				BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONE FILE PER THREAD WILL BE CACHED AND PROCESSED REPEATEDLY!!!");
 			}
 			instanceStartTime = System.currentTimeMillis();
 			BaukUtil.logEngineMessageSync("Finished initialization! Started counting uptime");

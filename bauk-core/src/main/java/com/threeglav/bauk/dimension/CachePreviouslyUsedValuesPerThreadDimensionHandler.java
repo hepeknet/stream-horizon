@@ -19,7 +19,9 @@ import com.threeglav.bauk.util.StringUtil;
  * @author Borisa
  * 
  */
-public final class CachePreviousUsedRowPerThreadDimensionHandler implements BulkLoadOutputValueHandler, Observer {
+public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements BulkLoadOutputValueHandler, Observer {
+
+	private static final int MAX_LOCALLY_CACHED_VALUES = 100000;
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -31,9 +33,9 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	private final String dimensionName;
 	private final StringBuilder reusedForPerformance = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 
-	private final Map<String, Integer> cachedValues = new THashMap<>();
+	private final Map<String, Integer> perThreadCachedValues = new THashMap<>(1000);
 
-	public CachePreviousUsedRowPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
+	public CachePreviouslyUsedValuesPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
 		this.delegate = (DimensionHandler) delegate;
 		dimensionName = this.delegate.getDimension().getName();
 		log.info("Will cache previously used values for dimension {}", dimensionName);
@@ -52,14 +54,14 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 		if (previouslyUsedKey.equals(lookupKey)) {
 			return previouslyUsedValue;
 		} else {
-			final Integer cached = cachedValues.get(lookupKey);
+			final Integer cached = perThreadCachedValues.get(lookupKey);
 			if (cached != null) {
 				return cached;
 			}
 			final Integer surrogateKey = delegate.getBulkLoadValueByPrecalculatedLookupKey(parsedLine, globalValues, lookupKey);
 			previouslyUsedKey = lookupKey;
 			previouslyUsedValue = surrogateKey;
-			cachedValues.put(lookupKey, surrogateKey);
+			perThreadCachedValues.put(lookupKey, surrogateKey);
 			return surrogateKey;
 		}
 	}
@@ -72,7 +74,9 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 	@Override
 	public void closeCurrentFeed() {
 		delegate.closeCurrentFeed();
-		cachedValues.clear();
+		if (perThreadCachedValues.size() > MAX_LOCALLY_CACHED_VALUES) {
+			perThreadCachedValues.clear();
+		}
 	}
 
 	@Override
@@ -81,6 +85,7 @@ public final class CachePreviousUsedRowPerThreadDimensionHandler implements Bulk
 			log.info("Asked to clear previously used kay and value for dimension {}", dimensionName);
 			previouslyUsedKey = NOT_SET_PREVIOUS_KEY_VALUE;
 			previouslyUsedValue = null;
+			perThreadCachedValues.clear();
 		}
 	}
 

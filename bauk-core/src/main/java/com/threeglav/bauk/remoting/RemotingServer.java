@@ -6,6 +6,8 @@ import java.util.concurrent.Executors;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +33,8 @@ public class RemotingServer {
 		}
 		log.debug("Starting jetty server on port {}", port);
 		server = new Server(port);
+		final QueuedThreadPool p = (QueuedThreadPool) server.getThreadPool();
+		p.setMaxThreads(2);
 		this.addHandlers();
 		exec.submit(new Runnable() {
 			@Override
@@ -47,17 +51,26 @@ public class RemotingServer {
 	}
 
 	private void addHandlers() {
+		final ResourceHandler resourceHandler = new ResourceHandler();
+		resourceHandler.setDirectoriesListed(true);
+		resourceHandler.setWelcomeFiles(new String[] { "index.html" });
+		resourceHandler.setResourceBase(".");
+
+		final ContextHandler staticCtxHandler = new ContextHandler();
+		staticCtxHandler.setContextPath("/");
+		staticCtxHandler.setResourceBase(ConfigurationProperties.getWebAppsFolder());
+		staticCtxHandler.setHandler(new ResourceHandler());
+
 		final ContextHandler flushDimensionCacheCtx = new ContextHandler();
 		flushDimensionCacheCtx.setContextPath("/flushDimensionCache");
-		flushDimensionCacheCtx.setResourceBase(ConfigurationProperties.getWebAppsFolder());
 		flushDimensionCacheCtx.setHandler(new FlushDimensionCacheRemoteHandler());
 
 		final ContextHandler monitoringCtx = new ContextHandler();
 		monitoringCtx.setContextPath("/monitor");
-		monitoringCtx.setResourceBase(ConfigurationProperties.getWebAppsFolder());
 		monitoringCtx.setHandler(new MonitoringHandler());
 
 		final ContextHandlerCollection contexts = new ContextHandlerCollection();
+		contexts.addHandler(staticCtxHandler);
 		contexts.addHandler(flushDimensionCacheCtx);
 		contexts.addHandler(monitoringCtx);
 

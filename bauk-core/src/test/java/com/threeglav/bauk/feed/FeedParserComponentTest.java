@@ -31,7 +31,8 @@ public class FeedParserComponentTest {
 	@Test(expected = IllegalStateException.class)
 	public void testNullFeedType() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
 		when(ff.getDelimiterString()).thenReturn(",");
 		new FeedParserComponent(ff, config, null);
 	}

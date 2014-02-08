@@ -10,17 +10,17 @@ public class FullFeedParserTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNull() {
-		new FullFeedParser(null);
+		new FullFeedParser(null, 2);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testEmpty() {
-		new FullFeedParser(" ");
+		new FullFeedParser(" ", 2);
 	}
 
 	@Test
 	public void testSimple() {
-		final FeedParser fp = new FullFeedParser("@@");
+		final FeedParser fp = new FullFeedParser("@@", 4);
 		final String[] res = fp.parse("1@@2@@3@@");
 		Assert.assertEquals(4, res.length);
 		Assert.assertEquals("1", res[0]);
@@ -35,7 +35,8 @@ public class FullFeedParserTest {
 		Assert.assertEquals("3", res1[2]);
 		Assert.assertNull(res1[3]);
 
-		final String[] res2 = fp.parse("@@' '@@ @@3@@");
+		final FeedParser fp1 = new FullFeedParser("@@", 5);
+		final String[] res2 = fp1.parse("@@' '@@ @@3@@");
 		Assert.assertEquals(5, res2.length);
 		Assert.assertNull(res2[0]);
 		Assert.assertEquals("' '", res2[1]);
@@ -46,7 +47,7 @@ public class FullFeedParserTest {
 
 	@Test
 	public void testSingle() {
-		final FeedParser fp = new FullFeedParser(",");
+		final FeedParser fp = new FullFeedParser(",", 3);
 		final String[] res = fp.parse("abc,def,abc");
 		Assert.assertEquals(3, res.length);
 	}

@@ -7,17 +7,16 @@ public abstract class AbstractFeedParser implements FeedParser {
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private static final int DEFAULT_EXPECTED_MEMBERS = 50;
-
 	protected final String delimiter;
-	private int expectedTokens = DEFAULT_EXPECTED_MEMBERS;
+	private final int expectedTokens;
 	private String nullString;
 	private final int delimiterLenght;
 	private static final char DEFAULT_NON_INIT_CHAR = '\0';
-	private char singleCharacterDelimiter = DEFAULT_NON_INIT_CHAR;
+	private final char singleCharacterDelimiter;
 	private final boolean isSingleCharacterDelimiter;
+	private final int expectedTokensMinusOne;
 
-	public AbstractFeedParser(final String delimiter) {
+	public AbstractFeedParser(final String delimiter, final int expectedTokens) {
 		if (delimiter == null || delimiter.trim().isEmpty()) {
 			throw new IllegalArgumentException("Value delimiter must not be null or empty. Check your configuration!");
 		}
@@ -30,11 +29,13 @@ public abstract class AbstractFeedParser implements FeedParser {
 			log.info("Single character delimiter {}. This will slightly speed up execution", singleCharacterDelimiter);
 		} else {
 			isSingleCharacterDelimiter = false;
+			singleCharacterDelimiter = DEFAULT_NON_INIT_CHAR;
 		}
-	}
-
-	public void setExpectedTokens(final int expectedTokens) {
+		if (expectedTokens <= 0) {
+			throw new IllegalArgumentException("Expected tokens must be positive integer!");
+		}
 		this.expectedTokens = expectedTokens;
+		expectedTokensMinusOne = this.expectedTokens - 1;
 	}
 
 	public void setNullString(final String nullStr) {
@@ -77,7 +78,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 		int indexOfDelimiter = line.indexOf(delimiter, skipCharacters);
 		int fromIndex = skipCharacters;
 		int count = 0;
-		while (indexOfDelimiter != -1 && count < (expectedTokens - 1)) {
+		while (indexOfDelimiter != -1 && count < expectedTokensMinusOne) {
 			final String val = line.substring(fromIndex, indexOfDelimiter);
 			if (this.isParsedValueNull(val)) {
 				lines[count++] = null;
@@ -108,7 +109,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 		int indexOfDelimiter = line.indexOf(singleCharacterDelimiter, skipCharacters);
 		int fromIndex = skipCharacters;
 		int count = 0;
-		while (indexOfDelimiter != -1 && count < (expectedTokens - 1)) {
+		while (indexOfDelimiter != -1 && count < expectedTokensMinusOne) {
 			final String val = line.substring(fromIndex, indexOfDelimiter);
 			if (this.isParsedValueNull(val)) {
 				lines[count++] = null;
