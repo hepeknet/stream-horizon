@@ -33,9 +33,6 @@ import com.threeglav.bauk.util.StringUtil;
 
 public class BaukApplication {
 
-	private static final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
-
 	private static final String DEFAULT_CONFIG_FILE_NAME = "feedConfig.xml";
 	private static final String CONFIG_FILE_PROP_NAME = "bauk.config";
 
@@ -59,6 +56,8 @@ public class BaukApplication {
 			remotingHandler = new RemotingServer();
 			remotingHandler.start();
 			createProcessingRoutes(conf);
+			final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
+					SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 			if (throughputTestingMode) {
 				BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONLY ONE FILE WILL BE CACHED AND PROCESSED!!!");
 			}
