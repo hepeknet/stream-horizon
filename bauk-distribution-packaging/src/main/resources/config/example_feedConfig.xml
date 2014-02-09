@@ -26,8 +26,10 @@
 		<property name="rename.archived.files">false</property>
 		<!-- should we detect other running bauk instances and print count at startup -->
 		<property name="detect.running.bauk.instances">false</property>
-		<!-- JDBC fetch size used when pre-caching dimension keys -->
+		<!-- JDBC fetch size used when pre-caching dimension keys. Must be positive integer value -->
 		<property name="dimension.precache.jdbc.fetch.size">10000</property>
+		<!-- whether precaching for all dimensions is disabled -->
+		<property name="dimension.precaching.disabled">false</property>
 		<!-- should processing statistics be written as files are processed -->
 		<property name="output.processing.statistics">false</property>
 		<!-- when outputting null value what should actually be written to output file, by default this is empty string - nothing will be written -->

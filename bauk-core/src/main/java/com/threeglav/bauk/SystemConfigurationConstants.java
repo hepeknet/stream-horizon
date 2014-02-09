@@ -98,4 +98,6 @@ public interface SystemConfigurationConstants {
 
 	public static final String THROUGHPUT_TESTING_MODE_PARAM_NAME = "throughput.testing.mode";
 
+	public static final String DISABLE_DIMENSION_PRE_CACHING_PARAM_NAME = "dimension.precaching.disabled";
+
 }

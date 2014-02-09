@@ -47,6 +47,9 @@ public final class SpringJdbcDbHandler implements DbHandler {
 		jdbcTemplate = new JdbcTemplate(ds);
 		final int fetchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME,
 				DEFAULT_FETCH_SIZE);
+		if (fetchSize <= 0) {
+			throw new IllegalArgumentException(SystemConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME + " must be positive integer value!");
+		}
 		jdbcTemplate.setFetchSize(fetchSize);
 		jdbcTemplate.setLazyInit(false);
 		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,

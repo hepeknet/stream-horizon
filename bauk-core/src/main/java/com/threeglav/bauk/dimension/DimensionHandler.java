@@ -33,9 +33,11 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private static final int PRE_CACHE_EXECUTION_WARNING = ConfigurationProperties.getSystemProperty(
+	private final int PRE_CACHE_EXECUTION_WARNING = ConfigurationProperties.getSystemProperty(
 			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
 			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
+
+	private final boolean dimensionPrecachingDisabled;
 
 	private final String dimensionLastLineSKAttributeName;
 	protected final Dimension dimension;
@@ -89,7 +91,13 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		dimensionLastLineSKAttributeName = dimension.getName() + DIMENSION_SK_SUFFIX;
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
 				dimensionLastLineSKAttributeName);
-		this.preCacheAllKeys();
+		dimensionPrecachingDisabled = ConfigurationProperties.getSystemProperty(
+				SystemConfigurationConstants.DISABLE_DIMENSION_PRE_CACHING_PARAM_NAME, false);
+		if (!dimensionPrecachingDisabled) {
+			this.preCacheAllKeys();
+		} else {
+			log.info("Precaching for all dimensions is disabled!");
+		}
 	}
 
 	Dimension getDimension() {
