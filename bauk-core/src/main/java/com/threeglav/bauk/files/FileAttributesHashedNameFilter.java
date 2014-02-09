@@ -19,24 +19,24 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final String fileMask;
-	private final int orderNum;
-	private final int totalNumberOfFilters;
+	private final int myThreadProcessingIdentifier;
+	private final int totalNumberOfFileProcessingThreads;
 	private final boolean isDebugEnabled;
 	private final long fileAcceptanceTimeoutMillis;
 	private final Pattern pattern;
 
-	public FileAttributesHashedNameFilter(final String fileMask, final int orderNum, final int totalNumberOfFilters,
+	public FileAttributesHashedNameFilter(final String fileMask, final int orderNum, final int totalNumberOfThreads,
 			final int fileAcceptanceTimeoutMillis) {
 		if (StringUtil.isEmpty(fileMask)) {
 			throw new IllegalArgumentException("File mask must not be null or empty");
 		}
-		if (orderNum >= totalNumberOfFilters) {
-			throw new IllegalArgumentException("Order must be lower than " + totalNumberOfFilters + ", currently it is " + orderNum);
+		if (orderNum >= totalNumberOfThreads) {
+			throw new IllegalArgumentException("Order must be lower than " + totalNumberOfThreads + ", currently it is " + orderNum);
 		}
 		this.fileMask = fileMask;
 		pattern = Pattern.compile(fileMask);
-		this.orderNum = orderNum;
-		this.totalNumberOfFilters = totalNumberOfFilters;
+		this.myThreadProcessingIdentifier = orderNum;
+		this.totalNumberOfFileProcessingThreads = totalNumberOfThreads;
 		this.fileAcceptanceTimeoutMillis = fileAcceptanceTimeoutMillis;
 		isDebugEnabled = log.isDebugEnabled();
 	}
@@ -89,14 +89,14 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 		if (isDebugEnabled) {
 			log.debug("Hash for {} is {}", fileName, hash);
 		}
-		final int res = hash % totalNumberOfFilters;
-		final boolean hashesMatch = (res == orderNum);
+		final int res = hash % totalNumberOfFileProcessingThreads;
+		final boolean hashesMatch = (res == myThreadProcessingIdentifier);
 		if (isDebugEnabled) {
-			log.debug("Checking if ({} % {} = {}) == {}", new Object[] { hash, totalNumberOfFilters, res, orderNum });
+			log.debug("Checking if ({} % {} = {}) == {}", new Object[] { hash, totalNumberOfFileProcessingThreads, res, myThreadProcessingIdentifier });
 		}
 		if (!hashesMatch) {
 			if (isDebugEnabled) {
-				log.debug("Hash for {} does not match {}. Skipping", fileName, orderNum);
+				log.debug("Hash for {} does not match {}. Skipping", fileName, myThreadProcessingIdentifier);
 			}
 			return false;
 		}

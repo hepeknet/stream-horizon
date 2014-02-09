@@ -61,9 +61,9 @@ public class FeedFilesHandler {
 		}
 	}
 
-	private void createSingleFileHandler(final int routeId, final String fullFileMask) {
+	private void createSingleFileHandler(final int processingThreadId, final String fullFileMask) {
 		final FeedFileProcessor bfp = new FeedFileProcessor(factFeed, config, fullFileMask);
-		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, feedProcessingThreads,
+		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, processingThreadId, feedProcessingThreads,
 				feedFileAcceptanceTimeoutMillis);
 		Runnable ffh;
 		if (throughputTestingMode) {
