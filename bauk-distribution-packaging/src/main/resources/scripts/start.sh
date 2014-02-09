@@ -8,19 +8,20 @@ RESOLVED_HOME=$DIRNAME/../
 
 if [ -n "$1" ]; then BAUK_INSTANCE_ID="$1"; BAUK_INSTANCE_ID="0"; fi
 
-if [ -n "$2" ]; then heapSizeGb="$2"; heapSizeGb="2"; fi
+if [ -n "$2" ]; then heapSizeGb="$2"; heapSizeGb="4"; fi
 
-# following two lines are the only two lines that need to be changed
 # where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/feedConfig.xml
 BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/feedConfig.xml"
 # if needed increase the size of heap to be used
 HEAP_OPTS="-Xmx${heapSizeGb}G -Xms${heapSizeGb}G"
 
 
-GC_OPTS=""
-JAVA_OPTS="-server -d64 -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
+#GC_OPTS="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -verbose:gc "
+GC_OPTS="-XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled "
+JAVA_OPTS="-server -d64 -XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 JAVA_OPTS="$JAVA_OPTS -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
 JAVA_OPTS="$JAVA_OPTS -DBAUK_INSTANCE_ID=$BAUK_INSTANCE_ID"
+JAVA_OPTS="$GC_OPTS $JAVA_OPTS"
 
 #JAVA_OPTS="$JAVA_OPTS -XX:NewSize=1G -XX:MaxNewSize=2G"
 

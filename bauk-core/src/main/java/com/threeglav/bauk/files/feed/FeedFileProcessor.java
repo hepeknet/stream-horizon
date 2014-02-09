@@ -49,7 +49,7 @@ public class FeedFileProcessor implements FileProcessor {
 
 	private static final Chronology DEFAULT_CHRONOLOGY = ISOChronology.getInstance();
 
-	private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern(BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
+	private final DateTimeFormatter DATE_FORMATTER = DateTimeFormat.forPattern(BaukConstants.TIMESTAMP_TO_DATE_FORMAT);
 
 	private final Map<String, String> implicitAttributes = new THashMap<String, String>(30);
 
