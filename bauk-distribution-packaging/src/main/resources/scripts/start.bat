@@ -21,8 +21,9 @@ set "BAUK_CONFIG_FILE_LOCATION=%RESOLVED_HOME%\config\feedConfig.xml"
 rem if needed increase the size of heap to be used
 set "HEAP_OPTS=-Xmx%heapSizeGb%G -Xms%heapSizeGb%G"
 
-rem set "GC_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -verbose:gc "
+rem set "GC_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=200 "
 set "GC_OPTS=-XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled "
+rem set "GC_OPTS=%GC_OPTS% -verbose:gc "
 set "JAVA_OPTS=-server -d64 -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
 set "JAVA_OPTS=%JAVA_OPTS% -DBAUK_INSTANCE_ID=%BAUK_INSTANCE_ID%"
