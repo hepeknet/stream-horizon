@@ -49,6 +49,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final boolean skipHeader;
 	private final boolean outputProcessingStatistics;
 	private final int footerRecordCountPosition;
+	private String currentThreadName;
 
 	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
@@ -275,6 +276,13 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 	}
 
+	private final String getCurrentThreadName() {
+		if (currentThreadName == null) {
+			currentThreadName = Thread.currentThread().getName();
+		}
+		return currentThreadName;
+	}
+
 	private void outputFeedProcessingStatistics(final int feedLinesNumber, final long start) {
 		if (outputProcessingStatistics) {
 			final float totalMillis = System.currentTimeMillis() - start;
@@ -289,7 +297,8 @@ public class TextFileReaderComponent extends ConfigAware {
 			} else {
 				averagePerSec = "N/A";
 			}
-			String messageToOutput = "Processed " + feedLinesNumber + " rows in " + DEC_FORMAT.format(totalMillis) + "ms";
+			String messageToOutput = this.getCurrentThreadName() + " - Processed " + feedLinesNumber + " rows in " + DEC_FORMAT.format(totalMillis)
+					+ "ms";
 			if (totalMillis > 1000) {
 				messageToOutput += " (" + DEC_FORMAT.format(totalSec) + " sec)";
 			}
