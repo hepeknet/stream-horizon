@@ -14,7 +14,7 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.header.DefaultHeaderParser;
@@ -73,8 +73,8 @@ public class TextFileReaderComponent extends ConfigAware {
 		} else {
 			declaredHeaderAttributes = null;
 		}
-		bufferSize = (int) (ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.READ_BUFFER_SIZE_SYS_PARAM_NAME,
-				SystemConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE);
+		bufferSize = (int) (ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.READ_BUFFER_SIZE_SYS_PARAM_NAME,
+				BaukEngineConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE);
 		log.info("Read buffer size is {} bytes", bufferSize);
 		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
 		headerShouldExist = headerProcessingType != HeaderProcessingType.NO_HEADER;
@@ -88,7 +88,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			log.info("Feed {} will be treated as control feed", this.getFactFeed().getName());
 		}
 		skipHeader = headerProcessingType == HeaderProcessingType.SKIP;
-		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
 				false);
 		if (outputProcessingStatistics) {
 			log.info("Will output processing statistics!");

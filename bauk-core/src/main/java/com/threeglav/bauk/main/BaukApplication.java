@@ -17,9 +17,9 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
-import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.dimension.cache.HazelcastCacheInstanceManager;
 import com.threeglav.bauk.files.bulk.BulkFilesHandler;
@@ -46,7 +46,7 @@ public class BaukApplication {
 	public static void main(final String[] args) throws Exception {
 		BaukUtil.logEngineMessage("Starting Bauk engine");
 		final long start = System.currentTimeMillis();
-		LOG.info("To run in test mode set system parameter {}=true", SystemConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
+		LOG.info("To run in test mode set system parameter {}=true", BaukEngineConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 		final BaukConfiguration conf = findConfiguration();
 		if (conf != null) {
@@ -57,17 +57,17 @@ public class BaukApplication {
 			remotingHandler.start();
 			createProcessingRoutes(conf);
 			final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
-					SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
+					BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 			if (throughputTestingMode) {
-				BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONE FILE PER THREAD WILL BE CACHED AND PROCESSED REPEATEDLY!!!");
+				BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONE INPUT FEED FILE PER THREAD WILL BE CACHED AND PROCESSED REPEATEDLY!!!");
 			}
 			instanceStartTime = System.currentTimeMillis();
 			BaukUtil.logEngineMessageSync("Finished initialization! Started counting uptime");
 			startProcessing();
 			final long total = System.currentTimeMillis() - start;
 			final long totalSec = total / 1000;
-			final boolean detectBaukInstances = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.DETECT_OTHER_BAUK_INSTANCES,
-					false);
+			final boolean detectBaukInstances = ConfigurationProperties.getSystemProperty(
+					BaukEngineConfigurationConstants.DETECT_OTHER_BAUK_INSTANCES, false);
 			if (detectBaukInstances) {
 				final int numberOfInstances = HazelcastCacheInstanceManager.getNumberOfBaukInstances();
 				BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);

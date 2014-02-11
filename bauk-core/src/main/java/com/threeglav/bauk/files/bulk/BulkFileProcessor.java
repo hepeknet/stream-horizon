@@ -3,20 +3,24 @@ package com.threeglav.bauk.files.bulk;
 import gnu.trove.map.hash.THashMap;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
-import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
-import com.threeglav.bauk.dimension.db.DbHandler;
+import com.threeglav.bauk.dimension.db.DataSourceProvider;
 import com.threeglav.bauk.files.BaukFile;
 import com.threeglav.bauk.files.FileProcessor;
 import com.threeglav.bauk.model.BaukCommand;
@@ -32,12 +36,11 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private static final AtomicInteger COUNTER = new AtomicInteger(0);
 
-	private final Map<String, String> implicitAttributes = new THashMap<String, String>();
+	private final boolean deleteBulkFileAfterLoading;
 
 	private final String dbStringLiteral;
 	private final String dbStringEscapeLiteral;
 	private final BulkFileSubmissionRecorder fileSubmissionRecorder;
-	private final String statementDescription;
 	private final String processorId;
 	private final boolean isDebugEnabled;
 	private final boolean outputProcessingStatistics;
@@ -46,18 +49,19 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private final BaukCommandsExecutor commandsExecutor;
 	private final boolean shouldExecuteOnBulkLoadFailure;
 	private final StatefulAttributeReplacer statefulReplacer;
-	private final DbHandler dbHandler;
+	private final DataSource dataSource;
+	private String currentThreadName;
+	private final boolean recordFileSubmissionAttempts;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
 		dbStringEscapeLiteral = this.getConfig().getDatabaseStringEscapeLiteral();
 		fileSubmissionRecorder = new BulkFileSubmissionRecorder();
-		statementDescription = "BulkFileProcessor for " + this.getFactFeed().getName();
 		processorId = String.valueOf(COUNTER.incrementAndGet());
 		isDebugEnabled = log.isDebugEnabled();
-		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
-				false);
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
 		log.debug("Current processing id is {}", processorId);
 		final String insertStatement = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsertStatement();
 		if (StringUtil.isEmpty(insertStatement)) {
@@ -70,7 +74,25 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		shouldExecuteOnBulkLoadFailure = onBulkLoadFail != null && !onBulkLoadFail.isEmpty();
 		commandsExecutor = new BaukCommandsExecutor(factFeed, config);
 		statefulReplacer = new StatefulAttributeReplacer(bulkLoadStatement, dbStringLiteral, dbStringEscapeLiteral);
-		dbHandler = this.getDbHandler();
+		deleteBulkFileAfterLoading = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.DELETE_BULK_LOADED_FILES, true);
+		if (!deleteBulkFileAfterLoading) {
+			log.info("Will not delete bulk files after loading!");
+		}
+		recordFileSubmissionAttempts = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BULK_FILE_RECORD_FILE_SUBMISSIONS,
+				true);
+		if (!recordFileSubmissionAttempts) {
+			log.warn("Engine will not record bulk file submission attempts.");
+		} else {
+			log.info("Engine will record all bulk file submission attempts.");
+		}
+		dataSource = DataSourceProvider.getDataSource(this.getConfig());
+	}
+
+	private final String getCurrentThreadName() {
+		if (currentThreadName == null) {
+			currentThreadName = Thread.currentThread().getName();
+		}
+		return currentThreadName;
 	}
 
 	@Override
@@ -81,27 +103,37 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			log.debug("Bulk loading {}", bulkLoadFilePath);
 		}
 		final String fileNameOnly = file.getFileNameOnly();
-		final boolean alreadySubmitted = fileSubmissionRecorder.wasAlreadySubmitted(fileNameOnly);
-		if (alreadySubmitted) {
-			if (isDebugEnabled) {
-				log.debug("File [{}] was already submitted for loading previously. Will set {} to {}",
-						BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
-			}
-			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
-		} else {
-			if (isDebugEnabled) {
-				log.debug("File [{}] was not submitted for loading before. Will set {} to {}",
-						BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
-			}
-			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
-			fileSubmissionRecorder.recordSubmissionAttempt(fileNameOnly);
-		}
+		recordFileLoadingAttempt(globalAttributes, fileNameOnly);
 		this.executeBulkLoadingCommandSequence(globalAttributes);
-		fileSubmissionRecorder.deleteLoadedFile(fileNameOnly);
-		try {
-			file.delete();
-		} catch (final IOException ie) {
-			log.error("Exception while deleting bulk file", ie);
+		if (recordFileSubmissionAttempts) {
+			fileSubmissionRecorder.deleteLoadedFile(fileNameOnly);
+		}
+		if (deleteBulkFileAfterLoading) {
+			try {
+				file.delete();
+			} catch (final IOException ie) {
+				log.error("Exception while deleting bulk file", ie);
+			}
+		}
+	}
+
+	private void recordFileLoadingAttempt(final Map<String, String> globalAttributes, final String fileNameOnly) {
+		if (recordFileSubmissionAttempts) {
+			final boolean alreadySubmitted = fileSubmissionRecorder.wasAlreadySubmitted(fileNameOnly);
+			if (alreadySubmitted) {
+				if (isDebugEnabled) {
+					log.debug("File [{}] was already submitted for loading previously. Will set {} to {}",
+							BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
+				}
+				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
+			} else {
+				if (isDebugEnabled) {
+					log.debug("File [{}] was not submitted for loading before. Will set {} to {}",
+							BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
+				}
+				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
+				fileSubmissionRecorder.recordSubmissionAttempt(fileNameOnly);
+			}
 		}
 	}
 
@@ -114,8 +146,12 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		if (isDebugEnabled) {
 			log.debug("Statement to execute is {}", replacedStatement);
 		}
+		Connection connection = null;
+		PreparedStatement preparedStatement = null;
 		try {
-			dbHandler.executeInsertOrUpdateStatement(replacedStatement, statementDescription);
+			connection = dataSource.getConnection();
+			preparedStatement = connection.prepareStatement(replacedStatement);
+			preparedStatement.execute();
 			EngineRegistry.registerSuccessfulBulkFileLoad();
 		} catch (final Exception exc) {
 			EngineRegistry.registerFailedBulkFile();
@@ -127,7 +163,10 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 				commandsExecutor.executeBaukCommandSequence(this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadFailure(), globalAttributes,
 						"Bulk-load-failure commands for " + this.getFactFeed().getName());
 			}
-			throw exc;
+			throw new RuntimeException("Exception while executing " + replacedStatement, exc);
+		} finally {
+			DataSourceProvider.close(preparedStatement);
+			DataSourceProvider.closeOnly(connection);
 		}
 		if (isDebugEnabled) {
 			log.debug("Successfully executed statement {}", replacedStatement);
@@ -136,7 +175,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			final long totalBulkLoadedFiles = EngineRegistry.getSuccessfulBulkFilesCount();
 			final long totalMillis = System.currentTimeMillis() - start;
 			final float totalSec = totalMillis / 1000;
-			String message = "Bulk loading of file took " + totalMillis + "ms";
+			String message = this.getCurrentThreadName() + " - Bulk loading of file took " + totalMillis + "ms";
 			if (totalMillis > 1000) {
 				message += " (" + totalSec + " sec)";
 			}
@@ -156,14 +195,10 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		commandsExecutor.executeBaukCommandSequence(onBulkLoadSuccess, globalAttributes, "On bulk load success command-sequence");
 	}
 
-	private void clearImplicitAttributes() {
-		implicitAttributes.clear();
-		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
-	}
-
 	private Map<String, String> createImplicitGlobalAttributes(final BaukFile file) {
 		final String fileNameOnly = file.getFileNameOnly();
-		this.clearImplicitAttributes();
+		final Map<String, String> implicitAttributes = new THashMap<String, String>();
+		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
 		implicitAttributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
 		final String inputFileAbsolutePath = file.getFullFilePath();
 		implicitAttributes.put(com.threeglav.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH,

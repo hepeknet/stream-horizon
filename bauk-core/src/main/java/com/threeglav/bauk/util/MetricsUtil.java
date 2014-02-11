@@ -8,7 +8,7 @@ import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricRegistry;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 
 public abstract class MetricsUtil {
 
@@ -17,7 +17,7 @@ public abstract class MetricsUtil {
 	private static MetricRegistry registry;
 
 	static {
-		metricsOff = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.METRICS_OFF_SYS_PARAM_NAME, false);
+		metricsOff = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.METRICS_OFF_SYS_PARAM_NAME, false);
 		if (!metricsOff) {
 			registry = new MetricRegistry();
 			final JmxReporter reporter = JmxReporter.forRegistry(registry).inDomain("bauk-metrics").build();

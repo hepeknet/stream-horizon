@@ -12,7 +12,7 @@ import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
@@ -34,8 +34,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private final int PRE_CACHE_EXECUTION_WARNING = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
-			SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
+			BaukEngineConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
+			BaukEngineConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 
 	private final boolean dimensionPrecachingDisabled;
 
@@ -92,7 +92,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
 				dimensionLastLineSKAttributeName);
 		dimensionPrecachingDisabled = ConfigurationProperties.getSystemProperty(
-				SystemConfigurationConstants.DISABLE_DIMENSION_PRE_CACHING_PARAM_NAME, false);
+				BaukEngineConfigurationConstants.DISABLE_DIMENSION_PRE_CACHING_PARAM_NAME, false);
 		if (!dimensionPrecachingDisabled) {
 			this.preCacheAllKeys();
 		} else {

@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.files.FileAttributesHashedNameFilter;
 import com.threeglav.bauk.files.FileFindingHandler;
 import com.threeglav.bauk.files.FileProcessingErrorHandler;
@@ -27,8 +27,8 @@ public class BulkFilesHandler {
 	private int bulkProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
 	private final int bulkFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS,
-			SystemConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
+			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS,
+			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
 
 	private final ExecutorService EXEC_SERVICE;
 
@@ -66,7 +66,7 @@ public class BulkFilesHandler {
 			for (int i = 0; i < bulkProcessingThreads; i++) {
 				this.createSingleFileHandler(i);
 			}
-			log.debug("Created in total {} bulk processing routes", bulkProcessingThreads);
+			log.debug("Created in total {} bulk processing threads", bulkProcessingThreads);
 		}
 	}
 

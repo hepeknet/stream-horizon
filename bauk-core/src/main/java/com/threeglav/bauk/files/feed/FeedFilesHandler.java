@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.files.FileAttributesHashedNameFilter;
 import com.threeglav.bauk.files.FileFindingHandler;
 import com.threeglav.bauk.files.FileProcessingErrorHandler;
@@ -28,11 +28,11 @@ public class FeedFilesHandler {
 	private int feedProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
 	private final int feedFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.FEED_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS,
-			SystemConfigurationConstants.FEED_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
+			BaukEngineConfigurationConstants.FEED_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS,
+			BaukEngineConfigurationConstants.FEED_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
 
 	private static final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
+			BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 
 	private final ExecutorService EXEC_SERVICE;
 

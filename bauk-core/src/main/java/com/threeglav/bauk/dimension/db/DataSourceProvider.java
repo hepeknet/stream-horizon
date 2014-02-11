@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jolbox.bonecp.BoneCPDataSource;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.ConnectionProperties;
 import com.threeglav.bauk.util.StringUtil;
@@ -51,7 +51,7 @@ public class DataSourceProvider {
 		try {
 			final Properties clientInfoProperties = new Properties();
 			final String jdbcProgramName = ConfigurationProperties.getSystemProperty(
-					SystemConfigurationConstants.JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME, null);
+					BaukEngineConfigurationConstants.JDBC_CLIENT_INFO_PROGRAM_NAME_PARAM_NAME, null);
 			if (!StringUtil.isEmpty(jdbcProgramName)) {
 				log.info("Setting client info value to [{}]", jdbcProgramName);
 				clientInfoProperties.put("v$session.program", jdbcProgramName);
@@ -105,6 +105,16 @@ public class DataSourceProvider {
 			} catch (final SQLException se) {
 				log.error("Exception while commiting connection", se);
 			}
+			try {
+				connection.close();
+			} catch (final SQLException se) {
+				log.error("Exception while closing connection", se);
+			}
+		}
+	}
+
+	public static void closeOnly(final Connection connection) {
+		if (connection != null) {
 			try {
 				connection.close();
 			} catch (final SQLException se) {

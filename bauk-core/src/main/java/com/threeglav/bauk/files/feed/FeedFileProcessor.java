@@ -20,7 +20,7 @@ import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.BeforeFeedProcessingProcessor;
@@ -69,7 +69,7 @@ public class FeedFileProcessor implements FileProcessor {
 	private final boolean executeRollbackSequence;
 	private final BaukCommandsExecutor baukCommandsExec;
 	private final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
+			BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {

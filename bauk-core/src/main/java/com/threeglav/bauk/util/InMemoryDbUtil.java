@@ -37,8 +37,11 @@ public abstract class InMemoryDbUtil {
 			LOG.debug("Successfully executed {}", sql);
 			conn.commit();
 		} catch (final SQLException e) {
-			LOG.info("Exception while executing {}. Details {}", sql, e.getMessage());
-			throw new RuntimeException(e);
+			final boolean shutdownStarted = BaukUtil.shutdownStarted();
+			if (!shutdownStarted) {
+				LOG.info("Exception while executing {}. Details {}", sql, e.getMessage());
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -67,8 +70,12 @@ public abstract class InMemoryDbUtil {
 			LOG.debug("Successfully executed {}. Nothing to return", sql);
 			return null;
 		} catch (final SQLException e) {
-			LOG.error("Exception while executing {}. Details {}", sql, e.getMessage());
-			throw new RuntimeException(e);
+			final boolean shutdownStarted = BaukUtil.shutdownStarted();
+			if (!shutdownStarted) {
+				LOG.error("Exception while executing {}. Details {}", sql, e.getMessage());
+				throw new RuntimeException(e);
+			}
+			return null;
 		}
 	}
 

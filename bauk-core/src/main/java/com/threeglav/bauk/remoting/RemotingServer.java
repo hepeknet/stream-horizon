@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.remoting.handlers.FlushDimensionCacheRemoteHandler;
 import com.threeglav.bauk.remoting.handlers.MonitoringHandler;
 import com.threeglav.bauk.util.BaukThreadFactory;
@@ -26,8 +26,8 @@ public class RemotingServer {
 	private Server server;
 
 	public void start() {
-		final int port = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.REMOTING_SERVER_PORT_PARAM_NAME,
-				SystemConfigurationConstants.REMOTING_SERVER_PORT_DEFAULT);
+		final int port = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.REMOTING_SERVER_PORT_PARAM_NAME,
+				BaukEngineConfigurationConstants.REMOTING_SERVER_PORT_DEFAULT);
 		if (port <= 0) {
 			return;
 		}

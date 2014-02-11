@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
 	<!-- if they do not exist folders will be created (if possible) -->
-	<sourceDirectory>d:/projects/test/input</sourceDirectory>
-	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
-	<errorDirectory>d:/projects/test/error</errorDirectory>
-	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
+	<sourceDirectory>/tmp/bauk/input</sourceDirectory>
+	<archiveDirectory>/tmp/bauk/archive</archiveDirectory>
+	<errorDirectory>/tmp/bauk/error</errorDirectory>
+	<bulkOutputDirectory>/tmp/bauk/bulkOutput</bulkOutputDirectory>
 	<properties>
 		<!-- should processed feed files be remembered or not (true/false) -->
 		<property name="idempotent.feed.processing">false</property>
@@ -34,6 +34,11 @@
 		<property name="output.processing.statistics">false</property>
 		<!-- when outputting null value what should actually be written to output file, by default this is empty string - nothing will be written -->
 		<property name="bulk.output.file.null.value.string"></property>
+		<!-- should bulk files be deleted after they are loaded -->
+		<property name="bulk.delete.files.after.load">true</property>
+		<!-- should engine record (internally) submission of every file it tries to bulk load -->
+		<!-- this is used for recovery, in case when engine dies halfway through bulk-loading file it will know that file was submitted for loading before (even in case of engine restart) -->
+		<property name="bulk.file.record.submission.attempts">true</property>
 		<!-- how often to poll for input files (feed, bulk) -->
 		<property name="file.polling.delay.millis">1000</property>
 		<!-- following two properties can be 0 if file system allows atomic renames/moves of files. Data corruption can happen in case someone is writing to files while engine is consuming them -->

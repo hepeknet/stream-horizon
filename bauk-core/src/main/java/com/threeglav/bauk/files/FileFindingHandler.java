@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.EmailSender;
 import com.threeglav.bauk.util.FileUtil;
@@ -25,7 +25,7 @@ public class FileFindingHandler implements Runnable {
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	protected final String pathTofolder;
 	protected final int pollingDelayMillis = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.FILE_POLLING_DELAY_MILLIS_PARAM_NAME, SystemConfigurationConstants.FILE_POLLING_DELAY_MILLIS_DEFAULT);
+			BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_PARAM_NAME, BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_DEFAULT);
 	protected final FileProcessor fileProcessor;
 	private final DirectoryStream.Filter<Path> fileFilter;
 	protected final FileProcessingErrorHandler errorHandler;

@@ -24,7 +24,7 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dimension.DimensionKeysPair;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.util.StringUtil;
@@ -45,15 +45,15 @@ public final class SpringJdbcDbHandler implements DbHandler {
 		}
 		final DataSource ds = DataSourceProvider.getDataSource(config);
 		jdbcTemplate = new JdbcTemplate(ds);
-		final int fetchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME,
+		final int fetchSize = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME,
 				DEFAULT_FETCH_SIZE);
 		if (fetchSize <= 0) {
-			throw new IllegalArgumentException(SystemConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME + " must be positive integer value!");
+			throw new IllegalArgumentException(BaukEngineConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME + " must be positive integer value!");
 		}
 		jdbcTemplate.setFetchSize(fetchSize);
 		jdbcTemplate.setLazyInit(false);
-		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
-				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
+		warningThreshold = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
+				BaukEngineConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		log.debug("Will report any sql execution taking longer than {}ms", warningThreshold);
 		isDebugEnabled = log.isDebugEnabled();
 	}

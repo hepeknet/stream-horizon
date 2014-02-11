@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.codahale.metrics.Counter;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.events.EngineEvents;
 import com.threeglav.bauk.model.Dimension;
@@ -25,10 +25,10 @@ public final class DimensionCache implements Observer {
 	private static final int NO_ENTRY_INT_VALUE = Integer.MIN_VALUE;
 
 	private static final boolean LOCAL_CACHE_DISABLED = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_DISABLED, false);
+			BaukEngineConfigurationConstants.DIMENSION_LOCAL_CACHE_DISABLED, false);
 
 	private static final int MAX_ELEMENTS_LOCAL_MAP = ConfigurationProperties.getSystemProperty(
-			SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
+			BaukEngineConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME, BaukEngineConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT);
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 

@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dimension.db.DataSourceProvider;
 import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukAttributeType;
@@ -58,12 +58,12 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			log.debug("For attribute at position {} will use sql type {}", i, attr.getType());
 		}
 		this.validate(attributes.size());
-		warningThreshold = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
-				SystemConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
-		batchSize = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
-				SystemConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
+		warningThreshold = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_SYS_PARAM_NAME,
+				BaukEngineConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
+		batchSize = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
+				BaukEngineConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
-		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
 				false);
 		dataSource = DataSourceProvider.getDataSource(this.getConfig());
 		statefulReplacer = new StatefulAttributeReplacer(insertStatement, this.getConfig().getDatabaseStringLiteral(), this.getConfig()

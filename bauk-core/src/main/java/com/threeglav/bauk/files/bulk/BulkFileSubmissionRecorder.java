@@ -23,9 +23,12 @@ public class BulkFileSubmissionRecorder {
 
 	private final DataSource dataSource;
 
+	private final boolean isDebugEnabled;
+
 	public BulkFileSubmissionRecorder() {
 		final String url = InMemoryDbUtil.getJdbcUrl(SUBMISSION_DB_NAME);
 		dataSource = DataSourceProvider.getSimpleDataSource(url);
+		isDebugEnabled = log.isDebugEnabled();
 		this.tryCreatingTables();
 	}
 
@@ -41,36 +44,46 @@ public class BulkFileSubmissionRecorder {
 		}
 	}
 
-	public boolean wasAlreadySubmitted(final String bulkFileName) {
+	boolean wasAlreadySubmitted(final String bulkFileName) {
 		if (StringUtil.isEmpty(bulkFileName)) {
 			throw new IllegalArgumentException("Bulk file name must not be null or empty");
 		}
 		final Object res = InMemoryDbUtil.executePreparedStatement(SELECT_FILE_SQL, dataSource, bulkFileName);
 		final boolean found = bulkFileName.equals(String.valueOf(res));
 		if (!found) {
-			log.debug("[{}] was not already submitted for bulk loading", bulkFileName);
+			if (isDebugEnabled) {
+				log.debug("[{}] was not already submitted for bulk loading", bulkFileName);
+			}
 		} else {
 			log.warn("[{}] was already submitted for bulk loading before", bulkFileName);
 		}
 		return found;
 	}
 
-	public void recordSubmissionAttempt(final String bulkFileName) {
+	void recordSubmissionAttempt(final String bulkFileName) {
 		if (StringUtil.isEmpty(bulkFileName)) {
 			throw new IllegalArgumentException("Bulk file name must not be null or empty");
 		}
-		log.debug("Recording submission of [{}] for bulk loading", bulkFileName);
+		if (isDebugEnabled) {
+			log.debug("Recording submission of [{}] for bulk loading", bulkFileName);
+		}
 		InMemoryDbUtil.executePreparedStatement(INSERT_FILE_SQL, dataSource, bulkFileName);
-		log.debug("Successfully recorded submission of bulk file {}", bulkFileName);
+		if (isDebugEnabled) {
+			log.debug("Successfully recorded submission of bulk file {}", bulkFileName);
+		}
 	}
 
-	public void deleteLoadedFile(final String bulkFileName) {
+	void deleteLoadedFile(final String bulkFileName) {
 		if (StringUtil.isEmpty(bulkFileName)) {
 			throw new IllegalArgumentException("Bulk file name must not be null or empty");
 		}
-		log.debug("Deleting already loaded file [{}]", bulkFileName);
+		if (isDebugEnabled) {
+			log.debug("Deleting already loaded file [{}]", bulkFileName);
+		}
 		InMemoryDbUtil.executePreparedStatement(DELETE_FILE_SQL, dataSource, bulkFileName);
-		log.debug("Successfully deleted recording of submission for {}", bulkFileName);
+		if (isDebugEnabled) {
+			log.debug("Successfully deleted recording of submission for {}", bulkFileName);
+		}
 	}
 
 }

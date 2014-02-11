@@ -130,25 +130,25 @@ public abstract class ConfigurationProperties {
 	}
 
 	public static String getApplicationHome() {
-		final String home = System.getProperty(SystemConfigurationConstants.APP_HOME_SYS_PARAM_NAME);
+		final String home = System.getProperty(BaukEngineConfigurationConstants.APP_HOME_SYS_PARAM_NAME);
 		LOG.debug("Application home is {}", home);
 		return home;
 	}
 
 	public static String getConfigFolder() {
-		return getApplicationHome() + SystemConfigurationConstants.CONFIG_FOLDER_NAME;
+		return getApplicationHome() + BaukEngineConfigurationConstants.CONFIG_FOLDER_NAME;
 	}
 
 	public static String getPluginFolder() {
-		return getApplicationHome() + SystemConfigurationConstants.PLUGINS_FOLDER_NAME;
+		return getApplicationHome() + BaukEngineConfigurationConstants.PLUGINS_FOLDER_NAME;
 	}
 
 	public static String getWebAppsFolder() {
-		return getApplicationHome() + SystemConfigurationConstants.WEB_APPS_FOLDER_NAME;
+		return getApplicationHome() + BaukEngineConfigurationConstants.WEB_APPS_FOLDER_NAME;
 	}
 
 	public static String getDbDataFolder() {
-		final String fullFolderPath = getApplicationHome() + SystemConfigurationConstants.DB_DATA_FOLDER;
+		final String fullFolderPath = getApplicationHome() + BaukEngineConfigurationConstants.DB_DATA_FOLDER;
 		final File dir = new File(fullFolderPath);
 		if (!dir.exists() || !dir.isDirectory() || !dir.canRead() || !dir.canExecute()) {
 			throw new IllegalStateException("Unable to find readable folder [" + fullFolderPath + "]");

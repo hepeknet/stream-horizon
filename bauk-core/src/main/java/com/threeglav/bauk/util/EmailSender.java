@@ -6,13 +6,13 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 
 public class EmailSender {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final String allErrorRecipients = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.EMAIL_RECIPIENTS_LIST, null);
+	private final String allErrorRecipients = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_RECIPIENTS_LIST, null);
 
 	private final JavaMailSenderImpl mailSender;
 
@@ -20,23 +20,23 @@ public class EmailSender {
 
 	public EmailSender() {
 		mailSender = new JavaMailSenderImpl();
-		final String emailHost = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.EMAIL_HOST_PARAM_NAME, "localhost");
+		final String emailHost = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_HOST_PARAM_NAME, "localhost");
 		if (StringUtil.isEmpty(emailHost)) {
-			throw new IllegalStateException("Unable to send emails when " + SystemConfigurationConstants.EMAIL_HOST_PARAM_NAME
+			throw new IllegalStateException("Unable to send emails when " + BaukEngineConfigurationConstants.EMAIL_HOST_PARAM_NAME
 					+ " property was not set");
 		}
 		mailSender.setHost(emailHost);
 		log.info("Will use email server host {}", emailHost);
-		final int port = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.EMAIL_HOST_PORT_PARAM_NAME, -1);
+		final int port = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_HOST_PORT_PARAM_NAME, -1);
 		if (port > -1) {
 			mailSender.setPort(port);
 			log.info("Will use email port {}", port);
 		}
-		final String username = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.EMAIL_USERNAME_PARAM_NAME, null);
+		final String username = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_USERNAME_PARAM_NAME, null);
 		if (!StringUtil.isEmpty(username)) {
 			mailSender.setUsername(username);
 		}
-		final String pass = ConfigurationProperties.getSystemProperty(SystemConfigurationConstants.EMAIL_PASSWORD_PARAM_NAME, null);
+		final String pass = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_PASSWORD_PARAM_NAME, null);
 		if (!StringUtil.isEmpty(pass)) {
 			mailSender.setPassword(pass);
 		}

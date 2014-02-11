@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -33,7 +33,7 @@ public class Dimension {
 	@XmlAttribute(required = false)
 	private String cacheKeyPerFeedInto;
 
-	@XmlElement(required = false, defaultValue = "" + SystemConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT)
+	@XmlElement(required = false, defaultValue = "" + BaukEngineConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT)
 	private Integer localCacheMaxSize;
 
 	@XmlAttribute(required = false)

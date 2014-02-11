@@ -1,6 +1,6 @@
 package com.threeglav.bauk;
 
-public interface SystemConfigurationConstants {
+public interface BaukEngineConfigurationConstants {
 
 	public static final String DIMENSION_LOCAL_CACHE_SIZE_PARAM_NAME = "dimension.local.cache.default.size";
 	public static final int DIMENSION_LOCAL_CACHE_SIZE_DEFAULT = 5000;
@@ -76,6 +76,8 @@ public interface SystemConfigurationConstants {
 
 	public static final String BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS = "bulk.file.acceptance.timeout.millis";
 
+	public static final String BULK_FILE_RECORD_FILE_SUBMISSIONS = "bulk.file.record.submission.attempts";
+
 	public static final int BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT = 2000;
 
 	public static final String JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME = "jdbc.bulk.loading.batch.size";
@@ -99,5 +101,7 @@ public interface SystemConfigurationConstants {
 	public static final String THROUGHPUT_TESTING_MODE_PARAM_NAME = "throughput.testing.mode";
 
 	public static final String DISABLE_DIMENSION_PRE_CACHING_PARAM_NAME = "dimension.precaching.disabled";
+
+	public static final String DELETE_BULK_LOADED_FILES = "bulk.delete.files.after.load";
 
 }

@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.SystemConfigurationConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BaukProperty;
 import com.threeglav.bauk.model.BulkLoadDefinition;
@@ -41,7 +41,7 @@ public class FileBulkOutputWriterTest {
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		final ArrayList<BaukProperty> props = new ArrayList<>();
 		BaukProperty bp = new BaukProperty();
-		bp.setName(SystemConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME);
+		bp.setName(BaukEngineConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME);
 		bp.setValue("null");
 		props.add(bp);
 		when(conf.getProperties()).thenReturn(props);
@@ -50,7 +50,7 @@ public class FileBulkOutputWriterTest {
 		final String sb = fbowt.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
 		Assert.assertEquals("1,null,2,null,3\n", sb);
 		bp = new BaukProperty();
-		bp.setName(SystemConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME);
+		bp.setName(BaukEngineConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME);
 		bp.setValue("");
 		props.clear();
 		props.add(bp);
