@@ -34,3 +34,4 @@ target/*
 # maven files
 release.properties
 *.releaseBackup
+*.versionsBackup
