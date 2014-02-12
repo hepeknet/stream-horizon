@@ -75,6 +75,9 @@ public class TextFileReaderComponent extends ConfigAware {
 		}
 		bufferSize = (int) (ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.READ_BUFFER_SIZE_SYS_PARAM_NAME,
 				BaukEngineConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE);
+		if (bufferSize <= 0) {
+			throw new IllegalArgumentException("Read buffer size must not be <= 0");
+		}
 		log.info("Read buffer size is {} bytes", bufferSize);
 		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
 		headerShouldExist = headerProcessingType != HeaderProcessingType.NO_HEADER;

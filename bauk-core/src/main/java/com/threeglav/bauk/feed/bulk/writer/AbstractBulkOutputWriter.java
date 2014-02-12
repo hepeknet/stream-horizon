@@ -5,9 +5,9 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.bauk.model.FactFeed;
@@ -53,6 +53,9 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		}
 		bufferSize = (int) (ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.WRITE_BUFFER_SIZE_SYS_PARAM_NAME,
 				BaukEngineConfigurationConstants.DEFAULT_READ_WRITE_BUFFER_SIZE_MB) * BaukConstants.ONE_MEGABYTE);
+		if (bufferSize <= 0) {
+			throw new IllegalArgumentException("Writer buffer size must not be <= 0");
+		}
 		nullReplacementString = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME,
 				BaukEngineConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_DEFAULT);
 		log.info("Write buffer size is {} bytes", bufferSize);

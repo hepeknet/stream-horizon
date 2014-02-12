@@ -63,6 +63,9 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				BaukEngineConfigurationConstants.SQL_EXECUTION_WARNING_THRESHOLD_MILLIS);
 		batchSize = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
 				BaukEngineConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
+		if (batchSize <= 0) {
+			throw new IllegalArgumentException("JDBC batch size must not be <= 0");
+		}
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
 				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
@@ -74,7 +77,8 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private void validate(final int attributesNumber) {
 		final int occurenceOfPreparedStatementPlaceholders = StringUtils.countOccurrencesOf(insertStatement, "?");
 		if (attributesNumber != occurenceOfPreparedStatementPlaceholders) {
-			log.warn("Found {} occurrences of ? in statement {} but found {} declared attributes! This is probably error in configuration!",
+			log.warn(
+					"Found {} occurrences of ? in statement {} but found {} declared attributes! This is probably error in configuration! JDBC bulk loading might not work correctly!",
 					occurenceOfPreparedStatementPlaceholders, insertStatement, attributesNumber);
 		} else {
 			log.debug("{} has {} of ? - same as number of declared attributes", insertStatement, occurenceOfPreparedStatementPlaceholders);
@@ -176,7 +180,6 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private void doExecuteJdbcBatch(final boolean isCommit) {
 		try {
 			final long start = System.currentTimeMillis();
-			rowCounter = 0;
 			final int[] values = preparedStatement.executeBatch();
 			if (isDebugEnabled) {
 				int count = 0;
@@ -189,6 +192,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			if (total > warningThreshold) {
 				log.warn("It took more than {} to execute jdbc insert for bulk data. Statement is {}", warningThreshold, insertStatement);
 			}
+			rowCounter = 0;
 		} catch (final Exception e) {
 			try {
 				connection.rollback();
@@ -197,11 +201,12 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			}
 			log.error("Exception while inserting bulk values using jdbc", e);
 			if (isCommit) {
-				log.error("Exception caught while trying to commit and close all resources. Prepared statement was {}",
-						currentStatementWithReplacedValues);
+				log.error("Exception caught while trying to commit and close all resources. Prepared statement was {}. Current row counter is {}",
+						currentStatementWithReplacedValues, rowCounter);
 			} else {
-				log.error("Exception caught while trying to execute partial batch of {} (not commit). Prepared statement was {}", batchSize,
-						currentStatementWithReplacedValues);
+				log.error(
+						"Exception caught while trying to execute partial batch of {} (not commit). Prepared statement was {}. Current row counter is {}",
+						batchSize, currentStatementWithReplacedValues, rowCounter);
 			}
 			DataSourceProvider.close(preparedStatement);
 			throw new RuntimeException(e);
