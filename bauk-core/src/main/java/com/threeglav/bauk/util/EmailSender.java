@@ -12,7 +12,7 @@ public class EmailSender {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final String allErrorRecipients = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_RECIPIENTS_LIST, null);
+	private final String allErrorRecipients = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_RECIPIENTS_LIST_PARAM_NAME, null);
 
 	private final JavaMailSenderImpl mailSender;
 

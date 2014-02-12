@@ -70,11 +70,11 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final int FILE_POLLING_DELAY_MILLIS_DEFAULT = 1000;
 
-	public static final String FEED_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS = "feed.file.acceptance.timeout.millis";
+	public static final String FEED_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS_PARAM_NAME = "feed.file.acceptance.timeout.millis";
 
 	public static final int FEED_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT = 2000;
 
-	public static final String BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS = "bulk.file.acceptance.timeout.millis";
+	public static final String BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS_PARAM_NAME = "bulk.file.acceptance.timeout.millis";
 
 	public static final String BULK_FILE_RECORD_FILE_SUBMISSIONS = "bulk.file.record.submission.attempts";
 
@@ -96,12 +96,18 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String EMAIL_HOST_PORT_PARAM_NAME = "email.server.port";
 
-	public static final String EMAIL_RECIPIENTS_LIST = "processing.error.email.recipients";
+	public static final String EMAIL_RECIPIENTS_LIST_PARAM_NAME = "processing.error.email.recipients";
 
 	public static final String THROUGHPUT_TESTING_MODE_PARAM_NAME = "throughput.testing.mode";
 
 	public static final String DISABLE_DIMENSION_PRE_CACHING_PARAM_NAME = "dimension.precaching.disabled";
 
-	public static final String DELETE_BULK_LOADED_FILES = "bulk.delete.files.after.load";
+	public static final String DELETE_BULK_LOADED_FILES_PARAM_NAME = "bulk.delete.files.after.load";
+
+	// overriding properties defined in XSD
+
+	public static final String FEED_PROCESSING_THREADS_PARAM_NAME = "feedProcessingThreads";
+
+	public static final String BULK_PROCESSING_THREADS_PARAM_NAME = "bulkLoadProcessingThreads";
 
 }

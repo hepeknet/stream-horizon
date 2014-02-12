@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.threeglav.bauk.BaukConstants;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -36,12 +37,15 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
 		final InputStream is = this.createOrderedContent(5, true, 0, 0);
-		final int lineNum = tfrc.process(is, null);
+		final Map<String, String> globalAttrs = new HashMap<String, String>();
+		final int lineNum = tfrc.process(is, globalAttrs);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals(5, tfdp.lastLineNumber);
 		Assert.assertEquals("4,4,4,4,4", tfdp.lastLineContent);
 		Assert.assertEquals(5, lineNum);
+		Assert.assertEquals(1, globalAttrs.size());
+		Assert.assertNotNull(globalAttrs.get(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_FINISHED_TIMESTAMP));
 	}
 
 	@Test
@@ -53,7 +57,8 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
 		final InputStream is = this.createOrderedContent(5, true, 0, 1);
-		final int lineNum = tfrc.process(is, null);
+		final Map<String, String> globalAttrs = new HashMap<String, String>();
+		final int lineNum = tfrc.process(is, globalAttrs);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals(5, tfdp.lastLineNumber);
@@ -70,7 +75,8 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
 		final InputStream is = this.createOrderedContent(6, true, 0, 0);
-		final int lineNum = tfrc.process(is, null);
+		final Map<String, String> globalAttrs = new HashMap<String, String>();
+		final int lineNum = tfrc.process(is, globalAttrs);
 		Assert.assertEquals(6, tfdp.lines.size());
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals(6, tfdp.lastLineNumber);
@@ -87,7 +93,8 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
 		final InputStream is = this.createOrderedContent(6, true, 0, 3);
-		final int lineNum = tfrc.process(is, null);
+		final Map<String, String> globalAttrs = new HashMap<String, String>();
+		final int lineNum = tfrc.process(is, globalAttrs);
 		Assert.assertEquals(6, tfdp.lines.size());
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
 		Assert.assertEquals(6, tfdp.lastLineNumber);
@@ -104,7 +111,8 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
 		final InputStream is = this.createOrderedContent(5, false, 0, 0);
-		final int lineNum = tfrc.process(is, null);
+		final Map<String, String> globalAttrs = new HashMap<String, String>();
+		final int lineNum = tfrc.process(is, globalAttrs);
 		Assert.assertEquals(5, tfdp.lines.size());
 		Assert.assertEquals(5, tfdp.lastLineNumber);
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
@@ -121,7 +129,8 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
 		final InputStream is = this.createOrderedContent(5, false, 0, 0);
-		final int lineNum = tfrc.process(is, null);
+		final Map<String, String> globalAttrs = new HashMap<String, String>();
+		final int lineNum = tfrc.process(is, globalAttrs);
 		Assert.assertEquals(4, tfdp.lines.size());
 		Assert.assertEquals(4, tfdp.lastLineNumber);
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
@@ -138,7 +147,8 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertNull(tfdp.lastLineContent);
 		final InputStream is = this.createOrderedContent(4, true, 1, 0);
-		final int lineNum = tfrc.process(is, null);
+		final Map<String, String> globalAttrs = new HashMap<String, String>();
+		final int lineNum = tfrc.process(is, globalAttrs);
 		Assert.assertEquals(3, tfdp.lines.size());
 		Assert.assertEquals(3, tfdp.lastLineNumber);
 		Assert.assertEquals(1, tfdp.lastLineInvocations);
@@ -169,7 +179,7 @@ public class TextFileReaderComponentTest {
 		Assert.assertEquals(0, tfdp.lastLineNumber);
 		Assert.assertEquals(0, tfdp.lastLineInvocations);
 		Assert.assertNull(tfdp.lastLineContent);
-		Assert.assertEquals(5, attrs.size());
+		Assert.assertEquals(6, attrs.size());
 	}
 
 	private InputStream createOrderedContent(final int numOfLines, final boolean addFooter, final int footerSubtract,

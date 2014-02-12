@@ -27,7 +27,7 @@ public class BulkFilesHandler {
 	private int bulkProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
 	private final int bulkFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
-			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS,
+			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS_PARAM_NAME,
 			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
 
 	private final ExecutorService EXEC_SERVICE;
@@ -38,7 +38,8 @@ public class BulkFilesHandler {
 		this.factFeed = factFeed;
 		this.config = config;
 		if (factFeed.getThreadPoolSizes() != null) {
-			bulkProcessingThreads = factFeed.getThreadPoolSizes().getBulkLoadProcessingThreads();
+			bulkProcessingThreads = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BULK_PROCESSING_THREADS_PARAM_NAME,
+					factFeed.getThreadPoolSizes().getBulkLoadProcessingThreads());
 		}
 		log.debug("Will use {} threads to process bulk load files for {}", bulkProcessingThreads, factFeed.getName());
 		if (bulkProcessingThreads <= 0) {

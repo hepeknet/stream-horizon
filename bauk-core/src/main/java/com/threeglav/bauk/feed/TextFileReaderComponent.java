@@ -11,10 +11,10 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
-import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.bauk.header.DefaultHeaderParser;
@@ -88,8 +88,8 @@ public class TextFileReaderComponent extends ConfigAware {
 			log.info("Feed {} will be treated as control feed", this.getFactFeed().getName());
 		}
 		skipHeader = headerProcessingType == HeaderProcessingType.SKIP;
-		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
-				false);
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
 		if (outputProcessingStatistics) {
 			log.info("Will output processing statistics!");
 		}
@@ -256,6 +256,8 @@ public class TextFileReaderComponent extends ConfigAware {
 			if (isDebugEnabled) {
 				log.debug("Successfully processed {} lines in file", feedLinesNumber);
 			}
+			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_FINISHED_TIMESTAMP,
+					String.valueOf(System.currentTimeMillis()));
 			EngineRegistry.registerProcessedFeedRows(feedLinesNumber);
 			return feedLinesNumber;
 		} catch (final IOException ie) {

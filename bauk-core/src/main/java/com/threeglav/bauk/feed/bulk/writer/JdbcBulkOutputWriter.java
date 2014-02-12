@@ -11,9 +11,10 @@ import javax.sql.DataSource;
 
 import org.springframework.util.StringUtils;
 
+import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.EngineRegistry;
-import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dimension.db.DataSourceProvider;
 import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukAttributeType;
@@ -63,8 +64,8 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		batchSize = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME,
 				BaukEngineConfigurationConstants.JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT);
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
-		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME,
-				false);
+		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
 		dataSource = DataSourceProvider.getDataSource(this.getConfig());
 		statefulReplacer = new StatefulAttributeReplacer(insertStatement, this.getConfig().getDatabaseStringLiteral(), this.getConfig()
 				.getDatabaseStringEscapeLiteral());
@@ -113,6 +114,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void initialize(final Map<String, String> globalAttributes) {
 		this.initializePreparedStatement(globalAttributes);
+		globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_STARTED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 	}
 
 	@Override
@@ -132,7 +134,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				if (isDebugEnabled) {
 					log.debug("Executing jdbc batch of size {}", batchSize);
 				}
-				this.doExecuteJdbcBatch();
+				this.doExecuteJdbcBatch(false);
 			}
 			if (isDebugEnabled) {
 				log.debug("Successfully populated jdbc statement. Current row number {}", rowCounter);
@@ -152,18 +154,26 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (isDebugEnabled) {
 			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
 		}
-		this.doExecuteJdbcBatch();
-		DataSourceProvider.close(preparedStatement);
-		DataSourceProvider.close(connection);
-		EngineRegistry.registerSuccessfulBulkFileLoad();
-		if (outputProcessingStatistics) {
-			final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + EngineRegistry.getSuccessfulBulkFilesCount()
-					+ " files so far!";
-			BaukUtil.logBulkLoadEngineMessage(message);
+		try {
+			this.doExecuteJdbcBatch(true);
+			DataSourceProvider.close(preparedStatement);
+			DataSourceProvider.close(connection);
+			EngineRegistry.registerSuccessfulBulkFileLoad();
+			globalAttributes
+					.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_FINISHED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
+			if (outputProcessingStatistics) {
+				final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + EngineRegistry.getSuccessfulBulkFilesCount()
+						+ " files so far!";
+				BaukUtil.logBulkLoadEngineMessage(message);
+			}
+		} catch (final Exception exc) {
+			DataSourceProvider.close(preparedStatement);
+			DataSourceProvider.closeOnly(connection);
+			throw exc;
 		}
 	}
 
-	private void doExecuteJdbcBatch() {
+	private void doExecuteJdbcBatch(final boolean isCommit) {
 		try {
 			final long start = System.currentTimeMillis();
 			rowCounter = 0;
@@ -183,10 +193,16 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			try {
 				connection.rollback();
 			} catch (final Exception exc) {
-				log.error("Exception while performing rollback", exc);
+				log.error("Exception while performing rollback for batch loading", exc);
 			}
-			log.error("Exception while insert bulk values using jdbc", e);
-			log.error("Prepared statement was {}", currentStatementWithReplacedValues);
+			log.error("Exception while inserting bulk values using jdbc", e);
+			if (isCommit) {
+				log.error("Exception caught while trying to commit and close all resources. Prepared statement was {}",
+						currentStatementWithReplacedValues);
+			} else {
+				log.error("Exception caught while trying to execute partial batch of {} (not commit). Prepared statement was {}", batchSize,
+						currentStatementWithReplacedValues);
+			}
 			DataSourceProvider.close(preparedStatement);
 			throw new RuntimeException(e);
 		} finally {

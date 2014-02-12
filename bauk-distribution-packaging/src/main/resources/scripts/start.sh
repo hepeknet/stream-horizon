@@ -4,6 +4,7 @@ RESOLVED_HOME=$DIRNAME/../
 
 # first parameter - instance identifier
 # second parameter - heap size GB
+# third parameter - additional JVM parameters (added as standard JVM parameters -Dk=v) 
 
 BAUK_INSTANCE_ID="0"
 
@@ -13,6 +14,9 @@ if [ -n "$1" ]; then BAUK_INSTANCE_ID="$1"; fi
 heapSizeGb="4"
 
 if [ -n "$2" ]; then heapSizeGb="$2"; fi
+
+additionalJVMProperties=""
+if [ -n "$3" ]; then additionalJVMProperties="$3"; fi
 
 # where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/feedConfig.xml
 BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/feedConfig.xml"
@@ -26,7 +30,9 @@ GC_OPTS="-XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRe
 JAVA_OPTS="-server -d64 -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 JAVA_OPTS="$JAVA_OPTS -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
 JAVA_OPTS="$JAVA_OPTS -DBAUK_INSTANCE_ID=$BAUK_INSTANCE_ID"
+
 JAVA_OPTS="$GC_OPTS $JAVA_OPTS"
+JAVA_OPTS="$JAVA_OPTS $additionalJVMProperties "
 
 #JAVA_OPTS="$JAVA_OPTS -XX:NewSize=1G -XX:MaxNewSize=2G"
 

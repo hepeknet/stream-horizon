@@ -2,6 +2,7 @@
 
 rem first parameter - instance identifier
 rem second parameter - heap size GB
+rem third parameter - additional JVM parameters (added as standard JVM parameters -Dk=v) 
 
 set DIRNAME=.\
 
@@ -15,6 +16,8 @@ IF "%BAUK_INSTANCE_ID%"=="" set "BAUK_INSTANCE_ID=0"
 set "heapSizeGb=%2"
 if "%heapSizeGb%"=="" set "heapSizeGb=4"
 
+set "additionalJVMProperties=%~3"
+
 rem where config file is, if not specified then default one will be used
 set "BAUK_CONFIG_FILE_LOCATION=%RESOLVED_HOME%\config\feedConfig.xml"
 
@@ -27,7 +30,10 @@ rem set "GC_OPTS=%GC_OPTS% -verbose:gc "
 set "JAVA_OPTS=-server -d64 -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
 set "JAVA_OPTS=%JAVA_OPTS% -DBAUK_INSTANCE_ID=%BAUK_INSTANCE_ID%"
+
 set "JAVA_OPTS=%GC_OPTS% %JAVA_OPTS%"
+
+set "JAVA_OPTS=%JAVA_OPTS% %additionalJVMProperties% "
 
 rem set "JAVA_OPTS=%JAVA_OPTS% -XX:NewSize=1G -XX:MaxNewSize=2G"
 
