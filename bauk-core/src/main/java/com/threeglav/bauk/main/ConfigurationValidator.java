@@ -285,7 +285,11 @@ class ConfigurationValidator {
 		attrs.add(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION);
 		final StringBuilder sb = new StringBuilder("\n\n========================================================");
 		sb.append("\n\n");
-		sb.append("Implicitly available attributes are:");
+		sb.append("Implicitly available attributes are added by engine during processing and can be used in configuration.");
+		sb.append("\n");
+		sb.append("Attributes named feed* are related to input feed processing, attributes named bulk* are related to bulk data processing (file or jdbc)");
+		sb.append("\n\n");
+		sb.append("All implicitly available attributes are:");
 		sb.append("\n\n");
 		sb.append(attrs);
 		sb.append("\n\n");
