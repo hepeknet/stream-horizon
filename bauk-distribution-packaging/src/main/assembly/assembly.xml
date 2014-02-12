@@ -14,7 +14,7 @@
 			<fileMode>777</fileMode>
 			<lineEnding>unix</lineEnding>
 			<includes>
-				<include>start.sh</include>
+				<include>*.sh</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -23,7 +23,7 @@
 			<fileMode>777</fileMode>
 			<lineEnding>windows</lineEnding>
 			<includes>
-				<include>start.bat</include>
+				<include>*.bat</include>
 			</includes>
 		</fileSet>
 		<fileSet>
