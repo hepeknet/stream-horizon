@@ -147,6 +147,10 @@ public abstract class ConfigurationProperties {
 		return getApplicationHome() + BaukEngineConfigurationConstants.WEB_APPS_FOLDER_NAME;
 	}
 
+	public static String getBaukInstanceIdentifier() {
+		return System.getProperty(BaukEngineConfigurationConstants.BAUK_INSTANCE_ID_PARAM_NAME);
+	}
+
 	public static String getDbDataFolder() {
 		final String fullFolderPath = getApplicationHome() + BaukEngineConfigurationConstants.DB_DATA_FOLDER;
 		final File dir = new File(fullFolderPath);

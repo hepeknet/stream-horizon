@@ -104,6 +104,12 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String DELETE_BULK_LOADED_FILES_PARAM_NAME = "bulk.delete.files.after.load";
 
+	public static final String BAUK_INSTANCE_ID_PARAM_NAME = "BAUK_INSTANCE_ID";
+
+	// partitioning - multiple instances
+
+	public static final String MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME = "multi.instance.total.partition.count";
+
 	// overriding properties defined in XSD
 
 	public static final String FEED_PROCESSING_THREADS_PARAM_NAME = "feedProcessingThreads";

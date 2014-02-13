@@ -65,7 +65,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		log.debug("Current processing id is {}", processorId);
 		final String insertStatement = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsertStatement();
 		if (StringUtil.isEmpty(insertStatement)) {
-			throw new IllegalStateException("Could not find insert statement for bulk loading files!");
+			throw new IllegalStateException("Could not find insert statement for bulk loading files - for feed " + this.getFactFeed().getName() + "!");
 		}
 		bulkLoadStatement = insertStatement;
 		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();

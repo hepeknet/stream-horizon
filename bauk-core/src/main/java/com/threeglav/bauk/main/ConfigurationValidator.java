@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
@@ -57,6 +59,27 @@ class ConfigurationValidator {
 			this.validateFactFeed(ff);
 		}
 		this.checkValidityOfAttributes();
+		final String baukInstanceIdentifier = ConfigurationProperties.getBaukInstanceIdentifier();
+		if (StringUtil.isEmpty(baukInstanceIdentifier)) {
+			log.warn(
+					"Could not find uniquely set system property {}. Every bauk instance should have uniquely set integer identifier (starting from 0)",
+					BaukEngineConfigurationConstants.BAUK_INSTANCE_ID_PARAM_NAME);
+		} else {
+			try {
+				final int baukInstanceId = Integer.parseInt(baukInstanceIdentifier);
+				if (baukInstanceId < 0) {
+					log.warn(
+							"Every bauk instance should have uniquely set non-negative integer identifier (starting from 0). Currently set value is [{}] is not valid",
+							baukInstanceId);
+				} else {
+					log.info("Unique bauk instance identifier is {}", baukInstanceId);
+				}
+			} catch (final Exception exc) {
+				log.warn(
+						"Every bauk instance should have uniquely set non-negative integer identifier (starting from 0). Currently set value is [{}] - it could not be converted into integer",
+						baukInstanceIdentifier);
+			}
+		}
 	}
 
 	private void validateFactFeed(final FactFeed ff) {

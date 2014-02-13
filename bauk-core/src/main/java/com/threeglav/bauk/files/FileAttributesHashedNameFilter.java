@@ -12,6 +12,8 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.util.StringUtil;
 
 public final class FileAttributesHashedNameFilter implements DirectoryStream.Filter<Path> {
@@ -24,6 +26,9 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 	private final boolean isDebugEnabled;
 	private final long fileAcceptanceTimeoutMillis;
 	private final Pattern pattern;
+	private final boolean partitionedMultiInstanceProcessing;
+	private int totalMultipleInstances;
+	private int currentInstanceIdentifier;
 
 	public FileAttributesHashedNameFilter(final String fileMask, final int orderNum, final int totalNumberOfThreads,
 			final int fileAcceptanceTimeoutMillis) {
@@ -35,10 +40,37 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 		}
 		this.fileMask = fileMask;
 		pattern = Pattern.compile(fileMask);
-		this.myThreadProcessingIdentifier = orderNum;
-		this.totalNumberOfFileProcessingThreads = totalNumberOfThreads;
+		myThreadProcessingIdentifier = orderNum;
+		totalNumberOfFileProcessingThreads = totalNumberOfThreads;
 		this.fileAcceptanceTimeoutMillis = fileAcceptanceTimeoutMillis;
 		isDebugEnabled = log.isDebugEnabled();
+		partitionedMultiInstanceProcessing = this.checkPartitionedMultipleInstances();
+	}
+
+	private boolean checkPartitionedMultipleInstances() {
+		final int totalPartitionsCount = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME, -1);
+		if (totalPartitionsCount > 0) {
+			final String currentBaukInstanceIdentifier = ConfigurationProperties.getBaukInstanceIdentifier();
+			if (!StringUtil.isEmpty(currentBaukInstanceIdentifier)) {
+				int currentBaukInstance = -1;
+				try {
+					currentBaukInstance = Integer.parseInt(currentBaukInstanceIdentifier);
+				} catch (final Exception exc) {
+					currentBaukInstance = -1;
+					// ignored
+				}
+				if (currentBaukInstance > 0 && currentBaukInstance < totalPartitionsCount) {
+					log.info("Configured to partition work among multiple instances. Current bauk instance id {}, total instances {}",
+							currentBaukInstance, totalPartitionsCount);
+					totalMultipleInstances = totalPartitionsCount;
+					currentInstanceIdentifier = currentBaukInstance;
+					return true;
+				}
+			}
+		}
+		log.info("Not configured to partition work among multiple instances.");
+		return false;
 	}
 
 	@Override
@@ -50,6 +82,21 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 				log.debug("{} does not match pattern {}. Skipping", fileName, fileMask);
 			}
 			return false;
+		}
+		if (partitionedMultiInstanceProcessing) {
+			if (isDebugEnabled) {
+				log.debug("Multi instance partitioning enabled. Will check if file belongs to me!");
+			}
+			final int fileNameHash = fileName.hashCode();
+			final int hashMod = fileNameHash % totalMultipleInstances;
+			if (hashMod == currentInstanceIdentifier) {
+				log.info("File {} belongs to me", fileName);
+			} else {
+				if (isDebugEnabled) {
+					log.debug("File {} does not belong to me. Some other instance will process it", fileName);
+				}
+				return false;
+			}
 		}
 		BasicFileAttributes bfa = null;
 		try {
@@ -92,7 +139,8 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 		final int res = hash % totalNumberOfFileProcessingThreads;
 		final boolean hashesMatch = (res == myThreadProcessingIdentifier);
 		if (isDebugEnabled) {
-			log.debug("Checking if ({} % {} = {}) == {}", new Object[] { hash, totalNumberOfFileProcessingThreads, res, myThreadProcessingIdentifier });
+			log.debug("Checking if ({} % {} = {}) == {}",
+					new Object[] { hash, totalNumberOfFileProcessingThreads, res, myThreadProcessingIdentifier });
 		}
 		if (!hashesMatch) {
 			if (isDebugEnabled) {
