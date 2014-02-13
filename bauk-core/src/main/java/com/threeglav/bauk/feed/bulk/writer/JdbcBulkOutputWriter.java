@@ -138,7 +138,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				if (isDebugEnabled) {
 					log.debug("Executing jdbc batch of size {}", batchSize);
 				}
-				this.doExecuteJdbcBatch(false);
+				this.doExecuteJdbcBatch();
 			}
 			if (isDebugEnabled) {
 				log.debug("Successfully populated jdbc statement. Current row number {}", rowCounter);
@@ -159,9 +159,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
 		}
 		try {
-			this.doExecuteJdbcBatch(true);
-			DataSourceProvider.close(preparedStatement);
-			DataSourceProvider.close(connection);
+			this.doExecuteJdbcBatch();
 			EngineRegistry.registerSuccessfulBulkFileLoad();
 			globalAttributes
 					.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_FINISHED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
@@ -170,17 +168,17 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 						+ " files so far!";
 				BaukUtil.logBulkLoadEngineMessage(message);
 			}
-		} catch (final Exception exc) {
+		} finally {
 			DataSourceProvider.close(preparedStatement);
 			DataSourceProvider.closeOnly(connection);
-			throw exc;
 		}
 	}
 
-	private void doExecuteJdbcBatch(final boolean isCommit) {
+	private void doExecuteJdbcBatch() {
 		try {
 			final long start = System.currentTimeMillis();
 			final int[] values = preparedStatement.executeBatch();
+			connection.commit();
 			if (isDebugEnabled) {
 				int count = 0;
 				for (int i = 0; i < values.length; i++) {
@@ -200,15 +198,10 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				log.error("Exception while performing rollback for batch loading", exc);
 			}
 			log.error("Exception while inserting bulk values using jdbc", e);
-			if (isCommit) {
-				log.error("Exception caught while trying to commit and close all resources. Prepared statement was {}. Current row counter is {}",
-						currentStatementWithReplacedValues, rowCounter);
-			} else {
-				log.error(
-						"Exception caught while trying to execute partial batch of {} (not commit). Prepared statement was {}. Current row counter is {}",
-						batchSize, currentStatementWithReplacedValues, rowCounter);
-			}
+			log.error("Exception caught while trying to commit and close all resources. Prepared statement was {}. Current row counter is {}",
+					currentStatementWithReplacedValues, rowCounter);
 			DataSourceProvider.close(preparedStatement);
+			DataSourceProvider.closeOnly(connection);
 			throw new RuntimeException(e);
 		} finally {
 			try {

@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.threeglav.bauk</groupId>
 		<artifactId>bauk</artifactId>
-		<version>0.0.14</version>
+		<version>0.0.15</version>
 	</parent>
 	<artifactId>bauk-distribution-packaging</artifactId>
 	<packaging>pom</packaging>
