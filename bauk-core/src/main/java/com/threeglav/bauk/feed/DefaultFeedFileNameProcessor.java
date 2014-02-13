@@ -38,4 +38,8 @@ public class DefaultFeedFileNameProcessor implements FeedFileNameProcessor {
 		return parsedFeedFileNameAttributes;
 	}
 
+	@Override
+	public void init(final Map<String, String> engineConfigurationProperties) {
+	}
+
 }

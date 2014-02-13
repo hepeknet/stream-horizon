@@ -1,8 +1,10 @@
 package com.threeglav.bauk.feed;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.threeglav.bauk.ConfigAware;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukConfiguration;
@@ -58,6 +60,14 @@ public final class FeedParserComponent extends ConfigAware {
 			log.debug("Will check validity of every line in feed by comparing first value in every line with [{}]", firstStringInEveryLine);
 		}
 		feedDataLineProcessor = this.resolveFeedProcessor();
+		if (feedDataLineProcessor != null) {
+			try {
+				feedDataLineProcessor.init(ConfigurationProperties.getEngineConfigurationProperties());
+			} catch (final Exception exc) {
+				log.error("Exception while initializing custom feed data line processor {}", feedDataLineProcessor);
+				throw exc;
+			}
+		}
 	}
 
 	private FeedDataLineProcessor resolveFeedProcessor() {
@@ -108,13 +118,19 @@ public final class FeedParserComponent extends ConfigAware {
 		}
 	}
 
-	public String[] parseData(final String line) {
+	public String[] parseData(final String line, final Map<String, String> globalAttributes) {
 		final String[] parsed = feedParser.parse(line);
 		if (checkEveryLineValidity) {
 			this.checkDataLineIsValidAndSetToNull(parsed);
 		}
-		if (feedDataLineProcessor != null) {
-			return feedDataLineProcessor.preProcessDataLine(parsed);
+		try {
+			if (feedDataLineProcessor != null) {
+				return feedDataLineProcessor.preProcessDataLine(parsed, globalAttributes);
+			}
+		} catch (final Exception exc) {
+			log.error("Exception caught while invoking customized data line processor. Passed line [{}], global attributes {}. Details {}", line,
+					globalAttributes, exc.getMessage());
+			throw exc;
 		}
 		return parsed;
 	}

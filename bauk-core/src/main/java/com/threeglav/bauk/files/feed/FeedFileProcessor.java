@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
 import com.threeglav.bauk.BaukConstants;
-import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.BaukEngineConfigurationConstants;
+import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.command.BaukCommandsExecutor;
 import com.threeglav.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.bauk.feed.BeforeFeedProcessingProcessor;
@@ -68,8 +68,7 @@ public class FeedFileProcessor implements FileProcessor {
 	private FileProcessingErrorHandler moveToArchiveFileProcessor;
 	private final boolean executeRollbackSequence;
 	private final BaukCommandsExecutor baukCommandsExec;
-	private final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
-			BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
+	private final boolean throughputTestingMode;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -103,6 +102,7 @@ public class FeedFileProcessor implements FileProcessor {
 		executeRollbackSequence = factFeed.getOnFeedProcessingFailure() != null && !factFeed.getOnFeedProcessingFailure().isEmpty();
 		log.info("Will execute rollback commands for feed {} = {}", factFeed.getName(), executeRollbackSequence);
 		baukCommandsExec = new BaukCommandsExecutor(factFeed, config);
+		throughputTestingMode = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 	}
 
 	@Override
@@ -157,6 +157,15 @@ public class FeedFileProcessor implements FileProcessor {
 		final CustomProcessorResolver<FeedFileNameProcessor> feedFileNameProcessorInstanceResolver = new CustomProcessorResolver<>(
 				feedFileNameProcessorClassName, FeedFileNameProcessor.class);
 		feedFileNameProcessor = feedFileNameProcessorInstanceResolver.resolveInstance();
+		if (feedFileNameProcessor != null) {
+			try {
+				feedFileNameProcessor.init(ConfigurationProperties.getEngineConfigurationProperties());
+			} catch (final Exception exc) {
+				log.error("Exception while trying to initialize custom feed file name processor {}. Details {}", feedFileNameProcessor,
+						exc.getMessage());
+				throw exc;
+			}
+		}
 	}
 
 	private void validate() {
@@ -245,12 +254,8 @@ public class FeedFileProcessor implements FileProcessor {
 		}
 	}
 
-	private String getOutputFilePath(final String inputFileName) {
-		if (isDebugEnabled) {
-			log.debug("Will use {} file extension for bulk files", fileExtension);
-		}
-		return config.getBulkOutputDirectory() + "/" + factFeed.getName() + "_" + StringUtil.getFileNameWithoutExtension(inputFileName) + "."
-				+ fileExtension;
+	private String getBulkOutputFileName(final String inputFeedFileName) {
+		return factFeed.getName() + "_" + StringUtil.getFileNameWithoutExtension(inputFeedFileName) + "." + fileExtension;
 	}
 
 	private void clearImplicitAttributes() {
@@ -266,11 +271,17 @@ public class FeedFileProcessor implements FileProcessor {
 		final Map<String, String> attributes = implicitAttributes;
 		final String fileNameOnly = file.getFileNameOnly();
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FILE_NAME, fileNameOnly);
-		final Map<String, String> parsedAttributesFromFeedFileName = feedFileNameProcessor.parseFeedFileName(fileNameOnly);
-		if (parsedAttributesFromFeedFileName != null && !parsedAttributesFromFeedFileName.isEmpty()) {
-			attributes.putAll(parsedAttributesFromFeedFileName);
-		} else {
-			log.info("Null or empty attributes returned by feed file name parser!");
+		try {
+			final Map<String, String> parsedAttributesFromFeedFileName = feedFileNameProcessor.parseFeedFileName(fileNameOnly);
+			if (parsedAttributesFromFeedFileName != null && !parsedAttributesFromFeedFileName.isEmpty()) {
+				attributes.putAll(parsedAttributesFromFeedFileName);
+			} else {
+				log.info("Null or empty attributes returned by feed file name parser!");
+			}
+		} catch (final Exception exc) {
+			log.error("Exception while parsing feed file name using processor. Passed feed file name is {}. Details {}", fileNameOnly,
+					exc.getMessage());
+			throw exc;
 		}
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH, file.getFullFilePath());
 		final DateTime fileLastModified = new DateTime(file.getLastModifiedTime(), DEFAULT_CHRONOLOGY);
@@ -280,7 +291,10 @@ public class FeedFileProcessor implements FileProcessor {
 		final DateTime now = new DateTime(DEFAULT_CHRONOLOGY);
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getMillis());
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, DATE_FORMATTER.print(now));
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, this.getOutputFilePath(fileNameOnly));
+		final String bulkOutputFileNameOnly = this.getBulkOutputFileName(fileNameOnly);
+		final String bulkOutputFileFullPath = config.getBulkOutputDirectory() + "/" + bulkOutputFileNameOnly;
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, bulkOutputFileNameOnly);
+		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, bulkOutputFileFullPath);
 		if (isDebugEnabled) {
 			log.debug("Created global attributes {}", attributes);
 		}

@@ -11,8 +11,8 @@ import java.util.Map;
 public interface HeaderParser {
 
 	/**
-	 * Invoked after parsers has been created. Values provided here will most probably be needed to parse header line.
-	 * This method is invoked only once and before any processing is done.
+	 * Invoked once, immediately after parser instance has been created. Values provided here will most probably be
+	 * needed to parse header line. This method is invoked only once and before any processing is done.
 	 * 
 	 * @param configuredHeaderStartsWithString
 	 *            read from configuration file. String with which header line should start with

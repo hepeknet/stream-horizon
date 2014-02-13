@@ -18,4 +18,16 @@ public class CustomFeedFileNameProcessor implements FeedFileNameProcessor {
 		attributes.put("myCustomAttribute", "myCustomValue");
 		return attributes;
 	}
+	
+	/**
+	 * Invoked once, after processor has been created. This method is invoked only once and before any processing is
+	 * done and should be used to initialize processor.
+	 * 
+	 * @param engineConfigurationProperties
+	 *            configuration properties supplied to engine at startup
+	 */
+	@Override
+	public void init(final Map<String, String> engineConfigurationProperties) {
+	}
+	
 }
