@@ -33,6 +33,9 @@ public class Dimension {
 	@XmlAttribute(required = false)
 	private String cacheKeyPerFeedInto;
 
+	@XmlAttribute(required = false)
+	private Boolean cachePerThreadEnabled = Boolean.TRUE;
+
 	@XmlElement(required = false, defaultValue = "" + BaukEngineConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT)
 	private Integer localCacheMaxSize;
 
@@ -93,6 +96,14 @@ public class Dimension {
 
 	public void setExposeLastLineValueInContext(final Boolean exposeLastLineValueInContext) {
 		this.exposeLastLineValueInContext = exposeLastLineValueInContext;
+	}
+
+	public Boolean getCachePerThreadEnabled() {
+		return cachePerThreadEnabled;
+	}
+
+	public void setCachePerThreadEnabled(final Boolean cachePerThreadEnabled) {
+		this.cachePerThreadEnabled = cachePerThreadEnabled;
 	}
 
 	/*

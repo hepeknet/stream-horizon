@@ -79,7 +79,7 @@ public class BaukApplication {
 					CONFIG_FILE_PROP_NAME);
 			BaukUtil.logEngineMessage("Unable to find valid configuration file! Check your startup scripts and make sure system property "
 					+ CONFIG_FILE_PROP_NAME + " points to valid feed configuration file. Aborting!");
-			return;
+			System.exit(-1);
 		}
 		// sleep forever
 		while (true) {

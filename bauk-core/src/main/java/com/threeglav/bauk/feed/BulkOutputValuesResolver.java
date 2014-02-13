@@ -172,9 +172,17 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
 			final DimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
 			if (cachedDimensionHandler != null) {
-				final CachePreviouslyUsedValuesPerThreadDimensionHandler proxyDimHandler = new CachePreviouslyUsedValuesPerThreadDimensionHandler(
-						cachedDimensionHandler);
-				outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
+				final boolean cachePerThreadEnabled = cachedDimensionHandler.getDimension().getCachePerThreadEnabled();
+				if (cachePerThreadEnabled) {
+					final CachePreviouslyUsedValuesPerThreadDimensionHandler proxyDimHandler = new CachePreviouslyUsedValuesPerThreadDimensionHandler(
+							cachedDimensionHandler);
+					log.debug("For dimension {} caching per thread is enabled!");
+					outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
+				} else {
+					outputValueHandlers[bulkHandlerPosition] = cachedDimensionHandler;
+					log.debug("For dimension {} caching per thread is disabled!");
+				}
+
 			} else {
 				throw new IllegalStateException("Was not able to find previously cached dimension handler for " + requiredDimensionName);
 			}

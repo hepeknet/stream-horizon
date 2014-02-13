@@ -9,10 +9,10 @@ import org.springframework.dao.DuplicateKeyException;
 
 import com.codahale.metrics.Counter;
 import com.threeglav.bauk.BaukConstants;
+import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.ConfigurationProperties;
-import com.threeglav.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.bauk.dimension.cache.CacheInstance;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.Dimension;
@@ -100,7 +100,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		}
 	}
 
-	Dimension getDimension() {
+	public Dimension getDimension() {
 		return dimension;
 	}
 
