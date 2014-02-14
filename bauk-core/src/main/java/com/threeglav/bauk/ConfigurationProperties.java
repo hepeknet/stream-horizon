@@ -160,4 +160,28 @@ public abstract class ConfigurationProperties {
 		return fullFolderPath;
 	}
 
+	public static boolean isConfiguredPartitionedMultipleInstances() {
+		final int totalPartitionsCount = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME, -1);
+		if (totalPartitionsCount > 0) {
+			final String currentBaukInstanceIdentifier = ConfigurationProperties.getBaukInstanceIdentifier();
+			if (!StringUtil.isEmpty(currentBaukInstanceIdentifier)) {
+				int currentBaukInstance = -1;
+				try {
+					currentBaukInstance = Integer.parseInt(currentBaukInstanceIdentifier);
+				} catch (final Exception exc) {
+					currentBaukInstance = -1;
+					// ignored
+				}
+				if (currentBaukInstance > 0 && currentBaukInstance < totalPartitionsCount) {
+					LOG.info("Configured to partition work among multiple instances. Current bauk instance id {}, total instances {}",
+							currentBaukInstance, totalPartitionsCount);
+					return true;
+				}
+			}
+		}
+		LOG.info("Not configured to partition work among multiple instances.");
+		return false;
+	}
+
 }

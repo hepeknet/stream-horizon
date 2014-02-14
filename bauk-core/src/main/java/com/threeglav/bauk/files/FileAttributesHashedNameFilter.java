@@ -44,33 +44,12 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 		totalNumberOfFileProcessingThreads = totalNumberOfThreads;
 		this.fileAcceptanceTimeoutMillis = fileAcceptanceTimeoutMillis;
 		isDebugEnabled = log.isDebugEnabled();
-		partitionedMultiInstanceProcessing = this.checkPartitionedMultipleInstances();
-	}
-
-	private boolean checkPartitionedMultipleInstances() {
-		final int totalPartitionsCount = ConfigurationProperties.getSystemProperty(
-				BaukEngineConfigurationConstants.MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME, -1);
-		if (totalPartitionsCount > 0) {
-			final String currentBaukInstanceIdentifier = ConfigurationProperties.getBaukInstanceIdentifier();
-			if (!StringUtil.isEmpty(currentBaukInstanceIdentifier)) {
-				int currentBaukInstance = -1;
-				try {
-					currentBaukInstance = Integer.parseInt(currentBaukInstanceIdentifier);
-				} catch (final Exception exc) {
-					currentBaukInstance = -1;
-					// ignored
-				}
-				if (currentBaukInstance > 0 && currentBaukInstance < totalPartitionsCount) {
-					log.info("Configured to partition work among multiple instances. Current bauk instance id {}, total instances {}",
-							currentBaukInstance, totalPartitionsCount);
-					totalMultipleInstances = totalPartitionsCount;
-					currentInstanceIdentifier = currentBaukInstance;
-					return true;
-				}
-			}
+		partitionedMultiInstanceProcessing = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
+		if (partitionedMultiInstanceProcessing) {
+			totalMultipleInstances = ConfigurationProperties.getSystemProperty(
+					BaukEngineConfigurationConstants.MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME, -1);
+			currentInstanceIdentifier = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BAUK_INSTANCE_ID_PARAM_NAME, -1);
 		}
-		log.info("Not configured to partition work among multiple instances.");
-		return false;
 	}
 
 	@Override

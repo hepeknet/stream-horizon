@@ -26,10 +26,18 @@ public class RemotingServer {
 	private Server server;
 
 	public void start() {
-		final int port = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.REMOTING_SERVER_PORT_PARAM_NAME,
+		int port = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.REMOTING_SERVER_PORT_PARAM_NAME,
 				BaukEngineConfigurationConstants.REMOTING_SERVER_PORT_DEFAULT);
 		if (port <= 0) {
+			log.info("Port set to <= 0. Will not start remoting server!");
 			return;
+		}
+		final boolean partitionedMultiInstanceProcessing = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
+		if (partitionedMultiInstanceProcessing) {
+			final int currentInstanceId = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BAUK_INSTANCE_ID_PARAM_NAME, -1);
+			log.debug("Increasing port for this instance by {}", currentInstanceId);
+			port += currentInstanceId;
+			log.info("Running in multiple-instance environment. Will adjust port for every instance. For this instance adjusted port to {}", port);
 		}
 		log.debug("Starting jetty server on port {}", port);
 		server = new Server(port);
