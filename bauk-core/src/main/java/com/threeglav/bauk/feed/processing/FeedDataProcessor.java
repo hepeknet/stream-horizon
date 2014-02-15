@@ -10,6 +10,6 @@ public interface FeedDataProcessor {
 
 	void processLastLine(final String line, final Map<String, String> globalAttributes);
 
-	void closeFeed(int expectedResults, final Map<String, String> globalAttributes);
+	void closeFeed(int expectedResults, final Map<String, String> globalAttributes, boolean success);
 
 }

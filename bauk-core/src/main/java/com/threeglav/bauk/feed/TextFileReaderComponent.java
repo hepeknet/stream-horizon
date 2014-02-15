@@ -163,6 +163,7 @@ public class TextFileReaderComponent extends ConfigAware {
 					}
 				} catch (final Exception exc) {
 					log.error("Exception while parsing header values! Header attributes will not be available!", exc);
+					throw exc;
 				}
 			} else if (isDebugEnabled) {
 				log.debug("Skipping header line {} for feed {}", line, this.getFactFeed().getName());
@@ -231,6 +232,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		final BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream), bufferSize);
 		int feedLinesNumber = 0;
 		String footerLine = null;
+		boolean success = false;
 		try {
 			final LineBuffer lineBuffer = new LineBuffer();
 			this.fillBuffer(lineBuffer, br);
@@ -261,23 +263,30 @@ public class TextFileReaderComponent extends ConfigAware {
 			}
 			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_FINISHED_TIMESTAMP,
 					String.valueOf(System.currentTimeMillis()));
-			EngineRegistry.registerProcessedFeedRows(feedLinesNumber);
+			success = true;
 			return feedLinesNumber;
 		} catch (final IOException ie) {
 			log.error("IOException while processing feed", ie);
 			throw new IllegalStateException("IOException while processing feed. Total lines processed so far " + feedLinesNumber, ie);
 		} catch (final Exception exc) {
 			log.error("Exception while processing feed", exc);
-			EngineRegistry.registerFailedFeedFile();
 			throw new RuntimeException("Exception while processing feed. Total lines processed so far " + feedLinesNumber, exc);
 		} finally {
-			feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes);
-			this.outputFeedProcessingStatistics(feedLinesNumber, start);
-			if (processAndValidateFooter) {
-				this.processFooter(feedLinesNumber, footerLine);
+			try {
+				if (processAndValidateFooter) {
+					this.processFooter(feedLinesNumber, footerLine);
+				}
+			} catch (final Exception exc) {
+				success = false;
+				throw exc;
+			} finally {
+				feedDataProcessor.closeFeed(feedLinesNumber, globalAttributes, success);
+				if (success) {
+					this.outputFeedProcessingStatistics(feedLinesNumber, start);
+				}
+				IOUtils.closeQuietly(br);
+				IOUtils.closeQuietly(fileInputStream);
 			}
-			IOUtils.closeQuietly(br);
-			IOUtils.closeQuietly(fileInputStream);
 		}
 	}
 
@@ -356,7 +365,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			final Integer footerIntValue = Integer.parseInt(footerParsedValues[footerRecordCountPosition]);
 			if (feedLinesNumber != footerIntValue) {
 				throw new IllegalStateException("Footer value " + footerIntValue + " does not match with total number of processed lines "
-						+ feedLinesNumber);
+						+ feedLinesNumber + ". Feed name is [" + this.getFactFeed().getName() + "].");
 			}
 		} catch (final NumberFormatException nfe) {
 			throw new IllegalStateException("Footer value [" + footerParsedValues[footerRecordCountPosition]
@@ -374,7 +383,14 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	public int process(final InputStream inputStream, final Map<String, String> globalAttributes) {
-		return this.readFile(inputStream, globalAttributes);
+		try {
+			final int feedLineNum = this.readFile(inputStream, globalAttributes);
+			EngineRegistry.registerProcessedFeedRows(feedLineNum);
+			return feedLineNum;
+		} catch (final Exception exc) {
+			EngineRegistry.registerFailedFeedFile();
+			throw exc;
+		}
 	}
 
 }

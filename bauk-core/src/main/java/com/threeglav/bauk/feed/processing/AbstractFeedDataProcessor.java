@@ -65,11 +65,11 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	}
 
 	@Override
-	public void closeFeed(final int expectedResults, final Map<String, String> globalAttributes) {
-		bulkOutputWriter.closeResources(globalAttributes);
+	public void closeFeed(final int expectedResults, final Map<String, String> globalAttributes, final boolean success) {
+		bulkOutputWriter.closeResources(globalAttributes, success);
 		bulkoutputResolver.closeCurrentFeed();
 		if (isDebugEnabled) {
-			log.debug("Closed feed. Expected results {}", expectedResults);
+			log.debug("Closed feed.");
 		}
 	}
 

@@ -57,11 +57,15 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	@Override
-	public void closeResources(final Map<String, String> globalAttributes) {
+	public void closeResources(final Map<String, String> globalAttributes, final boolean success) {
 		IOUtils.closeQuietly(writer);
 		writer = null;
-		this.renameTemporaryBulkOutputFile();
-		this.renameOutputFile(finalBulkOutputFilePath, globalAttributes);
+		if (success) {
+			this.renameTemporaryBulkOutputFile();
+			this.renameOutputFile(finalBulkOutputFilePath, globalAttributes);
+		} else {
+			this.deleteTemporaryBulkOutputFile();
+		}
 		finalBulkOutputFilePath = null;
 		temporaryBulkOutputFilePath = null;
 	}

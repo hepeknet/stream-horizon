@@ -9,7 +9,7 @@ public final class NullBulkOutputWriter implements BulkOutputWriter {
 	}
 
 	@Override
-	public void closeResources(final Map<String, String> globalAttributes) {
+	public void closeResources(final Map<String, String> globalAttributes, final boolean success) {
 	}
 
 	@Override

@@ -92,7 +92,7 @@ public class BaukTestSetupUtil {
 
 	public void stopBaukInstance() throws Exception {
 		BaukApplication.shutdown();
-		execService.shutdownNow();
+		execService.shutdown();
 	}
 
 	private static void insertInitialData() throws Exception {
@@ -123,6 +123,14 @@ public class BaukTestSetupUtil {
 		stat.close();
 		conn.close();
 		return results;
+	}
+
+	public static void deleteDataFromFactTable() throws Exception {
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("delete from TEST_FACT");
+		stat.close();
+		conn.close();
 	}
 
 	private static void dropAndCreateTables() throws Exception {

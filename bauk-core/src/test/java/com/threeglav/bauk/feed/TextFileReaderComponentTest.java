@@ -262,7 +262,7 @@ public class TextFileReaderComponentTest {
 		}
 
 		@Override
-		public void closeFeed(final int expectedResults, final Map<String, String> globalAttributes) {
+		public void closeFeed(final int expectedResults, final Map<String, String> globalAttributes, final boolean success) {
 
 		}
 

@@ -69,6 +69,14 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		FileUtil.moveFile(originalPath, destinationPath);
 	}
 
+	protected void deleteTemporaryBulkOutputFile() {
+		final File temp = new File(temporaryBulkOutputFilePath);
+		if (isDebugEnabled) {
+			log.debug("Deleting temporary bulk output file {}", temporaryBulkOutputFilePath);
+		}
+		temp.delete();
+	}
+
 	private void validate() {
 		final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
 		if (this.getFactFeed().getBulkLoadDefinition().getOutputType() == BulkLoadDefinitionOutputType.NONE

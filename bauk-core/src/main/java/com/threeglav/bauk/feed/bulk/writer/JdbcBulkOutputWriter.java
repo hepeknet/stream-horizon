@@ -166,7 +166,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	@Override
-	public void closeResources(final Map<String, String> globalAttributes) {
+	public void closeResources(final Map<String, String> globalAttributes, final boolean success) {
 		if (preparedStatement == null) {
 			throw new IllegalStateException("Prepared statement is null! Should not happen!");
 		}

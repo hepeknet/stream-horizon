@@ -113,8 +113,8 @@ public final class FeedParserComponent extends ConfigAware {
 		if (parsed[0].equals(firstStringInEveryLine)) {
 			parsed[0] = null;
 		} else {
-			throw new IllegalStateException("Failed to validate feed data line. Expected " + firstStringInEveryLine + " but got " + parsed[0]
-					+ " instead!");
+			throw new IllegalStateException("Failed to validate feed data line. Expected first element to be [" + firstStringInEveryLine
+					+ "] but got [" + parsed[0] + "] instead! Change your configuration or data format!");
 		}
 	}
 
