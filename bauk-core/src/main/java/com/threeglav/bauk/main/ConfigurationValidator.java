@@ -202,12 +202,13 @@ class ConfigurationValidator {
 				}
 			}
 		}
-		if (ff.getBulkLoadDefinition() != null) {
-			final String insert = ff.getBulkLoadDefinition().getBulkLoadInsertStatement();
-			if (!StringUtil.isEmpty(insert)) {
-				final Set<String> used = StringUtil.collectAllAttributesFromString(insert);
-				if (used != null) {
-					attrs.addAll(used);
+		if (ff.getBulkLoadDefinition() != null && ff.getBulkLoadDefinition().getBulkLoadInsert() != null) {
+			for (final BaukCommand bc : ff.getBulkLoadDefinition().getBulkLoadInsert()) {
+				if (!StringUtil.isEmpty(bc.getCommand())) {
+					final Set<String> used = StringUtil.collectAllAttributesFromString(bc.getCommand());
+					if (used != null) {
+						attrs.addAll(used);
+					}
 				}
 			}
 			if (ff.getBulkLoadDefinition().getAfterBulkLoadSuccess() != null) {

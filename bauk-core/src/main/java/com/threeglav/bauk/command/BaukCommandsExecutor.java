@@ -11,15 +11,32 @@ import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.CommandType;
 import com.threeglav.bauk.model.FactFeed;
-import com.threeglav.bauk.util.StringUtil;
+import com.threeglav.bauk.util.StatefulAttributeReplacer;
 
-public class BaukCommandsExecutor extends ConfigAware {
+public final class BaukCommandsExecutor extends ConfigAware {
 
-	private final DbHandler databaseHandler;
+	private DbHandler databaseHandler;
+	private final StatefulAttributeReplacer[] replacers;
+	private final ArrayList<BaukCommand> commands;
+	private boolean hasSqlStatementsToExecute;
 
-	public BaukCommandsExecutor(final FactFeed factFeed, final BaukConfiguration config) {
+	public BaukCommandsExecutor(final FactFeed factFeed, final BaukConfiguration config, final ArrayList<BaukCommand> commands) {
 		super(factFeed, config);
-		databaseHandler = this.getDbHandler();
+		if (commands == null) {
+			throw new IllegalArgumentException("Commands must not be null");
+		}
+		this.commands = commands;
+		replacers = new StatefulAttributeReplacer[commands.size()];
+		for (int i = 0; i < commands.size(); i++) {
+			final BaukCommand cmd = commands.get(i);
+			replacers[i] = new StatefulAttributeReplacer(cmd.getCommand(), config.getDatabaseStringLiteral(), config.getDatabaseStringEscapeLiteral());
+			if (cmd.getType() == CommandType.SQL) {
+				hasSqlStatementsToExecute = true;
+			}
+		}
+		if (hasSqlStatementsToExecute) {
+			databaseHandler = this.getDbHandler();
+		}
 	}
 
 	private String executeShellCommand(final String command) {
@@ -44,26 +61,18 @@ public class BaukCommandsExecutor extends ConfigAware {
 		return output.toString();
 	}
 
-	public void executeBaukCommandSequence(final ArrayList<BaukCommand> commands, final Map<String, String> attributes, final String description) {
-		if (commands == null || commands.isEmpty()) {
-			log.debug("No commands provided - nothing to execute");
-			return;
-		}
-		if (isDebugEnabled) {
-			log.debug("About to execute following {}", commands);
-		}
+	public void executeBaukCommandSequence(final Map<String, String> attributes, final String description) {
+		int counter = 0;
 		for (final BaukCommand bc : commands) {
+			final StatefulAttributeReplacer replacer = replacers[counter++];
+			final String replacedCommand = replacer.replaceAttributes(attributes);
 			if (bc.getType() == CommandType.SHELL) {
-				this.executeShellCommand(bc.getCommand());
+				this.executeShellCommand(replacedCommand);
 			} else if (bc.getType() == CommandType.SQL) {
-				final String statement = bc.getCommand();
-				String stat = statement;
-				stat = StringUtil.replaceAllAttributes(stat, attributes, this.getConfig().getDatabaseStringLiteral(), this.getConfig()
-						.getDatabaseStringEscapeLiteral());
 				if (isDebugEnabled) {
-					log.debug("Executing {} as part of {}", stat, description);
+					log.debug("Executing {} as part of {}", replacedCommand, description);
 				}
-				databaseHandler.executeInsertOrUpdateStatement(stat, description);
+				databaseHandler.executeInsertOrUpdateStatement(replacedCommand, description);
 			}
 		}
 	}

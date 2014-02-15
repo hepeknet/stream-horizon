@@ -67,7 +67,7 @@ public class FeedFileProcessor implements FileProcessor {
 	private final String processorId;
 	private FileProcessingErrorHandler moveToArchiveFileProcessor;
 	private final boolean executeRollbackSequence;
-	private final BaukCommandsExecutor baukCommandsExec;
+	private final BaukCommandsExecutor feedProcessingFailureCommandsExecutor;
 	private final boolean throughputTestingMode;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
@@ -101,7 +101,7 @@ public class FeedFileProcessor implements FileProcessor {
 		}
 		executeRollbackSequence = factFeed.getOnFeedProcessingFailure() != null && !factFeed.getOnFeedProcessingFailure().isEmpty();
 		log.info("Will execute rollback commands for feed {} = {}", factFeed.getName(), executeRollbackSequence);
-		baukCommandsExec = new BaukCommandsExecutor(factFeed, config);
+		feedProcessingFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getOnFeedProcessingFailure());
 		throughputTestingMode = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 	}
 
@@ -235,8 +235,7 @@ public class FeedFileProcessor implements FileProcessor {
 		} catch (final Exception exc) {
 			if (executeRollbackSequence) {
 				log.info("Executing rollback commands for feed {}", factFeed.getName());
-				baukCommandsExec.executeBaukCommandSequence(factFeed.getOnFeedProcessingFailure(), implicitAttributes,
-						"rollback command sequence for feed " + factFeed.getName());
+				feedProcessingFailureCommandsExecutor.executeBaukCommandSequence(implicitAttributes, "rollback command sequence for feed " + factFeed.getName());
 			}
 			throw exc;
 		} finally {

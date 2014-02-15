@@ -18,7 +18,7 @@ public final class FeedCompletionProcessor extends ConfigAware {
 		super(factFeed, config);
 		final ArrayList<BaukCommand> commands = this.getFactFeed().getAfterFeedProcessingCompletion();
 		if (commands != null && !commands.isEmpty()) {
-			commandExecutor = new BaukCommandsExecutor(factFeed, config);
+			commandExecutor = new BaukCommandsExecutor(factFeed, config, this.getFactFeed().getAfterFeedProcessingCompletion());
 		}
 		statementDescription = "FeedCompletionProcessor for " + this.getFactFeed().getName();
 	}
@@ -28,7 +28,7 @@ public final class FeedCompletionProcessor extends ConfigAware {
 			log.debug("Global attributes {}", globalAttributes);
 		}
 		if (commandExecutor != null) {
-			commandExecutor.executeBaukCommandSequence(this.getFactFeed().getAfterFeedProcessingCompletion(), globalAttributes, statementDescription);
+			commandExecutor.executeBaukCommandSequence(globalAttributes, statementDescription);
 		}
 	}
 

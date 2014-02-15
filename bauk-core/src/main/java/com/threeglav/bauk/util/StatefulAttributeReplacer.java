@@ -58,6 +58,10 @@ public final class StatefulAttributeReplacer {
 		}
 	}
 
+	/*
+	 * for testing only
+	 */
+
 	String[] getAttributeNamesToReplace() {
 		return attributeNamesToReplace;
 	}

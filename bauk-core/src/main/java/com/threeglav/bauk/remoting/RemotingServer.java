@@ -7,7 +7,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,8 +40,6 @@ public class RemotingServer {
 		}
 		log.debug("Starting jetty server on port {}", port);
 		server = new Server(port);
-		final QueuedThreadPool p = (QueuedThreadPool) server.getThreadPool();
-		p.setMaxThreads(30);
 		this.addHandlers();
 		exec.submit(new Runnable() {
 			@Override

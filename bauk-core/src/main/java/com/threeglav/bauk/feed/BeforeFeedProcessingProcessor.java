@@ -23,7 +23,9 @@ public class BeforeFeedProcessingProcessor extends ConfigAware {
 	}
 
 	public void processAndGenerateNewAttributes(final Map<String, String> globalAttributes) {
-		log.trace("Executing before-feed-processing. Global attributes {}", globalAttributes);
+		if (isTraceEnabled) {
+			log.trace("Executing before-feed-processing. Global attributes {}", globalAttributes);
+		}
 		for (final MappedResultsSQLStatement mrss : this.getFactFeed().getBeforeFeedProcessing()) {
 			final Map<String, String> attrs = this.processMappedStatement(mrss, globalAttributes);
 			log.debug("After executing {} got results {}. Will merge them with global attributes", mrss.getSqlStatement(), attrs);
@@ -31,14 +33,17 @@ public class BeforeFeedProcessingProcessor extends ConfigAware {
 				globalAttributes.putAll(attrs);
 			}
 		}
-		log.debug("After before-feed-processing global attributes are {}", globalAttributes);
+		if (isDebugEnabled) {
+			log.debug("After before-feed-processing global attributes are {}", globalAttributes);
+		}
 	}
 
 	private Map<String, String> processMappedStatement(final MappedResultsSQLStatement mrss, final Map<String, String> globalAttrs) {
 		final String statement = StringUtil.replaceAllAttributes(mrss.getSqlStatement(), globalAttrs, this.getConfig().getDatabaseStringLiteral(),
 				this.getConfig().getDatabaseStringEscapeLiteral());
-		log.debug("Statement to execute is {}", statement);
-
+		if (isDebugEnabled) {
+			log.debug("Statement to execute is {}", statement);
+		}
 		if (mrss.getType() == SqlStatementType.SELECT) {
 			return databaseHandler.executeSelectStatement(statement, statementDescription);
 		} else if (mrss.getType() == SqlStatementType.INSERT) {

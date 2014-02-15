@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +25,6 @@ import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
-import com.threeglav.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.bauk.util.StringUtil;
 
 public class BulkFileProcessor extends ConfigAware implements FileProcessor {
@@ -38,42 +35,43 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private final boolean deleteBulkFileAfterLoading;
 
-	private final String dbStringLiteral;
-	private final String dbStringEscapeLiteral;
 	private final BulkFileSubmissionRecorder fileSubmissionRecorder;
 	private final String processorId;
 	private final boolean isDebugEnabled;
 	private final boolean outputProcessingStatistics;
-	private final String bulkLoadStatement;
 	private final boolean shouldExecuteOnBulkLoadSuccess;
-	private final BaukCommandsExecutor commandsExecutor;
 	private final boolean shouldExecuteOnBulkLoadFailure;
-	private final StatefulAttributeReplacer statefulReplacer;
-	private final DataSource dataSource;
 	private String currentThreadName;
 	private final boolean recordFileSubmissionAttempts;
+	private final ArrayList<BaukCommand> bulkInsertCommands;
+	private final BaukCommandsExecutor bulkInsertCommandsExecutor;
+	private BaukCommandsExecutor bulkLoadSuccessCommandsExecutor;
+	private BaukCommandsExecutor bulkLoadFailureCommandsExecutor;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		dbStringLiteral = this.getConfig().getDatabaseStringLiteral();
-		dbStringEscapeLiteral = this.getConfig().getDatabaseStringEscapeLiteral();
 		fileSubmissionRecorder = new BulkFileSubmissionRecorder();
 		processorId = String.valueOf(COUNTER.incrementAndGet());
 		isDebugEnabled = log.isDebugEnabled();
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
 				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
 		log.debug("Current processing id is {}", processorId);
-		final String insertStatement = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsertStatement();
-		if (StringUtil.isEmpty(insertStatement)) {
-			throw new IllegalStateException("Could not find insert statement for bulk loading files - for feed " + this.getFactFeed().getName() + "!");
+		bulkInsertCommands = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert();
+		if (bulkInsertCommands == null || bulkInsertCommands.isEmpty()) {
+			throw new IllegalStateException("Could not find any bulk load insert statements for bulk loading files - for feed "
+					+ this.getFactFeed().getName() + "!");
 		}
-		bulkLoadStatement = insertStatement;
+		bulkInsertCommandsExecutor = new BaukCommandsExecutor(factFeed, config, bulkInsertCommands);
 		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
 		shouldExecuteOnBulkLoadSuccess = onBulkLoadSuccess != null && !onBulkLoadSuccess.isEmpty();
+		if (shouldExecuteOnBulkLoadSuccess) {
+			bulkLoadSuccessCommandsExecutor = new BaukCommandsExecutor(factFeed, config, onBulkLoadSuccess);
+		}
 		final ArrayList<BaukCommand> onBulkLoadFail = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadFailure();
 		shouldExecuteOnBulkLoadFailure = onBulkLoadFail != null && !onBulkLoadFail.isEmpty();
-		commandsExecutor = new BaukCommandsExecutor(factFeed, config);
-		statefulReplacer = new StatefulAttributeReplacer(bulkLoadStatement, dbStringLiteral, dbStringEscapeLiteral);
+		if (shouldExecuteOnBulkLoadFailure) {
+			bulkLoadFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, onBulkLoadFail);
+		}
 		deleteBulkFileAfterLoading = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.DELETE_BULK_LOADED_FILES_PARAM_NAME,
 				true);
 		if (!deleteBulkFileAfterLoading) {
@@ -86,7 +84,6 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		} else {
 			log.info("Engine will record all bulk file submission attempts.");
 		}
-		dataSource = DataSourceProvider.getDataSource(this.getConfig());
 	}
 
 	private final String getCurrentThreadName() {
@@ -140,37 +137,23 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private void executeBulkLoadingCommandSequence(final Map<String, String> globalAttributes) {
 		final long start = System.currentTimeMillis();
-		if (isDebugEnabled) {
-			log.debug("Insert statement for bulk loading files is {}", bulkLoadStatement);
-		}
-		final String replacedStatement = statefulReplacer.replaceAttributes(globalAttributes);
-		if (isDebugEnabled) {
-			log.debug("Statement to execute is {}", replacedStatement);
-		}
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
+		final Connection connection = null;
+		final PreparedStatement preparedStatement = null;
 		try {
-			connection = dataSource.getConnection();
-			preparedStatement = connection.prepareStatement(replacedStatement);
-			preparedStatement.execute();
+			bulkInsertCommandsExecutor.executeBaukCommandSequence(globalAttributes, "Bulk insert for " + this.getFactFeed().getName());
 			EngineRegistry.registerSuccessfulBulkFileLoad();
 		} catch (final Exception exc) {
 			EngineRegistry.registerFailedBulkFile();
-			log.error(
-					"Exception while trying to load bulk file using JDBC. Fully prepared load statement is {}. Available context attributes are {}",
-					replacedStatement, globalAttributes);
+			log.error("Exception while trying to load bulk file using JDBC. Available context attributes are {}", globalAttributes);
 			if (shouldExecuteOnBulkLoadFailure) {
 				log.info("Bulk loading failed. Executing rollback procedure as configured...");
-				commandsExecutor.executeBaukCommandSequence(this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadFailure(), globalAttributes,
-						"Bulk-load-failure commands for " + this.getFactFeed().getName());
+				bulkLoadFailureCommandsExecutor.executeBaukCommandSequence(globalAttributes, "Bulk-load-failure commands for "
+						+ this.getFactFeed().getName());
 			}
-			throw new RuntimeException("Exception while executing " + replacedStatement, exc);
+			throw new RuntimeException("Exception while executing bulk insert for " + this.getFactFeed().getName(), exc);
 		} finally {
 			DataSourceProvider.close(preparedStatement);
 			DataSourceProvider.closeOnly(connection);
-		}
-		if (isDebugEnabled) {
-			log.debug("Successfully executed statement {}", replacedStatement);
 		}
 		if (outputProcessingStatistics) {
 			final long totalBulkLoadedFiles = EngineRegistry.getSuccessfulBulkFilesCount();
@@ -184,16 +167,11 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			BaukUtil.logBulkLoadEngineMessage(message);
 		}
 		if (shouldExecuteOnBulkLoadSuccess) {
-			this.executeOnSuccessBulkLoad(globalAttributes);
+			if (isDebugEnabled) {
+				log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
+			}
+			bulkLoadSuccessCommandsExecutor.executeBaukCommandSequence(globalAttributes, "On bulk load success command-sequence");
 		}
-	}
-
-	private void executeOnSuccessBulkLoad(final Map<String, String> globalAttributes) {
-		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
-		if (isDebugEnabled) {
-			log.debug("Will execute on-success sql actions. Global attributes {}", globalAttributes);
-		}
-		commandsExecutor.executeBaukCommandSequence(onBulkLoadSuccess, globalAttributes, "On bulk load success command-sequence");
 	}
 
 	private Map<String, String> createImplicitGlobalAttributes(final BaukFile file) {

@@ -28,7 +28,27 @@ public class StringUtilTest {
 	}
 
 	@Test
+	public void testGetFileNameWithoutExtension() {
+		Assert.assertNull(StringUtil.getFileNameWithoutExtension(null));
+		Assert.assertEquals("", StringUtil.getFileNameWithoutExtension(""));
+		Assert.assertEquals("test", StringUtil.getFileNameWithoutExtension("test.xml"));
+		Assert.assertEquals("c:/a/b/c/d/a", StringUtil.getFileNameWithoutExtension("c:/a/b/c/d/a.txt"));
+	}
+
+	@Test
 	public void testReplaceAllAttributes() {
+		try {
+			StringUtil.replaceAllAttributes(null, null, null, "''");
+			Assert.fail();
+		} catch (final IllegalArgumentException iae) {
+			Assert.assertTrue(true);
+		}
+		try {
+			StringUtil.replaceAllAttributes(null, null, "''", null);
+			Assert.fail();
+		} catch (final IllegalArgumentException iae) {
+			Assert.assertTrue(true);
+		}
 		Assert.assertNull(StringUtil.replaceAllAttributes(null, null, "'", "''"));
 		Assert.assertEquals(" ", StringUtil.replaceAllAttributes(" ", null, "'", "''"));
 		Assert.assertEquals("select 1", StringUtil.replaceAllAttributes("select 1", null, "'", "''"));

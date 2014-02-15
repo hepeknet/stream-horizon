@@ -18,7 +18,9 @@ import com.threeglav.bauk.EngineRegistry;
 import com.threeglav.bauk.dimension.db.DataSourceProvider;
 import com.threeglav.bauk.model.BaukAttribute;
 import com.threeglav.bauk.model.BaukAttributeType;
+import com.threeglav.bauk.model.BaukCommand;
 import com.threeglav.bauk.model.BaukConfiguration;
+import com.threeglav.bauk.model.CommandType;
 import com.threeglav.bauk.model.FactFeed;
 import com.threeglav.bauk.util.BaukUtil;
 import com.threeglav.bauk.util.StatefulAttributeReplacer;
@@ -40,7 +42,20 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		insertStatement = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsertStatement();
+		final ArrayList<BaukCommand> bulkInsertCommands = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert();
+		if (bulkInsertCommands == null || bulkInsertCommands.isEmpty()) {
+			throw new IllegalStateException("Could not find any bulk load insert statements for bulk loading files - for feed "
+					+ this.getFactFeed().getName() + "!");
+		} else if (bulkInsertCommands.size() > 1) {
+			throw new IllegalStateException("Only one statement is allowed for jdbc bulk loading - for feed [" + this.getFactFeed().getName()
+					+ "]! Currently have " + bulkInsertCommands.size() + " commands defined!");
+		}
+		final BaukCommand singleCommand = bulkInsertCommands.get(0);
+		if (singleCommand.getType() != CommandType.SQL) {
+			throw new IllegalArgumentException("For jdbc bulk loading command must be of type " + CommandType.SQL + ". Problematic feed is "
+					+ this.getFactFeed().getName());
+		}
+		insertStatement = singleCommand.getCommand();
 		if (StringUtil.isEmpty(insertStatement)) {
 			throw new IllegalArgumentException("Unable to use jdbc bulk loader when insert statement is not specified");
 		}

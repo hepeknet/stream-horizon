@@ -46,6 +46,9 @@ public abstract class StringUtil {
 		if (StringUtil.isEmpty(dbStringLiteral)) {
 			throw new IllegalArgumentException("String literal must not be null or empty!");
 		}
+		if (StringUtil.isEmpty(dbStringEscapeLiteral)) {
+			throw new IllegalArgumentException("String escape literal must not be null or empty!");
+		}
 		if (isEmpty(statement)) {
 			LOG.info("Statement is null or empty! Unable to replace any attributes");
 			return statement;
