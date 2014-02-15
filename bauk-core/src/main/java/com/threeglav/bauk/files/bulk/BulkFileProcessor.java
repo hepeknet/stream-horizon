@@ -120,13 +120,13 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			final boolean alreadySubmitted = fileSubmissionRecorder.wasAlreadySubmitted(fileNameOnly);
 			if (alreadySubmitted) {
 				if (isDebugEnabled) {
-					log.debug("File [{}] was already submitted for loading previously. Will set {} to {}",
+					log.debug("File [{}] was already submitted for loading previously. Will set {} to {}", fileNameOnly,
 							BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
 				}
 				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
 			} else {
 				if (isDebugEnabled) {
-					log.debug("File [{}] was not submitted for loading before. Will set {} to {}",
+					log.debug("File [{}] was not submitted for loading before. Will set {} to {}", fileNameOnly,
 							BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
 				}
 				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);

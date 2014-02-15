@@ -176,7 +176,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				if (cachePerThreadEnabled) {
 					final CachePreviouslyUsedValuesPerThreadDimensionHandler proxyDimHandler = new CachePreviouslyUsedValuesPerThreadDimensionHandler(
 							cachedDimensionHandler);
-					log.debug("For dimension {} caching per thread is enabled!");
+					log.debug("For dimension {} caching per thread is enabled!", requiredDimensionName);
 					outputValueHandlers[bulkHandlerPosition] = proxyDimHandler;
 				} else {
 					outputValueHandlers[bulkHandlerPosition] = cachedDimensionHandler;

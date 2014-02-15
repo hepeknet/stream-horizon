@@ -108,7 +108,8 @@ class ConfigurationValidator {
 		final int sizeUsed = attributesUsedInConfiguration.size();
 		final int sizeDeclared = attributesDeclaredInConfiguration.size();
 		if (sizeUsed > sizeDeclared) {
-			log.warn("There are more used attributes {} than declared attributes {}. Some attributes might not be declared properly!");
+			log.warn("There are more used attributes {} than declared attributes {}. Some attributes might not be declared properly!",
+					attributesUsedInConfiguration, attributesDeclaredInConfiguration);
 		}
 		final Set<String> notDeclaredAttributes = new HashSet<>();
 		for (final String used : attributesUsedInConfiguration) {

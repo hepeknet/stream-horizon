@@ -208,7 +208,7 @@ public class BaukApplication {
 		for (final BulkFilesHandler bfh : bulkFileHandlers) {
 			bfh.stop();
 		}
-		LOG.debug("Stopped {} bulk file handlers {}", bulkFileHandlers.size());
+		LOG.debug("Stopped {} bulk file handlers", bulkFileHandlers.size());
 		BaukUtil.logEngineMessage("Bauk engine is down!");
 		printStatistics();
 	}

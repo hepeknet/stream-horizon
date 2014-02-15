@@ -58,8 +58,8 @@ public class BaukTestSetupUtil {
 			return true;
 		} catch (final Exception exc) {
 			exc.printStackTrace();
+			return false;
 		}
-		return false;
 	}
 
 	public void startBaukInstance() throws Exception {
@@ -78,7 +78,7 @@ public class BaukTestSetupUtil {
 		Thread.sleep(5000);
 	}
 
-	public void createInputFile(final String[] lines) throws Exception {
+	public File createInputFile(final String[] lines) throws Exception {
 		final List<String> linesColl = new LinkedList<>();
 		for (final String l : lines) {
 			linesColl.add(l);
@@ -87,11 +87,12 @@ public class BaukTestSetupUtil {
 		final File inputFile = inputFileP.toFile();
 		inputFile.deleteOnExit();
 		FileUtils.writeLines(inputFile, linesColl);
+		return inputFile;
 	}
 
 	public void stopBaukInstance() throws Exception {
 		BaukApplication.shutdown();
-		execService.shutdown();
+		execService.shutdownNow();
 	}
 
 	private static void insertInitialData() throws Exception {
@@ -100,6 +101,7 @@ public class BaukTestSetupUtil {
 		stat.execute("insert into TEST_DIM (id,a,b) values (1,'a1','b1')");
 		stat.execute("insert into TEST_DIM (id,a,b) values (2,'a2','b2')");
 		stat.execute("insert into TEST_DIM (id,a,b) values (3,'a3','b3')");
+		conn.commit();
 		stat.close();
 		conn.close();
 	}

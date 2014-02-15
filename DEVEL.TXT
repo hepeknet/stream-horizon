@@ -1,3 +1,5 @@
 mvn --batch-mode release:clean release:prepare release:perform release:update-versions -DautoVersionSubmodules=true
 
 mvn -N versions:update-child-modules
+
+mvn -DforkMode=always test

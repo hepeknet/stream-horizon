@@ -42,7 +42,7 @@ public class ClassResolver<T> {
 				log.debug("{} is subtype of {}. Trying to create new instance", clazz, expectedType);
 				try {
 					final Object obj = clazz.newInstance();
-					log.debug("Successfully create instance {} of {}", obj, clazz);
+					log.debug("Successfully created instance {} of {}", obj, clazz);
 					return (T) obj;
 				} catch (InstantiationException | IllegalAccessException e) {
 					log.warn("Was not able to create instance of {}", clazz);

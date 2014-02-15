@@ -31,7 +31,7 @@ public abstract class InMemoryDbUtil {
 		if (ds == null) {
 			throw new IllegalArgumentException("DataSource must not be null");
 		}
-		LOG.debug("Executing {}", sql);
+		LOG.debug("Executing [{}]", sql);
 		try (Connection conn = ds.getConnection(); Statement stat = conn.createStatement()) {
 			stat.executeUpdate(sql);
 			LOG.debug("Successfully executed {}", sql);
@@ -39,7 +39,7 @@ public abstract class InMemoryDbUtil {
 		} catch (final SQLException e) {
 			final boolean shutdownStarted = BaukUtil.shutdownStarted();
 			if (!shutdownStarted) {
-				LOG.info("Exception while executing {}. Details {}", sql, e.getMessage());
+				LOG.info("Exception while executing [{}]. Details [{}]", sql, e.getMessage());
 				throw new RuntimeException(e);
 			}
 		}
@@ -52,7 +52,7 @@ public abstract class InMemoryDbUtil {
 		if (ds == null) {
 			throw new IllegalArgumentException("DataSource must not be null");
 		}
-		LOG.debug("Executing {}, parameter is [{}]", sql, parameter);
+		LOG.debug("Executing [{}], parameter is [{}]", sql, parameter);
 		try (Connection conn = ds.getConnection(); PreparedStatement stat = conn.prepareStatement(sql)) {
 			if (parameter != null) {
 				stat.setString(1, parameter);
@@ -62,12 +62,12 @@ public abstract class InMemoryDbUtil {
 				try (ResultSet rs = stat.getResultSet()) {
 					if (rs.next()) {
 						final Object res = rs.getObject(1);
-						LOG.debug("Successfully executed {}. Returned {}", sql, res);
+						LOG.debug("Successfully executed [{}]. Returned [{}]", sql, res);
 						return res;
 					}
 				}
 			}
-			LOG.debug("Successfully executed {}. Nothing to return", sql);
+			LOG.debug("Successfully executed [{}]. Nothing to return", sql);
 			return null;
 		} catch (final SQLException e) {
 			final boolean shutdownStarted = BaukUtil.shutdownStarted();

@@ -16,7 +16,6 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	public FileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		log.info("Writer buffer size is {} MB", bufferSize);
 	}
 
 	private void createFileWriter(final String outputFilePath) {

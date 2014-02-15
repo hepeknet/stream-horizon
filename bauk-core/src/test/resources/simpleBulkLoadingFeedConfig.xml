@@ -13,14 +13,21 @@
 	<databaseStringLiteral>'</databaseStringLiteral>
 	<databaseStringEscapeLiteral>''</databaseStringEscapeLiteral>
 	<factFeeds>
-		<factFeed name="TEST_jdbc_Feed" type="full">
+		<factFeed name="TEST_bulk_Feed" type="full">
 			<fileNameMasks>
 				<fileNameMask>.*bauk_test</fileNameMask>
 			</fileNameMasks>
 			<delimiterString>,</delimiterString>
-			<header process="no_header" />
-			<data process="no_validation">
-				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
+			<header process="normal">
+				<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="h1" />
+					<attribute name="h2" />
+					<attribute name="h3" />
+				</attributes>
+			</header>
+			<data process="normal">
+				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
 				<attributes>
 					<attribute name="attr1" />
 					<attribute name="attr2" />
@@ -28,22 +35,26 @@
 					<attribute name="b_in" />
 				</attributes>
 			</data>
-			<footer process="skip" />
-			<bulkLoadDefinition outputType="jdbc">
+			<footer process="strict">
+				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
+			</footer>
+			<bulkLoadDefinition outputType="file">
+				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<bulkLoadInsert>
-					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) values(?,?,?,'${bulkFileName}')</command>
+					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
 				</bulkLoadInsert>
 				<bulkLoadFormatDefinition>
 					<attributes>
 						<attribute name="dimension.TEST_DIM" type="int" />
 						<attribute name="feed.attr1" type="int" />
 						<attribute name="feed.attr2" type="int" />
+						<attribute name="h1" type="string" />
 					</attributes>
 				</bulkLoadFormatDefinition>
 			</bulkLoadDefinition>
 			<threadPoolSizes>
 				<feedProcessingThreads>1</feedProcessingThreads>
-				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
+				<bulkLoadProcessingThreads>1</bulkLoadProcessingThreads>
 			</threadPoolSizes>
 		</factFeed>
 	</factFeeds>

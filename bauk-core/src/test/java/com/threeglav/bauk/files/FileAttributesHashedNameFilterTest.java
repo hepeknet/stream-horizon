@@ -45,13 +45,14 @@ public class FileAttributesHashedNameFilterTest {
 		final String extension = "baukAbc";
 		final FileAttributesHashedNameFilter[] filters = new FileAttributesHashedNameFilter[maxNum];
 		for (int i = 0; i < maxNum; i++) {
-			filters[i] = new FileAttributesHashedNameFilter(".*" + extension, i, maxNum, 0);
+			filters[i] = new FileAttributesHashedNameFilter(".*" + extension, i, maxNum, 10);
 		}
 		final int tests = 10;
 		final File[] files = new File[tests];
 		for (int i = 0; i < tests; i++) {
 			files[i] = this.createAndFillTemporaryFile(extension);
 		}
+		Thread.sleep(1000);
 		for (int i = 0; i < 10; i++) {
 			int countMatches = 0;
 			final File file = files[i];
@@ -74,6 +75,7 @@ public class FileAttributesHashedNameFilterTest {
 			final String str = UUID.randomUUID().toString();
 			fos.write(str.getBytes());
 		}
+		fos.flush();
 		fos.close();
 		return f;
 	}

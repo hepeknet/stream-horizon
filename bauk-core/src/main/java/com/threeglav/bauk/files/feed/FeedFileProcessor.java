@@ -92,7 +92,7 @@ public class FeedFileProcessor implements FileProcessor {
 		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
 		processorId = String.valueOf(COUNTER.incrementAndGet());
-		log.info("Number of instances is {}", processorId);
+		log.debug("Number of feed processing instances is {}", processorId);
 		isDebugEnabled = log.isDebugEnabled();
 		final String archiveFolderPath = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
 				config.getArchiveDirectory());
@@ -191,7 +191,7 @@ public class FeedFileProcessor implements FileProcessor {
 		if (isEmptyExtension && bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.NONE
 				&& bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.JDBC) {
 			throw new IllegalStateException(
-					"Extension for recognizing bulk output file is required to be specified in configuration file because file output will be generated Feed named ["
+					"Extension for recognizing bulk output files is required to be specified in configuration file because file output will be generated. Problematic feed is ["
 							+ factFeed.getName() + "]!");
 		}
 	}

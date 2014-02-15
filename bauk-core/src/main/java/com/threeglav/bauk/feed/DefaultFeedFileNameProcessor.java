@@ -25,7 +25,7 @@ public class DefaultFeedFileNameProcessor implements FeedFileNameProcessor {
 	@Override
 	public Map<String, String> parseFeedFileName(final String feedFileName) {
 		final Map<String, String> parsedFeedFileNameAttributes = new THashMap<String, String>();
-		log.debug("Parsing {} into attributes", feedFileName);
+		log.debug("Parsing file name [{}] into attributes", feedFileName);
 		if (!StringUtil.isEmpty(feedFileName)) {
 			final String[] parsedName = feedFileName.split(DELIMITER);
 			if (parsedName != null && parsedName.length > 0) {
