@@ -94,7 +94,9 @@ public class BulkFilesHandler {
 		final String fullFileMask = ".*" + factFeed.getBulkLoadDefinition().getBulkLoadOutputExtension();
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, bulkProcessingThreads,
 				bulkFileAcceptanceTimeoutMillis);
-		final FileFindingHandler ffh = new FileFindingHandler(config.getBulkOutputDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
+		final String bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
+				config.getBulkOutputDirectory());
+		final FileFindingHandler ffh = new FileFindingHandler(bulkOutDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		runnables.add(ffh);
 	}
 }

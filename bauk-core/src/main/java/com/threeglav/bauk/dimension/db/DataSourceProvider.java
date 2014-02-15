@@ -35,8 +35,8 @@ public class DataSourceProvider {
 		if (connectionProperties == null) {
 			throw new IllegalArgumentException("Unable to connect to database. Connection properties not defined!");
 		}
-		final String jdbUrl = connectionProperties.getJdbcUrl();
-		if (StringUtil.isEmpty(jdbUrl)) {
+		final String jdbcUrl = connectionProperties.getJdbcUrl();
+		if (StringUtil.isEmpty(jdbcUrl)) {
 			throw new IllegalArgumentException("Unable to connect to database. JDBC URL not defined!");
 		}
 		if (connectionProperties.getJdbcPoolSize() <= 0) {
@@ -51,9 +51,8 @@ public class DataSourceProvider {
 				hc.setConnectionCustomizerClassName(BaukConnectionCustomizer.class.getName());
 			}
 			hc.setMaximumPoolSize(connectionProperties.getJdbcPoolSize());
-			hc.addDataSourceProperty("url", jdbUrl);
-			hc.setDataSourceClassName(getDataSourceClassName(jdbUrl));
-			log.info("JDBC URL is {}", jdbUrl);
+			setDataSourceProperties(jdbcUrl, hc);
+			log.info("JDBC URL is {}", jdbcUrl);
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcUserName())) {
 				log.debug("Will access database as user [{}]", connectionProperties.getJdbcUserName());
 				hc.addDataSourceProperty("user", connectionProperties.getJdbcUserName());
@@ -70,21 +69,24 @@ public class DataSourceProvider {
 		}
 	}
 
-	private static String getDataSourceClassName(final String jdbcUrl) {
+	private static void setDataSourceProperties(final String jdbcUrl, final HikariConfig hc) {
 		if (jdbcUrl == null) {
 			throw new IllegalArgumentException("jdbc url must not be null");
 		}
 		final String urlLower = jdbcUrl.toLowerCase();
 		if (urlLower.startsWith("jdbc:oracle")) {
-			return "oracle.jdbc.pool.OracleDataSource";
+			hc.setDataSourceClassName("oracle.jdbc.pool.OracleDataSource");
+			hc.addDataSourceProperty("url", jdbcUrl);
 		} else if (urlLower.startsWith("jdbc:sqlserver")) {
-			return "com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource";
+			hc.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource");
+			hc.addDataSourceProperty("url", jdbcUrl);
 		} else if (urlLower.startsWith("jdbc:mysql")) {
-			return "com.mysql.jdbc.jdbc2.optional.MysqlDataSource";
+			hc.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
+			hc.addDataSourceProperty("url", jdbcUrl);
 		} else if (urlLower.startsWith("jdbc:h2")) {
-			return "org.h2.jdbcx.JdbcDataSource";
+			hc.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
+			hc.addDataSourceProperty("URL", jdbcUrl);
 		}
-		return null;
 	}
 
 	public static DataSource getDataSource(final BaukConfiguration config) {
@@ -97,7 +99,7 @@ public class DataSourceProvider {
 		}
 		final HikariConfig config = new HikariConfig();
 		config.setMaximumPoolSize(50);
-		config.addDataSourceProperty("url", jdbcUrl);
+		setDataSourceProperties(jdbcUrl, config);
 		final DataSource ds = new HikariDataSource(config);
 		return ds;
 	}

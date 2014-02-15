@@ -67,8 +67,9 @@ public class FeedFileProcessor implements FileProcessor {
 	private final String processorId;
 	private FileProcessingErrorHandler moveToArchiveFileProcessor;
 	private final boolean executeRollbackSequence;
-	private final BaukCommandsExecutor feedProcessingFailureCommandsExecutor;
+	private BaukCommandsExecutor feedProcessingFailureCommandsExecutor;
 	private final boolean throughputTestingMode;
+	private final String bulkOutDirectory;
 
 	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -82,7 +83,6 @@ public class FeedFileProcessor implements FileProcessor {
 		}
 		this.factFeed = factFeed;
 		this.config = config;
-		this.validate();
 		final String cleanFileMask = StringUtil.replaceAllNonASCII(fileMask);
 		feedDataProcessor = new SingleThreadedFeedDataProcessor(factFeed, config, cleanFileMask);
 		textFileReaderComponent = new TextFileReaderComponent(this.factFeed, this.config, feedDataProcessor, cleanFileMask);
@@ -94,15 +94,21 @@ public class FeedFileProcessor implements FileProcessor {
 		processorId = String.valueOf(COUNTER.incrementAndGet());
 		log.info("Number of instances is {}", processorId);
 		isDebugEnabled = log.isDebugEnabled();
-		final String archiveFolderPath = config.getArchiveDirectory();
+		final String archiveFolderPath = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
+				config.getArchiveDirectory());
 		if (!StringUtil.isEmpty(archiveFolderPath)) {
 			moveToArchiveFileProcessor = new MoveFileErrorHandler(archiveFolderPath);
 			log.info("Will move all successfully processed files to {}", archiveFolderPath);
 		}
 		executeRollbackSequence = factFeed.getOnFeedProcessingFailure() != null && !factFeed.getOnFeedProcessingFailure().isEmpty();
 		log.info("Will execute rollback commands for feed {} = {}", factFeed.getName(), executeRollbackSequence);
-		feedProcessingFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getOnFeedProcessingFailure());
+		if (executeRollbackSequence) {
+			feedProcessingFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getOnFeedProcessingFailure());
+		}
 		throughputTestingMode = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
+		bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
+				config.getBulkOutputDirectory());
+		this.validate();
 	}
 
 	@Override
@@ -169,7 +175,7 @@ public class FeedFileProcessor implements FileProcessor {
 	}
 
 	private void validate() {
-		if (StringUtil.isEmpty(config.getBulkOutputDirectory())) {
+		if (StringUtil.isEmpty(bulkOutDirectory)) {
 			throw new IllegalStateException("Bulk output directory must not be null or empty!");
 		}
 		fileExtension = null;
@@ -182,10 +188,11 @@ public class FeedFileProcessor implements FileProcessor {
 			}
 		}
 		final boolean isEmptyExtension = StringUtil.isEmpty(fileExtension);
-		if (isEmptyExtension && bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.NONE) {
+		if (isEmptyExtension && bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.NONE
+				&& bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.JDBC) {
 			throw new IllegalStateException(
-					"Extension for recognizing bulk output file is required to be specified in configuration file because output will be generated Feed "
-							+ factFeed.getName() + "!");
+					"Extension for recognizing bulk output file is required to be specified in configuration file because file output will be generated Feed named ["
+							+ factFeed.getName() + "]!");
 		}
 	}
 
@@ -235,7 +242,8 @@ public class FeedFileProcessor implements FileProcessor {
 		} catch (final Exception exc) {
 			if (executeRollbackSequence) {
 				log.info("Executing rollback commands for feed {}", factFeed.getName());
-				feedProcessingFailureCommandsExecutor.executeBaukCommandSequence(implicitAttributes, "rollback command sequence for feed " + factFeed.getName());
+				feedProcessingFailureCommandsExecutor.executeBaukCommandSequence(implicitAttributes,
+						"rollback command sequence for feed " + factFeed.getName());
 			}
 			throw exc;
 		} finally {
@@ -291,7 +299,7 @@ public class FeedFileProcessor implements FileProcessor {
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getMillis());
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, DATE_FORMATTER.print(now));
 		final String bulkOutputFileNameOnly = this.getBulkOutputFileName(fileNameOnly);
-		final String bulkOutputFileFullPath = config.getBulkOutputDirectory() + "/" + bulkOutputFileNameOnly;
+		final String bulkOutputFileFullPath = bulkOutDirectory + "/" + bulkOutputFileNameOnly;
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, bulkOutputFileNameOnly);
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, bulkOutputFileFullPath);
 		if (isDebugEnabled) {

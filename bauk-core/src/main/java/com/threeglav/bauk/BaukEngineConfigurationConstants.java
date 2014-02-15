@@ -116,4 +116,10 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String BULK_PROCESSING_THREADS_PARAM_NAME = "bulkLoadProcessingThreads";
 
+	public static final String SOURCE_DIRECTORY_PARAM_NAME = "sourceDirectory";
+
+	public static final String OUTPUT_DIRECTORY_PARAM_NAME = "bulkOutputDirectory";
+
+	public static final String ARCHIVE_DIRECTORY_PARAM_NAME = "archiveDirectory";
+
 }

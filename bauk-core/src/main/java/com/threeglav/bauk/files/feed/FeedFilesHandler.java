@@ -67,10 +67,12 @@ public class FeedFilesHandler {
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, processingThreadId, feedProcessingThreads,
 				feedFileAcceptanceTimeoutMillis);
 		Runnable ffh;
+		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
+				config.getSourceDirectory());
 		if (throughputTestingMode) {
-			ffh = new ThroughputTestingFileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
+			ffh = new ThroughputTestingFileFindingHandler(sourceDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		} else {
-			ffh = new FileFindingHandler(config.getSourceDirectory(), bfp, fileFilter, moveToErrorFileProcessor);
+			ffh = new FileFindingHandler(sourceDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		}
 		runnables.add(ffh);
 	}

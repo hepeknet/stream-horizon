@@ -154,6 +154,7 @@ public abstract class ConfigurationProperties {
 	public static String getDbDataFolder() {
 		final String fullFolderPath = getApplicationHome() + BaukEngineConfigurationConstants.DB_DATA_FOLDER;
 		final File dir = new File(fullFolderPath);
+		dir.mkdirs();
 		if (!dir.exists() || !dir.isDirectory() || !dir.canRead() || !dir.canExecute()) {
 			throw new IllegalStateException("Unable to find readable folder [" + fullFolderPath + "]");
 		}

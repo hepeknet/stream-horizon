@@ -34,7 +34,7 @@ import com.threeglav.bauk.util.StringUtil;
 public class BaukApplication {
 
 	private static final String DEFAULT_CONFIG_FILE_NAME = "feedConfig.xml";
-	private static final String CONFIG_FILE_PROP_NAME = "bauk.config";
+	public static final String CONFIG_FILE_PROP_NAME = "bauk.config";
 
 	private static final Logger LOG = LoggerFactory.getLogger(BaukApplication.class);
 
@@ -82,8 +82,8 @@ public class BaukApplication {
 			System.exit(-1);
 		}
 		// sleep forever
-		while (true) {
-			Thread.sleep(30000);
+		while (!BaukUtil.shutdownStarted()) {
+			Thread.sleep(10000);
 		}
 	}
 
@@ -151,8 +151,15 @@ public class BaukApplication {
 			LOG.info("Found configuration file {} in classpath", DEFAULT_CONFIG_FILE_NAME);
 		} else {
 			LOG.info("Found system property {}={}. Will try to load it as configuration...", CONFIG_FILE_PROP_NAME, configFile);
+			final File cFile = new File(configFile);
 			try {
-				is = new FileInputStream(configFile);
+				if (cFile.exists() && cFile.isFile()) {
+					LOG.debug("Loading config file [{}] from file system", configFile);
+					is = new FileInputStream(configFile);
+				} else {
+					LOG.debug("Loading config file [{}] from classpath", configFile);
+					is = BaukApplication.class.getClass().getResourceAsStream(configFile);
+				}
 				LOG.info("Successfully found configuration [{}] on file system", configFile);
 			} catch (final FileNotFoundException fnfe) {
 				LOG.error("Was not able to find file {}. Use full, absolute path.", configFile);
@@ -164,10 +171,7 @@ public class BaukApplication {
 			final JAXBContext jaxbContext = JAXBContext.newInstance(BaukConfiguration.class);
 			final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			final String configFolderPath = ConfigurationProperties.getConfigFolder();
-			final File configFolder = new File(configFolderPath);
-			final File xsdFile = new File(configFolder, "bauk_config.xsd");
-			final Schema schema = schemaFactory.newSchema(xsdFile);
+			final Schema schema = schemaFactory.newSchema(BaukApplication.class.getResource("/bauk_config.xsd"));
 			jaxbUnmarshaller.setSchema(schema);
 			final BaukConfiguration config = (BaukConfiguration) jaxbUnmarshaller.unmarshal(is);
 			LOG.info("Successfully loaded configuration");
@@ -184,19 +188,29 @@ public class BaukApplication {
 	private static final class ShutdownHook extends Thread {
 		@Override
 		public void run() {
-			BaukUtil.logEngineMessage("Shutting down engine. Waiting to gracefully stop all processing threads...");
-			BaukUtil.startShutdown();
-			CacheUtil.getCacheInstanceManager().stop();
-			remotingHandler.stop();
-			for (final FeedFilesHandler ffh : feedFileHandlers) {
-				ffh.stop();
-			}
-			for (final BulkFilesHandler bfh : bulkFileHandlers) {
-				bfh.stop();
-			}
-			BaukUtil.logEngineMessage("Bauk engine is down!");
-			printStatistics();
+			shutdown();
 		}
+	}
+
+	public static void shutdown() {
+		LOG.debug("Gracefully shutting down engine!");
+		BaukUtil.logEngineMessage("Shutting down engine. Waiting to gracefully stop all processing threads...");
+		BaukUtil.startShutdown();
+		CacheUtil.getCacheInstanceManager().stop();
+		LOG.debug("Caches are down!");
+		if (remotingHandler != null) {
+			remotingHandler.stop();
+		}
+		for (final FeedFilesHandler ffh : feedFileHandlers) {
+			ffh.stop();
+		}
+		LOG.debug("Stopped {} feed file handlers", feedFileHandlers.size());
+		for (final BulkFilesHandler bfh : bulkFileHandlers) {
+			bfh.stop();
+		}
+		LOG.debug("Stopped {} bulk file handlers {}", bulkFileHandlers.size());
+		BaukUtil.logEngineMessage("Bauk engine is down!");
+		printStatistics();
 	}
 
 	private static void printStatistics() {

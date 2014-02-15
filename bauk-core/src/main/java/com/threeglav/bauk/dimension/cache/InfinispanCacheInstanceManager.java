@@ -1,15 +1,20 @@
 package com.threeglav.bauk.dimension.cache;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.infinispan.Cache;
 import org.infinispan.manager.DefaultCacheManager;
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.threeglav.bauk.ConfigurationProperties;
 import com.threeglav.bauk.util.BaukUtil;
 
 public class InfinispanCacheInstanceManager implements CacheInstanceManager {
+
+	private static final Logger LOG = LoggerFactory.getLogger(InfinispanCacheInstanceManager.class);
 
 	private static final String INFINISPAN_XML_CONFIG_FILE_PATH = ConfigurationProperties.getConfigFolder() + "bauk-infinispan-config.xml";
 
@@ -18,7 +23,15 @@ public class InfinispanCacheInstanceManager implements CacheInstanceManager {
 	private synchronized static EmbeddedCacheManager getManager() {
 		if (manager == null) {
 			try {
-				manager = new DefaultCacheManager(INFINISPAN_XML_CONFIG_FILE_PATH);
+				final File f = new File(INFINISPAN_XML_CONFIG_FILE_PATH);
+				if (!(f.exists() && f.isFile())) {
+					LOG.warn(
+							"Was not able to find infinispan configuration file [{}]. Will use default configuration! This might cause performance issues!",
+							f.getAbsolutePath());
+					manager = new DefaultCacheManager();
+				} else {
+					manager = new DefaultCacheManager(INFINISPAN_XML_CONFIG_FILE_PATH);
+				}
 			} catch (final IOException ie) {
 				BaukUtil.logEngineMessage("Exception while loading infinispan configuration " + ie.getMessage());
 				System.exit(-1);

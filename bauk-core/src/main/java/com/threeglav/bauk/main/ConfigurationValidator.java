@@ -33,11 +33,15 @@ class ConfigurationValidator {
 	}
 
 	void validate() throws Exception {
-		final boolean sourceOk = this.getOrCreateDirectory(config.getSourceDirectory(), false);
+		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
+				config.getSourceDirectory());
+		final boolean sourceOk = this.getOrCreateDirectory(sourceDirectory, false);
 		if (!sourceOk) {
 			throw new IllegalStateException("Was not able to find folder where input feeds will be stored! Aborting!");
 		}
-		final boolean archiveOk = this.getOrCreateDirectory(config.getArchiveDirectory(), true);
+		final String archiveDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
+				config.getArchiveDirectory());
+		final boolean archiveOk = this.getOrCreateDirectory(archiveDirectory, true);
 		if (!archiveOk) {
 			log.warn("Was not able to find directory for storing archives. This feature will be disabled!");
 		}
@@ -45,7 +49,9 @@ class ConfigurationValidator {
 		if (!errorOk) {
 			throw new IllegalStateException("Was not able to find folder for storing corrupted/invalid data! Aborting!");
 		}
-		final boolean bulkOutOk = this.getOrCreateDirectory(config.getBulkOutputDirectory(), true);
+		final String bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
+				config.getBulkOutputDirectory());
+		final boolean bulkOutOk = this.getOrCreateDirectory(bulkOutDirectory, true);
 		if (!bulkOutOk) {
 			throw new IllegalStateException("Was not able to find folder for storing bulk output data! Aborting!");
 		}
