@@ -71,7 +71,7 @@
       <xs:element name="jdbcUrl" type="xs:string"/>
       <xs:element name="jdbcUserName" type="xs:string" minOccurs="0"/>
       <xs:element name="jdbcPassword" type="xs:string" minOccurs="0"/>
-      <xs:element name="jdbcPoolSize" type="xs:int" default="12" minOccurs="0"/>
+      <xs:element name="jdbcPoolSize" type="xs:int" default="25" minOccurs="0"/>
     </xs:all>
   </xs:complexType>
 
@@ -354,7 +354,7 @@
 
   <xs:simpleType name="dimensionType">
     <xs:restriction base="xs:string">
-      <xs:enumeration value="T1_INSERT_ONLY"/>
+      <xs:enumeration value="INSERT_ONLY"/>
       <xs:enumeration value="T1"/>
       <xs:enumeration value="T2"/>
     </xs:restriction>

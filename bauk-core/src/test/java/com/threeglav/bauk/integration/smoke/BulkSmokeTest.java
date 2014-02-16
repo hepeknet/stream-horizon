@@ -2,6 +2,7 @@ package com.threeglav.bauk.integration.smoke;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.junit.AfterClass;
@@ -26,7 +27,7 @@ public class BulkSmokeTest {
 
 	@Before
 	public void setup() throws Exception {
-		testSetup.deleteDataFromFactTable();
+		testSetup.deleteDataFromTables();
 	}
 
 	@Test
@@ -44,6 +45,12 @@ public class BulkSmokeTest {
 		Assert.assertEquals("1000", firstRow.get("f2"));
 		Assert.assertEquals("2000", firstRow.get("f3"));
 		Assert.assertEquals("head1", firstRow.get("f4"));
+		final Collection<Map<String, String>> feedRecordData = testSetup.getDataFromFeedRecordTable();
+		Assert.assertEquals(1, feedRecordData.size());
+		final Map<String, String> feedRecordRow = feedRecordData.iterator().next();
+		Assert.assertEquals(2, feedRecordRow.size());
+		Assert.assertEquals("1", feedRecordRow.get("cnt"));
+		Assert.assertEquals("S", feedRecordRow.get("flag"));
 		inputFile.delete();
 	}
 
@@ -60,6 +67,17 @@ public class BulkSmokeTest {
 		Assert.assertEquals(successBulkBefore, EngineRegistry.getSuccessfulBulkFilesCount());
 		final Collection<Map<String, String>> factData = testSetup.getDataFromFactTable();
 		Assert.assertEquals(0, factData.size());
+		final Collection<Map<String, String>> feedRecordData = testSetup.getDataFromFeedRecordTable();
+		Assert.assertEquals(2, feedRecordData.size());
+		final Iterator<Map<String, String>> iterator = feedRecordData.iterator();
+		final Map<String, String> feedRecordRow1 = iterator.next();
+		Assert.assertEquals(2, feedRecordRow1.size());
+		Assert.assertEquals("-1", feedRecordRow1.get("cnt"));
+		Assert.assertEquals("F", feedRecordRow1.get("flag"));
+		final Map<String, String> feedRecordRow2 = iterator.next();
+		Assert.assertEquals(2, feedRecordRow2.size());
+		Assert.assertEquals("0", feedRecordRow2.get("cnt"));
+		Assert.assertEquals("F", feedRecordRow2.get("flag"));
 		inputFile.delete();
 	}
 
@@ -76,6 +94,17 @@ public class BulkSmokeTest {
 		Assert.assertEquals(successBulkBefore, EngineRegistry.getSuccessfulBulkFilesCount());
 		final Collection<Map<String, String>> factData = testSetup.getDataFromFactTable();
 		Assert.assertEquals(0, factData.size());
+		final Collection<Map<String, String>> feedRecordData = testSetup.getDataFromFeedRecordTable();
+		Assert.assertEquals(2, feedRecordData.size());
+		final Iterator<Map<String, String>> iterator = feedRecordData.iterator();
+		final Map<String, String> feedRecordRow1 = iterator.next();
+		Assert.assertEquals(2, feedRecordRow1.size());
+		Assert.assertEquals("-1", feedRecordRow1.get("cnt"));
+		Assert.assertEquals("F", feedRecordRow1.get("flag"));
+		final Map<String, String> feedRecordRow2 = iterator.next();
+		Assert.assertEquals(2, feedRecordRow2.size());
+		Assert.assertEquals("0", feedRecordRow2.get("cnt"));
+		Assert.assertEquals("F", feedRecordRow2.get("flag"));
 		inputFile.delete();
 	}
 

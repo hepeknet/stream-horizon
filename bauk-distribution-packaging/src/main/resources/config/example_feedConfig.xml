@@ -275,7 +275,15 @@
 					<command type="shell">d:/second.bat</command>
 				</onBulkLoadFailure>
 			</bulkLoadDefinition>
-			<!-- following is executed by feed processing threads in the order specified -->
+			<!-- following is executed by feed processing thread in the order specified, only if feed processing failed, think of this as catch{} block in Java -->
+			<onFeedProcessingFailure>
+				<!-- by default files are moved to error folder on processing failure -->
+				<command type="shell">d:/rollback.bat</command>
+				<!-- it is possible to use any context attributes here -->
+				<command type="sql">UPDATE some table for rollback</command>
+				<command type="shell">d:/second_rollback.bat</command>
+			</onFeedProcessingFailure>
+			<!-- following is executed by feed processing threads in the order specified. This is execute regardless if exception was thrown or not, think of this as finally{} block in Java -->
 			<afterFeedProcessingCompletion>
 				<command type="shell">d:/first.bat</command>
 				<!-- it is possible to use any context attributes here -->
@@ -284,14 +292,6 @@
                       '${completionFeedProcessingErrorDescription}', '${eodFlag}', '${requestTimestamp}','${rerunVersion}')</command>
 				<command type="shell">d:/second.bat</command>
 			</afterFeedProcessingCompletion>
-			<!-- following is executed by feed processing thread in the order specified, only if feed processing failed -->
-			<onFeedProcessingFailure>
-				<!-- by default files are moved to error folder on processing failure -->
-				<command type="shell">d:/rollback.bat</command>
-				<!-- it is possible to use any context attributes here -->
-				<command type="sql">UPDATE some table for rollback</command>
-				<command type="shell">d:/second_rollback.bat</command>
-			</onFeedProcessingFailure>
 			<threadPoolSizes>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
 				<feedProcessingThreads>4</feedProcessingThreads>
@@ -363,7 +363,7 @@
 				<preCacheKeys>select portfolio_dim_wid, portfolio_name from rwh_portfolio_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<dimension name="RWH_PARTY_DIM" type="T1_INSERT_ONLY">
+		<dimension name="RWH_PARTY_DIM" type="INSERT_ONLY">
 			<mappedColumns>
 				<mappedColumn name="partyName" naturalKey="true" />
 			</mappedColumns>
@@ -376,7 +376,7 @@
 				<preCacheKeys>select party_dim_wid, party_name from rwh_party_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<dimension name="RWH_CURRENCY_DIM" type="T1_INSERT_ONLY">
+		<dimension name="RWH_CURRENCY_DIM" type="INSERT_ONLY">
 			<mappedColumns>
 				<mappedColumn name="baseCurrencyCode" naturalKey="true" />
 				<mappedColumn name="riskCurrencyCode" naturalKey="true" />
@@ -391,7 +391,7 @@
 				<preCacheKeys>select CURRENCY_DIM_WID, BASE_CURRENCY, RISK_CURRENCY, LOCAL_CURRENCY from rwh_currency_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<dimension name="RWH_CURVETYPE_DIM" type="T1_INSERT_ONLY">
+		<dimension name="RWH_CURVETYPE_DIM" type="INSERT_ONLY">
 			<mappedColumns>
 				<mappedColumn name="curveType" naturalKey="true" />
 				<mappedColumn name="pricingModel" naturalKey="true" />
@@ -405,7 +405,7 @@
 				<preCacheKeys>select curvetype_dim_wid, curve_type_code, pricing_model from rwh_curvetype_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<dimension name="RWH_DATE_DIM" type="T1_INSERT_ONLY">
+		<dimension name="RWH_DATE_DIM" type="INSERT_ONLY">
 			<mappedColumns>
 				<mappedColumn name="businessDate" naturalKey="true" />
 			</mappedColumns>
@@ -418,7 +418,7 @@
 				<preCacheKeys>select DATE_DIM_WID, TO_CHAR(BUSINESS_DATE, 'DD/MM/YYYY') from RWH_DATE_DIM</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<dimension name="RWH_DEAL_DIM" type="T1_INSERT_ONLY">
+		<dimension name="RWH_DEAL_DIM" type="INSERT_ONLY">
 			<mappedColumns>
 				<!-- natural key columns are used to cache data -->
 				<!-- if not natural key columns are defined caching will be disabled -->
@@ -450,7 +450,7 @@
 		</dimension>
 		<!-- this dimension will be executed once per feed (before starting to process feed file) and its key will be available as ${notificationSk} in context for feed processing (not available in context for bulk processing)-->
 		<!-- this is normal dimension, caching still applies - the only difference from other dimension is that SK is looked up once per feed and not once per feed row -->
-		<dimension name="REQUESTNOTIFICATION" type="T1_INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
+		<dimension name="REQUESTNOTIFICATION" type="INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
 			<mappedColumns>
 				<!-- ffn[x] attributes are created by default feed file name processor. Delimiter for splitting feed file name is _ -->
 				<!-- so if input feed file is named a_b_c then ffn[0]=a ffn[1]=b ffn[2]=c and can be used as any other attribute in context -->

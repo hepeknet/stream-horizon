@@ -52,6 +52,12 @@
 					</attributes>
 				</bulkLoadFormatDefinition>
 			</bulkLoadDefinition>
+			<onFeedProcessingFailure>
+				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(-1, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+			</onFeedProcessingFailure>
+			<afterFeedProcessingCompletion>
+				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+			</afterFeedProcessingCompletion>
 			<threadPoolSizes>
 				<feedProcessingThreads>1</feedProcessingThreads>
 				<bulkLoadProcessingThreads>1</bulkLoadProcessingThreads>
@@ -59,7 +65,7 @@
 		</factFeed>
 	</factFeeds>
 	<dimensions>
-		<dimension name="TEST_DIM" type="T1_INSERT_ONLY">
+		<dimension name="TEST_DIM" type="INSERT_ONLY">
 			<localCacheMaxSize>50000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="a_in" naturalKey="true" />

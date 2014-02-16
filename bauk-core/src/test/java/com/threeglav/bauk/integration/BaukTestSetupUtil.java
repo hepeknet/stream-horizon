@@ -112,7 +112,7 @@ public class BaukTestSetupUtil {
 		final Statement stat = conn.createStatement();
 		stat.execute("select f1, f2, f3, f4 from TEST_FACT order by f1");
 		final ResultSet rs = stat.getResultSet();
-		if (rs.next()) {
+		while (rs.next()) {
 			final Map<String, String> row = new HashMap<String, String>();
 			row.put("f1", rs.getString(1));
 			row.put("f2", rs.getString(2));
@@ -125,10 +125,28 @@ public class BaukTestSetupUtil {
 		return results;
 	}
 
-	public static void deleteDataFromFactTable() throws Exception {
+	public static Collection<Map<String, String>> getDataFromFeedRecordTable() throws Exception {
+		final List<Map<String, String>> results = new LinkedList<>();
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("select cnt, flag from FEED_REC order by cnt asc");
+		final ResultSet rs = stat.getResultSet();
+		while (rs.next()) {
+			final Map<String, String> row = new HashMap<String, String>();
+			row.put("cnt", rs.getString(1));
+			row.put("flag", rs.getString(2));
+			results.add(row);
+		}
+		stat.close();
+		conn.close();
+		return results;
+	}
+
+	public static void deleteDataFromTables() throws Exception {
 		final Connection conn = getConnection();
 		final Statement stat = conn.createStatement();
 		stat.execute("delete from TEST_FACT");
+		stat.execute("delete from FEED_REC");
 		stat.close();
 		conn.close();
 	}
@@ -146,6 +164,7 @@ public class BaukTestSetupUtil {
 		}
 		stat.execute("create table TEST_DIM (id INTEGER NOT NULL AUTO_INCREMENT, a VARCHAR(100),b VARCHAR(100))");
 		stat.execute("create table TEST_FACT (f1 INTEGER,f2 INTEGER,f3 INTEGER, f4 VARCHAR(100))");
+		stat.execute("create table FEED_REC(cnt INTEGER, flag VARCHAR(10))");
 		stat.close();
 		conn.close();
 	}

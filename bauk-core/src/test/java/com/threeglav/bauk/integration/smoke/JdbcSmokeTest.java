@@ -26,7 +26,7 @@ public class JdbcSmokeTest {
 
 	@Before
 	public void setup() throws Exception {
-		testSetup.deleteDataFromFactTable();
+		testSetup.deleteDataFromTables();
 	}
 
 	@Test

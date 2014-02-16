@@ -48,7 +48,7 @@
 		</factFeed>
 	</factFeeds>
 	<dimensions>
-		<dimension name="TEST_DIM" type="T1_INSERT_ONLY">
+		<dimension name="TEST_DIM" type="INSERT_ONLY">
 			<localCacheMaxSize>50000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="a_in" naturalKey="true" />

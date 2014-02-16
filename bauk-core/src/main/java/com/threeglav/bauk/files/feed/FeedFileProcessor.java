@@ -217,11 +217,13 @@ public class FeedFileProcessor implements FileProcessor {
 			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, exc.getMessage());
 			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "F");
 			globalAttributes.put(BaukConstants.COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED, "0");
+			throw exc;
+		} finally {
+			if (isDebugEnabled) {
+				log.debug("Global attributes (including completion attributes) for {} are {}", factFeed.getName(), globalAttributes);
+			}
+			feedCompletionProcessor.process(globalAttributes);
 		}
-		if (isDebugEnabled) {
-			log.debug("Global attributes (including completion attributes) for {} are {}", factFeed.getName(), globalAttributes);
-		}
-		feedCompletionProcessor.process(globalAttributes);
 	}
 
 	private void processInputStream(final InputStream inputStream, final BaukFile file) {
@@ -229,8 +231,8 @@ public class FeedFileProcessor implements FileProcessor {
 		if (isDebugEnabled) {
 			log.debug("Received filePath={}", file.getFullFilePath());
 		}
+		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(file);
 		try {
-			final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(file);
 			if (beforeFeedProcessingProcessor != null) {
 				beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
 			}
@@ -242,7 +244,7 @@ public class FeedFileProcessor implements FileProcessor {
 		} catch (final Exception exc) {
 			if (executeRollbackSequence) {
 				log.info("Executing rollback commands for feed {}", factFeed.getName());
-				feedProcessingFailureCommandsExecutor.executeBaukCommandSequence(implicitAttributes,
+				feedProcessingFailureCommandsExecutor.executeBaukCommandSequence(globalAttributes,
 						"rollback command sequence for feed " + factFeed.getName());
 			}
 			throw exc;

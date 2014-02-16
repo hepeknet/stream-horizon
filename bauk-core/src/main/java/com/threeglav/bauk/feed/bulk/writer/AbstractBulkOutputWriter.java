@@ -70,11 +70,13 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	}
 
 	protected void deleteTemporaryBulkOutputFile() {
-		final File temp = new File(temporaryBulkOutputFilePath);
-		if (isDebugEnabled) {
-			log.debug("Deleting temporary bulk output file {}", temporaryBulkOutputFilePath);
+		if (temporaryBulkOutputFilePath != null) {
+			final File temp = new File(temporaryBulkOutputFilePath);
+			if (isDebugEnabled) {
+				log.debug("Deleting temporary bulk output file {}", temporaryBulkOutputFilePath);
+			}
+			temp.delete();
 		}
-		temp.delete();
 	}
 
 	private void validate() {
