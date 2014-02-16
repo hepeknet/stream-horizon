@@ -142,11 +142,29 @@ public class BaukTestSetupUtil {
 		return results;
 	}
 
+	public static Collection<Map<String, String>> getDataFromBulkRecordTable() throws Exception {
+		final List<Map<String, String>> results = new LinkedList<>();
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("select cnt, filepath from BULK_LOAD_REC order by cnt asc");
+		final ResultSet rs = stat.getResultSet();
+		while (rs.next()) {
+			final Map<String, String> row = new HashMap<String, String>();
+			row.put("cnt", rs.getString(1));
+			row.put("filepath", rs.getString(2));
+			results.add(row);
+		}
+		stat.close();
+		conn.close();
+		return results;
+	}
+
 	public static void deleteDataFromTables() throws Exception {
 		final Connection conn = getConnection();
 		final Statement stat = conn.createStatement();
 		stat.execute("delete from TEST_FACT");
 		stat.execute("delete from FEED_REC");
+		stat.execute("delete from BULK_LOAD_REC");
 		stat.close();
 		conn.close();
 	}
@@ -165,6 +183,7 @@ public class BaukTestSetupUtil {
 		stat.execute("create table TEST_DIM (id INTEGER NOT NULL AUTO_INCREMENT, a VARCHAR(100),b VARCHAR(100))");
 		stat.execute("create table TEST_FACT (f1 INTEGER,f2 INTEGER,f3 INTEGER, f4 VARCHAR(100))");
 		stat.execute("create table FEED_REC(cnt INTEGER, flag VARCHAR(10))");
+		stat.execute("create table BULK_LOAD_REC(cnt INTEGER, filepath VARCHAR(200))");
 		stat.close();
 		conn.close();
 	}

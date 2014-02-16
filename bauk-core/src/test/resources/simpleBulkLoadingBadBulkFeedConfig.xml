@@ -41,7 +41,7 @@
 			<bulkLoadDefinition outputType="file">
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<bulkLoadInsert>
-					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
+					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4,f5) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
 				</bulkLoadInsert>
 				<bulkLoadFormatDefinition>
 					<attributes>
@@ -55,8 +55,8 @@
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(111, '${bulkFilePath}')</command>
 				</afterBulkLoadSuccess>
 				<onBulkLoadFailure>
-					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(2, '${bulkFilePath}')</command>
-					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(3, '${bulkFilePath}')</command>
+					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(222, '${bulkFilePath}')</command>
+					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(333, 'abc_${bulkFilePath}')</command>
 				</onBulkLoadFailure>
 			</bulkLoadDefinition>
 			<onFeedProcessingFailure>

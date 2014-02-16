@@ -51,6 +51,13 @@ public class BulkSmokeTest {
 		Assert.assertEquals(2, feedRecordRow.size());
 		Assert.assertEquals("1", feedRecordRow.get("cnt"));
 		Assert.assertEquals("S", feedRecordRow.get("flag"));
+
+		final Collection<Map<String, String>> bulkRecordData = testSetup.getDataFromBulkRecordTable();
+		Assert.assertEquals(1, bulkRecordData.size());
+		final Map<String, String> bulkRecordRow = bulkRecordData.iterator().next();
+		Assert.assertEquals(2, bulkRecordRow.size());
+		Assert.assertEquals("111", bulkRecordRow.get("cnt"));
+		Assert.assertNotNull(bulkRecordRow.get("filepath"));
 		inputFile.delete();
 	}
 
@@ -78,6 +85,8 @@ public class BulkSmokeTest {
 		Assert.assertEquals(2, feedRecordRow2.size());
 		Assert.assertEquals("0", feedRecordRow2.get("cnt"));
 		Assert.assertEquals("F", feedRecordRow2.get("flag"));
+		final Collection<Map<String, String>> bulkRecordData = testSetup.getDataFromBulkRecordTable();
+		Assert.assertEquals(0, bulkRecordData.size());
 		inputFile.delete();
 	}
 
@@ -105,6 +114,8 @@ public class BulkSmokeTest {
 		Assert.assertEquals(2, feedRecordRow2.size());
 		Assert.assertEquals("0", feedRecordRow2.get("cnt"));
 		Assert.assertEquals("F", feedRecordRow2.get("flag"));
+		final Collection<Map<String, String>> bulkRecordData = testSetup.getDataFromBulkRecordTable();
+		Assert.assertEquals(0, bulkRecordData.size());
 		inputFile.delete();
 	}
 
