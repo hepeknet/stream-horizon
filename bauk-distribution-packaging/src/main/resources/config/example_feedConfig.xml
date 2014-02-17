@@ -454,7 +454,7 @@
 			<mappedColumns>
 				<!-- ffn[x] attributes are created by default feed file name processor. Delimiter for splitting feed file name is _ -->
 				<!-- so if input feed file is named a_b_c then ffn[0]=a ffn[1]=b ffn[2]=c and can be used as any other attribute in context -->
-				<!-- this can be changed by providing custom FeedFileNameProcessor implementation (see customisations folder for example) -->
+				<!-- this can be changed by providing custom FeedFileNameProcessor implementation (see $BAUK_HOME/plugins/ folder for example) -->
 				<mappedColumn name="ffn[1]" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>

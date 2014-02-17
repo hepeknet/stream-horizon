@@ -6,6 +6,7 @@
 	<bulkOutputDirectory></bulkOutputDirectory>
 	<properties>
 		<property name="remoting.server.port">0</property>
+		<property name="jdbc.client.info.program">BaukETL</property>
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</jdbcUrl>

@@ -1,4 +1,4 @@
-- JDK 1.7 is required
+- JDK 1.7 is required - recommended is to use latest Oracle HotSpot version
 - in most cases only thing to be changed should be $BAUK_HOME/config/feedConfig.xml (where mappings are defined), no need to change anything else
 
 - startup scripts can be found in $BAUK_HOME/bin/ folder. JVM tuning and turning some experimental options can be done in startup scripts
@@ -7,7 +7,7 @@
 - startup scripts can be used to point to different feed config file
 - any additional classpath dependencies should be added to $BAUK_HOME/extras/
 - all log files will be created in $BAUK_HOME/log/ folder
-- JMX metrics are exposed by default under metrics subtree (use JVisualVM or JConsole)
+- JMX metrics are exposed by default under bauk-metrics subtree (use JVisualVM or JConsole)
 - do not delete or create anything in $BAUK_HOME/data/ folder - this folder is used for housekeeping
 
 HTTP commands
@@ -19,6 +19,6 @@ http://localhost:21000/flushDimensionCache/?dimension=DIMENSION_NAME_AS_DEFINED_
 http://localhost:21000/flushDimensionCache/?dimension=PORTFOLIO_DIMENSION
 
 
-2) Accessing monitoring page
+2) Accessing monitoring page (in development)
 
 http://localhost:21000/monitor/

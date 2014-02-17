@@ -23,6 +23,8 @@ public class DataSourceProvider {
 
 	private static final DataSourceProvider INSTANCE = new DataSourceProvider();
 
+	private DataSource dataSource;
+
 	private DataSourceProvider() {
 
 	}
@@ -61,7 +63,7 @@ public class DataSourceProvider {
 				log.debug("JDBC password set");
 				hc.addDataSourceProperty("password", connectionProperties.getJdbcPassword());
 			}
-			final DataSource ds = new HikariDataSource(hc);
+			final HikariDataSource ds = new HikariDataSource(hc);
 			return ds;
 		} catch (final Exception e) {
 			log.error("Exception starting connection pool", e);
@@ -90,7 +92,10 @@ public class DataSourceProvider {
 	}
 
 	public static DataSource getDataSource(final BaukConfiguration config) {
-		return INSTANCE.createWhDataSource(config);
+		if (INSTANCE.dataSource == null) {
+			INSTANCE.dataSource = INSTANCE.createWhDataSource(config);
+		}
+		return INSTANCE.dataSource;
 	}
 
 	public static DataSource getSimpleDataSource(final String jdbcUrl) {
