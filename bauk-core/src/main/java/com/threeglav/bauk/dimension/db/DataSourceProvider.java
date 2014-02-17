@@ -76,10 +76,10 @@ public class DataSourceProvider {
 		final String urlLower = jdbcUrl.toLowerCase();
 		if (urlLower.startsWith("jdbc:oracle")) {
 			hc.setDataSourceClassName("oracle.jdbc.pool.OracleDataSource");
-			hc.addDataSourceProperty("url", jdbcUrl);
+			hc.addDataSourceProperty("URL", jdbcUrl);
 		} else if (urlLower.startsWith("jdbc:sqlserver")) {
-			hc.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource");
-			hc.addDataSourceProperty("url", jdbcUrl);
+			hc.setDataSourceClassName("com.microsoft.sqlserver.jdbc.SQLServerDataSource");
+			hc.addDataSourceProperty("URL", jdbcUrl);
 		} else if (urlLower.startsWith("jdbc:mysql")) {
 			hc.setDataSourceClassName("com.mysql.jdbc.jdbc2.optional.MysqlDataSource");
 			hc.addDataSourceProperty("url", jdbcUrl);
