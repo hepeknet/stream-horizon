@@ -32,6 +32,7 @@ public class BaukConnectionCustomizer implements IConnectionCustomizer {
 		if (!StringUtil.isEmpty(programName)) {
 			try {
 				connection.setClientInfo("v$session.program", programName);
+				connection.setClientInfo("ApplicationName ", programName);
 			} catch (final Exception exc) {
 				this.checkSupportedClientInfo(connection);
 				log.warn(

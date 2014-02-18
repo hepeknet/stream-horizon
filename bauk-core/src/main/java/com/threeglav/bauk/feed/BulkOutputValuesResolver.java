@@ -50,6 +50,14 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private final BulkLoadOutputValueHandler[] outputValueHandlers;
 	private final CacheInstanceManager cacheInstanceManager;
 
+	// optimization - only invoke handlers interested in per-feed calculations
+	private final boolean hasCloseFeedValueHandlers;
+	private final int[] closeValueHandlerPositions;
+
+	// optimization - only invoke handlers interested in per-feed calculations
+	private final boolean hasCalculatePerFeedValueHandlers;
+	private final int[] perFeedValueHandlerPositions;
+
 	// one handler per dimension only
 	static final Map<String, DimensionHandler> cachedDimensionHandlers = new THashMap<String, DimensionHandler>();
 
@@ -74,6 +82,37 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
 		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
 		this.createOutputValueHandlers(routeIdentifier);
+		final List<Integer> perFeedValueHandlers = new ArrayList<>();
+		final List<Integer> closeFeedValueHandlers = new ArrayList<>();
+		for (int i = 0; i < outputValueHandlers.length; i++) {
+			if (outputValueHandlers[i].hasCalculatePerFeedValues()) {
+				perFeedValueHandlers.add(i);
+			}
+			if (outputValueHandlers[i].closeShouldBeInvoked()) {
+				closeFeedValueHandlers.add(i);
+			}
+		}
+		hasCalculatePerFeedValueHandlers = !perFeedValueHandlers.isEmpty();
+		if (hasCalculatePerFeedValueHandlers) {
+			perFeedValueHandlerPositions = new int[perFeedValueHandlers.size()];
+			int counter = 0;
+			for (final Integer pos : perFeedValueHandlers) {
+				perFeedValueHandlerPositions[counter++] = pos;
+			}
+		} else {
+			perFeedValueHandlerPositions = null;
+		}
+
+		hasCloseFeedValueHandlers = !closeFeedValueHandlers.isEmpty();
+		if (hasCloseFeedValueHandlers) {
+			closeValueHandlerPositions = new int[closeFeedValueHandlers.size()];
+			int counter = 0;
+			for (final Integer pos : closeFeedValueHandlers) {
+				closeValueHandlerPositions[counter++] = pos;
+			}
+		} else {
+			closeValueHandlerPositions = null;
+		}
 	}
 
 	private void validate() {
@@ -229,14 +268,17 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	public void startFeed(final Map<String, String> globalData) {
-		if (isDebugEnabled) {
-			log.debug("Starting feed with attributes {}", globalData);
-		}
-		for (int i = 0; i < outputValueHandlers.length; i++) {
-			outputValueHandlers[i].calculatePerFeedValues(globalData);
-		}
-		if (isDebugEnabled) {
-			log.debug("Started feed. In total have {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
+		if (hasCalculatePerFeedValueHandlers) {
+			if (isDebugEnabled) {
+				log.debug("Starting feed with attributes {}", globalData);
+			}
+			for (int i = 0; i < perFeedValueHandlerPositions.length; i++) {
+				final int pos = perFeedValueHandlerPositions[i];
+				outputValueHandlers[pos].calculatePerFeedValues(globalData);
+			}
+			if (isDebugEnabled) {
+				log.debug("Started feed. In total have {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
+			}
 		}
 	}
 
@@ -257,9 +299,10 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	public void closeCurrentFeed() {
-		if (outputValueHandlers != null) {
-			for (int i = 0; i < outputValueHandlers.length; i++) {
-				outputValueHandlers[i].closeCurrentFeed();
+		if (hasCloseFeedValueHandlers) {
+			for (int i = 0; i < closeValueHandlerPositions.length; i++) {
+				final int pos = closeValueHandlerPositions[i];
+				outputValueHandlers[pos].closeCurrentFeed();
 			}
 		}
 	}

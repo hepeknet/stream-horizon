@@ -46,4 +46,14 @@ public class CachedPerFeedDimensionHandler extends DimensionHandler {
 		log.debug("Global attributes after per-feed calculation {}", globalValues);
 	}
 
+	@Override
+	public boolean hasCalculatePerFeedValues() {
+		return true;
+	}
+
+	@Override
+	public boolean closeShouldBeInvoked() {
+		return true;
+	}
+
 }

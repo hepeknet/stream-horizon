@@ -440,4 +440,14 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	public void calculatePerFeedValues(final Map<String, String> globalValues) {
 	}
 
+	@Override
+	public boolean hasCalculatePerFeedValues() {
+		return false;
+	}
+
+	@Override
+	public boolean closeShouldBeInvoked() {
+		return false;
+	}
+
 }

@@ -41,4 +41,14 @@ public final class GlobalAttributeMappingHandler implements BulkLoadOutputValueH
 		return this.getBulkLoadValue(parsedLine, globalValues);
 	}
 
+	@Override
+	public boolean hasCalculatePerFeedValues() {
+		return false;
+	}
+
+	@Override
+	public boolean closeShouldBeInvoked() {
+		return false;
+	}
+
 }

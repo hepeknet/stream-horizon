@@ -54,9 +54,6 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 
 	@Override
 	public void startFeed(final Map<String, String> globalAttributes) {
-		if (globalAttributes == null) {
-			throw new IllegalArgumentException("Global attributes must not be null");
-		}
 		if (isDebugEnabled) {
 			log.debug("Starting new feed with global attributes {}", globalAttributes);
 		}

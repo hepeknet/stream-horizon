@@ -53,6 +53,7 @@ public class DataSourceProvider {
 				hc.setConnectionCustomizerClassName(BaukConnectionCustomizer.class.getName());
 			}
 			hc.setMaximumPoolSize(connectionProperties.getJdbcPoolSize());
+			hc.setInitializationFailFast(true);
 			setDataSourceProperties(jdbcUrl, hc);
 			log.info("JDBC URL is {}", jdbcUrl);
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcUserName())) {

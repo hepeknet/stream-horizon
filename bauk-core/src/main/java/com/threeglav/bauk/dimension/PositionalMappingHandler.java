@@ -50,4 +50,14 @@ public final class PositionalMappingHandler implements BulkLoadOutputValueHandle
 		return this.getBulkLoadValue(parsedLine, globalValues);
 	}
 
+	@Override
+	public boolean hasCalculatePerFeedValues() {
+		return false;
+	}
+
+	@Override
+	public boolean closeShouldBeInvoked() {
+		return false;
+	}
+
 }
