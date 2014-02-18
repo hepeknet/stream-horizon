@@ -379,35 +379,54 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return replaced;
 	}
 
-	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes, final StringBuilder sb) {
+	final String buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(final String[] parsedLine, final Map<String, String> globalAttributes,
+			final StringBuilder sb) {
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
-			final int key = naturalKeyPositionsInFeed[i];
-			String value = null;
-			if (hasNaturalKeysNotPresentInFeed) {
-				if (key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
-					final String attributeName = naturalKeyNames[i];
-					if (attributeName != null) {
-						final String globalAttributeValue = globalAttributes.get(attributeName);
-						if (isDebugEnabled) {
-							log.debug(
-									"Natural key {}.{} is not mapped to any of declared feed attributes. Will use value [{}] found in global attributes",
-									dimension.getName(), attributeName, globalAttributeValue);
-						}
-						value = globalAttributeValue;
-					}
-				}
-			} else {
-				value = parsedLine[key];
-			}
 			if (i != 0) {
 				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
 			}
+			final int key = naturalKeyPositionsInFeed[i];
+			final String value = parsedLine[key];
 			sb.append(value);
 		}
 		return sb.toString();
 	}
 
-	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	final String buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(final String[] parsedLine, final Map<String, String> globalAttributes,
+			final StringBuilder sb) {
+		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
+			if (i != 0) {
+				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
+			}
+			final int key = naturalKeyPositionsInFeed[i];
+			if (key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
+				final String attributeName = naturalKeyNames[i];
+				if (attributeName != null) {
+					final String globalAttributeValue = globalAttributes.get(attributeName);
+					if (isDebugEnabled) {
+						log.debug(
+								"Natural key {}.{} is not mapped to any of declared feed attributes. Will use value [{}] found in global attributes",
+								dimension.getName(), attributeName, globalAttributeValue);
+					}
+					final String value = globalAttributeValue;
+					sb.append(value);
+				}
+			} else {
+				final String value = parsedLine[key];
+				sb.append(value);
+			}
+		}
+		return sb.toString();
+	}
+
+	final String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes, final StringBuilder sb) {
+		if (hasNaturalKeysNotPresentInFeed) {
+			return this.buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(parsedLine, globalAttributes, sb);
+		}
+		return this.buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(parsedLine, globalAttributes, sb);
+	}
+
+	final String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		return this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes, sb);
 	}
