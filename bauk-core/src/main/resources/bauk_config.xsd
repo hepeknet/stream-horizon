@@ -152,7 +152,7 @@
 
   <xs:complexType name="data">
     <xs:all>
-      <xs:element name="eachLineStartsWithCharacter" type="xs:string"/>
+      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
       <xs:element name="feedDataProcessorClassName" type="xs:string" minOccurs="0"/>
       <xs:element name="attributes" minOccurs="0">
         <xs:complexType>

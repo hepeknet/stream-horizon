@@ -43,7 +43,7 @@ JAVA_OPTS="$JAVA_OPTS $additionalJVMProperties "
 # set bauk.config property to point to valid configuration file on file system
 JAVA_OPTS="$JAVA_OPTS -Dbauk.home=$RESOLVED_HOME -Dbauk.config=${BAUK_CONFIG_FILE_LOCATION}"
 
-CONFIG_OPTIONS="-Dlogback.configurationFile=$RESOLVED_HOME/config/logback.xml -Dhazelcast.config=$RESOLVED_HOME/config/bauk-hazelcast-config.xml"
+CONFIG_OPTIONS="-Dlogback.configurationFile=$RESOLVED_HOME/config/logback.xml -Dhazelcast.config=$RESOLVED_HOME/config/sh-hazelcast-config.xml"
 
 JAVA_CP="$RESOLVED_HOME/lib/*:$RESOLVED_HOME/extras/*:"
 

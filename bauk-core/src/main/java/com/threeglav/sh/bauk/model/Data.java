@@ -18,7 +18,7 @@ public class Data {
 	@XmlAttribute
 	private DataProcessingType process = DataProcessingType.NORMAL;
 
-	@XmlElement(required = true)
+	@XmlElement(required = false)
 	private String eachLineStartsWithCharacter;
 
 	@XmlElement(required = false)

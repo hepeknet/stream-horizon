@@ -1,4 +1,4 @@
-import com.threeglav.bauk.feed.FeedFileNameProcessor;
+import com.threeglav.sh.bauk.feed.FeedFileNameProcessor;
 
 import java.util.Map;
 import java.util.HashMap;

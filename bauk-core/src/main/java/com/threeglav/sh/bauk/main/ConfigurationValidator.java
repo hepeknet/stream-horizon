@@ -90,7 +90,8 @@ class ConfigurationValidator {
 
 	private void validateFactFeed(final FactFeed ff) {
 		if (!StringUtil.isEmpty(ff.getData().getEachLineStartsWithCharacter())) {
-			log.warn("Configuration for feed {} requires every data line to start with [{}]. This is mandatory for correct data interpretation!",
+			log.warn(
+					"Configuration for feed {} requires every data line to start with [{}]. This is mandatory for correct data interpretation of input feeds!",
 					ff.getName(), ff.getData().getEachLineStartsWithCharacter());
 		}
 		if (ff.getType() == FactFeedType.REPETITIVE && ff.getRepetitionCount() <= 0) {

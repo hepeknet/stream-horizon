@@ -16,7 +16,7 @@ public class InfinispanCacheInstanceManager implements CacheInstanceManager {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InfinispanCacheInstanceManager.class);
 
-	private static final String INFINISPAN_XML_CONFIG_FILE_PATH = ConfigurationProperties.getConfigFolder() + "bauk-infinispan-config.xml";
+	private static final String INFINISPAN_XML_CONFIG_FILE_PATH = ConfigurationProperties.getConfigFolder() + "sh-infinispan-config.xml";
 
 	private static EmbeddedCacheManager manager;
 

@@ -44,7 +44,7 @@ rem set "JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote.port=8765 -Djava.r
 rem set bauk.config property to point to valid configuration file on file system
 set "JAVA_OPTS=%JAVA_OPTS% -Dbauk.home=%RESOLVED_HOME% -Dbauk.config=%BAUK_CONFIG_FILE_LOCATION%"
 
-set "CONFIG_OPTIONS=-Dlogback.configurationFile=%RESOLVED_HOME%\config\logback.xml -Dhazelcast.config=%RESOLVED_HOME%\config\bauk-hazelcast-config.xml"
+set "CONFIG_OPTIONS=-Dlogback.configurationFile=%RESOLVED_HOME%\config\logback.xml -Dhazelcast.config=%RESOLVED_HOME%\config\sh-hazelcast-config.xml"
 
 set JAVA_CP="%RESOLVED_HOME%\lib\*;%RESOLVED_HOME%\extras\*;"
 

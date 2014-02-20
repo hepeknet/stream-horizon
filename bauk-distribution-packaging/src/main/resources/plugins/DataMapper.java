@@ -1,6 +1,6 @@
 import java.util.Map;
 
-import com.threeglav.bauk.feed.FeedDataLineProcessor;
+import com.threeglav.sh.bauk.feed.FeedDataLineProcessor;
 
 public class DataMapper implements FeedDataLineProcessor {
 

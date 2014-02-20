@@ -35,7 +35,7 @@
 							<goal>proguard</goal>
 						</goals>
 						<configuration>
-							<outjar>bauk_small.jar</outjar>
+							<outjar>stream_horizon_bauk_small.jar</outjar>
 							<obfuscate>true</obfuscate>
 							<options>
 								<option>-dontoptimize</option>
@@ -79,7 +79,7 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.4</version>
 				<configuration>
-					<finalName>bauk-${project.version}</finalName>
+					<finalName>stream-horizon-${project.version}</finalName>
 					<appendAssemblyId>true</appendAssemblyId>
 					<descriptors>
 						<descriptor>src/main/assembly/assembly.xml</descriptor>

@@ -21,7 +21,7 @@
 	<factFeeds>
 		<factFeed name="dataFeed" type="full">
 			<threadPoolSizes>
-				<feedProcessingThreads>3</feedProcessingThreads>
+				<feedProcessingThreads>5</feedProcessingThreads>
 				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
 			</threadPoolSizes>				
 			<fileNameMasks>
@@ -30,8 +30,7 @@
 			<nullString>!</nullString>
 			<delimiterString>,</delimiterString>
 			<header process="skip" />
-			<data process="no_validation">			
-				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
+			<data process="no_validation">
 				<attributes>
 					<attribute name="productName" />
 					<attribute name="productModel" />
@@ -76,10 +75,8 @@
 						<attribute name="dimension.sales_channel_dim" type="int" />
 						<attribute name="dimension.promotion_dim" type="int" />
 						<attribute name="dimension.date_dim" type="int" />
-						<!--
-						<attribute name="dimension.date_dim[salesDate]" type="int" />
-						<attribute name="dimension.date_dim[deliveryDate]" type="int" />
-						-->
+						<attribute name="dimension.sales_date_dim" type="int" />
+						<attribute name="dimension.delivery_date_dim" type="int" />
 						<attribute name="feed.priceBeforeDiscount" type="float" />
 						<attribute name="feed.priceAfterDiscount" type="float" />
 						<attribute name="feed.saleCosts" type="float" />
@@ -89,6 +86,30 @@
 		</factFeed>
 	</factFeeds>
 	<dimensions>
+		<dimension name="sales_date_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="salesDate" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into date_dim(dateMMDDYYYY, date, day_of_week, month_num, year_num) values ('${salesDate}', DATE(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${salesDate}', '%m/%d/%Y')))
+				</insertSingle>
+				<selectSurrogateKey>select date_sk from date_dim where dateMMDDYYYY='${salesDate}'</selectSurrogateKey>
+				<preCacheKeys>select date_sk, dateMMDDYYYY from date_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="delivery_date_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="deliveryDate" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into date_dim(dateMMDDYYYY, date, day_of_week, month_num, year_num) values ('${deliveryDate}', DATE(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')))
+				</insertSingle>
+				<selectSurrogateKey>select date_sk from date_dim where dateMMDDYYYY='${deliveryDate}'</selectSurrogateKey>
+				<preCacheKeys>select date_sk, dateMMDDYYYY from date_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
 		<dimension name="date_dim" type="INSERT_ONLY">		
 			<mappedColumns>
 				<mappedColumn name="dateMMDDYYYY" naturalKey="true" />

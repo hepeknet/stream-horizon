@@ -1,4 +1,4 @@
-Bauk config files:
+SH config files:
 
 1) logback.xml - for tuning logging levels. Set to DEBUG and restart engine to get more information in logs. It is also possible to change logging using JMX - no need to restart JVM in this case.
 2) feedConfig.xml - default feed configuration file should be put in this folder and engine will automatically start using it on startup

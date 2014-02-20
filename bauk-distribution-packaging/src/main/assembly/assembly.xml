@@ -37,7 +37,7 @@
 			<directory>src/main/resources/</directory>
 			<outputDirectory></outputDirectory>
 			<includes>
-				<include>BAUK_README.TXT</include>
+				<include>SH_README.TXT</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -58,6 +58,13 @@
 		<fileSet>
 			<directory>src/main/resources/plugins/</directory>
 			<outputDirectory>plugins</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/example_sales/</directory>
+			<outputDirectory>example_sales</outputDirectory>
 			<includes>
 				<include>*.*</include>
 			</includes>
