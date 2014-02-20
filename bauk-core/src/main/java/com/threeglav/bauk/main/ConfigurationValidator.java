@@ -144,20 +144,6 @@ class ConfigurationValidator {
 
 	private Set<String> getAllDeclaredAttributes() {
 		final Set<String> attrs = new HashSet<>();
-		if (config.getDimensions() != null) {
-			for (final Dimension dim : config.getDimensions()) {
-				final List<String> dimAttrs = this.getDeclaredDimensionAttributes(dim);
-				if (!dimAttrs.isEmpty()) {
-					log.info("Dimension {} declared attributes {}", dim.getName(), dimAttrs);
-				}
-				final int currentSize = attrs.size();
-				attrs.addAll(dimAttrs);
-				final int newSize = attrs.size();
-				if (newSize != currentSize + dimAttrs.size()) {
-					log.warn("Looks like someone else declared attribute {}. This might cause unpredictable behaviour.", dimAttrs);
-				}
-			}
-		}
 		if (config.getFactFeeds() != null) {
 			for (final FactFeed ff : config.getFactFeeds()) {
 				final List<String> feedAttrs = this.getDeclaredFeedAttributes(ff);
@@ -256,14 +242,6 @@ class ConfigurationValidator {
 			}
 		}
 		log.info("Dimension [{}] uses attributes {}", dim.getName(), attrs);
-		return attrs;
-	}
-
-	private List<String> getDeclaredDimensionAttributes(final Dimension dim) {
-		final List<String> attrs = new LinkedList<>();
-		if (!StringUtil.isEmpty(dim.getCacheKeyPerFeedInto())) {
-			attrs.add(dim.getCacheKeyPerFeedInto());
-		}
 		return attrs;
 	}
 

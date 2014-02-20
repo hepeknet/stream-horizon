@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 import com.threeglav.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.bauk.ConfigAware;
 import com.threeglav.bauk.dimension.CachePreviouslyUsedValuesPerThreadDimensionHandler;
-import com.threeglav.bauk.dimension.CachedPerFeedDimensionHandler;
 import com.threeglav.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.bauk.dimension.DimensionHandler;
 import com.threeglav.bauk.dimension.GlobalAttributeMappingHandler;
@@ -255,15 +254,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name [" + requiredDimensionName
 					+ "]. This dimension is used to create bulk output! Please check your configuration!");
 		}
-		final boolean cachePerFeedDimension = !StringUtil.isEmpty(dim.getCacheKeyPerFeedInto());
-		DimensionHandler dimHandler = null;
-		if (cachePerFeedDimension) {
-			dimHandler = new CachedPerFeedDimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
-					feedDataLineOffset, this.getConfig());
-		} else {
-			dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset,
-					this.getConfig());
-		}
+		final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
+				feedDataLineOffset, this.getConfig());
 		cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 	}
 

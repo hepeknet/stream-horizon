@@ -126,11 +126,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " has more defined natural keys than there are attributes in feed " + this.getFactFeed().getName());
 		}
-		if (!StringUtil.isEmpty(dimension.getCacheKeyPerFeedInto())) {
-			log.info(
-					"Key for dimension {} will be looked up only once and after successful retrieval it will be cached per feed and available as variable {}",
-					dimension.getName(), dimension.getCacheKeyPerFeedInto());
-		}
 	}
 
 	private boolean calculatePositionOfNaturalKeyValues() {

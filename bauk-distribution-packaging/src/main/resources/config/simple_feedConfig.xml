@@ -376,27 +376,6 @@
 				<selectSurrogateKey>select dimensionSurrogateKey from dimensionTableName3 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectSurrogateKey>
 				<preCacheKeys>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName3</preCacheKeys>
 			</sqlStatements>
-		</dimension>			
-		<!-- SPECIAL TYPE OF DIMENSION: this dimension will be executed once per feed (before starting to process feed file) and its key will be available as ${notificationSk} in context for feed processing (attribute is not available in context for bulk processing)-->
-		<!-- this is normal dimension, all defined caching rules still apply - the only difference from other dimension is that surrogate key is looked up once per feed and not once per feed row. use this if you need to obtain surrogateKey which will need to be present into every line of your bulk file or jdbc statement. by using this type of dimension you ensure that new surrogate key (in this case named 'notificationSk') will be known prior to processing od data reocords.
-		
-		if you wish to create id for data feed (surrogate key which denotes file loaded into fact table) you may use this functionality. obtained surrogate key you can use to link data in the fact table with dimension which stores filenames of files being loaded into your datamart.
-		-->
-		<dimension name="dimension4" type="INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
-			<mappedColumns>
-				<!-- ffn[x] attributes are created by default feed file name processor. Delimiter for splitting feed file name is _ -->
-				<!-- so if input feed file is named a_b_c then ffn[0]=a ffn[1]=b ffn[2]=c and can be used as any other attribute in context -->
-				<!-- this can be changed by providing custom FeedFileNameProcessor implementation (see customisations folder for example) -->
-				<mappedColumn name="ffn[1]" naturalKey="true" />
-			</mappedColumns>
-			<sqlStatements>
-				<insertSingle>
-					insert into dimensionTableName4(dimensionSurrogateKey, tableAttribute1)
-					values (dimensionSequenceName.nextval,'${ffn[1]}')
-				</insertSingle>
-				<selectSurrogateKey>select dimensionSurrogateKey from dimensionTableName4 where tableAttribute1='${ffn[1]}'</selectSurrogateKey>
-				<preCacheKeys>select dimensionSurrogateKey, tableAttribute1 from dimensionTableName4</preCacheKeys>
-			</sqlStatements>
 		</dimension>
 	</dimensions>
 </config>

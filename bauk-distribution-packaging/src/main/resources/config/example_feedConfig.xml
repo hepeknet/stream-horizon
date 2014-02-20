@@ -448,23 +448,5 @@
 				<preCacheKeys>select deal_dim_wid, sourceName, deal_type, deal_id, deal_version, DEAL_WHATIF_UID, component_code from rwh_deal_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>
-		<!-- this dimension will be executed once per feed (before starting to process feed file) and its key will be available as ${notificationSk} in context for feed processing (not available in context for bulk processing)-->
-		<!-- this is normal dimension, caching still applies - the only difference from other dimension is that SK is looked up once per feed and not once per feed row -->
-		<dimension name="REQUESTNOTIFICATION" type="INSERT_ONLY" cacheKeyPerFeedInto="notificationSk">
-			<mappedColumns>
-				<!-- ffn[x] attributes are created by default feed file name processor. Delimiter for splitting feed file name is _ -->
-				<!-- so if input feed file is named a_b_c then ffn[0]=a ffn[1]=b ffn[2]=c and can be used as any other attribute in context -->
-				<!-- this can be changed by providing custom FeedFileNameProcessor implementation (see $BAUK_HOME/plugins/ folder for example) -->
-				<mappedColumn name="ffn[1]" naturalKey="true" />
-			</mappedColumns>
-			<sqlStatements>
-				<insertSingle>
-					insert into REQUESTNOTIFICATION (NOTIFICATIONID,PERSISTSTARTTIMESTAMP,PERSISTSTATUS,UNIQUENAME,ANALYTICSREQUESTGUID, SOURCE, SOME_NUMBER) 
-					values (rwh_request_notification_seq.nextval, sysdate,'R', '${ffn[1]}', '${ffn[1]}', substr('${feedInputFileName}',1,7), ${feedProcessingThreadID})
-				</insertSingle>
-				<selectSurrogateKey>select NOTIFICATIONID from REQUESTNOTIFICATION where UNIQUENAME='${ffn[1]}'</selectSurrogateKey>
-				<preCacheKeys>select NOTIFICATIONID, UNIQUENAME from REQUESTNOTIFICATION</preCacheKeys>
-			</sqlStatements>
-		</dimension>
 	</dimensions>
 </config>

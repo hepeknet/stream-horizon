@@ -31,9 +31,6 @@ public class Dimension {
 	private SqlStatements sqlStatements;
 
 	@XmlAttribute(required = false)
-	private String cacheKeyPerFeedInto;
-
-	@XmlAttribute(required = false)
 	private Boolean cachePerThreadEnabled = Boolean.TRUE;
 
 	@XmlElement(required = false, defaultValue = "" + BaukEngineConfigurationConstants.DIMENSION_LOCAL_CACHE_SIZE_DEFAULT)
@@ -72,14 +69,6 @@ public class Dimension {
 
 	public void setSqlStatements(final SqlStatements sqlStatements) {
 		this.sqlStatements = sqlStatements;
-	}
-
-	public String getCacheKeyPerFeedInto() {
-		return cacheKeyPerFeedInto;
-	}
-
-	public void setCacheKeyPerFeedInto(final String cacheKeyPerFeedInto) {
-		this.cacheKeyPerFeedInto = cacheKeyPerFeedInto;
 	}
 
 	public Integer getLocalCacheMaxSize() {

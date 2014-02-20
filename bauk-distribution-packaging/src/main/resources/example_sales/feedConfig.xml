@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+	<sourceDirectory>d:/projects/test/input</sourceDirectory>
+	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
+	<errorDirectory>d:/projects/test/error</errorDirectory>
+	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
+	<properties>
+		<property name="output.processing.statistics">true</property>
+		<property name="bulk.delete.files.after.load">true</property>
+		<property name="file.polling.delay.millis">1000</property>
+		<property name="feed.file.acceptance.timeout.millis">2000</property>
+		<property name="bulk.file.acceptance.timeout.millis">2000</property>
+		<property name="throughput.testing.mode">true</property>
+	</properties>
+	<connectionProperties>	
+		<jdbcUrl>jdbc:mysql://localhost:3306/pet_shop?user=root&amp;password=shroot</jdbcUrl>
+		<jdbcPoolSize>100</jdbcPoolSize>
+	</connectionProperties>
+	<databaseStringLiteral>'</databaseStringLiteral>
+	<databaseStringEscapeLiteral>''</databaseStringEscapeLiteral>
+	<factFeeds>
+		<factFeed name="dataFeed" type="full">
+			<threadPoolSizes>
+				<feedProcessingThreads>3</feedProcessingThreads>
+				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
+			</threadPoolSizes>				
+			<fileNameMasks>
+				<fileNameMask>.*csv</fileNameMask>
+			</fileNameMasks>
+			<nullString>!</nullString>
+			<delimiterString>,</delimiterString>
+			<header process="skip" />
+			<data process="no_validation">			
+				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="productName" />
+					<attribute name="productModel" />
+					<attribute name="productCategory" />
+					<attribute name="productCost" />
+					<attribute name="customerName" />
+					<attribute name="customerAddress" />
+					<attribute name="customerCountry" />
+					<attribute name="customerPhone" />
+					<attribute name="employeeId" />
+					<attribute name="employeeName" />
+					<attribute name="salesChannelName" />
+					<attribute name="promotionName" />
+					<attribute name="discountPCT" />
+					<attribute name="dateMMDDYYYY" />
+					<attribute name="salesDate" />
+					<attribute name="deliveryDate" />
+					<attribute name="priceBeforeDiscount" />
+					<attribute name="priceAfterDiscount" />
+					<attribute name="saleCosts" />
+					<attribute name="supplierName" />
+				</attributes>
+			</data>
+			<footer process="strict">	
+				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
+				<recordCountAttributePosition>1</recordCountAttributePosition>
+			</footer>
+			<bulkLoadDefinition outputType="file">
+				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
+				<bulkLoadFileDelimiter>;</bulkLoadFileDelimiter>
+				<bulkLoadInsert>
+					<command type="sql">
+						CALL schema.functionName(mod(${bulkProcessingThreadID},50),${bulkProcessingThreadID}, '${bulkFileName}' )  
+					</command>
+				</bulkLoadInsert>	
+				<bulkLoadFormatDefinition>
+					<attributes>
+						<attribute name="dimension.product_dim" type="int" />						
+						<attribute name="dimension.customer_dim" type="int" />
+						<attribute name="dimension.employee_dim" type="int" />
+						<attribute name="dimension.supplier_dim" type="int" />
+						<attribute name="dimension.sales_channel_dim" type="int" />
+						<attribute name="dimension.promotion_dim" type="int" />
+						<attribute name="dimension.date_dim" type="int" />
+						<!--
+						<attribute name="dimension.date_dim[salesDate]" type="int" />
+						<attribute name="dimension.date_dim[deliveryDate]" type="int" />
+						-->
+						<attribute name="feed.priceBeforeDiscount" type="float" />
+						<attribute name="feed.priceAfterDiscount" type="float" />
+						<attribute name="feed.saleCosts" type="float" />
+					</attributes>
+				</bulkLoadFormatDefinition>
+			</bulkLoadDefinition>
+		</factFeed>
+	</factFeeds>
+	<dimensions>
+		<dimension name="date_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="dateMMDDYYYY" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into date_dim(dateMMDDYYYY, date, day_of_week, month_num, year_num) values ('${dateMMDDYYYY}', DATE(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')))
+				</insertSingle>
+				<selectSurrogateKey>select date_sk from date_dim where dateMMDDYYYY='${dateMMDDYYYY}'</selectSurrogateKey>
+				<preCacheKeys>select date_sk, dateMMDDYYYY from date_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="employee_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="employeeName" naturalKey="true" />
+				<mappedColumn name="employeeId" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into employee_dim(employee_name, employee_id) values ('${employeeName}', ${employeeId})
+				</insertSingle>
+				<selectSurrogateKey>select employee_sk from employee_dim where employee_name='${employeeName}' and employee_id=${employeeId}</selectSurrogateKey>
+				<preCacheKeys>select employee_sk, employee_name, employee_id from employee_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="customer_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="customerName" naturalKey="true" />
+				<mappedColumn name="customerAddress" naturalKey="true" />
+				<mappedColumn name="customerCountry" naturalKey="true" />
+				<mappedColumn name="customerPhone" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into customer_dim(customer_name, customer_address, customer_country, customer_phone) values ('${customerName}','${customerAddress}','${customerCountry}','${customerPhone}')
+				</insertSingle>
+				<selectSurrogateKey>select customer_sk from customer_dim where customer_name='${customerName}' and customer_address='${customerAddress}' and customer_country='${customerCountry}' and customer_phone='${customerPhone}'</selectSurrogateKey>
+				<preCacheKeys>select customer_sk, customer_name, customer_address, customer_country, customer_phone from customer_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="product_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="productName" naturalKey="true" />
+				<mappedColumn name="productModel" naturalKey="true" />
+				<mappedColumn name="productCategory" naturalKey="true" />
+				<mappedColumn name="productCost" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into product_dim(product_name, product_model, product_category, product_cost) values ('${productName}', '${productModel}', '${productCategory}', ${productCost})
+				</insertSingle>
+				<selectSurrogateKey>select product_sk from product_dim where product_name='${productName}' and product_model='${productModel}' and product_category='${productCategory}' and product_cost=${productCost}</selectSurrogateKey>
+				<preCacheKeys>select product_sk, product_name, product_model, product_category, product_cost from product_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="supplier_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="supplierName" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into supplier_dim(supplier_name) values ('${supplierName}')
+				</insertSingle>
+				<selectSurrogateKey>select supplier_sk from supplier_dim where supplier_name='${supplierName}'</selectSurrogateKey>
+				<preCacheKeys>select supplier_sk, supplier_name from supplier_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="sales_channel_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="salesChannelName" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into sales_channel_dim(sales_channel_name) values ('${salesChannelName}')
+				</insertSingle>
+				<selectSurrogateKey>select sales_channel_sk from sales_channel_dim where sales_channel_name='${salesChannelName}'</selectSurrogateKey>
+				<preCacheKeys>select sales_channel_sk, sales_channel_name from sales_channel_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+		<dimension name="promotion_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="promotionName" naturalKey="true" />
+				<mappedColumn name="discountPCT" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingle>
+					insert into promotion_dim(promotion_name, discount_pct) values ('${promotionName}', ${discountPCT})
+				</insertSingle>
+				<selectSurrogateKey>select promotion_sk from promotion_dim where promotion_name='${promotionName}' and discount_pct=${discountPCT}</selectSurrogateKey>
+				<preCacheKeys>select promotion_sk, promotion_name, discount_pct from promotion_dim</preCacheKeys>
+			</sqlStatements>
+		</dimension>
+	</dimensions>
+</config>
