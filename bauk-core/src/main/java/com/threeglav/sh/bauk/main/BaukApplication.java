@@ -44,7 +44,7 @@ public class BaukApplication {
 	private static final List<BulkFilesHandler> bulkFileHandlers = new LinkedList<>();
 
 	public static void main(final String[] args) throws Exception {
-		BaukUtil.logEngineMessage("Starting Bauk engine");
+		BaukUtil.logEngineMessage("Starting StreamHorizon engine");
 		final long start = System.currentTimeMillis();
 		LOG.info("To run in test mode set system parameter {}=true", BaukEngineConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
