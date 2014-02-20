@@ -9,9 +9,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.threeglav.bauk.header.HeaderParser;
-import com.threeglav.bauk.parser.FullFeedParser;
-import com.threeglav.bauk.util.StringUtil;
+import com.threeglav.sh.bauk.header.HeaderParser;
+import com.threeglav.sh.bauk.parser.FullFeedParser;
+import com.threeglav.sh.bauk.util.StringUtil;
 
 public class CustomizedHeaderParser implements HeaderParser {
 

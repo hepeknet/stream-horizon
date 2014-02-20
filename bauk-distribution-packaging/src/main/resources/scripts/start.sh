@@ -53,7 +53,7 @@ echo "heap $HEAP_OPTS"
 echo "JVM options $JAVA_OPTS"
 echo
 
-FINAL_JAVA_COMMAND="-classpath $JAVA_CP $HEAP_OPTS $JAVA_OPTS $CONFIG_OPTIONS com.threeglav.bauk.main.BaukApplication"
+FINAL_JAVA_COMMAND="-classpath $JAVA_CP $HEAP_OPTS $JAVA_OPTS $CONFIG_OPTIONS com.threeglav.sh.bauk.main.BaukApplication"
 echo "java $FINAL_JAVA_COMMAND"
 
 java $FINAL_JAVA_COMMAND

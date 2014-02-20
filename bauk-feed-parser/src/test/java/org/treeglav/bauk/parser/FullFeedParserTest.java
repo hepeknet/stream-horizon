@@ -3,8 +3,8 @@ package org.treeglav.bauk.parser;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.threeglav.bauk.parser.FeedParser;
-import com.threeglav.bauk.parser.FullFeedParser;
+import com.threeglav.sh.bauk.parser.FeedParser;
+import com.threeglav.sh.bauk.parser.FullFeedParser;
 
 public class FullFeedParserTest {
 

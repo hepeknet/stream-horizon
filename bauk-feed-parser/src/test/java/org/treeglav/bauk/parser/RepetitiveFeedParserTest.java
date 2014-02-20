@@ -3,8 +3,8 @@ package org.treeglav.bauk.parser;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.threeglav.bauk.parser.FeedParser;
-import com.threeglav.bauk.parser.RepetitiveFeedParser;
+import com.threeglav.sh.bauk.parser.FeedParser;
+import com.threeglav.sh.bauk.parser.RepetitiveFeedParser;
 
 public class RepetitiveFeedParserTest {
 

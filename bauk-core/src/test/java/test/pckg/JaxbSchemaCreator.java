@@ -8,7 +8,7 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
-import com.threeglav.bauk.model.BaukConfiguration;
+import com.threeglav.sh.bauk.model.BaukConfiguration;
 
 public class JaxbSchemaCreator {
 
