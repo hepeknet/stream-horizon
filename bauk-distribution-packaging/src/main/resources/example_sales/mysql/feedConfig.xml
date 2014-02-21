@@ -7,9 +7,6 @@
 	<properties>
 		<property name="output.processing.statistics">true</property>
 		<property name="bulk.delete.files.after.load">true</property>
-		<property name="file.polling.delay.millis">1000</property>
-		<property name="feed.file.acceptance.timeout.millis">2000</property>
-		<property name="bulk.file.acceptance.timeout.millis">2000</property>
 		<property name="throughput.testing.mode">false</property>
 	</properties>
 	<connectionProperties>	
@@ -27,7 +24,6 @@
 			<fileNameMasks>
 				<fileNameMask>.*csv</fileNameMask>
 			</fileNameMasks>
-			<nullString>!</nullString>
 			<delimiterString>,</delimiterString>
 			<header process="skip" />
 			<data process="no_validation">
@@ -72,7 +68,7 @@
 					-->
 					<!-- load using JDBC -->
 					<command type="sql">
-						insert INTO sales_fact
+						insert into sales_fact
 						(product_sk, customer_sk, employee_sk, supplier_sk, sales_channel_sk, promotion_sk, booking_date, sales_date, delivery_date, priceBeforeDiscount, priceAfterDiscount, saleCosts)
 						values (?,?,?,?,?,?,?,?,?,?,?,?)
 					</command>
@@ -103,7 +99,7 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into date_dim(dateMMDDYYYY, date, day_of_week, month_num, year_num) values ('${salesDate}', DATE(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${salesDate}', '%m/%d/%Y')))
+					insert into date_dim(dateMMDDYYYY, date_val, day_of_week, month_num, year_num) values ('${salesDate}', DATE(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${salesDate}', '%m/%d/%Y')))
 				</insertSingle>
 				<selectSurrogateKey>select date_sk from date_dim where dateMMDDYYYY='${salesDate}'</selectSurrogateKey>
 				<preCacheKeys>select date_sk, dateMMDDYYYY from date_dim</preCacheKeys>
@@ -115,7 +111,7 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into date_dim(dateMMDDYYYY, date, day_of_week, month_num, year_num) values ('${deliveryDate}', DATE(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')))
+					insert into date_dim(dateMMDDYYYY, date_val, day_of_week, month_num, year_num) values ('${deliveryDate}', DATE(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')))
 				</insertSingle>
 				<selectSurrogateKey>select date_sk from date_dim where dateMMDDYYYY='${deliveryDate}'</selectSurrogateKey>
 				<preCacheKeys>select date_sk, dateMMDDYYYY from date_dim</preCacheKeys>
@@ -127,7 +123,7 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into date_dim(dateMMDDYYYY, date, day_of_week, month_num, year_num) values ('${dateMMDDYYYY}', DATE(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')))
+					insert into date_dim(dateMMDDYYYY, date_val, day_of_week, month_num, year_num) values ('${dateMMDDYYYY}', DATE(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')))
 				</insertSingle>
 				<selectSurrogateKey>select date_sk from date_dim where dateMMDDYYYY='${dateMMDDYYYY}'</selectSurrogateKey>
 				<preCacheKeys>select date_sk, dateMMDDYYYY from date_dim</preCacheKeys>

@@ -92,7 +92,7 @@ public class DataSourceProvider {
 		}
 	}
 
-	public static DataSource getDataSource(final BaukConfiguration config) {
+	public static synchronized DataSource getDataSource(final BaukConfiguration config) {
 		if (INSTANCE.dataSource == null) {
 			INSTANCE.dataSource = INSTANCE.createWhDataSource(config);
 		}
