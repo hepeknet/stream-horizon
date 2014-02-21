@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
 	<sourceDirectory></sourceDirectory>
-	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
-	<errorDirectory>d:/projects/test/error</errorDirectory>
+	<archiveDirectory></archiveDirectory>
+	<errorDirectory></errorDirectory>
 	<bulkOutputDirectory></bulkOutputDirectory>
 	<properties>
 		<property name="remoting.server.port">0</property>

@@ -122,4 +122,6 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String ARCHIVE_DIRECTORY_PARAM_NAME = "archiveDirectory";
 
+	public static final String ERROR_DIRECTORY_PARAM_NAME = "errorDirectory";
+
 }

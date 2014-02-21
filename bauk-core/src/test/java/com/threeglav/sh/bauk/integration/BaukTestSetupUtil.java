@@ -28,23 +28,33 @@ public class BaukTestSetupUtil {
 	private File tempInputDir;
 	private File tempOutDir;
 	private File archiveDir;
+	private File errorDir;
 	private final ExecutorService execService = Executors.newSingleThreadExecutor();
 
 	public boolean setupTestEnvironment(final String configFileName) {
 		try {
 			System.setProperty(BaukApplication.CONFIG_FILE_PROP_NAME, configFileName);
+
 			final Path tempInDir = Files.createTempDirectory("bauk_test_in");
 			tempInputDir = tempInDir.toFile();
 			tempInputDir.deleteOnExit();
 			System.setProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME, tempInputDir.getAbsolutePath());
+
 			final Path tempOutDirP = Files.createTempDirectory("bauk_test_out");
 			tempOutDir = tempOutDirP.toFile();
 			tempOutDir.deleteOnExit();
 			System.setProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME, tempOutDir.getAbsolutePath());
+
 			final Path tempArchiveDir = Files.createTempDirectory("bauk_test_archive");
 			archiveDir = tempArchiveDir.toFile();
 			archiveDir.deleteOnExit();
 			System.setProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME, archiveDir.getAbsolutePath());
+
+			final Path tempErrorDir = Files.createTempDirectory("bauk_test_error");
+			errorDir = tempErrorDir.toFile();
+			errorDir.deleteOnExit();
+			System.setProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME, errorDir.getAbsolutePath());
+
 			final Path baukHomeDirP = Files.createTempDirectory("bauk_home");
 			final File baukHome = baukHomeDirP.toFile();
 			baukHome.deleteOnExit();

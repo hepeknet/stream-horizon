@@ -47,7 +47,9 @@ public class FeedFilesHandler {
 					factFeed.getThreadPoolSizes().getFeedProcessingThreads());
 		}
 		log.debug("Will use {} threads to process incoming files for {}", feedProcessingThreads, factFeed.getName());
-		moveToErrorFileProcessor = new MoveFileErrorHandler(config.getErrorDirectory());
+		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
+				config.getErrorDirectory());
+		moveToErrorFileProcessor = new MoveFileErrorHandler(errorDirectory);
 		if (feedProcessingThreads > 0) {
 			EXEC_SERVICE = Executors.newFixedThreadPool(feedProcessingThreads, new BaukThreadFactory("feedHandlingThreadGroup", "feed-processing-"
 					+ factFeed.getName()));

@@ -38,6 +38,9 @@ public interface BaukConstants {
 	public static final String COMPLETION_ATTRIBUTE_NUMBER_OF_ROWS_IN_FEED = "feedCompletionNumberOfTotalRowsInFeed";
 	public static final String COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION = "feedCompletionProcessingErrorDescription";
 
+	public static final String ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_START_TIME = "engineInstanceStartTimestamp";
+	public static final String ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_IDENTIFIER = "engineInstanceIdentifier";
+
 	public static final String STATEMENT_PLACEHOLDER_DELIMITER_START = "${";
 	public static final String STATEMENT_PLACEHOLDER_DELIMITER_END = "}";
 

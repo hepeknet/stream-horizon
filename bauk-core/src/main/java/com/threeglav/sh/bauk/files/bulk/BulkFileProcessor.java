@@ -177,6 +177,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private Map<String, String> createImplicitGlobalAttributes(final BaukFile file) {
 		final String fileNameOnly = file.getFileNameOnly();
 		final Map<String, String> implicitAttributes = new THashMap<String, String>();
+		BaukUtil.populateEngineImplicitAttributes(implicitAttributes);
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
 		final String inputFileAbsolutePath = file.getFullFilePath();

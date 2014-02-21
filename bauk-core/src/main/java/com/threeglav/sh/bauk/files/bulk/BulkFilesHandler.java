@@ -46,7 +46,9 @@ public class BulkFilesHandler {
 			log.info("For feed {} bulk processing set to use non-positive number of threads. Will not be started!", factFeed.getName());
 		}
 		this.validate();
-		moveToErrorFileProcessor = new MoveFileErrorHandler(config.getErrorDirectory());
+		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
+				config.getErrorDirectory());
+		moveToErrorFileProcessor = new MoveFileErrorHandler(errorDirectory);
 		if (bulkProcessingThreads > 0) {
 			EXEC_SERVICE = Executors.newFixedThreadPool(bulkProcessingThreads, new BaukThreadFactory("bulkProcessingThreads", "bulk-processing"));
 		} else {

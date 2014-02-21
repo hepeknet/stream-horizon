@@ -87,6 +87,10 @@ public class BaukApplication {
 		}
 	}
 
+	public static long getEngineInstanceStartTime() {
+		return instanceStartTime;
+	}
+
 	private static void startProcessing() throws Exception {
 		int ffhStartedCount = 0;
 		for (final FeedFilesHandler ffh : feedFileHandlers) {

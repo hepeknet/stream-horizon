@@ -38,6 +38,7 @@ import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -270,6 +271,7 @@ public class FeedFileProcessor implements FileProcessor {
 	private void clearImplicitAttributes() {
 		implicitAttributes.clear();
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID, processorId);
+		BaukUtil.populateEngineImplicitAttributes(implicitAttributes);
 	}
 
 	private Map<String, String> createImplicitGlobalAttributes(final BaukFile file) {

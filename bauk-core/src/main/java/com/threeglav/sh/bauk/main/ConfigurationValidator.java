@@ -45,7 +45,9 @@ class ConfigurationValidator {
 		if (!archiveOk) {
 			log.warn("Was not able to find directory for storing archives. This feature will be disabled!");
 		}
-		final boolean errorOk = this.getOrCreateDirectory(config.getErrorDirectory(), true);
+		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
+				config.getErrorDirectory());
+		final boolean errorOk = this.getOrCreateDirectory(errorDirectory, true);
 		if (!errorOk) {
 			throw new IllegalStateException("Was not able to find folder for storing corrupted/invalid data! Aborting!");
 		}
@@ -269,6 +271,8 @@ class ConfigurationValidator {
 
 	private List<String> getImplicitDeclaredAttributes() {
 		final List<String> attrs = new LinkedList<>();
+		attrs.add(BaukConstants.ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_START_TIME);
+		attrs.add(BaukConstants.ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_IDENTIFIER);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_INPUT_FEED_FULL_FILE_PATH);

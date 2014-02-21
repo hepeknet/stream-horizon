@@ -1,5 +1,6 @@
 package com.threeglav.sh.bauk.util;
 
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -10,7 +11,14 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.sh.bauk.BaukConstants;
+import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
+import com.threeglav.sh.bauk.ConfigurationProperties;
+import com.threeglav.sh.bauk.main.BaukApplication;
+
 public abstract class BaukUtil {
+
+	private static String engineInstanceIdentifier;
 
 	private static final Logger ENGINE_LOG = LoggerFactory.getLogger("feedEngineLogger");
 	private static final Logger BULK_LOAD_ENGINE_LOG = LoggerFactory.getLogger("bulkLoadEngineLogger");
@@ -51,6 +59,19 @@ public abstract class BaukUtil {
 
 	public static boolean shutdownStarted() {
 		return shutdownStarted;
+	}
+
+	public static void populateEngineImplicitAttributes(final Map<String, String> globalAttributes) {
+		globalAttributes.put(BaukConstants.ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_START_TIME,
+				String.valueOf(BaukApplication.getEngineInstanceStartTime()));
+		globalAttributes.put(BaukConstants.ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_IDENTIFIER, getEngineInstanceIdentifier());
+	}
+
+	public static String getEngineInstanceIdentifier() {
+		if (engineInstanceIdentifier == null) {
+			engineInstanceIdentifier = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BAUK_INSTANCE_ID_PARAM_NAME, "");
+		}
+		return engineInstanceIdentifier;
 	}
 
 }
