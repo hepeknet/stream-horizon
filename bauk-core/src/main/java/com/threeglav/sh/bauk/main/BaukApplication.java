@@ -72,7 +72,7 @@ public class BaukApplication {
 				final int numberOfInstances = HazelcastCacheInstanceManager.getNumberOfBaukInstances();
 				BaukUtil.logEngineMessage("Total number of detected running engine instances is " + numberOfInstances);
 			}
-			BaukUtil.logEngineMessage("Bauk engine started successfully in " + total + "ms (" + totalSec + " seconds). Waiting for feed files...\n\n");
+			BaukUtil.logEngineMessage("Engine started successfully in " + total + "ms (" + totalSec + " seconds). Waiting for feed files...\n\n");
 		} else {
 			LOG.error(
 					"Unable to find valid configuration file! Check your startup scripts and make sure system property {} points to valid feed configuration file. Aborting!",
@@ -200,7 +200,6 @@ public class BaukApplication {
 		LOG.debug("Gracefully shutting down engine!");
 		BaukUtil.logEngineMessage("Shutting down engine. Waiting to gracefully stop all processing threads...");
 		BaukUtil.startShutdown();
-		CacheUtil.getCacheInstanceManager().stop();
 		LOG.debug("Caches are down!");
 		if (remotingHandler != null) {
 			remotingHandler.stop();
@@ -213,6 +212,7 @@ public class BaukApplication {
 			bfh.stop();
 		}
 		LOG.debug("Stopped {} bulk file handlers", bulkFileHandlers.size());
+		CacheUtil.getCacheInstanceManager().stop();
 		BaukUtil.logEngineMessage("Bauk engine is down!");
 		printStatistics();
 	}
