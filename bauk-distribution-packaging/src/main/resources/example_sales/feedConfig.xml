@@ -10,10 +10,10 @@
 		<property name="file.polling.delay.millis">1000</property>
 		<property name="feed.file.acceptance.timeout.millis">2000</property>
 		<property name="bulk.file.acceptance.timeout.millis">2000</property>
-		<property name="throughput.testing.mode">true</property>
+		<property name="throughput.testing.mode">false</property>
 	</properties>
 	<connectionProperties>	
-		<jdbcUrl>jdbc:mysql://localhost:3306/pet_shop?user=root&amp;password=shroot</jdbcUrl>
+		<jdbcUrl>jdbc:mysql://localhost:3306/pet_shop?user=root&amp;password=shroot&amp;rewriteBatchedStatements=true&amp;cachePrepStmts=true&amp;cacheResultSetMetadata=true&amp;useDynamicCharsetInfo=false</jdbcUrl>
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
 	<databaseStringLiteral>'</databaseStringLiteral>
@@ -21,8 +21,8 @@
 	<factFeeds>
 		<factFeed name="dataFeed" type="full">
 			<threadPoolSizes>
-				<feedProcessingThreads>5</feedProcessingThreads>
-				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
+				<feedProcessingThreads>2</feedProcessingThreads>
+				<bulkLoadProcessingThreads>1</bulkLoadProcessingThreads>
 			</threadPoolSizes>				
 			<fileNameMasks>
 				<fileNameMask>.*csv</fileNameMask>
@@ -58,12 +58,23 @@
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 				<recordCountAttributePosition>1</recordCountAttributePosition>
 			</footer>
-			<bulkLoadDefinition outputType="file">
+			<bulkLoadDefinition outputType="jdbc">
 				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>;</bulkLoadFileDelimiter>
 				<bulkLoadInsert>
+					<!-- load from bulk file -->
+					<!--
 					<command type="sql">
-						CALL schema.functionName(mod(${bulkProcessingThreadID},50),${bulkProcessingThreadID}, '${bulkFileName}' )  
+						LOAD DATA INFILE '${bulkFilePath}' INTO TABLE sales_fact
+						FIELDS TERMINATED BY ';' LINES TERMINATED BY '\n'
+						(product_sk, customer_sk, employee_sk, supplier_sk, sales_channel_sk, promotion_sk, booking_date, sales_date, delivery_date, priceBeforeDiscount, priceAfterDiscount, saleCosts)
+					</command>
+					-->
+					<!-- load using JDBC -->
+					<command type="sql">
+						insert INTO sales_fact
+						(product_sk, customer_sk, employee_sk, supplier_sk, sales_channel_sk, promotion_sk, booking_date, sales_date, delivery_date, priceBeforeDiscount, priceAfterDiscount, saleCosts)
+						values (?,?,?,?,?,?,?,?,?,?,?,?)
 					</command>
 				</bulkLoadInsert>	
 				<bulkLoadFormatDefinition>
@@ -159,9 +170,9 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingle>
-					insert into product_dim(product_name, product_model, product_category, product_cost) values ('${productName}', '${productModel}', '${productCategory}', ${productCost})
+					insert into product_dim(product_name, product_model, product_category, product_cost) values ('${productName}', '${productModel}', '${productCategory}', '${productCost}')
 				</insertSingle>
-				<selectSurrogateKey>select product_sk from product_dim where product_name='${productName}' and product_model='${productModel}' and product_category='${productCategory}' and product_cost=${productCost}</selectSurrogateKey>
+				<selectSurrogateKey>select product_sk from product_dim where product_name='${productName}' and product_model='${productModel}' and product_category='${productCategory}' and product_cost='${productCost}'</selectSurrogateKey>
 				<preCacheKeys>select product_sk, product_name, product_model, product_category, product_cost from product_dim</preCacheKeys>
 			</sqlStatements>
 		</dimension>

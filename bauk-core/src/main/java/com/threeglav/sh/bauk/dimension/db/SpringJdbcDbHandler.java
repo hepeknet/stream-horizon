@@ -281,7 +281,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 					log.error("For dimension {} sql statement {} does not return correct number of values", dimensionName, statement);
 					throw new IllegalStateException("SQL statement for dimension " + dimensionName
 							+ " should return surrogate key and all natural keys (in order as declared in configuration). In total expected "
-							+ expectedTotalValues + " columns, but database query returned only " + columnsNumber + " values!");
+							+ expectedTotalValues + " columns, but database query returned " + columnsNumber + " values!");
 				}
 				alreadyCheckedForColumnNumber = true;
 			}
