@@ -16,7 +16,7 @@ import com.threeglav.sh.bauk.files.FileProcessingErrorHandler;
 import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.FactFeed;
-import com.threeglav.sh.bauk.model.ThreadPoolSizes;
+import com.threeglav.sh.bauk.model.ThreadPoolSettings;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 
 public class BulkFilesHandler {
@@ -24,7 +24,7 @@ public class BulkFilesHandler {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
-	private int bulkProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
+	private int bulkProcessingThreads = ThreadPoolSettings.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
 	private final int bulkFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
 			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS_PARAM_NAME,
@@ -37,9 +37,9 @@ public class BulkFilesHandler {
 	public BulkFilesHandler(final FactFeed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
 		this.config = config;
-		if (factFeed.getThreadPoolSizes() != null) {
+		if (factFeed.getThreadPoolSettings() != null) {
 			bulkProcessingThreads = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BULK_PROCESSING_THREADS_PARAM_NAME,
-					factFeed.getThreadPoolSizes().getBulkLoadProcessingThreads());
+					factFeed.getThreadPoolSettings().getDatabaseProcessingThreadCount());
 		}
 		log.debug("Will use {} threads to process bulk load files for {}", bulkProcessingThreads, factFeed.getName());
 		if (bulkProcessingThreads <= 0) {

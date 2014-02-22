@@ -112,9 +112,9 @@ public interface BaukEngineConfigurationConstants {
 
 	// overriding properties defined in XSD
 
-	public static final String FEED_PROCESSING_THREADS_PARAM_NAME = "feedProcessingThreads";
+	public static final String FEED_PROCESSING_THREADS_PARAM_NAME = "etlProcessingThreadCount";
 
-	public static final String BULK_PROCESSING_THREADS_PARAM_NAME = "bulkLoadProcessingThreads";
+	public static final String BULK_PROCESSING_THREADS_PARAM_NAME = "databaseProcessingThreadCount";
 
 	public static final String SOURCE_DIRECTORY_PARAM_NAME = "sourceDirectory";
 

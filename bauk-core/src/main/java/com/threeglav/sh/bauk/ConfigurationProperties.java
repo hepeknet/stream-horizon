@@ -21,7 +21,7 @@ public abstract class ConfigurationProperties {
 
 	public static void setBaukProperties(final List<BaukProperty> baukProps) {
 		BAUK_PROPERTIES = baukProps;
-		BaukUtil.logEngineMessage("Bauk properties are " + BAUK_PROPERTIES);
+		BaukUtil.logEngineMessage("Engine properties are " + BAUK_PROPERTIES);
 	}
 
 	public static Map<String, String> getEngineConfigurationProperties() {
@@ -40,7 +40,7 @@ public abstract class ConfigurationProperties {
 
 	private static String getBaukProperty(final String propName) {
 		if (StringUtil.isEmpty(propName)) {
-			throw new IllegalArgumentException("Prop name must not be null or empty!");
+			throw new IllegalArgumentException("Property name must not be null or empty!");
 		}
 		String val = null;
 		if (BAUK_PROPERTIES != null) {

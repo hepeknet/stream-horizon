@@ -19,7 +19,7 @@ additionalJVMProperties=""
 if [ -n "$3" ]; then additionalJVMProperties="$3"; fi
 
 # where config file is, if not specified then default one will be used in $RESOLVED_HOME/config/feedConfig.xml
-BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/feedConfig.xml"
+BAUK_CONFIG_FILE_LOCATION="$RESOLVED_HOME/config/engine-config.xml"
 # if needed increase the size of heap to be used
 HEAP_OPTS="-Xmx${heapSizeGb}G -Xms${heapSizeGb}G"
 
@@ -45,7 +45,7 @@ JAVA_OPTS="$JAVA_OPTS -Dbauk.home=$RESOLVED_HOME -Dbauk.config=${BAUK_CONFIG_FIL
 
 CONFIG_OPTIONS="-Dlogback.configurationFile=$RESOLVED_HOME/config/logback.xml -Dhazelcast.config=$RESOLVED_HOME/config/sh-hazelcast-config.xml"
 
-JAVA_CP="$RESOLVED_HOME/lib/*:$RESOLVED_HOME/extras/*:"
+JAVA_CP="$RESOLVED_HOME/lib/*:$RESOLVED_HOME/ext-lib/*:"
 
 echo
 echo "classpath $JAVA_CP"
@@ -53,7 +53,7 @@ echo "heap $HEAP_OPTS"
 echo "JVM options $JAVA_OPTS"
 echo
 
-FINAL_JAVA_COMMAND="-classpath $JAVA_CP $HEAP_OPTS $JAVA_OPTS $CONFIG_OPTIONS com.threeglav.sh.bauk.main.BaukApplication"
+FINAL_JAVA_COMMAND="-classpath $JAVA_CP $HEAP_OPTS $JAVA_OPTS $CONFIG_OPTIONS com.threeglav.sh.bauk.main.StreamHorizonEngine"
 echo "java $FINAL_JAVA_COMMAND"
 
 java $FINAL_JAVA_COMMAND

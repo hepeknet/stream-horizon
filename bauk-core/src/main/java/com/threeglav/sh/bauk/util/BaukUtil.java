@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
-import com.threeglav.sh.bauk.main.BaukApplication;
+import com.threeglav.sh.bauk.main.StreamHorizonEngine;
 
 public abstract class BaukUtil {
 
@@ -26,7 +26,7 @@ public abstract class BaukUtil {
 	private static BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>();
 	private static RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
 	private static ExecutorService EXEC_SERVICE = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, blockingQueue, new BaukThreadFactory(
-			"bauk-logging", "bauk-logging"), rejectedExecutionHandler);
+			"engine-logging", "engine-logging"), rejectedExecutionHandler);
 
 	private static volatile boolean shutdownStarted = false;
 
@@ -63,7 +63,7 @@ public abstract class BaukUtil {
 
 	public static void populateEngineImplicitAttributes(final Map<String, String> globalAttributes) {
 		globalAttributes.put(BaukConstants.ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_START_TIME,
-				String.valueOf(BaukApplication.getEngineInstanceStartTime()));
+				String.valueOf(StreamHorizonEngine.getEngineInstanceStartTime()));
 		globalAttributes.put(BaukConstants.ENGINE_IMPLICIT_ATTRIBUTE_INSTANCE_IDENTIFIER, getEngineInstanceIdentifier());
 	}
 

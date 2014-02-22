@@ -55,7 +55,7 @@ public class FactFeed {
 	private List<MappedResultsSQLStatement> beforeFeedProcessing;
 
 	@XmlElement
-	private ThreadPoolSizes threadPoolSizes;
+	private ThreadPoolSettings threadPoolSettings;
 
 	@XmlElementWrapper(name = "onStartupCommands")
 	@XmlElement(name = "command")
@@ -149,12 +149,12 @@ public class FactFeed {
 		this.fileNameMasks = fileNameMasks;
 	}
 
-	public ThreadPoolSizes getThreadPoolSizes() {
-		return threadPoolSizes;
+	public ThreadPoolSettings getThreadPoolSettings() {
+		return threadPoolSettings;
 	}
 
-	public void setThreadPoolSizes(final ThreadPoolSizes threadPoolSizes) {
-		this.threadPoolSizes = threadPoolSizes;
+	public void setThreadPoolSettings(final ThreadPoolSettings threadPoolSizes) {
+		this.threadPoolSettings = threadPoolSizes;
 	}
 
 	public List<MappedResultsSQLStatement> getBeforeFeedProcessing() {

@@ -200,7 +200,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			log.info("Configured to skip caching. Will not precache any key values for {}!", dimension.getName());
 			return;
 		}
-		final String preCacheStatement = dimension.getSqlStatements().getPreCacheKeys();
+		final String preCacheStatement = dimension.getSqlStatements().getPreCacheRecords();
 		if (!StringUtil.isEmpty(preCacheStatement)) {
 			log.debug("For dimension {} statement for pre-caching is {}", dimension.getName(), preCacheStatement);
 			final long start = System.currentTimeMillis();
@@ -294,7 +294,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 					exc);
 			log.error("Insert statement was {}", preparedInsertStatement);
 		}
-		final String selectSurrogateKey = dimension.getSqlStatements().getSelectSurrogateKey();
+		final String selectSurrogateKey = dimension.getSqlStatements().getSelectRecordIdentifier();
 		final String preparedSelectStatement = this.prepareStatement(selectSurrogateKey, parsedLine, globalAttributes);
 		final Integer result = this.trySelectStatement(preparedSelectStatement);
 		if (result == null) {

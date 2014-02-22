@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 import org.apache.commons.io.FileUtils;
 
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
-import com.threeglav.sh.bauk.main.BaukApplication;
+import com.threeglav.sh.bauk.main.StreamHorizonEngine;
 
 public class BaukTestSetupUtil {
 
@@ -33,7 +33,7 @@ public class BaukTestSetupUtil {
 
 	public boolean setupTestEnvironment(final String configFileName) {
 		try {
-			System.setProperty(BaukApplication.CONFIG_FILE_PROP_NAME, configFileName);
+			System.setProperty(StreamHorizonEngine.CONFIG_FILE_PROP_NAME, configFileName);
 
 			final Path tempInDir = Files.createTempDirectory("bauk_test_in");
 			tempInputDir = tempInDir.toFile();
@@ -77,7 +77,7 @@ public class BaukTestSetupUtil {
 			@Override
 			public Boolean call() {
 				try {
-					BaukApplication.main(null);
+					StreamHorizonEngine.main(null);
 					return Boolean.TRUE;
 				} catch (final Exception exc) {
 					exc.printStackTrace();
@@ -101,7 +101,7 @@ public class BaukTestSetupUtil {
 	}
 
 	public void stopBaukInstance() throws Exception {
-		BaukApplication.shutdown();
+		StreamHorizonEngine.shutdown();
 		execService.shutdown();
 	}
 

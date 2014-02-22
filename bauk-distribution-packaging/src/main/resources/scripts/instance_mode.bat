@@ -8,8 +8,8 @@ rem should be set only when multiple instances are processing files from the sam
 set "totalInstancesCount="
 
 set "heapSizeGb=8"
-set "feedProcessingThreads=10"
-set "bulkLoadProcessingThreads=10"
+set "etlProcessingThreadCount=10"
+set "databaseProcessingThreadCount=10"
 set "readBufferSizeMb=20"
 set "writeBufferSizeMb=20"
 set "jdbcLoadBatchSize=1000"

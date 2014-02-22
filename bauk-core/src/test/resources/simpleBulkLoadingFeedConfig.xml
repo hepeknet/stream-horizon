@@ -10,8 +10,6 @@
 	<connectionProperties>
 		<jdbcUrl>jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</jdbcUrl>
 	</connectionProperties>
-	<databaseStringLiteral>'</databaseStringLiteral>
-	<databaseStringEscapeLiteral>''</databaseStringEscapeLiteral>
 	<factFeeds>
 		<factFeed name="TEST_bulk_Feed" type="full">
 			<fileNameMasks>
@@ -65,10 +63,10 @@
 			<afterFeedProcessingCompletion>
 				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
 			</afterFeedProcessingCompletion>
-			<threadPoolSizes>
-				<feedProcessingThreads>1</feedProcessingThreads>
-				<bulkLoadProcessingThreads>1</bulkLoadProcessingThreads>
-			</threadPoolSizes>
+			<threadPoolSettings>
+				<etlProcessingThreadCount>1</etlProcessingThreadCount>
+				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>
+			</threadPoolSettings>
 		</factFeed>
 	</factFeeds>
 	<dimensions>
@@ -79,11 +77,11 @@
 				<mappedColumn name="b_in" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
-				<insertSingle>
+				<insertSingleRecord>
 					insert into TEST_DIM(a,b) values ('${a_in}','${b_in}')
-				</insertSingle>
-				<selectSurrogateKey>select id from TEST_DIM where a='${a_in}' and b='${b_in}'</selectSurrogateKey>
-				<preCacheKeys>select id, a, b from TEST_DIM</preCacheKeys>
+				</insertSingleRecord>
+				<selectRecordIdentifier>select id from TEST_DIM where a='${a_in}' and b='${b_in}'</selectRecordIdentifier>
+				<preCacheRecords>select id, a, b from TEST_DIM</preCacheRecords>
 			</sqlStatements>
 		</dimension>
 	</dimensions>

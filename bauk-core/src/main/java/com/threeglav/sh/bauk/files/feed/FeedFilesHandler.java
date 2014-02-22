@@ -17,7 +17,7 @@ import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.files.ThroughputTestingFileFindingHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.FactFeed;
-import com.threeglav.sh.bauk.model.ThreadPoolSizes;
+import com.threeglav.sh.bauk.model.ThreadPoolSettings;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 
 public class FeedFilesHandler {
@@ -25,7 +25,7 @@ public class FeedFilesHandler {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private final FactFeed factFeed;
 	private final BaukConfiguration config;
-	private int feedProcessingThreads = ThreadPoolSizes.THREAD_POOL_DEFAULT_SIZE;
+	private int feedProcessingThreads = ThreadPoolSettings.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
 	private final int feedFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
 			BaukEngineConfigurationConstants.FEED_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS_PARAM_NAME,
@@ -42,9 +42,9 @@ public class FeedFilesHandler {
 		this.factFeed = factFeed;
 		this.config = config;
 		this.validate();
-		if (this.factFeed.getThreadPoolSizes() != null) {
+		if (this.factFeed.getThreadPoolSettings() != null) {
 			feedProcessingThreads = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.FEED_PROCESSING_THREADS_PARAM_NAME,
-					factFeed.getThreadPoolSizes().getFeedProcessingThreads());
+					factFeed.getThreadPoolSettings().getEtlProcessingThreadCount());
 		}
 		log.debug("Will use {} threads to process incoming files for {}", feedProcessingThreads, factFeed.getName());
 		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,

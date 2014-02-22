@@ -31,12 +31,12 @@ import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.CacheUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
-public class BaukApplication {
+public class StreamHorizonEngine {
 
-	private static final String DEFAULT_CONFIG_FILE_NAME = "feedConfig.xml";
+	private static final String DEFAULT_CONFIG_FILE_NAME = "engine-config.xml";
 	public static final String CONFIG_FILE_PROP_NAME = "bauk.config";
 
-	private static final Logger LOG = LoggerFactory.getLogger(BaukApplication.class);
+	private static final Logger LOG = LoggerFactory.getLogger(StreamHorizonEngine.class);
 
 	private static long instanceStartTime;
 	private static RemotingServer remotingHandler;
@@ -147,7 +147,7 @@ public class BaukApplication {
 		if (StringUtil.isEmpty(configFile)) {
 			LOG.info("Was not able to find system property {}. Trying to find default configuration {} in classpath", CONFIG_FILE_PROP_NAME,
 					DEFAULT_CONFIG_FILE_NAME);
-			is = BaukApplication.class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG_FILE_NAME);
+			is = StreamHorizonEngine.class.getClassLoader().getResourceAsStream(DEFAULT_CONFIG_FILE_NAME);
 			if (is == null) {
 				LOG.error("Was not able to find file {} in the classpath. Unable to start application", DEFAULT_CONFIG_FILE_NAME);
 				return null;
@@ -162,7 +162,7 @@ public class BaukApplication {
 					is = new FileInputStream(configFile);
 				} else {
 					LOG.debug("Loading config file [{}] from classpath", configFile);
-					is = BaukApplication.class.getClass().getResourceAsStream(configFile);
+					is = StreamHorizonEngine.class.getClass().getResourceAsStream(configFile);
 				}
 				LOG.info("Successfully found configuration [{}] on file system", configFile);
 			} catch (final FileNotFoundException fnfe) {
@@ -170,12 +170,15 @@ public class BaukApplication {
 				return null;
 			}
 		}
+		if (is == null) {
+			return null;
+		}
 		try {
 			LOG.debug("Trying to load configuration from xml file");
 			final JAXBContext jaxbContext = JAXBContext.newInstance(BaukConfiguration.class);
 			final Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			final SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-			final Schema schema = schemaFactory.newSchema(BaukApplication.class.getResource("/bauk_config.xsd"));
+			final Schema schema = schemaFactory.newSchema(StreamHorizonEngine.class.getResource("/bauk_config.xsd"));
 			jaxbUnmarshaller.setSchema(schema);
 			final BaukConfiguration config = (BaukConfiguration) jaxbUnmarshaller.unmarshal(is);
 			LOG.info("Successfully loaded configuration");

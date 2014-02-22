@@ -99,13 +99,13 @@
 					b) process feeds from source directory and insert them directly into database via jdbc without creating bulk files. if using jdbc inserts into fact table set db treadpool threadcount to zero <bulkLoadProcessingThreads>.
 				2) db threads (members of db threadpool) <bulkLoadProcessingThreads> are used to bulk load via BULK INSERT or SQL*Loader or Extenral table or procedure (functions aren't supoprted) call (which invokes external table definition or equivalent).
 			-->
-			<threadPoolSizes>
+			<threadPoolSettings>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
 				<!--set number of etl threads. etl threads proces feeds and create bulk files (or execute jdbc batched statemetns) -->
-				<feedProcessingThreads>20</feedProcessingThreads>
+				<etlProcessingThreadCount>20</etlProcessingThreadCount>
 				<!--set number of db threads which will concurrently load bulk files into the fact table. If 0 no bulk loading will happen -->
-				<bulkLoadProcessingThreads>0</bulkLoadProcessingThreads>
-			</threadPoolSizes>				
+				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
+			</threadPoolSettings>				
 			<!-- supply fileName masks for the fees to which this <factFeed> format definition is applicable. feeds will be loaded from source directory <sourceDirectory> -->
 			<fileNameMasks>
 				<fileNameMask>.*FEED.*done</fileNameMask>
@@ -336,15 +336,15 @@
 				<mappedColumn name="dataAttributeName_2" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
-				<insertSingle>
+				<insertSingleRecord>
 					insert into dimensionTableName1(dimensionSurrogateKey, tableAttribute1, tableAttribute2)
 					values (dimensionSequenceName.nextval,'${dataAttributeName_1}','${dataAttributeName_2}')
-				</insertSingle>
+				</insertSingleRecord>
 				<!-- must return single value (surrogate key). Ideally WHERE clause should use all naturalKey columns from <mappedColumns> section -->
-				<selectSurrogateKey>select dimensionSurrogateKey from dimensionTableName1 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectSurrogateKey>
+				<selectRecordIdentifier>select dimensionSurrogateKey from dimensionTableName1 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectRecordIdentifier>
 				<!--  order is important, first return surrogate key and then all natural keys, in order as defined by <mappedColumns> -->
-				<!-- please make sure that cardinality of <preCacheKeys> resultset of sql query below is less than <localCacheMaxSize>. this is to avoid quick eviction of data from the cache. if not certan, please test both small and large <localCacheMaxSize> for dimensions with high cardinality (500K+)-->				
-				<preCacheKeys>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName1</preCacheKeys>
+				<!-- please make sure that cardinality of <preCacheRecords> resultset of sql query below is less than <localCacheMaxSize>. this is to avoid quick eviction of data from the cache. if not certan, please test both small and large <localCacheMaxSize> for dimensions with high cardinality (500K+)-->				
+				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName1</preCacheRecords>
 			</sqlStatements>
 		</dimension>
 		<dimension name="dimension2" type="INSERT_ONLY" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
@@ -354,12 +354,12 @@
 				<mappedColumn name="dataAttributeName_4" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
-				<insertSingle>
+				<insertSingleRecord>
 					insert into dimensionTableName2(dimensionSurrogateKey, tableAttribute1, tableAttribute2)
 					values (dimensionSequenceName.nextval,'${dataAttributeName_1}','${dataAttributeName_2}')
-				</insertSingle>
-				<selectSurrogateKey>select dimensionSurrogateKey from dimensionTableName2 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectSurrogateKey>
-				<preCacheKeys>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName2</preCacheKeys>
+				</insertSingleRecord>
+				<selectRecordIdentifier>select dimensionSurrogateKey from dimensionTableName2 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectRecordIdentifier>
+				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName2</preCacheRecords>
 			</sqlStatements>
 		</dimension>		
 		<dimension name="dimension3" type="INSERT_ONLY" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
@@ -369,12 +369,12 @@
 				<mappedColumn name="dataAttributeName_6" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
-				<insertSingle>
+				<insertSingleRecord>
 					insert into dimensionTableName3(dimensionSurrogateKey, tableAttribute1, tableAttribute2)
 					values (dimensionSequenceName.nextval,'${dataAttributeName_1}','${dataAttributeName_2}')
-				</insertSingle>
-				<selectSurrogateKey>select dimensionSurrogateKey from dimensionTableName3 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectSurrogateKey>
-				<preCacheKeys>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName3</preCacheKeys>
+				</insertSingleRecord>
+				<selectRecordIdentifier>select dimensionSurrogateKey from dimensionTableName3 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectRecordIdentifier>
+				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName3</preCacheRecords>
 			</sqlStatements>
 		</dimension>
 	</dimensions>

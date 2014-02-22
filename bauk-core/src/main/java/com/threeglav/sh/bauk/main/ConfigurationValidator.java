@@ -231,14 +231,14 @@ class ConfigurationValidator {
 					attrs.addAll(used);
 				}
 			}
-			if (!StringUtil.isEmpty(dim.getSqlStatements().getPreCacheKeys())) {
-				final Set<String> used = StringUtil.collectAllAttributesFromString(dim.getSqlStatements().getPreCacheKeys());
+			if (!StringUtil.isEmpty(dim.getSqlStatements().getPreCacheRecords())) {
+				final Set<String> used = StringUtil.collectAllAttributesFromString(dim.getSqlStatements().getPreCacheRecords());
 				if (used != null) {
 					attrs.addAll(used);
 				}
 			}
-			if (!StringUtil.isEmpty(dim.getSqlStatements().getSelectSurrogateKey())) {
-				final Set<String> used = StringUtil.collectAllAttributesFromString(dim.getSqlStatements().getSelectSurrogateKey());
+			if (!StringUtil.isEmpty(dim.getSqlStatements().getSelectRecordIdentifier())) {
+				final Set<String> used = StringUtil.collectAllAttributesFromString(dim.getSqlStatements().getSelectRecordIdentifier());
 				if (used != null) {
 					attrs.addAll(used);
 				}

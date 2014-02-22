@@ -172,7 +172,7 @@ public class BulkOutputValuesResolverTest {
 			d.setMappedColumns(nat);
 			dims.add(d);
 			final SqlStatements ss = new SqlStatements();
-			ss.setSelectSurrogateKey("select 1");
+			ss.setSelectRecordIdentifier("select 1");
 			d.setSqlStatements(ss);
 		}
 		return dims;

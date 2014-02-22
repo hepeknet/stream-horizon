@@ -17,6 +17,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {})
 public class BaukConfiguration {
 
+	private static final String DEFAULT_DATABASE_STRING_LITERAL = "'";
+	private static final String DEFAULT_DATABASE_STRING_ESCAPE_LITERAL = "''";
+
 	@XmlElement(required = true)
 	private String sourceDirectory;
 
@@ -32,11 +35,11 @@ public class BaukConfiguration {
 	@XmlElement(required = true)
 	private ConnectionProperties connectionProperties;
 
-	@XmlElement(required = true)
-	private String databaseStringLiteral;
+	@XmlElement(required = false, defaultValue = DEFAULT_DATABASE_STRING_LITERAL)
+	private String databaseStringLiteral = DEFAULT_DATABASE_STRING_LITERAL;
 
-	@XmlElement(required = true)
-	private String databaseStringEscapeLiteral;
+	@XmlElement(required = false, defaultValue = DEFAULT_DATABASE_STRING_ESCAPE_LITERAL)
+	private String databaseStringEscapeLiteral = DEFAULT_DATABASE_STRING_ESCAPE_LITERAL;
 
 	@XmlElementWrapper(required = true)
 	@XmlElement(name = "factFeed")

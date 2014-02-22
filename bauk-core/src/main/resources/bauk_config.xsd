@@ -31,7 +31,7 @@
 
   <xs:element name="sqlStatements" type="sqlStatements"/>
 
-  <xs:element name="threadPoolSizes" type="threadPoolSizes"/>
+  <xs:element name="threadPoolSettings" type="threadPoolSettings"/>
 
   <xs:complexType name="baukConfiguration">
     <xs:all>
@@ -40,8 +40,8 @@
       <xs:element name="bulkOutputDirectory" type="xs:string"/>
       <xs:element name="errorDirectory" type="xs:string"/>
       <xs:element ref="connectionProperties"/>
-      <xs:element name="databaseStringLiteral" type="xs:string"/>
-      <xs:element name="databaseStringEscapeLiteral" type="xs:string"/>
+      <xs:element name="databaseStringLiteral" type="xs:string" default="'" minOccurs="0"/>
+      <xs:element name="databaseStringEscapeLiteral" type="xs:string" default="''" minOccurs="0"/>
       <xs:element name="factFeeds">
         <xs:complexType>
           <xs:sequence>
@@ -99,7 +99,7 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element ref="threadPoolSizes" minOccurs="0"/>
+      <xs:element ref="threadPoolSettings" minOccurs="0"/>
       <xs:element name="onStartupCommands" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
@@ -239,10 +239,10 @@
     </xs:simpleContent>
   </xs:complexType>
 
-  <xs:complexType name="threadPoolSizes">
+  <xs:complexType name="threadPoolSettings">
     <xs:all>
-      <xs:element name="feedProcessingThreads" type="xs:int" default="1"/>
-      <xs:element name="bulkLoadProcessingThreads" type="xs:int" default="1"/>
+      <xs:element name="etlProcessingThreadCount" type="xs:int" default="5"/>
+      <xs:element name="databaseProcessingThreadCount" type="xs:int" default="5"/>
     </xs:all>
   </xs:complexType>
 
@@ -272,9 +272,9 @@
 
   <xs:complexType name="sqlStatements">
     <xs:all>
-      <xs:element name="insertSingle" type="xs:string" minOccurs="0"/>
-      <xs:element name="selectSurrogateKey" type="xs:string" minOccurs="0"/>
-      <xs:element name="preCacheKeys" type="xs:string" minOccurs="0"/>
+      <xs:element name="insertSingleRecord" type="xs:string" minOccurs="0"/>
+      <xs:element name="selectRecordIdentifier" type="xs:string" minOccurs="0"/>
+      <xs:element name="preCacheRecords" type="xs:string" minOccurs="0"/>
     </xs:all>
   </xs:complexType>
 

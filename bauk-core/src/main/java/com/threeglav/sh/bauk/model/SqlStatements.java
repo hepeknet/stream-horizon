@@ -12,36 +12,36 @@ import javax.xml.bind.annotation.XmlType;
 public class SqlStatements {
 
 	@XmlElement
-	private String insertSingle;
+	private String insertSingleRecord;
 
 	@XmlElement
-	private String selectSurrogateKey;
+	private String selectRecordIdentifier;
 
 	@XmlElement
-	private String preCacheKeys;
+	private String preCacheRecords;
 
 	public String getInsertSingle() {
-		return insertSingle;
+		return insertSingleRecord;
 	}
 
 	public void setInsertSingle(final String insertSingle) {
-		this.insertSingle = insertSingle;
+		this.insertSingleRecord = insertSingle;
 	}
 
-	public String getSelectSurrogateKey() {
-		return selectSurrogateKey;
+	public String getSelectRecordIdentifier() {
+		return selectRecordIdentifier;
 	}
 
-	public void setSelectSurrogateKey(final String selectSurrogateKey) {
-		this.selectSurrogateKey = selectSurrogateKey;
+	public void setSelectRecordIdentifier(final String selectSurrogateKey) {
+		this.selectRecordIdentifier = selectSurrogateKey;
 	}
 
-	public String getPreCacheKeys() {
-		return preCacheKeys;
+	public String getPreCacheRecords() {
+		return preCacheRecords;
 	}
 
-	public void setPreCacheKeys(final String preCacheKeys) {
-		this.preCacheKeys = preCacheKeys;
+	public void setPreCacheRecords(final String preCacheKeys) {
+		this.preCacheRecords = preCacheKeys;
 	}
 
 }

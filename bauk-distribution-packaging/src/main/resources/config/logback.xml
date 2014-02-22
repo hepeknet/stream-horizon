@@ -6,9 +6,9 @@
 
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../log/bauk-${BAUK_INSTANCE_ID}.log</file>
+		<file>../log/sh-engine-${BAUK_INSTANCE_ID}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>../log/bauk-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
+			<fileNamePattern>../log/sh-engine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>20</maxIndex>
 		</rollingPolicy>
@@ -25,9 +25,9 @@
 
 	<appender name="ENGINE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../log/feedEngine-${BAUK_INSTANCE_ID}.log</file>
+		<file>../log/etlEngine-${BAUK_INSTANCE_ID}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>../log/feedEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
+			<fileNamePattern>../log/etlEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>20</maxIndex>
 		</rollingPolicy>
@@ -44,9 +44,9 @@
 
 	<appender name="BULK_LOAD_ENGINE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>../log/bulkLoadEngine-${BAUK_INSTANCE_ID}.log</file>
+		<file>../log/dbLoadEngine-${BAUK_INSTANCE_ID}.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-			<fileNamePattern>../log/bulkLoadEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
+			<fileNamePattern>../log/dbLoadEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
 			<minIndex>1</minIndex>
 			<maxIndex>20</maxIndex>
 		</rollingPolicy>

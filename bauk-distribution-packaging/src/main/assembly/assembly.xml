@@ -28,7 +28,7 @@
 		</fileSet>
 		<fileSet>
 			<directory>src/main/resources/</directory>
-			<outputDirectory>extras</outputDirectory>
+			<outputDirectory>ext-lib</outputDirectory>
 			<includes>
 				<include>CLASSPATH_INFO.TXT</include>
 			</includes>
@@ -65,6 +65,20 @@
 		<fileSet>
 			<directory>src/main/resources/example_sales/</directory>
 			<outputDirectory>example_sales</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/example_sales/mysql/</directory>
+			<outputDirectory>example_sales/mysql</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/example_sales/oracle/</directory>
+			<outputDirectory>example_sales/oracle</outputDirectory>
 			<includes>
 				<include>*.*</include>
 			</includes>
