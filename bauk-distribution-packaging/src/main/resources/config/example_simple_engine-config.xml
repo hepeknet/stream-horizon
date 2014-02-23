@@ -1,71 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-		<!-- if they do not exist folders will be created (if permissions allow) -->
-		<!-- source directory is directory from which file feeds will be processed -->
-		<sourceDirectory>/tmp/bauk/input</sourceDirectory>
-		<!-- archive directory is directory into which successfully processed feeds will be moved-->
-		<archiveDirectory>/tmp/bauk/archive</archiveDirectory>
-		<!-- error directory will contain feeds from source folder which if processing fails for any reason. for error & logging information please look at $BAUK_HOME/log/bauk*log -->
-		<errorDirectory>/tmp/bauk/error</errorDirectory>
-		<!-- bulk direcory is directory where bulk files will be created. bulk files usually have format of fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT for MSSQL-->
-		<bulkOutputDirectory>/tmp/bauk/bulkOutput</bulkOutputDirectory>
-	<properties>
-		<!-- should processed feed files be remembered or not (true/false). this setting essentially disables system to process input feed file with the same name twice if set to true -->
-		<property name="idempotent.feed.processing">false</property>
-		<!-- what is used for caching, choices are Hazelcast or Infinispan, values of parameters should be hazelcast or ispn. if global <cache.provider> doesn't contain lookup value database will be queried (insert will be tried, if fails, adequate key will be read) -->
-		<property name="cache.provider">ispn</property>
-		<!-- default local cache size for dimensions. Can be overridden for every dimension (see below dimension configuration section). Local cache is size of local collection each etl thread has. etl thread has one cache for every single dimension defined. if cache has no value local etl thread cache will query global <cache.provider> (Infinispan or Hazelcast) -->
-		<property name="dimension.local.cache.default.size">5000</property>
-		<!-- read buffer size to disk (megabytes) - accepts decimal numbers. adjust this value to be just over the size of your biggest source feed file. if you experience IO bottleneck adjusting to size of 10% up to 100% of source feed file could bring performance benefits -->
-		<property name="read.buffer.size.mb">10.0</property>
-		<!-- write buffer size to disk (megabytes) - accepts decimal numbers. adjust this value to be just over the size of your biggest source feed file. if you experience IO bottleneck adjusting to size of 10% up to 100% of source feed file could bring performance benefits -->
-		<property name="write.buffer.size.mb">10.0</property>
-		<!-- whether local cache for dimensions (local cache of etl threads) should be disabled (true/false). -->
-		<property name="dimension.local.cache.disable">false</property>
-		<!-- is exposing statistics feature off or on (true/false). No need to disable except in case when box is CPU bound -->
-		<property name="metrics.off">false</property>
-		<!-- jdbc client info - program name, set to empty not to use this feature. Setting embeds client information to simplify database connection audit and tuning -->
-		<property name="jdbc.client.info.program"></property>
-		<!-- indicates whether files moved from source to archive folder should be renamed (renaming will result in appending date and time to the file name) -->
-		<property name="rename.archived.files">false</property>
-		<!-- should we detect other running Bauk instances and print count at startup -->
-		<property name="detect.running.bauk.instances">false</property>
-		<!-- JDBC fetch size used when pre-caching dimension keys. Must be positive integer value. Dimension pre-caching is used by global cache.provider at startup in order to reduce impact on database at runtime and avoid performance degradation. pre-caching populates Infinispan or Hazelcast global cache with dimensional keys & attributes.-->
-		<property name="dimension.precache.jdbc.fetch.size">10000</property>
-		<!-- whether pre-caching for all dimensions is disabled for both global <cache.provider> (Infinispan) and etl threads <feedProcessingThreads> -->
-		<property name="dimension.precaching.disabled">false</property>
-		<!-- should processing statistics be written to log file and console as files are processed -->
-		<property name="output.processing.statistics">false</property>
-		<!-- when persisting NULL value what should actually be written to output (bulk) file, by default this is empty string (no character will be written) -->
-		<property name="bulk.output.file.null.value.string"></property>
-		<!-- should bulk files be deleted after they are loaded. if set to true, bulk files will be deleted from bulkOutputDirectory -->
-		<property name="bulk.delete.files.after.load">true</property>
-		<!-- should engine record (internally) submission of every file it tries to bulk load? this setting is used for recovery, in case when engine dies halfway through bulk-loading file it will know that file was submitted for loading beforehand (this info is persisted and it survives engine crash and/or restart) -->
-		<property name="bulk.file.record.submission.attempts">true</property>
-		<!-- how often (in milliseconds) to poll for input files (feed, bulk). -->
-		<property name="file.polling.delay.millis">1000</property>
-		<!-- following two properties can be 0 if file system allows atomic renames/moves of files. Data corruption can occur in case someone is writing to files while engine is consuming them. this can be prevented by user (files can be renamed by file writer after writing is done) -->
-		<!-- how old must be feed file before it can be accepted for processing. set to 0 to immediately process files -->
-		<property name="feed.file.acceptance.timeout.millis">2000</property>
-		<!-- how old must be bulk file before it can be accepted for processing. set to 0 to immediately process files -->
-		<property name="bulk.file.acceptance.timeout.millis">2000</property>
-		<!-- batch size to be used when bulk loading using jdbc. Whenever number of batched values reaches this number it will be executed, committed and batching will start again -->
-		<property name="jdbc.bulk.loading.batch.size">10000</property>
-		<!-- throughput.testing.mode eliminates read I/O bottleneck while testing. when set to true, etl threads <feedProcessingThreads> will each cache one random file and process it not by reading it from disk but by reading it from repeatedly (while test lasts) from internal buffer. this will give idea of throughput without read I/O bottleneck. it is advisable that source directory contains more files than number of etl threads <feedProcessingThreads> -->
-		<property name="throughput.testing.mode">false</property>
-		<!-- port to be used by http server for remote commands. If set to 0 then http server will not be started.
-			if something else than Bauk engine has updated database dimensional values that implies that global cache (Infinispan) has incorrect values. 
-			you could make Bauk flush all dimensional caches if you execute http://localhost:21000/flushDimensionCache/?dimension=dimension1
-		-->
-		<property name="remoting.server.port">21000</property>
-		<!-- used for email feature -->
-		<property name="email.server.host">emailServerHostName</property>
-		<property name="email.server.username"></property>
-		<property name="email.server.password"></property>
-		<property name="email.server.port">25</property>
-		<!-- addressses to which error emails will be sent (coma delimited list of email addresses)-->
-		<property name="processing.error.email.recipients">a@b.com,c@d.com</property>
-	</properties>
+	<!-- if they do not exist folders will be created (if permissions allow) -->
+	<!-- source directory is directory from which file feeds will be processed -->
+	<sourceDirectory>/tmp/stream_horizon/input</sourceDirectory>
+	<!-- archive directory is directory into which successfully processed feeds will be moved-->
+	<archiveDirectory>/tmp/stream_horizon/archive</archiveDirectory>
+	<!-- error directory will contain feeds from source folder which if processing fails for any reason. for error & logging information please look at $ENGINE_HOME/log/engine*log -->
+	<errorDirectory>/tmp/stream_horizon/error</errorDirectory>
+	<!-- bulk direcory is directory where bulk files will be created. bulk files usually have format of fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT for MSSQL-->
+	<bulkOutputDirectory>/tmp/stream_horizon/bulkOutput</bulkOutputDirectory>
+	
 	<!-- RDBMS JDBC connection properties -->
 	<connectionProperties>	
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
@@ -79,25 +23,25 @@
 	<!-- Character used to escape databaseStringLiteral (see above). Usually this is double quote. Check your database manual-->
 	<databaseStringEscapeLiteral>''</databaseStringEscapeLiteral>
 	<factFeeds>
-		<!-- setup one <factFeed> element for every file format Bauk needs to process and insert into data mart <factFeed> name must be unique within xml definition. please use 'full' type of feed as a default unless your feed meets specific delta, repetitive or control criteria-->
+		<!-- setup one <factFeed> element for every file format engine needs to process and insert into data mart <factFeed> name must be unique within xml definition. please use 'full' type of feed as a default unless your feed meets specific delta, repetitive or control criteria-->
 	
 		<!-- feed can be of type full, repetitive, delta and control -->
 		<!-- control feed can not have header and footer and it can have only one line, which will be exposed as context attributes -->
 		<!-- feed can be full, delta or repetitive -->
 		<!-- for delta feed it is mandatory to set nullString value, see below -->
 		<factFeed name="dataFeed" type="full">
-			<!-- at startup, prior to starting any processing Bauk will execute (in defined order) sql or script (shell) commands. please reference all recovery and startup related scripts in this section -->
+			<!-- at startup, prior to starting any processing engine will execute (in defined order) sql or script (shell) commands. please reference all recovery and startup related scripts in this section -->
 			<onStartupCommands>
 				<!-- all context attributes will be replaced in both sql and shell commands, use normal ${contextAttributeName} notation-->
 				<command type="shell">d:/${someAttribute1}.bat</command>
 				<command type="sql">update fact_table set key=${someAttribute} where key=-100</command>
 				<command type="shell">d:/second.bat</command>
 			</onStartupCommands>
-			<!--Bauk has two threadpools:
-				1) etl threads (members of etl threadpool) <feedProcessingThreads> either:
+			<!--engine has two threadpools:
+				1) etl threads (members of etl threadpool) <etlProcessingThreadCount> either:
 					a) process feeds from source directory into bulk directory (bulk files are later on picked up by db threads from db threadpool)
-					b) process feeds from source directory and insert them directly into database via jdbc without creating bulk files. if using jdbc inserts into fact table set db treadpool threadcount to zero <bulkLoadProcessingThreads>.
-				2) db threads (members of db threadpool) <bulkLoadProcessingThreads> are used to bulk load via BULK INSERT or SQL*Loader or Extenral table or procedure (functions aren't supoprted) call (which invokes external table definition or equivalent).
+					b) process feeds from source directory and insert them directly into database via jdbc without creating bulk files. if using jdbc inserts into fact table set db treadpool threadcount to zero <databaseProcessingThreadCount>.
+				2) db threads (members of db threadpool) <databaseProcessingThreadCount> are used to bulk load via BULK INSERT or SQL*Loader or Extenral table or procedure (functions aren't supoprted) call (which invokes external table definition or equivalent).
 			-->
 			<threadPoolSettings>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
@@ -114,23 +58,23 @@
 			<nullString>!</nullString>
 			<!-- class name of custom implementation for feed file name processor. In case when some information should be extracted from file name
 			of every input feed file it is possible to provide customized implementation to parse file name and provide new context attributes. 
-			Check CustomFeedFileNameProcessor.java in $BAUK_HOME/plugins/ folder for example -->
+			Check CustomFeedFileNameProcessor.java in $ENGINE_HOME/plugins/ folder for example -->
 			<!--
 			<fileNameProcessorClassName>CustomFeedFileNameProcessor</fileNameProcessorClassName>
 			-->
 			<!-- <delimiterString> defnes delimiter used in your feed -->
 			<delimiterString>^$</delimiterString>
 			<!---->
-			<!--CONTEXT:  every header, footer, body or custom attribute you define in your feed can be referenced from context of Bauk ETL engine. context attributes can be used to generate select or insert statements against database or can be used for generation of bulk files.
+			<!--CONTEXT:  every header, footer, body or custom attribute you define in your feed can be referenced from context of ETL engine. context attributes can be used to generate select or insert statements against database or can be used for generation of bulk files.
 			
-			note: Bauk generates and writes out at console 'Implicitly available attributes' context attributes at startup. These attributes can be used for logging and metrics. attribute bulkProcessingThreadID or feedProcessingThreadID which represent etl thread ID and db thread id (<eedProcessingThreads> and <bulkLoadProcessingThreads> respectively) can be used to achieve simultaneous partition/subpartition loading and avoid forming of locks. Please see console at startup for list of all available attributes.
+			note: Engine generates and writes out at console 'Implicitly available attributes' context attributes at startup. These attributes can be used for logging and metrics. attribute bulkProcessingThreadID or feedProcessingThreadID which represent etl thread ID and db thread id (<eedProcessingThreads> and <bulkLoadProcessingThreads> respectively) can be used to achieve simultaneous partition/subpartition loading and avoid forming of locks. Please see console at startup for list of all available attributes.
 										
 			-->
 			<!-- define file header structure. if feed has no header set this value to no_header. If there is header and it should not be processed set this value to skip 
 				Note that if your feed has attribute which is repeated for every single data record it is ideal candidate to become header attribute -->
 			<header process="normal">
-				<!--you can utilize custom header record parser class if you need to calculate/define new context parameter based on some of the header or Implicitly available Bauk attributes or execute any other custom logic. note that this may significantly slow down the engine! java extension will be invoked once for every header record (once per input feed file)-->
-				<!-- check CustomHeaderParser.java in $BAUK_HOME/plugins/ folder for example -->
+				<!--you can utilize custom header record parser class if you need to calculate/define new context parameter based on some of the header or Implicitly available engine attributes or execute any other custom logic. note that this may significantly slow down the engine! java extension will be invoked once for every header record (once per input feed file)-->
+				<!-- check CustomHeaderParser.java in $ENGINE_HOME/plugins/ folder for example -->
 				<!--
 				<headerParserClassName>CustomHeaderParser</headerParserClassName>
 				-->
@@ -148,8 +92,8 @@
 				<!--if data line is defined as line with special character pelase specify character here. it is assumed that caracter is delimited from header attributes by <delimiterString> -->			
 				<!--if data line is defined as line with special character pelase specify character here. it is assumed that caracter is delimited from data attributes by <delimiterString>. if data line has no special character erase this tag -->			
 				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
-				<!--you can utilize custom data record parser class if you need to calculate/define new context parameter based on some of the header or Implicitly available Bauk attributes or execute any other custom logic. note that this may significantly slow down the engine! java extension will be invoked once for every data record (ever data row in every input feed file)-->
-				<!-- check DataMapper.java in $BAUK_HOME/plugins/ folder for example -->				
+				<!--you can utilize custom data record parser class if you need to calculate/define new context parameter based on some of the header or Implicitly available engine attributes or execute any other custom logic. note that this may significantly slow down the engine! java extension will be invoked once for every data record (ever data row in every input feed file)-->
+				<!-- check DataMapper.java in $ENGINE_HOME/plugins/ folder for example -->				
 				<!--
 				<feedDataProcessorClassName>DataMapper</feedDataProcessorClassName>
 				-->
@@ -188,9 +132,9 @@
 
 				<!--EXAMPLES:-->				
 					<!-- EXAMPLE 1) function call example:
-						 this example shows how function can be called via jdbc. note that imlicitly defined Bauk context parameter 'bulkProcessingThreadID' is used in order to loadbalance subpartitions of target fact table and avoid locking. also note that another implicit Bauk context parameter 'bulkFileName' is used as function internaly need to alter table and repoint external table to data file which need be loaded. 
+						 this example shows how function can be called via jdbc. note that imlicitly defined engine context parameter 'bulkProcessingThreadID' is used in order to loadbalance subpartitions of target fact table and avoid locking. also note that another implicit engine context parameter 'bulkFileName' is used as function internaly need to alter table and repoint external table to data file which need be loaded. 
 						 
-						 prefixing context attributes with ${contextAttributeName} will ensure that Bauk engine replaces them before issuing the call against RDBMS
+						 prefixing context attributes with ${contextAttributeName} will ensure that engine engine replaces them before issuing the call against RDBMS
 						 
 						 This is most performant way to insert data into the fact table. note that best results have been acheived when bulk files aren't zipped or gz'ed and when paralelism is high (db threads load into 30-50 subpartitions. no logging mode will usually increase performance by 50%.
 					-->
@@ -204,7 +148,7 @@
 						
 						in similar fashion, in order to target right subpartition and enable paralel load of subpartitions, another context custom defined attribute customized.feedProcessingThreadID.modulo is used SP_${customized.feedProcessingThreadID.modulo}
 					
-						note that insert statement below has 7 question marks and 9 fact table attributes. Bauk will replace all context attributes prior to issuing statament against the database. as context attributes ${*} will be replaced with concrete values <bulkLoadFormatDefinition> tag will require definition for only 7 <attributes> tags for fact table. 7 defined attributes will be assigned in listed order to placeholder vaues (replaced with ? sign of sql query).
+						note that insert statement below has 7 question marks and 9 fact table attributes. Engine will replace all context attributes prior to issuing statament against the database. as context attributes ${*} will be replaced with concrete values <bulkLoadFormatDefinition> tag will require definition for only 7 <attributes> tags for fact table. 7 defined attributes will be assigned in listed order to placeholder vaues (replaced with ? sign of sql query).
 					-->					
 					<!--bulkLoadInsert>
 					<command type="sql">
@@ -217,7 +161,7 @@
 
 					<!--EXAMPLE 3) calling  MySQL external script or command line to bulk load the file:
 					
-					note taht implicit Bauk context attributes bulkFilePath and bulkProcessingThreadID are embeded & swapped to the command prior to its execution
+					note taht implicit Engine context attributes bulkFilePath and bulkProcessingThreadID are embeded & swapped to the command prior to its execution
 					
 					note that type of command is 'shell' rather than 'sql'
 					-->
@@ -229,7 +173,7 @@
 				
 					<!--EXAMPLE 4) calling  MSSQL external script or command line to bulk load a bulk file:
 					
-					note taht implicit Bauk context attributes bulkFileName is embeded & swapped to the command prior to its execution
+					note taht implicit Engine context attributes bulkFileName is embeded & swapped to the command prior to its execution
 					
 					note that type of command is 'shell' rather than 'sql'
 					
@@ -244,7 +188,7 @@
 				<bulkLoadFormatDefinition>
 					<attributes>
 						<!-- 
-							attributes can come from Bauk context from few places:
+							attributes can come from Engine context from few places:
 								1) data/file feed and should be referenced with 'feed.' prefix
 								2) dimension surrogateKey and should be referenced with 'dimension.' prefix 
 								3) attributes can be hardcoded values (constants) see example below with 'Y'. if using hardcoded contant as string make sure you put appropriate database string delimiters (quotes in this example)
@@ -277,7 +221,7 @@
 				<output-file-name-pattern></output-file-name-pattern>
 				<!-- executed by db threads -->
 				<afterBulkLoadSuccess>
-					<!-- statements to be invoked after bulkLoadInsertStatement is successfully invoked. db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of Bauk context parameters. Any context attribute will be replaced with its value -->
+					<!-- statements to be invoked after bulkLoadInsertStatement is successfully invoked. db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of engine context parameters. Any context attribute will be replaced with its value -->
 					<command type="shell">d:/first.bat ${someCtxAttributePassedAsParameter}</command>
 					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
 					<command type="sql">CALL simpleproc2('${firstCtxAttr}',${secondCtxAttr})</command>
@@ -285,7 +229,7 @@
 				</afterBulkLoadSuccess>
 				<onBulkLoadFailure>
 					<!-- by default files are moved to error folder on processing failure -->
-					<!-- statements to be invoked after loading of bulk data file has failed (if it fails). db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of Bauk context parameters -->
+					<!-- statements to be invoked after loading of bulk data file has failed (if it fails). db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of engine context parameters -->
 					<command type="shell">d:/first.bat</command>
 					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
 					<command type="sql">CALL simpleproc2('${firstCtxAttr}',${secondCtxAttr})</command>
@@ -318,7 +262,7 @@
 	<dimensions>
 		<!--Dimension definition enables caches (global cache (Infinispan) and local etl thrad caches to derive surrogate keys of dimensions which will be required duiring the insert of data into fact table.
 			
-				1)surrogate key ('sk' from now on) for every dimension used in feed will be exposed as Bauk context attribute under name ${DIMENSION_NAME.sk}. it will have value of last line in the feed
+				1)surrogate key ('sk' from now on) for every dimension used in feed will be exposed as  context attribute under name ${DIMENSION_NAME.sk}. it will have value of last line in the feed
 				2)<exposeLastLineValueInContext> determines whether surrogate key caculated for the last line of every feed should be available in context as attribute named ${DIMENSION_NAME.sk}, default is false
 				3)<cachePerThreadEnabled> caching per thread for dimension makes sense only if cardinality for that dimension is low. avoid caching for dimensions of high cardinalities (over million distinct values). or alternatively test both scenarios to derive performance statistiscs
 				
@@ -378,6 +322,63 @@
 			</sqlStatements>
 		</dimension>
 	</dimensions>
+	<properties>
+		<!-- should processed feed files be remembered or not (true/false). this setting essentially disables system to process input feed file with the same name twice if set to true -->
+		<property name="idempotent.feed.processing">false</property>
+		<!-- what is used for caching, choices are Hazelcast or Infinispan, values of parameters should be hazelcast or ispn. if global <cache.provider> doesn't contain lookup value database will be queried (insert will be tried, if fails, adequate key will be read) -->
+		<property name="cache.provider">ispn</property>
+		<!-- default local cache size for dimensions. Can be overridden for every dimension (see below dimension configuration section). Local cache is size of local collection each etl thread has. etl thread has one cache for every single dimension defined. if cache has no value local etl thread cache will query global <cache.provider> (Infinispan or Hazelcast) -->
+		<property name="dimension.local.cache.default.size">5000</property>
+		<!-- read buffer size to disk (megabytes) - accepts decimal numbers. adjust this value to be just over the size of your biggest source feed file. if you experience IO bottleneck adjusting to size of 10% up to 100% of source feed file could bring performance benefits -->
+		<property name="read.buffer.size.mb">10.0</property>
+		<!-- write buffer size to disk (megabytes) - accepts decimal numbers. adjust this value to be just over the size of your biggest source feed file. if you experience IO bottleneck adjusting to size of 10% up to 100% of source feed file could bring performance benefits -->
+		<property name="write.buffer.size.mb">10.0</property>
+		<!-- whether local cache for dimensions (local cache of etl threads) should be disabled (true/false). -->
+		<property name="dimension.local.cache.disable">false</property>
+		<!-- is exposing statistics feature off or on (true/false). No need to disable except in case when box is CPU bound -->
+		<property name="metrics.off">false</property>
+		<!-- jdbc client info - program name, set to empty not to use this feature. Setting embeds client information to simplify database connection audit and tuning -->
+		<property name="jdbc.client.info.program"></property>
+		<!-- indicates whether files moved from source to archive folder should be renamed (renaming will result in appending date and time to the file name) -->
+		<property name="rename.archived.files">false</property>
+		<!-- should we detect other running engine instances and print count at startup -->
+		<property name="detect.running.engine.instances">false</property>
+		<!-- JDBC fetch size used when pre-caching dimension keys. Must be positive integer value. Dimension pre-caching is used by global cache.provider at startup in order to reduce impact on database at runtime and avoid performance degradation. pre-caching populates Infinispan or Hazelcast global cache with dimensional keys & attributes.-->
+		<property name="dimension.precache.jdbc.fetch.size">10000</property>
+		<!-- whether pre-caching for all dimensions is disabled for both global <cache.provider> (Infinispan) and etl threads <feedProcessingThreads> -->
+		<property name="dimension.precaching.disabled">false</property>
+		<!-- should processing statistics be written to log file and console as files are processed -->
+		<property name="output.processing.statistics">false</property>
+		<!-- when persisting NULL value what should actually be written to output (bulk) file, by default this is empty string (no character will be written) -->
+		<property name="bulk.output.file.null.value.string"></property>
+		<!-- should bulk files be deleted after they are loaded. if set to true, bulk files will be deleted from bulkOutputDirectory -->
+		<property name="bulk.delete.files.after.load">true</property>
+		<!-- should engine record (internally) submission of every file it tries to bulk load? this setting is used for recovery, in case when engine dies halfway through bulk-loading file it will know that file was submitted for loading beforehand (this info is persisted and it survives engine crash and/or restart) -->
+		<property name="bulk.file.record.submission.attempts">true</property>
+		<!-- how often (in milliseconds) to poll for input files (feed, bulk). -->
+		<property name="file.polling.delay.millis">1000</property>
+		<!-- following two properties can be 0 if file system allows atomic renames/moves of files. Data corruption can occur in case someone is writing to files while engine is consuming them. this can be prevented by user (files can be renamed by file writer after writing is done) -->
+		<!-- how old must be feed file before it can be accepted for processing. set to 0 to immediately process files -->
+		<property name="feed.file.acceptance.timeout.millis">2000</property>
+		<!-- how old must be bulk file before it can be accepted for processing. set to 0 to immediately process files -->
+		<property name="bulk.file.acceptance.timeout.millis">2000</property>
+		<!-- batch size to be used when bulk loading using jdbc. Whenever number of batched values reaches this number it will be executed, committed and batching will start again -->
+		<property name="jdbc.bulk.loading.batch.size">10000</property>
+		<!-- throughput.testing.mode eliminates read I/O bottleneck while testing. when set to true, etl threads <feedProcessingThreads> will each cache one random file and process it not by reading it from disk but by reading it from repeatedly (while test lasts) from internal buffer. this will give idea of throughput without read I/O bottleneck. it is advisable that source directory contains more files than number of etl threads <feedProcessingThreads> -->
+		<property name="throughput.testing.mode">false</property>
+		<!-- port to be used by http server for remote commands. If set to 0 then http server will not be started.
+			if something else than engine engine has updated database dimensional values that implies that global cache (Infinispan) has incorrect values. 
+			you could make engine flush all dimensional caches if you execute http://localhost:21000/flushDimensionCache/?dimension=dimension1
+		-->
+		<property name="remoting.server.port">21000</property>
+		<!-- used for email feature -->
+		<property name="email.server.host">emailServerHostName</property>
+		<property name="email.server.username"></property>
+		<property name="email.server.password"></property>
+		<property name="email.server.port">25</property>
+		<!-- addressses to which error emails will be sent (coma delimited list of email addresses)-->
+		<property name="processing.error.email.recipients">a@b.com,c@d.com</property>
+	</properties>
 </config>
 			
 			

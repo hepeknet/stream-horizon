@@ -4,7 +4,7 @@
 # must be non-negative integer (0-number_of_instances-1)
 baukInstanceId="0"
 
-#should be set only when multiple instances are processing files from the same source folder
+#should be set only when multiple instances are processing files from the same feed source folder (<sourceDirectory> tag in engine-config.xml file)
 totalInstancesCount=""
 
 heapSizeGb="8"

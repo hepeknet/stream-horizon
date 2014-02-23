@@ -41,10 +41,10 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/resources/config/</directory>
+			<directory>src/main/resources/</directory>
 			<outputDirectory>log</outputDirectory>
 			<includes>
-				<include>CONFIG_README.TXT</include>
+				<include>LOG_README.TXT</include>
 			</includes>
 		</fileSet>
 		<fileSet>

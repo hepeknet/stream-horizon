@@ -4,7 +4,7 @@ rem ensure you assign unique integer identifier to every instance
 rem must be non-negative integer (0-number_of_instances-1)
 set "baukInstanceId=0"
 
-rem should be set only when multiple instances are processing files from the same source folder
+rem should be set only when multiple instances are processing files from the same feed source folder (<sourceDirectory> tag in engine-config.xml file)
 set "totalInstancesCount="
 
 set "heapSizeGb=8"
