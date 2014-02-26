@@ -14,4 +14,6 @@ DROP TABLE IF EXISTS sales_channel_dim;
 
 DROP TABLE IF EXISTS promotion_dim;
 
+drop table if exists streamhorizon;
+
 

@@ -5,7 +5,7 @@ import java.util.Map;
 public final class NullBulkOutputWriter implements BulkOutputWriter {
 
 	@Override
-	public void doOutput(final Object[] resolvedData) {
+	public void doOutput(final Object[] resolvedData, final Map<String, String> globalAttributes) {
 	}
 
 	@Override

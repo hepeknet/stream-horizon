@@ -105,6 +105,28 @@ CREATE TABLE sales_fact (
       ON DELETE NO ACTION
       ON UPDATE NO ACTION);
 
-
+create table streamhorizon (
+servername varchar(100) null,
+instancenumber integer null,
+instancestarted varchar(100) null,
+eventName varchar(100) null,
+    fileReceived date null,
+etlThreadID integer null,
+fileName varchar(100) null,
+    fileProcessingStart date null,
+    fileProcessingFinish date null,
+    fileJdbcInsertStart date null,
+    fileJdbcInsertFinish date null,
+bulkFileSubmitted varchar(100) null,
+dbThreadID integer null,
+bulkFilePath varchar(200) null,
+bulkFileName varchar(100) null,
+fileRecordCount integer null,
+    bulkFileReceived date null,
+    bulkFileProcessingStart date null,
+    bulkFileProcessingFinish date null,
+completionFlag varchar(100) null,
+errorDescription varchar(1000) null
+);
 
 

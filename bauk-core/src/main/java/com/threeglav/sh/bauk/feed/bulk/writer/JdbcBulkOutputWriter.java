@@ -137,7 +137,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	@Override
-	public void doOutput(final Object[] resolvedData) {
+	public void doOutput(final Object[] resolvedData, final Map<String, String> globalAttributes) {
 		try {
 			rowCounter++;
 			if (isDebugEnabled) {
@@ -153,7 +153,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				if (isDebugEnabled) {
 					log.debug("Executing jdbc batch of size {}", batchSize);
 				}
-				this.doExecuteJdbcBatch();
+				this.doExecuteJdbcBatch(globalAttributes);
 			}
 			if (isDebugEnabled) {
 				log.debug("Successfully populated jdbc statement. Current row number {}", rowCounter);
@@ -174,7 +174,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
 		}
 		try {
-			this.doExecuteJdbcBatch();
+			this.doExecuteJdbcBatch(globalAttributes);
 			EngineRegistry.registerSuccessfulBulkFileLoad();
 			globalAttributes
 					.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_FINISHED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
@@ -189,7 +189,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 	}
 
-	private void doExecuteJdbcBatch() {
+	private void doExecuteJdbcBatch(final Map<String, String> globalAttributes) {
 		try {
 			final long start = System.currentTimeMillis();
 			final int[] values = preparedStatement.executeBatch();
@@ -213,8 +213,9 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				log.error("Exception while performing rollback for batch loading", exc);
 			}
 			log.error("Exception while inserting bulk values using jdbc", e);
-			log.error("Exception caught while trying to commit and close all resources. Prepared statement was {}. Current row counter is {}",
-					currentStatementWithReplacedValues, rowCounter);
+			log.error(
+					"Exception caught while trying to commit and close all resources. Prepared statement was {}. Current row counter is {}. All available global attributes are {}",
+					currentStatementWithReplacedValues, rowCounter, globalAttributes);
 			DataSourceProvider.close(preparedStatement);
 			DataSourceProvider.closeOnly(connection);
 			throw new RuntimeException(e);

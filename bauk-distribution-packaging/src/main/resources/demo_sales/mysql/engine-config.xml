@@ -56,7 +56,7 @@
 				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>;</bulkLoadFileDelimiter>
 				<bulkLoadInsert>
-					<!-- load from bulk file -->
+					<!-- uncomment this section to load from bulk file (bulk file segment need be commented out first)-->
 					<!--
 					<command type="sql">
 						LOAD DATA INFILE '${bulkFilePath}' INTO TABLE sales_fact
@@ -79,7 +79,7 @@
 						<attribute name="dimension.supplier_dim" type="int" />
 						<attribute name="dimension.sales_channel_dim" type="int" />
 						<attribute name="dimension.promotion_dim" type="int" />
-						<attribute name="dimension.date_dim" type="int" />
+						<attribute name="dimension.booking_date_dim" type="int" />
 						<attribute name="dimension.sales_date_dim" type="int" />
 						<attribute name="dimension.delivery_date_dim" type="int" />
 						<attribute name="feed.priceBeforeDiscount" type="float" />
@@ -88,6 +88,9 @@
 					</attributes>
 				</bulkLoadFormatDefinition>
 			</bulkLoadDefinition>
+			<afterFeedProcessingCompletion>
+				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+			</afterFeedProcessingCompletion>
 		</factFeed>
 	</factFeeds>
 	<dimensions>
@@ -115,7 +118,7 @@
 				<preCacheRecords>select date_id, dateMMDDYYYY from date_dim</preCacheRecords>
 			</sqlStatements>
 		</dimension>
-		<dimension name="date_dim" type="INSERT_ONLY">		
+		<dimension name="booking_date_dim" type="INSERT_ONLY">		
 			<mappedColumns>
 				<mappedColumn name="dateMMDDYYYY" naturalKey="true" />
 			</mappedColumns>

@@ -56,7 +56,7 @@ public class TextFileReaderComponent extends ConfigAware {
 		super(factFeed, config);
 		this.validate();
 		this.feedDataProcessor = feedDataProcessor;
-		processAndValidateFooter = factFeed.getFooter().getProcess() != FooterProcessingType.SKIP;
+		processAndValidateFooter = factFeed.getFooter() != null && factFeed.getFooter().getProcess() == FooterProcessingType.STRICT;
 		footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString(), 10);
 		footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
 		footerRecordCountPosition = this.getFactFeed().getFooter().getRecordCountAttributePosition();
@@ -137,13 +137,13 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (this.getFactFeed().getHeader() == null) {
 			throw new IllegalArgumentException("Header configuration must not be null. Check your configuration file!");
 		}
-		if (this.getFactFeed().getFooter() == null) {
-			throw new IllegalArgumentException("Footer configuration must not be null. Check your configuration file!");
-		}
-		final FooterProcessingType footerProcessing = this.getFactFeed().getFooter().getProcess();
-		if (footerProcessing == FooterProcessingType.STRICT && StringUtil.isEmpty(this.getFactFeed().getFooter().getEachLineStartsWithCharacter())) {
-			throw new IllegalStateException(
-					"Footer is set to strict processing but can not find first character in configuration! Check your configuration file!");
+		if (this.getFactFeed().getFooter() != null) {
+			final FooterProcessingType footerProcessing = this.getFactFeed().getFooter().getProcess();
+			if (footerProcessing == FooterProcessingType.STRICT
+					&& StringUtil.isEmpty(this.getFactFeed().getFooter().getEachLineStartsWithCharacter())) {
+				throw new IllegalStateException(
+						"Footer is set to strict processing but can not find first character in configuration! Check your configuration file!");
+			}
 		}
 	}
 
