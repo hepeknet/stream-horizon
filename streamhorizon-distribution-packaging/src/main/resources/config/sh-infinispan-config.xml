@@ -1,0 +1,27 @@
+<infinispan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="urn:infinispan:config:5.1 http://www.infinispan.org/schemas/infinispan-config-5.1.xsd">
+	
+	<global>
+		<globalJmxStatistics jmxDomain="bauk-infinispan" enabled="false"
+			allowDuplicateDomains="true" />
+		<shutdown hookBehavior="DEFAULT" />
+	</global>
+	
+	<default>
+		<jmxStatistics enabled="false" />
+		<!--
+  		<eviction maxEntries="20000000" strategy="LIRS" />
+  		-->
+		<transaction transactionMode="NON_TRANSACTIONAL" autoCommit="true" lockingMode="OPTIMISTIC" reaperWakeUpInterval="30000" />
+		<locking concurrencyLevel="50" isolationLevel="READ_COMMITTED" lockAcquisitionTimeout="500" useLockStriping="false" />
+	</default>
+	
+	<!-- copy for every dimension and name cache same as dimension -->
+	<namedCache name="myDimensionName">
+		<jmxStatistics enabled="false" />
+  		<eviction maxEntries="20000000" strategy="LIRS" />
+		<transaction transactionMode="NON_TRANSACTIONAL" autoCommit="true" lockingMode="OPTIMISTIC" />
+		<locking concurrencyLevel="100" isolationLevel="READ_COMMITTED" lockAcquisitionTimeout="500" useLockStriping="false" />
+	</namedCache>
+
+</infinispan>

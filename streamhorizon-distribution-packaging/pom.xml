@@ -1,0 +1,102 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.threeglav.streamhorizon.bauk</groupId>
+		<artifactId>streamhorizon</artifactId>
+		<version>0.1.1</version>
+	</parent>
+	<artifactId>streamhorizon-distribution-packaging</artifactId>
+	<packaging>pom</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>streamhorizon-feed-parser</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>streamhorizon-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.pyx4me</groupId>
+				<artifactId>proguard-maven-plugin</artifactId>
+				<version>2.0.4</version>
+				<executions>
+					<execution>
+						<id>first</id>
+						<phase>package</phase>
+						<goals>
+							<goal>proguard</goal>
+						</goals>
+						<configuration>
+							<outjar>stream_horizon_bauk_small.jar</outjar>
+							<obfuscate>true</obfuscate>
+							<options>
+								<option>-dontoptimize</option>
+								<option>-dontshrink</option>
+								<option>-dontskipnonpubliclibraryclasses</option>
+								<option>-dontskipnonpubliclibraryclassmembers</option>
+								<option>-keep public class com.threeglav.sh.bauk.model.** { public protected private *; }</option>
+								<option>-keep public class com.threeglav.sh.bauk.main.** { public *; }</option>
+								<option>-keepattributes *Annotation*</option>
+								<option>-keepattributes Exceptions</option>
+								<option>-keepattributes Signature</option>
+								<option>-keepclassmembers,allowoptimization enum * { public static **[] values(); public static ** valueOf(java.lang.String);}</option>
+							</options>
+							<assembly>
+								<inclusions>
+									<inclusion>
+										<groupId>${project.groupId}</groupId>
+										<artifactId>streamhorizon-core</artifactId>
+									</inclusion>
+									<inclusion>
+										<groupId>${project.groupId}</groupId>
+										<artifactId>streamhorizon-feed-parser</artifactId>
+									</inclusion>
+								</inclusions>
+							</assembly>
+							<libs>
+								<lib>${java.home}/lib/rt.jar</lib>
+							</libs>
+						</configuration>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>net.sf.proguard</groupId>
+						<artifactId>proguard</artifactId>
+						<version>4.10</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<finalName>stream-horizon-${project.version}</finalName>
+					<appendAssemblyId>true</appendAssemblyId>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+						<descriptor>src/main/assembly/assembly_small.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- bind to the packaging phase -->
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

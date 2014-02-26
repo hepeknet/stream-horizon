@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+	<sourceDirectory></sourceDirectory>
+	<archiveDirectory></archiveDirectory>
+	<errorDirectory></errorDirectory>
+	<bulkOutputDirectory></bulkOutputDirectory>
+	<properties>
+		<property name="remoting.server.port">0</property>
+	</properties>
+	<connectionProperties>
+		<jdbcUrl>jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</jdbcUrl>
+	</connectionProperties>
+	<factFeeds>
+		<factFeed name="TEST_bulk_Feed" type="full">
+			<fileNameMasks>
+				<fileNameMask>.*bauk_test</fileNameMask>
+			</fileNameMasks>
+			<delimiterString>,</delimiterString>
+			<header process="normal">
+				<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="h1" />
+					<attribute name="h2" />
+					<attribute name="h3" />
+				</attributes>
+			</header>
+			<data process="normal">
+				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="attr1" />
+					<attribute name="attr2" />
+					<attribute name="a_in" />
+					<attribute name="b_in" />
+				</attributes>
+			</data>
+			<footer process="strict">
+				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
+			</footer>
+			<bulkLoadDefinition outputType="file">
+				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
+				<bulkLoadInsert>
+					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
+				</bulkLoadInsert>
+				<bulkLoadFormatDefinition>
+					<attributes>
+						<attribute name="dimension.TEST_DIM" type="int" />
+						<attribute name="feed.attr1" type="int" />
+						<attribute name="feed.attr2" type="int" />
+						<attribute name="h1" type="string" />
+					</attributes>
+				</bulkLoadFormatDefinition>
+				<afterBulkLoadSuccess>
+					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(111, '${bulkFilePath}')</command>
+				</afterBulkLoadSuccess>
+				<onBulkLoadFailure>
+					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(2, '${bulkFilePath}')</command>
+					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(3, '${bulkFilePath}')</command>
+				</onBulkLoadFailure>
+				<onBulkLoadCompletion>
+					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(555, '${bulkFilePath}')</command>
+				</onBulkLoadCompletion>
+			</bulkLoadDefinition>
+			<onFeedProcessingFailure>
+				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(-1, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+			</onFeedProcessingFailure>
+			<afterFeedProcessingCompletion>
+				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+			</afterFeedProcessingCompletion>
+			<threadPoolSettings>
+				<etlProcessingThreadCount>1</etlProcessingThreadCount>
+				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>
+			</threadPoolSettings>
+		</factFeed>
+	</factFeeds>
+	<dimensions>
+		<dimension name="TEST_DIM" type="INSERT_ONLY">
+			<localCacheMaxSize>50000</localCacheMaxSize>
+			<mappedColumns>
+				<mappedColumn name="a_in" naturalKey="true" />
+				<mappedColumn name="b_in" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into TEST_DIM(a,b) values ('${a_in}','${b_in}')
+				</insertSingleRecord>
+				<selectRecordIdentifier>select id from TEST_DIM where a='${a_in}' and b='${b_in}'</selectRecordIdentifier>
+				<preCacheRecords>select id, a, b from TEST_DIM</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+	</dimensions>
+</config>

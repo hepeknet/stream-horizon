@@ -1,0 +1,90 @@
+<configuration scan="true">
+
+	<!-- <jmxConfigurator /> -->
+	
+	<contextName>${BAUK_INSTANCE_ID}</contextName>
+
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../log/sh-engine-${BAUK_INSTANCE_ID}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>../log/sh-engine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>20</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} [%thread] %-5level %logger{10} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="ENGINE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../log/etlEngine-${BAUK_INSTANCE_ID}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>../log/etlEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>20</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="BULK_LOAD_ENGINE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>../log/dbLoadEngine-${BAUK_INSTANCE_ID}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+			<fileNamePattern>../log/dbLoadEngine-${BAUK_INSTANCE_ID}.%i.log.zip</fileNamePattern>
+			<minIndex>1</minIndex>
+			<maxIndex>20</maxIndex>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- set to DEBUG or INFO to see more information in log files. THIS WILL 
+		SLOW DOWN EXECUTION -->
+	<logger name="com.threeglav" level="WARN" />
+
+
+	<logger name="com.hazelcast" level="WARN" />
+	<logger name="org.springframework" level="WARN" />
+
+	<logger name="feedEngineLogger" level="INFO">
+		<appender-ref ref="ENGINE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	<logger name="bulkLoadEngineLogger" level="INFO">
+		<appender-ref ref="BULK_LOAD_ENGINE" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+
+	<root level="WARN">
+		<appender-ref ref="FILE" />
+	</root>
+</configuration>

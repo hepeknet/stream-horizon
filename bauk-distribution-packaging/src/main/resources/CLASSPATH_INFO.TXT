@@ -1,1 +1,0 @@
-1) All jar files from /lib/ and /ext-lib/ are automatically added to application classpath

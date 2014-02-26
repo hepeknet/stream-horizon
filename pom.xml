@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.threeglav.bauk</groupId>
-	<artifactId>bauk</artifactId>
+	<groupId>com.threeglav.streamhorizon.bauk</groupId>
+	<artifactId>streamhorizon</artifactId>
 	<version>0.1.1</version>
 	<packaging>pom</packaging>
-	<name>Bauk</name>
+	<name>streamhorizon</name>
 
 	<properties>
 		<version.junit>4.11</version.junit>
@@ -74,11 +74,11 @@
 	</build>
 
 	<modules>
-		<module>bauk-feed-parser</module>
-		<module>bauk-distribution-packaging</module>
-		<module>bauk-core</module>
-		<module>bauk-api</module>
-		<module>bauk-plugins</module>
+		<module>streamhorizon-feed-parser</module>
+		<module>streamhorizon-distribution-packaging</module>
+		<module>streamhorizon-core</module>
+		<module>streamhorizon-api</module>
+		<module>streamhorizon-plugins</module>
 	</modules>
 
 	<scm>

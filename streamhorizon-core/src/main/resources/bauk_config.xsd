@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="baukAttribute" type="baukAttribute"/>
+
+  <xs:element name="baukCommand" type="baukCommand"/>
+
+  <xs:element name="baukProperty" type="baukProperty"/>
+
+  <xs:element name="bulkLoadDefinition" type="bulkLoadDefinition"/>
+
+  <xs:element name="bulkLoadFormatDefinition" type="bulkLoadFormatDefinition"/>
+
+  <xs:element name="config" type="baukConfiguration"/>
+
+  <xs:element name="connectionProperties" type="connectionProperties"/>
+
+  <xs:element name="data" type="data"/>
+
+  <xs:element name="dimension" type="dimension"/>
+
+  <xs:element name="factFeed" type="factFeed"/>
+
+  <xs:element name="footer" type="footer"/>
+
+  <xs:element name="header" type="header"/>
+
+  <xs:element name="mappedColumn" type="mappedColumn"/>
+
+  <xs:element name="mappedResultsSQLStatement" type="mappedResultsSQLStatement"/>
+
+  <xs:element name="sqlStatements" type="sqlStatements"/>
+
+  <xs:element name="threadPoolSettings" type="threadPoolSettings"/>
+
+  <xs:complexType name="baukConfiguration">
+    <xs:all>
+      <xs:element name="sourceDirectory" type="xs:string"/>
+      <xs:element name="archiveDirectory" type="xs:string"/>
+      <xs:element name="bulkOutputDirectory" type="xs:string"/>
+      <xs:element name="errorDirectory" type="xs:string"/>
+      <xs:element ref="connectionProperties"/>
+      <xs:element name="databaseStringLiteral" type="xs:string" default="'" minOccurs="0"/>
+      <xs:element name="databaseStringEscapeLiteral" type="xs:string" default="''" minOccurs="0"/>
+      <xs:element name="factFeeds">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="factFeed" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="dimensions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="dimension" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="properties" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="property" type="baukProperty" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="connectionProperties">
+    <xs:all>
+      <xs:element name="jdbcUrl" type="xs:string"/>
+      <xs:element name="jdbcUserName" type="xs:string" minOccurs="0"/>
+      <xs:element name="jdbcPassword" type="xs:string" minOccurs="0"/>
+      <xs:element name="jdbcPoolSize" type="xs:int" default="25" minOccurs="0"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="factFeed">
+    <xs:all>
+      <xs:element name="fileNameMasks" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="fileNameMask" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="fileNameProcessorClassName" type="xs:string" minOccurs="0"/>
+      <xs:element name="repetitionCount" type="xs:int" default="-1" minOccurs="0"/>
+      <xs:element name="nullString" type="xs:string" minOccurs="0"/>
+      <xs:element name="delimiterString" type="xs:string" minOccurs="0"/>
+      <xs:element ref="header" minOccurs="0"/>
+      <xs:element ref="data" minOccurs="0"/>
+      <xs:element ref="footer" minOccurs="0"/>
+      <xs:element ref="bulkLoadDefinition" minOccurs="0"/>
+      <xs:element name="beforeFeedProcessing" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="sqlStatement" type="mappedResultsSQLStatement" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element ref="threadPoolSettings" minOccurs="0"/>
+      <xs:element name="onStartupCommands" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="afterFeedProcessingCompletion" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="onFeedProcessingFailure" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="type" type="factFeedType" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="header">
+    <xs:all>
+      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
+      <xs:element name="headerParserClassName" type="xs:string" minOccurs="0"/>
+      <xs:element name="attributes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="process" type="headerProcessingType"/>
+  </xs:complexType>
+
+  <xs:complexType name="baukAttribute">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="type" type="baukAttributeType"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="data">
+    <xs:all>
+      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
+      <xs:element name="feedDataProcessorClassName" type="xs:string" minOccurs="0"/>
+      <xs:element name="attributes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="process" type="dataProcessingType"/>
+  </xs:complexType>
+
+  <xs:complexType name="footer">
+    <xs:all>
+      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
+      <xs:element name="recordCountAttributePosition" type="xs:int" default="1" minOccurs="0"/>
+      <xs:element name="attributes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="process" type="footerProcessingType"/>
+  </xs:complexType>
+
+  <xs:complexType name="bulkLoadDefinition">
+    <xs:all>
+      <xs:element name="bulkLoadOutputExtension" type="xs:string" minOccurs="0"/>
+      <xs:element name="bulkLoadFileDelimiter" type="xs:string" default="," minOccurs="0"/>
+      <xs:element ref="bulkLoadFormatDefinition" minOccurs="0"/>
+      <xs:element name="afterBulkLoadSuccess" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="onBulkLoadFailure" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="onBulkLoadCompletion" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="bulkLoadInsert" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="output-file-name-pattern" type="xs:string" minOccurs="0"/>
+    </xs:all>
+    <xs:attribute name="outputType" type="bulkLoadDefinitionOutputType"/>
+  </xs:complexType>
+
+  <xs:complexType name="bulkLoadFormatDefinition">
+    <xs:sequence>
+      <xs:element name="attributes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="baukCommand">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="commandType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="mappedResultsSQLStatement">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="sqlStatementType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="threadPoolSettings">
+    <xs:all>
+      <xs:element name="etlProcessingThreadCount" type="xs:int" default="5"/>
+      <xs:element name="databaseProcessingThreadCount" type="xs:int" default="5"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="dimension">
+    <xs:all>
+      <xs:element name="mappedColumns" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="mappedColumn" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element ref="sqlStatements" minOccurs="0"/>
+      <xs:element name="localCacheMaxSize" type="xs:int" default="5000" minOccurs="0"/>
+    </xs:all>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="type" type="dimensionType" use="required"/>
+    <xs:attribute name="cachePerThreadEnabled" type="xs:boolean"/>
+    <xs:attribute name="exposeLastLineValueInContext" type="xs:boolean"/>
+  </xs:complexType>
+
+  <xs:complexType name="mappedColumn">
+    <xs:all/>
+    <xs:attribute name="name" type="xs:string" use="required"/>
+    <xs:attribute name="naturalKey" type="xs:boolean"/>
+  </xs:complexType>
+
+  <xs:complexType name="sqlStatements">
+    <xs:all>
+      <xs:element name="insertSingleRecord" type="xs:string" minOccurs="0"/>
+      <xs:element name="selectRecordIdentifier" type="xs:string" minOccurs="0"/>
+      <xs:element name="preCacheRecords" type="xs:string" minOccurs="0"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="baukProperty">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:simpleType name="factFeedType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="full"/>
+      <xs:enumeration value="repetitive"/>
+      <xs:enumeration value="delta"/>
+      <xs:enumeration value="control"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="headerProcessingType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="normal"/>
+      <xs:enumeration value="no_header"/>
+      <xs:enumeration value="skip"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="baukAttributeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="int"/>
+      <xs:enumeration value="float"/>
+      <xs:enumeration value="string"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="dataProcessingType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="normal"/>
+      <xs:enumeration value="no_validation"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="footerProcessingType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="strict"/>
+      <xs:enumeration value="no_footer"/>
+      <xs:enumeration value="skip"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="commandType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sql"/>
+      <xs:enumeration value="shell"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="bulkLoadDefinitionOutputType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="file"/>
+      <xs:enumeration value="zip"/>
+      <xs:enumeration value="gz"/>
+      <xs:enumeration value="jdbc"/>
+      <xs:enumeration value="none"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="sqlStatementType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="select"/>
+      <xs:enumeration value="insert"/>
+      <xs:enumeration value="insert_return_key"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="dimensionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="INSERT_ONLY"/>
+      <xs:enumeration value="T1"/>
+      <xs:enumeration value="T2"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
