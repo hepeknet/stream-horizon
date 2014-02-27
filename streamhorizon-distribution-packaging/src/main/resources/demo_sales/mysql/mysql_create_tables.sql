@@ -79,31 +79,7 @@ CREATE TABLE sales_fact (
   delivery_date_id INTEGER UNSIGNED  NOT NULL  ,
   priceBeforeDiscount FLOAT  NOT NULL  ,
   priceAfterDiscount FLOAT  NOT NULL  ,
-  saleCosts FLOAT  NOT NULL  ,
-  FOREIGN KEY(product_id)
-    REFERENCES product_dim(product_id)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION,
-  FOREIGN KEY(customer_id)
-    REFERENCES customer_dim(customer_id)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION,
-  FOREIGN KEY(employee_id)
-    REFERENCES employee_dim(employee_id)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION,
-  FOREIGN KEY(supplier_id)
-    REFERENCES supplier_dim(supplier_id)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION,
-  FOREIGN KEY(promotion_id)
-    REFERENCES promotion_dim(promotion_id)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION,
-  FOREIGN KEY(sales_channel_id)
-    REFERENCES sales_channel_dim(sales_channel_id)
-      ON DELETE NO ACTION
-      ON UPDATE NO ACTION);
+  saleCosts FLOAT  NOT NULL);
 
 create table streamhorizon_metrics (
 servername varchar(100) null,

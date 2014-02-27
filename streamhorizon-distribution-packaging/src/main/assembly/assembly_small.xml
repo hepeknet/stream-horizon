@@ -42,6 +42,13 @@
 		</fileSet>
 		<fileSet>
 			<directory>src/main/resources/</directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>*.pdf</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/</directory>
 			<outputDirectory>log</outputDirectory>
 			<includes>
 				<include>LOG_README.TXT</include>
@@ -84,10 +91,17 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<directory>src/main/resources/demo_sales/bin/</directory>
+			<outputDirectory>demo_sales/bin</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>target/</directory>
 			<outputDirectory>lib</outputDirectory>
 			<includes>
-				<include>stream_horizon_bauk_small.jar</include>
+				<include>streamhorizon_small.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -113,8 +127,8 @@
 				<include>*:jar:*</include>
 			</includes>
 			<excludes>
-				<exclude>com.threeglav.bauk:bauk-core</exclude>
-				<exclude>com.threeglav.bauk:bauk-feed-parser</exclude>
+				<exclude>com.threeglav.streamhorizon.bauk:streamhorizon-core</exclude>
+				<exclude>com.threeglav.streamhorizon.bauk:streamhorizon-feed-parser</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

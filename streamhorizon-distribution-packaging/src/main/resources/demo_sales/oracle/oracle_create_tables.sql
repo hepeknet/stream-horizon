@@ -88,19 +88,29 @@ CREATE TABLE sales_fact (
   delivery_date_id INTEGER   NOT NULL ,
   priceBeforeDiscount FLOAT   NOT NULL ,
   priceAfterDiscount FLOAT   NOT NULL ,
-  saleCosts FLOAT   NOT NULL ,
-  FOREIGN KEY(product_id)
-    REFERENCES product_dim(product_id),
-  FOREIGN KEY(customer_id)
-    REFERENCES customer_dim(customer_id),
-  FOREIGN KEY(employee_id)
-    REFERENCES employee_dim(employee_id),
-  FOREIGN KEY(supplier_id)
-    REFERENCES supplier_dim(supplier_id),
-  FOREIGN KEY(promotion_id)
-    REFERENCES promotion_dim(promotion_id),
-  FOREIGN KEY(sales_channel_id)
-    REFERENCES sales_channel_dim(sales_channel_id));
+  saleCosts FLOAT   NOT NULL);
 
 
-
+create table streamhorizon_metrics (
+servername varchar2(100) null,
+instancenumber NUMBER null,
+instancestarted varchar2(100) null,
+eventName varchar2(100) null,
+    fileReceived NUMBER null,
+etlThreadID NUMBER null,
+fileName varchar2(100) null,
+    fileProcessingStart NUMBER null,
+    fileProcessingFinish NUMBER null,
+    fileJdbcInsertStart NUMBER null,
+    fileJdbcInsertFinish NUMBER null,
+bulkFileSubmitted varchar2(100) null,
+dbThreadID NUMBER null,
+bulkFilePath varchar2(200) null,
+bulkFileName varchar2(100) null,
+fileRecordCount NUMBER null,
+    bulkFileReceived NUMBER null,
+    bulkFileProcessingStart NUMBER null,
+    bulkFileProcessingFinish NUMBER null,
+completionFlag varchar2(100) null,
+errorDescription varchar2(1000) null
+);

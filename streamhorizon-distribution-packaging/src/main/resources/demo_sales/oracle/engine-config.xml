@@ -88,7 +88,7 @@
 			</bulkLoadDefinition>
 			<afterFeedProcessingCompletion>
 				<command type="sql">insert into streamhorizon_metrics(servername,instancenumber,instancestarted,eventName,fileReceived,etlThreadID,fileName,fileProcessingStart,fileProcessingFinish,fileJdbcInsertStart,fileJdbcInsertFinish,bulkFileSubmitted,dbThreadID,bulkFilePath,bulkFileName,fileRecordCount,bulkFileReceived,bulkFileProcessingStart,bulkFileProcessingFinish,completionFlag,errorDescription) 
-				values('StreamHorizonServer_1',${engineInstanceIdentifier}, current_timestamp,'FEED_PROCESSING',
+				values('StreamHorizonServer_1',${engineInstanceIdentifier}, ${engineInstanceStartTimestamp},'FEED_PROCESSING',
 				'${feedInputFileReceivedTimestamp}',${feedProcessingThreadID},'${feedInputFileName}','${feedInputFileProcessingStartedTimestamp}','${feedInputFileProcessingFinishedTimestamp}','${feedInputFileJdbcInsertStartedTimestamp}',
 				'${feedInputFileJdbcInsertFinishedTimestamp}','${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},
 				'${bulkFileReceivedForProcessing}','${bulkFileProcessingStartedTimestamp}','${bulkFileProcessingFinishedTimestamp}','${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}')</command>

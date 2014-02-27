@@ -14,6 +14,8 @@ DROP TABLE sales_channel_dim;
 
 DROP TABLE promotion_dim;
 
+DROP TABLE streamhorizon_metrics;
+
 DROP SEQUENCE promotion_dim_seq;
 
 DROP SEQUENCE sales_channel_dim_seq;
@@ -27,4 +29,3 @@ DROP SEQUENCE customer_dim_seq;
 DROP SEQUENCE employee_dim_seq;
 
 DROP SEQUENCE date_dim_seq;
-
