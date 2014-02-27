@@ -21,7 +21,7 @@
     </menu> </aside>
   <section class="columnthird content">
     <article id="navbutton" class="detail">
-      <h2>Finance</h2>
+      <h2>Finance <p class="fright"><img src="img/banka.png" width="60" /></p></h2>
       <ul class="toggle-view column1in mright">
         <li>
           <h6 class="toggle">MarketRisk – Risk & PnL Valuations & Reporting</h6>
@@ -81,13 +81,13 @@ StreamHorizon data model is easily extendible to fit business needs
       </ul>
     </article>
     <article id="navtogg" class="detail">
-      <h2>Telecoms</h2>
+      <h2>Telecoms <p class="fright"><img src="img/telekom.png" width="60" /></p></h2>
       <p>Telecommunication networks today generate a vast amount of transactions and operators are struggling to realize the value hidden in it.</p>
 	  <p>StreamHorizon engine enables operators to parse, process and optimize continuous data streams while reducing hardware costs and at the same time gaining new opportunities to differentiate and personalize services.</p>
 	  <p>StreamHorizon enables operators to make sense out of incoming FM and PM data streams and to customize processing by using StreamHorizon's highly pluggable architecture.</p>
     </article>
 	<article id="insurance" class="detail">
-      <h2>Insurance</h2>
+      <h2>Insurance <p class="fright"><img src="img/insurance.png" width="60" /></p></h2>
       <p>Policy Pricing</p>
 	  <p>Claim Profiling & Analysis</p>
     </article>
@@ -98,7 +98,7 @@ StreamHorizon data model is easily extendible to fit business needs
 	  <p>Behavioural Analysis</p>
     </article>
 	<article id="health" class="detail">
-      <h2>Health</h2>
+      <h2>Health <p class="fright"><img src="img/health.png" width="60" /></p></h2>
       <p>Cost-Effectiveness Analysis</p>
 	  <p>Demographic Analysis</p>
 	  <p>Medication profiling</p>

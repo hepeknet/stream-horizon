@@ -92,7 +92,7 @@
 		</fileSet>
 		<fileSet>
 			<directory>src/main/resources/demo_sales/bin/</directory>
-			<outputDirectory>demo_sales/bin</outputDirectory>
+			<outputDirectory>demo_sales/local_cluster_example/bin</outputDirectory>
 			<includes>
 				<include>*.*</include>
 			</includes>

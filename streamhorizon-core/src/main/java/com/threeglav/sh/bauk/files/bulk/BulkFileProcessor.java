@@ -19,6 +19,9 @@ import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.EngineRegistry;
 import com.threeglav.sh.bauk.command.BaukCommandsExecutor;
 import com.threeglav.sh.bauk.dimension.db.DataSourceProvider;
+import com.threeglav.sh.bauk.dynamic.CustomProcessorResolver;
+import com.threeglav.sh.bauk.feed.DefaultFeedFileNameProcessor;
+import com.threeglav.sh.bauk.feed.FeedFileNameProcessor;
 import com.threeglav.sh.bauk.files.BaukFile;
 import com.threeglav.sh.bauk.files.FileProcessor;
 import com.threeglav.sh.bauk.model.BaukCommand;
@@ -42,6 +45,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private final boolean shouldExecuteOnBulkLoadSuccess;
 	private final boolean shouldExecuteOnBulkLoadFailure;
 	private final boolean shouldExecuteOnBulkLoadCompletion;
+	private FeedFileNameProcessor feedFileNameProcessor;
 	private String currentThreadName;
 	private final boolean recordFileSubmissionAttempts;
 	private final ArrayList<BaukCommand> bulkInsertCommands;
@@ -90,6 +94,23 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			log.warn("Engine will not record bulk file submission attempts.");
 		} else {
 			log.info("Engine will record all bulk file submission attempts.");
+		}
+		this.initializeFeedFileNameProcessor();
+	}
+
+	private void initializeFeedFileNameProcessor() {
+		final String feedFileNameProcessorClassName = DefaultFeedFileNameProcessor.class.getName();
+		final CustomProcessorResolver<FeedFileNameProcessor> feedFileNameProcessorInstanceResolver = new CustomProcessorResolver<>(
+				feedFileNameProcessorClassName, FeedFileNameProcessor.class);
+		feedFileNameProcessor = feedFileNameProcessorInstanceResolver.resolveInstance();
+		if (feedFileNameProcessor != null) {
+			try {
+				feedFileNameProcessor.init(ConfigurationProperties.getEngineConfigurationProperties());
+			} catch (final Exception exc) {
+				log.error("Exception while trying to initialize custom feed file name processor {}. Details {}", feedFileNameProcessor,
+						exc.getMessage());
+				throw exc;
+			}
 		}
 	}
 
@@ -149,7 +170,12 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		try {
 			bulkInsertCommandsExecutor.executeBaukCommandSequence(globalAttributes, "Bulk insert for " + this.getFactFeed().getName());
 			EngineRegistry.registerSuccessfulBulkFileLoad();
+			globalAttributes
+					.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FINISHED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
+			globalAttributes.put(BaukConstants.BULK_COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "S");
 		} catch (final Exception exc) {
+			globalAttributes.put(BaukConstants.BULK_COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG, "F");
+			globalAttributes.put(BaukConstants.BULK_COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION, exc.getMessage());
 			EngineRegistry.registerFailedBulkFile();
 			log.error("Exception while trying to load bulk file using JDBC. Available context attributes are {}", globalAttributes);
 			if (shouldExecuteOnBulkLoadFailure) {
@@ -192,11 +218,23 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
 		final String inputFileAbsolutePath = file.getFullFilePath();
+		try {
+			final Map<String, String> parsedAttributesFromFeedFileName = feedFileNameProcessor.parseFeedFileName(fileNameOnly);
+			if (parsedAttributesFromFeedFileName != null && !parsedAttributesFromFeedFileName.isEmpty()) {
+				implicitAttributes.putAll(parsedAttributesFromFeedFileName);
+			} else {
+				log.info("Null or empty attributes returned by feed file name parser!");
+			}
+		} catch (final Exception exc) {
+			log.error("Exception while parsing feed file name using processor. Passed feed file name is {}. Details {}", fileNameOnly,
+					exc.getMessage());
+			throw exc;
+		}
 		implicitAttributes.put(com.threeglav.sh.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH,
 				StringUtil.fixFilePath(inputFileAbsolutePath));
 		implicitAttributes.put(com.threeglav.sh.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_FOR_PROCESSING_TIMESTAMP,
 				String.valueOf(file.getLastModifiedTime()));
-		implicitAttributes.put(com.threeglav.sh.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FINISHED_PROCESSING_TIMESTAMP,
+		implicitAttributes.put(com.threeglav.sh.bauk.BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_STARTED_PROCESSING_TIMESTAMP,
 				String.valueOf(System.currentTimeMillis()));
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
 		if (isDebugEnabled) {

@@ -132,6 +132,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	@Override
 	public void initialize(final Map<String, String> globalAttributes) {
+		rowCounter = 0;
 		this.initializePreparedStatement(globalAttributes);
 		globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_STARTED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 	}

@@ -27,6 +27,9 @@ public interface BaukConstants {
 	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_STARTED_PROCESSING_TIMESTAMP = "bulkFileProcessingStartedTimestamp";
 
 	public static final String IMPLICIT_ATTRIBUTE_BULK_FILE_FINISHED_PROCESSING_TIMESTAMP = "bulkFileProcessingFinishedTimestamp";
+	public static final String BULK_COMPLETION_ATTRIBUTE_SUCCESS_FAILURE_FLAG = "bulkCompletionProcessingSuccessFailureFlag";
+	public static final String BULK_COMPLETION_ATTRIBUTE_ERROR_DESCRIPTION = "bulkCompletionProcessingErrorDescription";
+
 	public static final String IMPLICIT_ATTRIBUTE_BULK_JDBC_FINISHED_PROCESSING_TIMESTAMP = "feedInputFileJdbcInsertFinishedTimestamp";
 	public static final String IMPLICIT_ATTRIBUTE_BULK_JDBC_STARTED_PROCESSING_TIMESTAMP = "feedInputFileJdbcInsertStartedTimestamp";
 
