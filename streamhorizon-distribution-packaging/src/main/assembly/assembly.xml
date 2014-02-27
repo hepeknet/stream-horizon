@@ -84,8 +84,15 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/resources/demo_sales/oracle/</directory>
-			<outputDirectory>demo_sales/oracle</outputDirectory>
+			<directory>src/main/resources/demo_sales/oracle/jdbc_deploy/</directory>
+			<outputDirectory>demo_sales/oracle/jdbc_deploy</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/demo_sales/oracle/ext_table_deploy/</directory>
+			<outputDirectory>demo_sales/oracle/ext_table_deploy</outputDirectory>
 			<includes>
 				<include>*.*</include>
 			</includes>

@@ -92,7 +92,7 @@ StreamHorizon data model is easily extendible to fit business needs
 	  <p>Claim Profiling & Analysis</p>
     </article>
 	<article id="isp" class="detail">
-      <h2>ISP (Internet Service Providers)</h2>
+      <h2>ISP (Internet Service Providers) <p class="fright"><img src="img/net.png" width="60" /></p></h2>
       <p>User Activity Analysis & Profiling</p>
 	  <p>Log Mining</p>
 	  <p>Behavioural Analysis</p>
