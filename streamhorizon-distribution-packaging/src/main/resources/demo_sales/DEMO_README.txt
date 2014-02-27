@@ -5,7 +5,7 @@ THIS FOLDER CONTAINS DEMO FEATURE THAT CAN BE EXECUTED BY STREAMHORIZON ENGINE. 
 3) Execute appropriate create scripts (provided)
 4) Copy appropriate engine-config.xml (provided)
 5) Use provided input files
-
+6) If you want to rerun demo copy input feed files back from <archiveDirectory> directory into <sourceDirectory> directory
 
 1) Provided database scripts are for Oracle and MySQL databases, located in their respective folders.
 2) StreamHorizon processing power exceeds database throughput. Please ensure that your target fact table is partitioned and sub partitioned. Ensure that StreamHorizon database threads don't compete for locks (this would occur if inserts are made in parallel into single table which isn't adequately designed). For more help on how to optimize database load please contact StreamHorizon support.

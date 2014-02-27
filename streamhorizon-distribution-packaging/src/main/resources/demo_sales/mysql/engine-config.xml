@@ -20,14 +20,19 @@
 				<command type="sql">truncate table sh_metrics</command>
 			</onStartupCommands>
 			<threadPoolSettings>
-				<etlProcessingThreadCount>2</etlProcessingThreadCount>
-				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
+				<etlProcessingThreadCount>10</etlProcessingThreadCount>
+				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>
 			</threadPoolSettings>				
 			<fileNameMasks>
 				<fileNameMask>.*csv</fileNameMask>
 			</fileNameMasks>
 			<delimiterString>,</delimiterString>
-			<header process="skip" />
+			<header process="normal">
+				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="bookingDate" />
+				</attributes>
+			</header>
 			<data process="no_validation">
 				<attributes>
 					<attribute name="productName" />
@@ -43,7 +48,7 @@
 					<attribute name="salesChannelName" />
 					<attribute name="promotionName" />
 					<attribute name="discountPCT" />
-					<attribute name="dateMMDDYYYY" />
+					<attribute name="shipmentDate" />
 					<attribute name="salesDate" />
 					<attribute name="deliveryDate" />
 					<attribute name="priceBeforeDiscount" />
@@ -60,16 +65,18 @@
 					<!--
 					<command type="sql">
 						LOAD DATA INFILE '${bulkFilePath}' INTO TABLE sales_fact
-						FIELDS TERMINATED BY ';' LINES TERMINATED BY '\n'
-						(product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts)
+						FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'
+						(employee_id, customer_id, product_id, sales_channel_id, promotion_id, supplier_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts)
 					</command>
 					-->
 					<!-- load using JDBC -->
+					
 					<command type="sql">
 						insert into sales_fact
-						(product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts)
+						(employee_id, customer_id, product_id, sales_channel_id, promotion_id, supplier_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts)
 						values (?,?,?,?,?,?,?,?,?,?,?,?)
 					</command>
+					
 				</bulkLoadInsert>	
 				<bulkLoadFormatDefinition>
 					<attributes>
@@ -79,9 +86,9 @@
 						<attribute name="dimension.supplier_dim" type="int" />
 						<attribute name="dimension.sales_channel_dim" type="int" />
 						<attribute name="dimension.promotion_dim" type="int" />
-						<attribute name="dimension.booking_date_dim" type="int" />
-						<attribute name="dimension.sales_date_dim" type="int" />
-						<attribute name="dimension.delivery_date_dim" type="int" />
+						<attribute name="feed.shipmentDate"  type="int" />
+						<attribute name="feed.salesDate"  type="int" />
+						<attribute name="feed.deliveryDate"  type="int" />
 						<attribute name="feed.priceBeforeDiscount" type="float" />
 						<attribute name="feed.priceAfterDiscount" type="float" />
 						<attribute name="feed.saleCosts" type="float" />
@@ -98,42 +105,6 @@
 		</factFeed>
 	</factFeeds>
 	<dimensions>
-		<dimension name="sales_date_dim" type="INSERT_ONLY">		
-			<mappedColumns>
-				<mappedColumn name="salesDate" naturalKey="true" />
-			</mappedColumns>
-			<sqlStatements>
-				<insertSingleRecord>
-					insert into date_dim(dateMMDDYYYY, date_val, day_of_week, month_num, year_num) values ('${salesDate}', DATE(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${salesDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${salesDate}', '%m/%d/%Y')))
-				</insertSingleRecord>
-				<selectRecordIdentifier>select date_id from date_dim where dateMMDDYYYY='${salesDate}'</selectRecordIdentifier>
-				<preCacheRecords>select date_id, dateMMDDYYYY from date_dim</preCacheRecords>
-			</sqlStatements>
-		</dimension>
-		<dimension name="delivery_date_dim" type="INSERT_ONLY">		
-			<mappedColumns>
-				<mappedColumn name="deliveryDate" naturalKey="true" />
-			</mappedColumns>
-			<sqlStatements>
-				<insertSingleRecord>
-					insert into date_dim(dateMMDDYYYY, date_val, day_of_week, month_num, year_num) values ('${deliveryDate}', DATE(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${deliveryDate}', '%m/%d/%Y')))
-				</insertSingleRecord>
-				<selectRecordIdentifier>select date_id from date_dim where dateMMDDYYYY='${deliveryDate}'</selectRecordIdentifier>
-				<preCacheRecords>select date_id, dateMMDDYYYY from date_dim</preCacheRecords>
-			</sqlStatements>
-		</dimension>
-		<dimension name="booking_date_dim" type="INSERT_ONLY">		
-			<mappedColumns>
-				<mappedColumn name="dateMMDDYYYY" naturalKey="true" />
-			</mappedColumns>
-			<sqlStatements>
-				<insertSingleRecord>
-					insert into date_dim(dateMMDDYYYY, date_val, day_of_week, month_num, year_num) values ('${dateMMDDYYYY}', DATE(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), DAYOFWEEK(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), MONTH(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')), YEAR(STR_TO_DATE('${dateMMDDYYYY}', '%m/%d/%Y')))
-				</insertSingleRecord>
-				<selectRecordIdentifier>select date_id from date_dim where dateMMDDYYYY='${dateMMDDYYYY}'</selectRecordIdentifier>
-				<preCacheRecords>select date_id, dateMMDDYYYY from date_dim</preCacheRecords>
-			</sqlStatements>
-		</dimension>
 		<dimension name="employee_dim" type="INSERT_ONLY">		
 			<mappedColumns>
 				<mappedColumn name="employeeName" naturalKey="true" />
