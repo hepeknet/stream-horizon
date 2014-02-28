@@ -85,7 +85,7 @@ public class FeedFileProcessor implements FileProcessor {
 		this.factFeed = factFeed;
 		this.config = config;
 		final String cleanFileMask = StringUtil.replaceAllNonASCII(fileMask);
-		feedDataProcessor = new SingleThreadedFeedDataProcessor(factFeed, config, cleanFileMask);
+		feedDataProcessor = new SingleThreadedFeedDataProcessor(factFeed, config);
 		textFileReaderComponent = new TextFileReaderComponent(this.factFeed, this.config, feedDataProcessor, cleanFileMask);
 		feedCompletionProcessor = this.createFeedCompletionProcessor();
 		beforeFeedProcessingProcessor = this.createBeforeFeedProcessingProcessor();

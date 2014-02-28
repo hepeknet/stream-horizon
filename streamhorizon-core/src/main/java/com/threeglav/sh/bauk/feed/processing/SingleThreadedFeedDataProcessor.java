@@ -7,8 +7,8 @@ import com.threeglav.sh.bauk.model.FactFeed;
 
 public final class SingleThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 
-	public SingleThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier) {
-		super(factFeed, config, routeIdentifier);
+	public SingleThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config) {
+		super(factFeed, config);
 	}
 
 	@Override

@@ -16,7 +16,6 @@ import org.mockito.stubbing.Answer;
 
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
-import com.threeglav.sh.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
@@ -29,19 +28,19 @@ public class BulkOutputValuesResolverTest {
 	@Test
 	public void testNull() {
 		try {
-			new BulkOutputValuesResolver(null, Mockito.mock(BaukConfiguration.class), null, Mockito.mock(CacheInstanceManager.class));
+			new BulkOutputValuesResolver(null, Mockito.mock(BaukConfiguration.class), Mockito.mock(CacheInstanceManager.class));
 			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), null, null, Mockito.mock(CacheInstanceManager.class));
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), null, Mockito.mock(CacheInstanceManager.class));
 			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null, null);
+			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null);
 			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
@@ -70,7 +69,7 @@ public class BulkOutputValuesResolverTest {
 				return Integer.valueOf(String.valueOf(args[0]));
 			}
 		});
-		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
+		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, ch));
 		final Object[] latestValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }, null);
 		Assert.assertEquals(4, latestValue.length);
 		Assert.assertEquals("2", String.valueOf(latestValue[0]));
@@ -108,7 +107,7 @@ public class BulkOutputValuesResolverTest {
 				return Integer.valueOf(String.valueOf(args[0]));
 			}
 		});
-		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, null, ch));
+		final BulkOutputValuesResolver bomhc = spy(new BulkOutputValuesResolver(ff, conf, ch));
 		final Object[] latestReceivedValue = bomhc.resolveValues(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13",
 				"14", "15", "16" }, null);
 		Assert.assertEquals(1, latestReceivedValue.length);

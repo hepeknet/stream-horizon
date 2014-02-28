@@ -6,7 +6,6 @@ import java.util.Map;
 import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.dynamic.CustomProcessorResolver;
-import com.threeglav.sh.bauk.feed.FeedDataLineProcessor;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.DataProcessingType;
@@ -26,7 +25,7 @@ public final class FeedParserComponent extends ConfigAware {
 	private final int expectedTokensInEveryDataLine;
 	private final FeedDataLineProcessor feedDataLineProcessor;
 
-	public FeedParserComponent(final FactFeed ff, final BaukConfiguration config, final String routeIdentifier) {
+	public FeedParserComponent(final FactFeed ff, final BaukConfiguration config) {
 		super(ff, config);
 		final FactFeedType fft = ff.getType();
 		final String delimiter = ff.getDelimiterString();

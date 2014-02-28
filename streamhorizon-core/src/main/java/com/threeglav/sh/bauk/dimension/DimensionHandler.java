@@ -255,7 +255,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			if (isTraceEnabled) {
 				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
 			}
-			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes);
+			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, naturalCacheKey);
 			if (!noNaturalKeyColumnsDefined && naturalCacheKey != null) {
 				dimensionCache.putInCache(naturalCacheKey, surrogateKey);
 			}
@@ -280,12 +280,20 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return surrogateKey;
 	}
 
-	private Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	private Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
 		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
 		final String preparedInsertStatement = this.prepareStatement(insertStatement, parsedLine, globalAttributes);
 		try {
 			return this.tryInsertStatement(preparedInsertStatement);
 		} catch (final DuplicateKeyException dexc) {
+			if (naturalCacheKey != null) {
+				// maybe some other thread inserted this record just a moment ago - so, let's try to find it in cache
+				// faster than going to database
+				final Integer doubleCheckInCache = dimensionCache.getSurrogateKeyFromCache(naturalCacheKey);
+				if (doubleCheckInCache != null) {
+					return doubleCheckInCache;
+				}
+			}
 			log.warn("Failed inserting record into database - duplicate key! Will try to select value from database! {}. Insert statement was {}",
 					dexc.getMessage(), preparedInsertStatement);
 		} catch (final Exception exc) {

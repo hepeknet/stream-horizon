@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.threeglav.sh.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.sh.bauk.ConfigAware;
@@ -42,6 +43,8 @@ import com.threeglav.sh.bauk.util.StringUtil;
  */
 public class BulkOutputValuesResolver extends ConfigAware {
 
+	private static final AtomicInteger RESOLVER_COUNTER = new AtomicInteger(0);
+
 	private static final String DIMENSION_PREFIX = "dimension.";
 	private static final String FEED_PREFIX = "feed.";
 
@@ -56,14 +59,19 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	// optimization - only invoke handlers interested in per-feed calculations
 	private final boolean hasCalculatePerFeedValueHandlers;
 	private final int[] perFeedValueHandlerPositions;
+	private final int uniqueResolverIdentifier;
+
+	// we want to reduce a chance that all threads try to resolve same values from database at the same time
+	// therefore some threads will resolve values in reverse order, thus reducing a change to double check database
+	// for the same value at the same time
+	private final boolean reverseResolution;
 
 	// one handler per dimension only
 	static final Map<String, DimensionHandler> cachedDimensionHandlers = new THashMap<String, DimensionHandler>();
 
 	static final Set<String> alreadyStartedCreatingDimensionNames = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier,
-			final CacheInstanceManager cacheInstanceManager) {
+	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final CacheInstanceManager cacheInstanceManager) {
 		super(factFeed, config);
 		if (config.getDimensions() == null || config.getDimensions().isEmpty()) {
 			throw new IllegalArgumentException("Did not find any dimensions defined! Check your configuration file");
@@ -80,7 +88,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
 		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
-		this.createOutputValueHandlers(routeIdentifier);
+		this.createOutputValueHandlers();
 		final List<Integer> perFeedValueHandlers = new ArrayList<>();
 		final List<Integer> closeFeedValueHandlers = new ArrayList<>();
 		for (int i = 0; i < outputValueHandlers.length; i++) {
@@ -112,6 +120,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		} else {
 			closeValueHandlerPositions = null;
 		}
+		uniqueResolverIdentifier = RESOLVER_COUNTER.incrementAndGet();
+		reverseResolution = (uniqueResolverIdentifier % 2 == 0);
 	}
 
 	private void validate() {
@@ -130,7 +140,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 	}
 
-	private void createOutputValueHandlers(final String routeIdentifier) {
+	private void createOutputValueHandlers() {
 		if (bulkOutputFileNumberOfValues == 0) {
 			log.info("Could not find any bulk output file attributes for feed {}. Only values from context will be accessible!", this.getFactFeed()
 					.getName());
@@ -153,7 +163,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		final int feedDataLineOffsetFinal = feedDataLineOffset;
 		for (int i = 0; i < bulkOutputAttributeNames.length; i++) {
 			final int bulkOutputHandlerPosition = i;
-			this.createOrAssignBulkOutputHandler(routeIdentifier, bulkOutputAttributes, bulkOutputAttributeNames, feedDataLineOffsetFinal,
+			this.createOrAssignBulkOutputHandler(bulkOutputAttributes, bulkOutputAttributeNames, feedDataLineOffsetFinal,
 					feedAttributeNamesAndPositions, bulkOutputHandlerPosition);
 		}
 	}
@@ -196,9 +206,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 	}
 
-	private void createOrAssignBulkOutputHandler(final String routeIdentifier, final ArrayList<BaukAttribute> bulkOutputAttributes,
-			final String[] bulkOutputAttributeNames, final int feedDataLineOffset, final Map<String, Integer> feedAttributeNamesAndPositions,
-			final int bulkHandlerPosition) {
+	private void createOrAssignBulkOutputHandler(final ArrayList<BaukAttribute> bulkOutputAttributes, final String[] bulkOutputAttributeNames,
+			final int feedDataLineOffset, final Map<String, Integer> feedAttributeNamesAndPositions, final int bulkHandlerPosition) {
 		final String bulkOutputAttributeName = bulkOutputAttributeNames[bulkHandlerPosition];
 		if (StringUtil.isEmpty(bulkOutputAttributeName)) {
 			final BaukAttribute attr = bulkOutputAttributes.get(bulkHandlerPosition);
@@ -275,19 +284,35 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	public final Object[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
-		final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
-		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-			reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+		if (reverseResolution) {
+			final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
+			for (int i = bulkOutputFileNumberOfValues - 1; i >= 0; i--) {
+				reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+			}
+			return reusedForPerformanceOutputValues;
+		} else {
+			final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
+			for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
+				reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+			}
+			return reusedForPerformanceOutputValues;
 		}
-		return reusedForPerformanceOutputValues;
 	}
 
 	public final Object[] resolveLastLineValues(final String[] inputValues, final Map<String, String> globalData) {
-		final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
-		for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-			reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getLastLineBulkLoadValue(inputValues, globalData);
+		if (reverseResolution) {
+			final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
+			for (int i = bulkOutputFileNumberOfValues - 1; i >= 0; i--) {
+				reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getLastLineBulkLoadValue(inputValues, globalData);
+			}
+			return reusedForPerformanceOutputValues;
+		} else {
+			final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
+			for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
+				reusedForPerformanceOutputValues[i] = outputValueHandlers[i].getLastLineBulkLoadValue(inputValues, globalData);
+			}
+			return reusedForPerformanceOutputValues;
 		}
-		return reusedForPerformanceOutputValues;
 	}
 
 	public void closeCurrentFeed() {

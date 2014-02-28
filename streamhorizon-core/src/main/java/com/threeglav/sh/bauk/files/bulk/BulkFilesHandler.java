@@ -4,10 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.files.FileAttributesHashedNameFilter;
@@ -88,6 +90,15 @@ public class BulkFilesHandler {
 	public void stop() {
 		if (bulkProcessingThreads > 0) {
 			EXEC_SERVICE.shutdown();
+			try {
+				final boolean allDone = EXEC_SERVICE.awaitTermination(BaukConstants.WAIT_FOR_THREADS_TO_DIE_ON_SHUTDOWN_SECONDS, TimeUnit.SECONDS);
+				if (!allDone) {
+					log.warn("Not all bulk processing threads died within {} seconds after receiving shutdown signal. Will shutdown engine anyway!",
+							BaukConstants.WAIT_FOR_THREADS_TO_DIE_ON_SHUTDOWN_SECONDS);
+				}
+			} catch (final InterruptedException e) {
+				// ignore
+			}
 		}
 	}
 

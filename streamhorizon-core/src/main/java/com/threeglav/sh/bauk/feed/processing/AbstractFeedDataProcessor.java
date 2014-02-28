@@ -23,7 +23,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	protected final BulkOutputValuesResolver bulkoutputResolver;
 	protected final FeedParserComponent feedParserComponent;
 
-	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config, final String routeIdentifier) {
+	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		final BulkLoadDefinition bld = factFeed.getBulkLoadDefinition();
 		if (bld == null) {
@@ -48,8 +48,8 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		} else {
 			throw new IllegalStateException("Unknown bulk output writer type " + outputType);
 		}
-		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, routeIdentifier, CacheUtil.getCacheInstanceManager());
-		feedParserComponent = new FeedParserComponent(factFeed, config, routeIdentifier);
+		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, CacheUtil.getCacheInstanceManager());
+		feedParserComponent = new FeedParserComponent(factFeed, config);
 	}
 
 	@Override

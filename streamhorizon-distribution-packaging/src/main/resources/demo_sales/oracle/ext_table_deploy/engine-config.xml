@@ -11,7 +11,7 @@
 		<property name="bulk.file.acceptance.timeout.millis">0</property>
 	</properties>
 	<connectionProperties>	
-		<jdbcUrl>jdbc:oracle:thin:@cmqarwhdb:1522:ORWHD1</jdbcUrl>
+		<jdbcUrl></jdbcUrl>
 		<jdbcUserName>streamhorizon</jdbcUserName>
 		<jdbcPassword>streamhorizon</jdbcPassword>
 		<jdbcPoolSize>100</jdbcPoolSize>
@@ -23,8 +23,8 @@
 				<command type="sql">truncate table sh_metrics</command>
 			</onStartupCommands>	
 			<threadPoolSettings>
-				<etlProcessingThreadCount>20</etlProcessingThreadCount>
-				<databaseProcessingThreadCount>20</databaseProcessingThreadCount>
+				<etlProcessingThreadCount>21</etlProcessingThreadCount>
+				<databaseProcessingThreadCount>21</databaseProcessingThreadCount>
 			</threadPoolSettings>				
 			<fileNameMasks>
 				<fileNameMask>.*csv</fileNameMask>
@@ -60,20 +60,18 @@
 					<attribute name="supplierName" />
 				</attributes>
 			</data>
+			<footer process="strict">	
+				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
+				<recordCountAttributePosition>1</recordCountAttributePosition>
+			</footer>
 			<bulkLoadDefinition outputType="file">
 				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<bulkLoadInsert>
-					<!-- load from bulk file -->
+					<!-- load from bulk file (via external tables)-->
 					<command type="sql">
-						CALL p_sh_external_table_load(20140107/*${ffn[2]}*/, ${bulkProcessingThreadID},'${bulkFileName}')  
+						CALL p_sh_external_table_load(20140107/*${bookingDate}*/, ${bulkProcessingThreadID},'${bulkFileName}')  
 					</command>
-					<!-- load using JDBC -->
-					<!--command type="sql">
-						insert  /*+ append_values */ into sales_fact subpartition (P_${bookingDate}_SP_${feedProcessingThreadID})     
-						(product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, sub)
-						values (?,?,?,?,?,?,${bookingDate},?,?,?,?,?, ${feedProcessingThreadID})
-					</command-->
 				</bulkLoadInsert>	
 				<bulkLoadFormatDefinition>
 					<attributes>
@@ -93,13 +91,13 @@
 				</bulkLoadFormatDefinition>
 				<onBulkLoadCompletion>
 					<command type="sql">
-						CALL log_sh_metrics_update('${bulkFileName}' ,${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp}, '${bulkCompletionProcessingSuccessFailureFlag}', '${bulkCompletionProcessingErrorDescription}')
+						CALL log_sh_metrics_bulk('server_2',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'onBulkLoadCompletion','${bulkFileName}' ,${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp}, '${bulkCompletionProcessingSuccessFailureFlag}', '${bulkCompletionProcessingErrorDescription}')
 					</command>		
 				</onBulkLoadCompletion>
 			</bulkLoadDefinition>
 			<afterFeedProcessingCompletion>		
 				<command type="sql">
-					CALL log_sh_metrics('server_2',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessing},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}') 
+					CALL log_sh_metrics('server_2',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}') 
 					</command>						
 				</afterFeedProcessingCompletion>			
 		</factFeed>

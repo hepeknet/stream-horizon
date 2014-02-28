@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<sourceDirectory>d:/projects/test/input</sourceDirectory>
-	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
-	<errorDirectory>d:/projects/test/error</errorDirectory>
-	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
+	<sourceDirectory>g:/data/sourceBig</sourceDirectory>
+	<archiveDirectory>g:/javaOlap/bauk-0.0.1-SNAPSHOT/files/archive</archiveDirectory>
+	<errorDirectory>g:/javaOlap/bauk-0.0.1-SNAPSHOT/files/error</errorDirectory>
+	<bulkOutputDirectory>g:/javaOlap/bauk-0.0.1-SNAPSHOT/files/bulk</bulkOutputDirectory>
 	<properties>
 		<property name="output.processing.statistics">true</property>
 		<property name="bulk.delete.files.after.load">true</property>
 		<property name="throughput.testing.mode">false</property>
 	</properties>
 	<connectionProperties>	
-		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
-		<jdbcUserName>warehouse</jdbcUserName>
-		<jdbcPassword>warehouse</jdbcPassword>
+		<jdbcUrl></jdbcUrl>
+		<jdbcUserName>streamhorizon</jdbcUserName>
+		<jdbcPassword>streamhorizon</jdbcPassword>
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
 	<factFeeds>
@@ -22,7 +22,7 @@
 				<command type="sql">truncate table sh_metrics</command>
 			</onStartupCommands>	
 			<threadPoolSettings>
-				<etlProcessingThreadCount>20</etlProcessingThreadCount>
+				<etlProcessingThreadCount>24</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
 			</threadPoolSettings>				
 			<fileNameMasks>
@@ -63,14 +63,6 @@
 				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<bulkLoadInsert>
-					<!-- load from bulk file -->
-					<!--
-					<command type="sql">
-						LOAD DATA INFILE '${bulkFilePath}' INTO TABLE sales_fact
-						FIELDS TERMINATED BY ';' LINES TERMINATED BY '\n'
-						(product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts)
-					</command>
-					-->
 					<!-- load using JDBC -->
 					<command type="sql">
 						insert  /*+ append_values */ into sales_fact subpartition (P_${bookingDate}_SP_${feedProcessingThreadID})     
@@ -86,7 +78,7 @@
 						<attribute name="dimension.supplier_dim" type="int" />
 						<attribute name="dimension.sales_channel_dim" type="int" />
 						<attribute name="dimension.promotion_dim" type="int" />
-						<!--attribute name="bookingDate"  type="int" /-->
+						<!--attribute name="bookingDate"  type="int" /--> <!-- not required as booking date will be supplied by substitution of ${bookingDate} in insert statement-->
 						<attribute name="feed.salesDate"  type="int" />
 						<attribute name="feed.deliveryDate"  type="int" />
 						<attribute name="feed.priceBeforeDiscount" type="float" />
@@ -97,7 +89,7 @@
 			</bulkLoadDefinition>
 			<afterFeedProcessingCompletion>		
 				<command type="sql">
-					CALL log_sh_metrics('server_1',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessing},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}') 
+					CALL log_sh_metrics('server_1',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}') 
 					</command>						
 			</afterFeedProcessingCompletion>			
 		</factFeed>

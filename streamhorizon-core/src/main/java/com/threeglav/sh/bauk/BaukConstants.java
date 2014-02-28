@@ -2,6 +2,8 @@ package com.threeglav.sh.bauk;
 
 public interface BaukConstants {
 
+	public static final int WAIT_FOR_THREADS_TO_DIE_ON_SHUTDOWN_SECONDS = 10;
+
 	public static final String TIMESTAMP_TO_DATE_FORMAT = "dd/MM/yyyy hh:mm:ss.SSS";
 
 	public static final int ONE_MEGABYTE = 1024 * 1024;

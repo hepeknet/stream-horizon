@@ -1,13 +1,15 @@
 /*
 
-NOTE: if you are running on Oracle 10 (or ealrier) version please change "append_values"  hint in engine-config.xml to "append"
-NOTE: create user with adequate privileges in your Oracle database and execute the script below (just in case you need create user statement: create USER streamhorizon identified by streamhorizon;  GRANT ALL PRIVILEGES TO StreamHorizon;)
-NOTE: change create table statement for sales_fact if you wish to load date in tablespace other than USER tablespace
+NOTE: create user with adequate privileges in your Oracle database and execute the script below (just in case you need create user statement: create USER streamhorizon identified by streamhorizon;  GRANT ALL PRIVILEGES TO StreamHorizon;)  please verify with your DBA that this privilege statement complies with your data access policy
+NOTE: change create table statement for sales_fact if you wish to load datae in tablespace other than USER tablespace
 NOTE: maximum number of StreamHorizon db threads (<bulkProcessingThreadID>) which this model supports is 50. If you wish to run more than 50 db threads please extend subpartition definition of fact table given below 
 NOTE: fact table has single partition created for value booking_date_id=20140107. if you wish to run your own rather than StreamHorizon sample data set you may want to create additional partitions. to do so run following statement: ALTER TABLE  WAREHOUSE.RWH_RISK_FACT_SMALL_SUB ADD PARTITION P_20130910 VALUES  (20130910)  COMPRESS BASIC
 NOTE: for test purposes fact table sales_fact is created in NOLOGGING mode as low number of LGRW  (logwriters) may impact performance unnecessarily
 
 */
+
+/* set your dataowner if desired...*/
+--alter session set current_schema = <YourDataOwner>; 
 
 CREATE TABLE promotion_dim (
   promotion_id INTEGER   NOT NULL ,
@@ -580,7 +582,8 @@ bulkProcessingMillis number null,
 etlCompletionFlag varchar2(100) null,
 bulkCompletionFlag varchar2(100) null,
 etlErrorDescription varchar2(1000) null,
-bulkErrorDescription varchar2(1000) null
+bulkErrorDescription varchar2(1000) null,
+recordInserted timestamp null
 ); 
 
 create or replace view sh_dasbhoard as
@@ -589,27 +592,31 @@ servername,instancestarted,
 round(
             "total file records processed"/
             (
-                to_number(extract( second from "end2end processing window" ))  + 
-                to_number(extract( minute from "end2end processing window" )*60) + 
-                to_number(extract( hour from "end2end processing window" )*3600)
+                to_number(extract( second from "processing window" ))  + 
+                to_number(extract( minute from "processing window" )*60) + 
+                to_number(extract( hour from "processing window" )*3600)
             )
 ) as "througput records/second",
- "end2end processing window",
- "etl processing window",
- "jdbc processing window",
- "total file records processed",
- eventname
+ "processing window",
+ "total file records processed"
 from
 (
+select etl.servername,etl.instancestarted,sum(filerecordcount) as "total file records processed",nvl(max(bulkfileprocessingfinish),max(filejdbcinsertfinish)) - min(fileprocessingstart)  as "processing window"
+from 
+(
 select 
-servername,instancestarted,eventname,
-max(fileprocessingfinish) - min(fileprocessingstart)  as "etl processing window",
-sum(filerecordcount) as "total file records processed",
-max(filejdbcinsertfinish) - min(filejdbcinsertstart)  as "jdbc processing window",
-max(filejdbcinsertfinish) - min(fileprocessingstart)  as "end2end processing window"
+servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName
 from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics)
-group by servername,instancestarted,eventname
+where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='<afterFeedProcessingCompletion>'
+)etl,
+(
+select 
+servername,instancestarted,bulkfileprocessingfinish,bulkFileName
+from sh_metrics
+where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
+)db
+where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName
+group by  etl.servername,etl.instancestarted
 );
 
 
@@ -654,18 +661,25 @@ bulkFileReceived_ts := timestamp '1970-01-01 00:00:00' + numtodsinterval((bulkFi
 fileProcessingMillis := milliseconddiff(fileProcessingStart_ts,fileProcessingFinish_ts);
 jdbcProcessingMillis := milliseconddiff(fileJdbcInsertStart_ts,fileJdbcInsertFinish_ts);
 
-insert into sh_metrics values(servername,instancenumber,instancestarted_ts,'<'||eventName||'>',fileReceived_ts,etlThreadID,
+insert into sh_metrics 
+(servername,instancenumber,instancestarted,eventName,fileReceived,etlThreadID,fileName,fileProcessingStart,fileProcessingFinish,fileProcessingMillis,fileJdbcInsertStart,
+fileJdbcInsertFinish,jdbcProcessingMillis,bulkFileSubmitted,dbThreadID,bulkFilePath,bulkFileName,fileRecordCount,bulkFileReceived,etlCompletionFlag,etlErrorDescription,recordInserted)
+values(servername,instancenumber,instancestarted_ts,'<'||eventName||'>',fileReceived_ts,etlThreadID,
 fileName,fileProcessingStart_ts,fileProcessingFinish_ts,fileProcessingMillis,fileJdbcInsertStart_ts,fileJdbcInsertFinish_ts,jdbcProcessingMillis,bulkFileSubmitted,dbThreadID,bulkFilePath,
-bulkFileName,fileRecordCount,bulkFileReceived_ts,null,null,null,etlCompletionFlag,null,etlErrorDescription,null);
+bulkFileName,fileRecordCount,bulkFileReceived_ts,etlCompletionFlag,etlErrorDescription,systimestamp);
 commit;       
 end log_sh_metrics;
+/
 
 
-CREATE OR REPLACE procedure log_sh_metrics_update
+
+
+CREATE OR REPLACE procedure log_sh_metrics_bulk
 (
-bulkFile varchar2,bulkFileProcessingStart number,bulkFileProcessingFinish number, bulkCompletionFlag varchar2, bulkErrorDesc varchar2
+servername varchar2,instancenumber number,instancestarted number ,eventName varchar2,bulkFile varchar2,bulkFileProcessingStart number,bulkFileProcessingFinish number, bulkCompletionFlag varchar2, bulkErrorDesc varchar2
 )
 is
+    instancestarted_ts  timestamp;
     bulkFileReceived_ts timestamp;
     bulkFileProcessingStart_ts timestamp;
     bulkFileProcessingFinish_ts timestamp;
@@ -687,9 +701,29 @@ bulkFileProcessingStart_ts:= timestamp '1970-01-01 00:00:00' + numtodsinterval((
 bulkFileProcessingFinish_ts:= timestamp '1970-01-01 00:00:00' + numtodsinterval((bulkFileProcessingFinish)/1000/60, 'MINUTE');
 
 bulkProcessingMillis := milliseconddiff(bulkFileProcessingStart_ts,bulkFileProcessingFinish_ts);
+instancestarted_ts := timestamp '1970-01-01 00:00:00' + numtodsinterval((instancestarted)/1000/60, 'MINUTE');
 
-update  sh_metrics set bulkErrorDescription= bulkErrorDesc , bulkCompletionFlag=bulkCompletionFlag, bulkFileProcessingStart= bulkFileProcessingStart_ts, bulkFileProcessingFinish=bulkFileProcessingFinish_ts, bulkProcessingMillis=bulkProcessingMillis 
-        where bulkFileName = bulkFile; 
+insert into sh_metrics 
+(servername,instancenumber,instancestarted,eventName,bulkErrorDescription,bulkCompletionFlag,bulkFileProcessingStart,bulkFileProcessingFinish,bulkProcessingMillis,bulkFileName,recordInserted) 
+values(log_sh_metrics_bulk.servername,log_sh_metrics_bulk.instancenumber,instancestarted_ts,'<'||log_sh_metrics_bulk.eventName||'>',log_sh_metrics_bulk.bulkErrorDesc,log_sh_metrics_bulk.bulkCompletionFlag,bulkFileProcessingStart_ts,bulkFileProcessingFinish_ts,bulkProcessingMillis,log_sh_metrics_bulk.bulkFile,systimestamp);
 commit;       
-end log_sh_metrics_update;
+end log_sh_metrics_bulk;
+/
+
+create or replace view sh_etl as
+select etl.servername,etl.instancestarted, fileProcessingStart,fileProcessingFinish,"etl recordInserted",bulkFileProcessingStart,bulkFileProcessingFinish,"bulk recordInserted"
+from 
+(
+select 
+servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName,fileProcessingFinish,recordInserted as "etl recordInserted"
+from sh_metrics
+where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='<afterFeedProcessingCompletion>'
+)etl,
+(
+select 
+servername,instancestarted,bulkfileprocessingfinish,bulkFileName,bulkFileProcessingStart,recordInserted as "bulk recordInserted"
+from sh_metrics
+where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
+)db
+where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName;
 

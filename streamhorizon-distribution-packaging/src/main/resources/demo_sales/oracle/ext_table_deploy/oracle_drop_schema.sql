@@ -1,3 +1,5 @@
+/* set your dataowner if desired...*/
+--alter session set current_schema = <YourDataOwner>; 
 
 DROP SEQUENCE promotion_dim_seq;
 
@@ -42,3 +44,7 @@ DROP TABLE sales_channel_dim;
 DROP TABLE promotion_dim;
 
 DROP TABLE sh_metrics ;
+
+DROP VIEW sh_etl;
+
+DROP VIEW log_sh_metrics_bulk;

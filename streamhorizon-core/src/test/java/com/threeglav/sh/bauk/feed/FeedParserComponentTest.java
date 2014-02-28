@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.threeglav.sh.bauk.feed.FeedParserComponent;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.DataProcessingType;
@@ -19,14 +18,14 @@ public class FeedParserComponentTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNull() {
-		new FeedParserComponent(null, null, null);
+		new FeedParserComponent(null, null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullDelimiter() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		final FactFeed ff = Mockito.mock(FactFeed.class);
-		new FeedParserComponent(ff, config, null);
+		new FeedParserComponent(ff, config);
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -35,7 +34,7 @@ public class FeedParserComponentTest {
 		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
 		when(ff.getDelimiterString()).thenReturn(",");
-		new FeedParserComponent(ff, config, null);
+		new FeedParserComponent(ff, config);
 	}
 
 	@Test
@@ -45,7 +44,7 @@ public class FeedParserComponentTest {
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
 		when(ff.getType()).thenReturn(FactFeedType.FULL);
-		final FeedParserComponent fp = new FeedParserComponent(ff, config, null);
+		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertEquals("9", fp.getFirstStringInEveryLine());
 		Assert.assertFalse(fp.isCheckEveryLineValidity());
 		Assert.assertEquals(1, fp.getExpectedTokensInEveryDataLine());
@@ -66,7 +65,7 @@ public class FeedParserComponentTest {
 		when(ff.getData().getAttributes()).thenReturn(attrs);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
 		when(ff.getType()).thenReturn(FactFeedType.FULL);
-		final FeedParserComponent fp = new FeedParserComponent(ff, config, null);
+		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertEquals("9", fp.getFirstStringInEveryLine());
 		Assert.assertTrue(fp.isCheckEveryLineValidity());
 		Assert.assertEquals(11, fp.getExpectedTokensInEveryDataLine());
@@ -87,7 +86,7 @@ public class FeedParserComponentTest {
 		when(ff.getData().getAttributes()).thenReturn(attrs);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn(null);
 		when(ff.getType()).thenReturn(FactFeedType.FULL);
-		final FeedParserComponent fp = new FeedParserComponent(ff, config, null);
+		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertEquals("9", fp.getFirstStringInEveryLine());
 		Assert.assertTrue(fp.isCheckEveryLineValidity());
 		Assert.assertEquals(10, fp.getExpectedTokensInEveryDataLine());
@@ -108,7 +107,7 @@ public class FeedParserComponentTest {
 		when(ff.getData().getAttributes()).thenReturn(attrs);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn(null);
 		when(ff.getType()).thenReturn(FactFeedType.FULL);
-		final FeedParserComponent fp = new FeedParserComponent(ff, config, null);
+		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertNull(fp.getFirstStringInEveryLine());
 		Assert.assertFalse(fp.isCheckEveryLineValidity());
 		Assert.assertEquals(10, fp.getExpectedTokensInEveryDataLine());
