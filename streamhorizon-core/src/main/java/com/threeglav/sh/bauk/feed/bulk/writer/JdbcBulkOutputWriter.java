@@ -180,8 +180,8 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			globalAttributes
 					.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_FINISHED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 			if (outputProcessingStatistics) {
-				final String message = "Finished bulk loading data using JDBC. In total bulk loaded " + EngineRegistry.getSuccessfulBulkFilesCount()
-						+ " files so far!";
+				final String message = this.getCurrentThreadName() + " - Finished bulk loading data using JDBC. In total bulk loaded "
+						+ EngineRegistry.getSuccessfulBulkFilesCount() + " files so far!";
 				BaukUtil.logBulkLoadEngineMessage(message);
 			}
 		} finally {

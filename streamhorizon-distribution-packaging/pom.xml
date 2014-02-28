@@ -35,7 +35,7 @@
 							<goal>proguard</goal>
 						</goals>
 						<configuration>
-							<outjar>streamhorizon_small.jar</outjar>
+							<outjar>streamhorizon-impl-${project.version}.jar</outjar>
 							<obfuscate>true</obfuscate>
 							<options>
 								<option>-dontoptimize</option>

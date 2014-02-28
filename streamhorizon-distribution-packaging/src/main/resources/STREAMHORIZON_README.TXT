@@ -30,8 +30,3 @@ HTTP commands
 http://localhost:21000/flushDimensionCache/?dimension=DIMENSION_NAME_AS_DEFINED_IN_CONFIG
 
 http://localhost:21000/flushDimensionCache/?dimension=PORTFOLIO_DIMENSION
-
-
-2) Accessing monitoring page (in development)
-
-http://localhost:21000/monitor/

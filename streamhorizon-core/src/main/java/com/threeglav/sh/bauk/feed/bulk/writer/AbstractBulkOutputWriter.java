@@ -29,6 +29,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	private final String nullReplacementString;
 	protected String finalBulkOutputFilePath;
 	protected String temporaryBulkOutputFilePath;
+	private String currentThreadName;
 	private final StringBuilder reusedForPerformance = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 
 	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
@@ -153,6 +154,13 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 
 	protected void initialize(final String bulkOutputPath) {
 
+	}
+
+	protected final String getCurrentThreadName() {
+		if (currentThreadName == null) {
+			currentThreadName = Thread.currentThread().getName();
+		}
+		return currentThreadName;
 	}
 
 }

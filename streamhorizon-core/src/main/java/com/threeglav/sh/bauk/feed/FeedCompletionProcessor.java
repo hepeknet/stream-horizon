@@ -25,7 +25,7 @@ public final class FeedCompletionProcessor extends ConfigAware {
 
 	public void process(final Map<String, String> globalAttributes) {
 		if (isDebugEnabled) {
-			log.debug("Global attributes {}", globalAttributes);
+			log.debug("Executing feed completion logic. Global attributes {}", globalAttributes);
 		}
 		if (commandExecutor != null) {
 			commandExecutor.executeBaukCommandSequence(globalAttributes, statementDescription);

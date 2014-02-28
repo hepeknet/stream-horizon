@@ -108,7 +108,7 @@
 			<directory>target/</directory>
 			<outputDirectory>lib</outputDirectory>
 			<includes>
-				<include>streamhorizon_small.jar</include>
+				<include>streamhorizon-impl-${project.version}.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>

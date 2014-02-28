@@ -53,9 +53,11 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	private BaukCommandsExecutor bulkLoadSuccessCommandsExecutor;
 	private BaukCommandsExecutor bulkLoadFailureCommandsExecutor;
 	private BaukCommandsExecutor bulkLoadCompletionCommandsExecutor;
+	private final FactFeed factFeed;
 
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
+		this.factFeed = factFeed;
 		fileSubmissionRecorder = new BulkFileSubmissionRecorder();
 		processorId = String.valueOf(COUNTER.incrementAndGet());
 		isDebugEnabled = log.isDebugEnabled();
@@ -99,7 +101,14 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	}
 
 	private void initializeFeedFileNameProcessor() {
-		final String feedFileNameProcessorClassName = DefaultFeedFileNameProcessor.class.getName();
+		String feedFileNameProcessorClassName = DefaultFeedFileNameProcessor.class.getName();
+		final String configuredFileProcessorClass = factFeed.getFileNameProcessorClassName();
+		if (!StringUtil.isEmpty(configuredFileProcessorClass)) {
+			feedFileNameProcessorClassName = configuredFileProcessorClass;
+			log.debug("Will try to use custom feed file name processor class {}", configuredFileProcessorClass);
+		} else {
+			log.debug("Will use default feed file name processor class {}", feedFileNameProcessorClassName);
+		}
 		final CustomProcessorResolver<FeedFileNameProcessor> feedFileNameProcessorInstanceResolver = new CustomProcessorResolver<>(
 				feedFileNameProcessorClassName, FeedFileNameProcessor.class);
 		feedFileNameProcessor = feedFileNameProcessorInstanceResolver.resolveInstance();

@@ -381,8 +381,15 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
 			}
 			final int key = naturalKeyPositionsInFeed[i];
-			final String value = parsedLine[key];
-			sb.append(value);
+			try {
+				final String value = parsedLine[key];
+				sb.append(value);
+			} catch (final ArrayIndexOutOfBoundsException aioobe) {
+				log.error(
+						"Tried to get data from input feed, position {} but looks like there is not enough data values in this row. Did you configure footer correctly? Do all rows in input feed have same length?",
+						key);
+				throw aioobe;
+			}
 		}
 		return sb.toString();
 	}
