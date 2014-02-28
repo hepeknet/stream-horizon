@@ -21,7 +21,7 @@
 			</onStartupCommands>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>10</etlProcessingThreadCount>
-				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>
+				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
 			</threadPoolSettings>				
 			<fileNameMasks>
 				<fileNameMask>.*csv</fileNameMask>
@@ -62,6 +62,7 @@
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<bulkLoadInsert>
 					<!-- uncomment this section to load from bulk file (bulk file segment need be commented out first)-->
+					<!-- also change outputType to 'file' and set databaseProcessingThreadCount to non-zero value -->
 					<!--
 					<command type="sql">
 						LOAD DATA INFILE '${bulkFilePath}' INTO TABLE sales_fact
