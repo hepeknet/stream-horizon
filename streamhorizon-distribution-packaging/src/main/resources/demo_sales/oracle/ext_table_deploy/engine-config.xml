@@ -60,17 +60,13 @@
 					<attribute name="supplierName" />
 				</attributes>
 			</data>
-			<footer process="strict">	
-				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
-				<recordCountAttributePosition>1</recordCountAttributePosition>
-			</footer>
 			<bulkLoadDefinition outputType="file">
 				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<bulkLoadInsert>
 					<!-- load from bulk file (via external tables)-->
 					<command type="sql">
-						CALL p_sh_external_table_load(20140107/*${bookingDate}*/, ${bulkProcessingThreadID},'${bulkFileName}')  
+						CALL p_sh_external_table_load(20140107/*${ffn[2]}*/, ${bulkProcessingThreadID},'${bulkFileName}')  
 					</command>
 				</bulkLoadInsert>	
 				<bulkLoadFormatDefinition>
