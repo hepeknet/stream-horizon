@@ -5,7 +5,7 @@
 <?php include 'header.php' ?>
 <div class="contact center part clearfix">
   <header class="title">
-    <p class="fleft">Request Download</p>
+    <p class="fleft"></p>
 	<p class="fright"><a href="contact.php" class="more arrow">Get Commercial Support</a></p>
   </header>
   

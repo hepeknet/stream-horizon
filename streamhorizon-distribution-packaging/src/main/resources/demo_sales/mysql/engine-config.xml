@@ -53,6 +53,7 @@
 					<attribute name="supplierName" />
 				</attributes>
 			</data>
+			<!-- change outputType="file" when using LOAD DATA INFILE -->
 			<bulkLoadDefinition outputType="jdbc">
 				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>

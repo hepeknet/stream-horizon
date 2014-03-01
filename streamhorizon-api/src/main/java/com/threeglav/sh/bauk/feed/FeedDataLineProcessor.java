@@ -2,6 +2,12 @@ package com.threeglav.sh.bauk.feed;
 
 import java.util.Map;
 
+/**
+ * Interface for header parser.
+ * 
+ * @author Borisa
+ * 
+ */
 public interface FeedDataLineProcessor {
 
 	/**
