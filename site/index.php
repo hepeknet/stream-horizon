@@ -47,6 +47,16 @@
 			<img src="img/three.png" alt="" id="idThree">
           </figure>
         </div>
+		<div class="slide">
+          <figure> 
+			<img src="img/four.png" alt="" id="idFour">
+          </figure>
+        </div>
+		<div class="slide">
+          <figure> 
+			<img src="img/five.png" alt="" id="idFive">
+          </figure>
+        </div>
       </div>
     </div>
   </section>

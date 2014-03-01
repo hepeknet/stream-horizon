@@ -30,16 +30,31 @@ public class RandomizeX {
 	 * @param args
 	 */
 	public static void main(final String[] args) throws Exception {
-		final BufferedReader br = new BufferedReader(new FileReader("d:/projects/test/sh_sales_big_1.csv"));
-		final BufferedWriter bw = new BufferedWriter(new FileWriter("d:/projects/test/sh_sales_big_1_rand.csv"));
+		final BufferedReader br = new BufferedReader(new FileReader("d:/projects/test/sh_sales_big_16.csv"));
+		final BufferedWriter bw = new BufferedWriter(new FileWriter("d:/projects/test/sh_sales_big_16_rand.csv"));
+		int totalCount = 0;
 		String line = br.readLine();
 		while (line != null) {
+			if (totalCount >= 100000) {
+				break;
+			}
 			line = br.readLine();
 			if (line != null) {
 				final String rLine = randomizeLine(line);
-				if (rLine != null) {
-					bw.write(rLine);
-					bw.newLine();
+				if (totalCount > 200) {
+					for (int i = 0; i < 100; i++) {
+						if (rLine != null) {
+							bw.write(rLine);
+							bw.newLine();
+							totalCount++;
+						}
+					}
+				} else {
+					if (rLine != null) {
+						bw.write(rLine);
+						bw.newLine();
+						totalCount++;
+					}
 				}
 			}
 		}
