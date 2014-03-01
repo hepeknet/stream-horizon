@@ -1,5 +1,6 @@
 /*
 
+NOTE: if you wish to set your data owner please uncomment first command of this script
 NOTE: create user with adequate privileges in your Oracle database and execute the script below (just in case you need create user statement: create USER streamhorizon identified by streamhorizon;  GRANT ALL PRIVILEGES TO StreamHorizon;)  please verify with your DBA that this privilege statement complies with your data access policy
 NOTE: change create table statement for sales_fact if you wish to load datae in tablespace other than USER tablespace
 NOTE: maximum number of StreamHorizon db threads (<bulkProcessingThreadID>) which this model supports is 50. If you wish to run more than 50 db threads please extend subpartition definition of fact table given below 
@@ -586,7 +587,7 @@ bulkErrorDescription varchar2(1000) null,
 recordInserted timestamp null
 ); 
 
-create or replace view sh_dasbhoard as
+create or replace view sh_dashboard as
 select 
 servername,instancestarted,
 round(

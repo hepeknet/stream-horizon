@@ -1,3 +1,10 @@
+/*
+
+NOTE: if you wish to set your data owner please uncomment first command of this script
+
+*/
+
+
 /* set your dataowner if desired...*/
 --alter session set current_schema = <YourDataOwner>; 
 
@@ -43,8 +50,16 @@ DROP TABLE sales_channel_dim;
 
 DROP TABLE promotion_dim;
 
-DROP TABLE sh_metrics ;
+DROP TABLE sh_metrics;
 
 DROP VIEW sh_etl;
 
-DROP VIEW log_sh_metrics_bulk;
+DROP VIEW sh_dashboard;
+
+DROP PROCEDURE log_sh_metrics;
+
+DROP PROCEDURE log_sh_metrics_bulk;
+
+DROP PROCEDURE p_sh_external_table_load;
+
+

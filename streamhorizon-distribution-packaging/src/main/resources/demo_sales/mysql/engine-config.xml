@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<sourceDirectory>d:/projects/test/input</sourceDirectory>
-	<archiveDirectory>d:/projects/test/archive</archiveDirectory>
-	<errorDirectory>d:/projects/test/error</errorDirectory>
-	<bulkOutputDirectory>d:/projects/test/bulkOutput</bulkOutputDirectory>
-	<properties>
-		<property name="output.processing.statistics">true</property>
-		<property name="bulk.delete.files.after.load">true</property>
-		<property name="throughput.testing.mode">false</property>
-	</properties>
-	<connectionProperties>	
+	<sourceDirectory><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></sourceDirectory>
+	<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
+	<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
+	<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
+	<connectionProperties>
+		<!--SET ME! Set value below to correct JDBC URL -->
 		<jdbcUrl>jdbc:mysql://localhost:3306/pet_shop?user=root&amp;password=shroot&amp;rewriteBatchedStatements=true&amp;cachePrepStmts=true&amp;cacheResultSetMetadata=true&amp;useDynamicCharsetInfo=false</jdbcUrl>
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
@@ -62,7 +58,7 @@
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<bulkLoadInsert>
 					<!-- uncomment this section to load from bulk file (bulk file segment need be commented out first)-->
-					<!-- also change outputType to 'file' and set databaseProcessingThreadCount to non-zero value -->
+					<!-- also change outputType to 'file' and set databaseProcessingThreadCount to non-zero value so that DB threads are started -->
 					<!--
 					<command type="sql">
 						LOAD DATA INFILE '${bulkFilePath}' INTO TABLE sales_fact
@@ -187,4 +183,9 @@
 			</sqlStatements>
 		</dimension>
 	</dimensions>
+	<properties>
+		<property name="output.processing.statistics">true</property>
+		<property name="bulk.delete.files.after.load">true</property>
+		<property name="throughput.testing.mode">false</property>
+	</properties>
 </config>

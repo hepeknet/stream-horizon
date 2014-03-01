@@ -107,8 +107,8 @@ nav a, menu a { text-decoration: none; color: #666; }
 .more { color: #999; font-style: italic; }
 /* SLIDER */
 #slides { position: relative; z-index: 1; }
-.slides_container { width: 474px; height: 290px; display: none; }
-    .slides_container .slide { width: 474px; height: 290px; display: block; }
+.slides_container { width: 500px; height: 281px; display: none; }
+    .slides_container .slide { width: 500px; height: 281px; display: block; }
 .slide figure { overflow: hidden; height: 100%; }
 .slide img { max-width: 100%; height: auto; width: auto; display: block; }
 .slide figcaption { position: absolute; background: white; height: auto; min-height: 45px; width: 190px; padding: 10px; top: 30px; right: 0; }

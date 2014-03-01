@@ -228,14 +228,15 @@ public class StreamHorizonEngine {
 			final long totalUpTimeSec = totalUpTimeMillis / 1000;
 			final long minutes = totalUpTimeSec / 60;
 			final long remainedSeconds = totalUpTimeSec % 60;
-			final long averageFilesPerSecond = totalInputFeedFilesProcessed / totalUpTimeSec;
-			final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
+			// final long averageFilesPerSecond = totalInputFeedFilesProcessed / totalUpTimeSec;
+			// final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
 			BaukUtil.logEngineMessageSync("Uptime of this instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and "
 					+ remainedSeconds + " seconds). In total processed " + totalInputFeedFilesProcessed + " input feed files and "
 					+ totalInputFeedRowsProcessed + " rows.");
-			BaukUtil.logEngineMessageSync("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
+			// BaukUtil.logEngineMessageSync("On average processed " + averageFilesPerSecond + " files/sec, " +
+			// averageRowsPerSecond + " rows/sec.");
 		} else {
-			BaukUtil.logEngineMessageSync("No files were processed or statistics are turned off.");
+			// BaukUtil.logEngineMessageSync("No files were processed or statistics are turned off.");
 		}
 	}
 

@@ -1,6 +1,6 @@
 /*
-
-NOTE: to create external table directory please uncomment and modify first two commands of the script as advised below before you execute it
+NOTE: if you wish to set your data owner please uncomment first command of this script
+NOTE: to create external table directory please uncomment and modify second and third commands of the script as advised below before you execute it
 NOTE: to assign correct privileges please AFTER you execute this script run command:       
             GRANT ALL ON DIRECTORY EXT_LOADER_DATA TO <YOUR USER COMES HERE>                
             GRANT ALL ON DIRECTORY LOG TO <YOUR USER COMES HERE>
@@ -11,8 +11,8 @@ NOTE: to assign correct privileges please AFTER you execute this script run comm
 --alter session set current_schema = <YourDataOwner>; 
 
 /* modify this command to your own directory on your server and make sure that read/write privileges are correctly assigned  */
---create or replace directory EXT_LOADER_DATA as 'your bulk file directory (as it is setup in  engine-config.xml <bulkOutputDirectory> tag)'
---create or replace directory LOG as 'directory for logging erros (please choose any on your OS)'
+--create or replace directory EXT_LOADER_DATA as 'your bulk file directory (as it is setup in  engine-config.xml <bulkOutputDirectory> tag)';
+--create or replace directory LOG as 'directory for logging erros (please choose any on your OS)';
 
 
 
@@ -96,30 +96,15 @@ end;
 CREATE OR REPLACE procedure p_sh_external_table_load
   (businessDate in integer,dbthreadID in integer, fileName varchar2)
 is
-    cmd varchar2(4000):=null;  factPartitions integer :=50; startLoad timestamp; endLoad timestamp; duration number; rowCnt number;
-    function milliseconddiff (p_d1 in timestamp,   p_d2 in timestamp)
-       return number as
-       l_result   number;
-    begin
-       l_result   :=
-             (extract(day    from p_d2 - p_d1)) * 86400000
-           + (extract(hour   from p_d2 - p_d1)) * 3600000
-           + (extract(minute from p_d2 - p_d1)) * 60000
-           + (extract(second from p_d2 - p_d1)) * 1000;
-       return l_result;
-    end;    
+    cmd varchar2(4000):=null;  factPartitions integer :=50;
 begin
-         startLoad :=systimestamp; 
          cmd := 'alter table sh_load_'||dbthreadID||' location ('''||fileName||''')';
-         dbms_output.put_line('sql:     '||cmd);     
          execute immediate cmd;         
          cmd:=' insert  /*+ append_values  */ into sales_fact subpartition (P_'||to_char(businessDate)||'_SP_'|| mod(dbthreadID,factPartitions)  ||')   
                              (product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, sub) 
                     select  product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, '||dbthreadID||' 
                     from sh_load_'||dbthreadID;     
         execute immediate cmd;
-        endLoad := systimestamp;
-        duration := milliseconddiff(startLoad,endLoad);
 end p_sh_external_table_load;
 /
 

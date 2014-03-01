@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="css/style.css">
 <!--[if lt IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
 </head>
+<?php include 'constants.php' ?>
 <body>
 <header class="center clearfix" id="navtop"> <a href="index.php" class="logo fleft"><img src="img/logo.png" alt="" width="270"></a>
    <nav class="fright">

@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<sourceDirectory>g:/data/sourceBig</sourceDirectory>
-	<archiveDirectory>g:/javaOlap/bauk-0.0.1-SNAPSHOT/files/archive</archiveDirectory>
-	<errorDirectory>g:/javaOlap/bauk-0.0.1-SNAPSHOT/files/error</errorDirectory>
-	<bulkOutputDirectory>g:/javaOlap/bauk-0.0.1-SNAPSHOT/files/bulk</bulkOutputDirectory>
-	<properties>
-		<property name="output.processing.statistics">true</property>
-		<property name="bulk.delete.files.after.load">true</property>
-		<property name="throughput.testing.mode">false</property>
-	</properties>
-	<connectionProperties>	
-		<jdbcUrl></jdbcUrl>
-		<jdbcUserName>streamhorizon</jdbcUserName>
-		<jdbcPassword>streamhorizon</jdbcPassword>
+	<sourceDirectory><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></sourceDirectory>
+	<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
+	<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
+	<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
+	<connectionProperties>
+		<jdbcUrl><!--SET ME! jdbc:oracle:thin:@serverName:1522:orcl--></jdbcUrl>
+		<jdbcUserName><!--SET ME! yourUser --></jdbcUserName>
+		<jdbcPassword><!--SET ME! yourPassword --></jdbcPassword>
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
 	<factFeeds>
@@ -176,4 +171,9 @@
 			</sqlStatements>
 		</dimension>
 	</dimensions>
+	<properties>
+		<property name="output.processing.statistics">true</property>
+		<property name="bulk.delete.files.after.load">true</property>
+		<property name="throughput.testing.mode">false</property>
+	</properties>
 </config>
