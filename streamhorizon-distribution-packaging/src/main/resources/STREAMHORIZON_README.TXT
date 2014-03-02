@@ -12,18 +12,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-HTTP commands
+REMOTE (HTTP) commands
 
 1) Pausing processing, flushing dimension cache and continuing processing
 

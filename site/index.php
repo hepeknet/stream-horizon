@@ -14,26 +14,26 @@
       <div class="map center"><a href="#"><img src="img/sh-logo.png" alt="" /></a></div>
       <p>
 		<ul>
-			<li>Process 1 million records per second on a commodity server</li>
-			<li>Process 250 thousand records per seconds on your desktop</li>
-			<li>Fully configurable via single XML file. Enables you to deliver Data Mart without writing a single line of ETL code.</li>
+			<li>- Process 1 million records per second on a commodity server</li>
+			<li>- Process 250 thousand records per seconds on your desktop</li>
+			<li>- Fully configurable via single XML file. Enables you to deliver Data Mart without writing a single line of ETL code.</li>
 		</ul>
 		<br>
 		<ul>
-			<li><a href="resources.php">Download</a> and test run StreamHorizon in less then 20 minutes</li>
-			<li>Deliver your Data Warehouse with StreamHorizon in 1-3 days by configuring StreamHorizon xml configuration file</li>
+			<li>- <a href="resources.php">Download</a> and test run StreamHorizon in less then 20 minutes</li>
+			<li>- Deliver your Data Warehouse with StreamHorizon in 1-3 days by configuring StreamHorizon xml configuration file</li>
 		</ul>
 		<br>
 		<ul>
-			<li>Tested on Linux, Solaris, Windows, EC2</li>
-			<li>StreamHorizon as your Data Processing (ETL) Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
+			<li>- Tested on Linux, Solaris, Windows, EC2</li>
+			<li>- StreamHorizon as your Data Processing (ETL) Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
 		</ul>
 		<br>
 		<ul>
-			<li>Run StreamHorizon on your Compute Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
-			<li>Horizontally and vertically scalable</li>
-			<li>Highly Available</li>
-			<li>Clusterable</li>
+			<li>- Run StreamHorizon on your Compute Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
+			<li>- Horizontally and vertically scalable</li>
+			<li>- Highly Available</li>
+			<li>- Clusterable</li>
 		</ul>
 	  </p>
     </div>

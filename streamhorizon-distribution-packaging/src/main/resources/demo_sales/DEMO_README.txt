@@ -1,7 +1,9 @@
-THIS FOLDER CONTAINS DEMO FEATURE THAT CAN BE EXECUTED BY STREAMHORIZON ENGINE. THIS IS FUNCTIONAL DEMO AND CAN BE USED FOR PERFORMANCE TEST (IF SYSTEM IS TUNED PROPERLY)
+THIS FOLDER CONTAINS DEMO FEATURE THAT CAN BE EXECUTED BY STREAMHORIZON ENGINE. THIS IS FUNCTIONAL DEMO AND CAN BE USED FOR PERFORMANCE TEST (IF SYSTEM IS TUNED ADEQUATELY)
+
+Detailed (step by step) instructions about implementation of this demo are available in $ENGINE_HOME/streamhorizon_test_demo_deployment_guide.pdf guide.
 
 1) Decide whether you want to use Oracle or MySQL database
-2) Tune database properly
+2) Tune database adequately
 3) Execute appropriate create scripts (provided)
 4) Copy appropriate engine-config.xml (provided)
 5) Use provided input files

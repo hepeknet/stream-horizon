@@ -12,29 +12,19 @@
     <p class="mbottom"></p>
     <menu>
     <ul>
+	  <li><a href="#doc" class="arrow more">Documentation</a></li>
 	  <li><a href="#down" class="arrow more">Downloads</a></li>
-      <li><a href="#doc" class="arrow more">Documentation</a></li>
-      <li><a href="#pres" class="arrow more">Presentations</a></li>
     </ul>
     </menu> </aside>
   <section class="columnthird content">
+	<article id="doc" class="detail">
+      <h2>StreamHorizon Documentation</h2>
+      <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon Overview presentation (PDF)</a><br>
+	  <a href="./downloads/streamhorizon_test_demo_deployment_guide.pdf">Test demo deployment guide (PDF)</a><br>
+    </article>
     <article id="down" class="detail">
-      <h2>Downloads</h2>
-      <a href="request_download.php">Try out the latest version of StreamHorizon Data Processing Platform</a><br>
-    </article>
-    <article id="doc" class="detail">
-      <h2>Documentation</h2>
-      <a href="">General setup</a><br>
-	  <a href="">Java plugins tutorial</a><br>
-	  <a href="">Tuning parameters</a><br>
-	  <a href="">Deployment examples</a><br>
-    </article>
-    <article id="pres" class="detail clearfix">
-      <h2>Presentations</h2>
-      <a href="">Version 1.0.0</a><br>
-	  <a href="">Version 1.0.0</a><br>
-	  <a href="">Version 1.0.0</a><br>
-	  <a href="">Version 1.0.0</a><br>
+      <h2>StreamHorizon Downloads</h2>
+      <a href="request_download.php">Try out</a> the latest version of StreamHorizon Data Processing Platform (includes demo).<br>
     </article>
   </section>
 </div>

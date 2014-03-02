@@ -14,7 +14,7 @@
 if (!isset($_POST["email"])){
   ?>
     <h2>Get the latest version (<?php echo SH_LATEST_VERSION ?>) of StreamHorizon platform</h2>
-    <p class="more">Fill in the form below and we will email you download link to try out StreamHorizon.</p>
+    <p class="more">Fill in the form below and we will email you download link to try out StreamHorizon</p>
     <form id="contact_form" class="contact_form" action="request_download.php" method="post" name="contact_form">
       <ul class="contact_ie9">
         <li>
