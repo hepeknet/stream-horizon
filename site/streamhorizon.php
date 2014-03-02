@@ -41,7 +41,7 @@
       <p>
 	   Data Integration can typically be characterised as a set of large (in numbers), interdependent and usually trivial units of ETL transformations/code. </p>
 	  <p> 
-	   Above stated spells ‘high complexity’ for majority of Data Integration, Business Intelligence and Data Processing projects.
+	   Above stated spells 'high complexity' for majority of Data Integration, Business Intelligence and Data Processing projects.
 	  </p>
     </article>
     <article class="column3 mright services">

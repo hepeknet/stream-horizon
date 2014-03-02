@@ -10,14 +10,6 @@
   </header>
   <aside class="column4 mright">
     <p class="mbottom">We would love to talk to you and answer all of your questions</p>
-    <address class="mbottom">
-    <span class="strong">Threeglav Ltd.</span> 
-	<br>
-	<br>United Kingdom<br >
-    Ireland<br >
-    </address>
-    <p class="mbottom">00 77 66 55 33<br >
-      00 77 66 55 33</p>
     <p class="mbottom"> 
 	  <a href="mailto:info@threeglav.com">info@threeglav.com</a><br >
       <a href="mailto:support@threeglav.com">support@threeglav.com</a><br >
@@ -36,11 +28,11 @@ if (!isset($_POST["email"])){
     <form id="contact_form" class="contact_form" action="contact.php" method="post" name="contact_form">
       <ul class="contact_ie9">
         <li>
-          <label for="name">Your name</label>
+          <label for="name">Your name:</label>
           <input type="text" name="name" id="name" required class="required" >
         </li>
         <li>
-          <label for="email">Email:</label>
+          <label for="email">Your corporate email:</label>
           <input type="email" name="email" id="email" required class="required email">
         </li>
         <li>

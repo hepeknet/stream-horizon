@@ -7,26 +7,33 @@
 <div class="main center">
   <section class="part clearfix">
     <header class="title clearfix">
-      <p class="fleft">Home</p>
+      <p class="fleft"></p>
       <a href="streamhorizon.php" class="arrow more fright">Find out more about StreamHorizon</a> 
 	</header>
     <div class="column2 mright">
-      <h1>Stream Horizon</h1>
-	  <h3>Data Processing Platform</h3>
+      <div class="map center"><a href="#"><img src="img/sh-logo.png" alt="" /></a></div>
       <p>
 		<ul>
-			<li><a href="resources.php">Download</a> and test run StreamHorizon in less then 20 minutes</li>
-			<li>Tested on Linux, Solaris, Windows, EC2</li>
-			<li>StreamHorizon as your Data Processing (ETL) Grid (more info)</li>
-			<li>Deliver your Data Warehouse with StreamHorizon in 1-3 days by configuring StreamHorizon xml configuration file</li>
-			<li>Process 250 thousand records per seconds on your desktop</li>
 			<li>Process 1 million records per second on a commodity server</li>
-			<li>Run StreamHorizon on your Compute Grid (more info)</li>
-			<li>Horizontally and vertically scalable</li>
-			<li>Highly available</li>
-			<li>Clusterable</li>
-			<li>No need for complex repositories</li>
+			<li>Process 250 thousand records per seconds on your desktop</li>
 			<li>Fully configurable via single XML file. Enables you to deliver Data Mart without writing a single line of ETL code.</li>
+		</ul>
+		<br>
+		<ul>
+			<li><a href="resources.php">Download</a> and test run StreamHorizon in less then 20 minutes</li>
+			<li>Deliver your Data Warehouse with StreamHorizon in 1-3 days by configuring StreamHorizon xml configuration file</li>
+		</ul>
+		<br>
+		<ul>
+			<li>Tested on Linux, Solaris, Windows, EC2</li>
+			<li>StreamHorizon as your Data Processing (ETL) Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
+		</ul>
+		<br>
+		<ul>
+			<li>Run StreamHorizon on your Compute Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
+			<li>Horizontally and vertically scalable</li>
+			<li>Highly Available</li>
+			<li>Clusterable</li>
 		</ul>
 	  </p>
     </div>
@@ -62,11 +69,10 @@
   </section>
   <section class="part clearfix">
     <header class="title clearfix">
-      <p class="fleft">The Problem</p>
+      <p class="fleft"><h3>The Problem</h3></p>
       <a href="contact.php" class="arrow more fright">Contact Us</a> </header>
     <article class="column3 mright services">
-      <p class="number">01</p>
-      <div class="sepmini"></div>
+      
       <h5>Complexity</h5>
       <div class="sepmini"></div>
       <p>
@@ -76,15 +82,13 @@
 	  </p>
     </article>
     <article class="column3 mright services">
-      <p class="number">02</p>
-      <div class="sepmini"></div>
+      
       <h5>Performance</h5>
       <div class="sepmini"></div>
       <p>Data Processing commonly faces performance issues, long load times, SLA breaks, long processing windows. Consequence of batch oriented rather than real time (low latency) design paradigms & thinking.</p>
     </article>
     <article class="column3 services">
-      <p class="number">03</p>
-      <div class="sepmini"></div>
+     
       <h5>Query Latency</h5>
       <div class="sepmini"></div>
       <p>Business Intelligence users often require much smaller query latencies from the ones delivered.</p>
@@ -92,7 +96,7 @@
   </section>
   <section class="part clearfix">
     <header class="title clearfix">
-      <p class="fleft">Our Response</p>
+      <p class="fleft"><h3>Our Solution</h3></p>
       <a href="streamhorizon.php" class="arrow more fright">Find out more about StreamHorizon</a>
 	</header>
     <article class="column3 mright services">

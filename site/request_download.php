@@ -47,7 +47,7 @@ if (!isset($_POST["email"])){
     mail($from,"Your trial version of StreamHorizon DataProcessingPlatform",$message,"From: support@threeglav.com\n");
 	mail("borisha.zivkovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@threeglav.com\n");
 	mail("mladen.golubovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@threeglav.com\n");
-    echo "<p>Thank you for your interest in StreamHorizon. An email has been sent to you with download link.</p><p>Do not hesitate to contact us in case you have any questions at support@threeglav.com!</p>";
+    echo "<p>Thank you for your interest in StreamHorizon. An email has been sent to you with download link.</p><p>Do not hesitate to contact us in case you have any questions at <b>support@threeglav.com</b>!</p>";
     }
   }
 ?>

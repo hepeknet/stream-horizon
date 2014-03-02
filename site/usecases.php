@@ -53,12 +53,6 @@ All of the above is achievable on single server, commodity hardware.
 StreamHorizon data model is easily extendible to fit business needs
           </div>
         </li>
-        <li>
-          <h6 class="toggle">CreditRisk</h6>
-          <div class="t">
-            <p></p>
-          </div>
-        </li>
 		<li>
           <h6 class="toggle">Time Series Analysis</h6>
           <div class="t">
@@ -99,9 +93,9 @@ StreamHorizon data model is easily extendible to fit business needs
     </article>
 	<article id="health" class="detail">
       <h2>Health <p class="fright"><img src="img/health.png" width="60" /></p></h2>
-      <p>Cost-Effectiveness Analysis</p>
-	  <p>Demographic Analysis</p>
-	  <p>Medication profiling</p>
+      <p>Activity Tracking</p>
+	  <p>Care Cost Analysis</p>
+	  <p>Clinical Outcomes per money spent KPI’s</p>
     </article>
   </section>
 </div>

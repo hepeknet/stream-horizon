@@ -44,7 +44,8 @@
 			<directory>src/main/resources/</directory>
 			<outputDirectory></outputDirectory>
 			<includes>
-				<include>*.pdf</include>
+				<include>LICENSE.TXT</include>
+				<include>streamhorizon_test_demo_deployment_guide.pdf</include>
 			</includes>
 		</fileSet>
 		<fileSet>

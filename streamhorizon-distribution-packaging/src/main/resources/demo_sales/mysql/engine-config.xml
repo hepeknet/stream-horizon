@@ -16,8 +16,8 @@
 				<command type="sql">truncate table sh_metrics</command>
 			</onStartupCommands>
 			<threadPoolSettings>
-				<etlProcessingThreadCount>10</etlProcessingThreadCount>
-				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
+				<etlProcessingThreadCount>21</etlProcessingThreadCount>
+				<databaseProcessingThreadCount>21</databaseProcessingThreadCount>
 			</threadPoolSettings>				
 			<fileNameMasks>
 				<fileNameMask>.*csv</fileNameMask>

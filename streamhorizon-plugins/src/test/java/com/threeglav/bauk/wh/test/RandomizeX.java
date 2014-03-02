@@ -25,6 +25,9 @@ public class RandomizeX {
 	private static final Random rand = new Random();
 	private static final int[] positions = new int[] { 13, 14, 15 };
 	private static final DateFormat df = new SimpleDateFormat("YYYYMMdd");
+	private static final int MAX_ROWS_IN_FILE = 100000;
+	private static final int INITIAL_ROWS = 200;
+	private static final int REPEAT_RATIO = 30;
 
 	/**
 	 * @param args
@@ -35,14 +38,14 @@ public class RandomizeX {
 		int totalCount = 0;
 		String line = br.readLine();
 		while (line != null) {
-			if (totalCount >= 100000) {
+			if (totalCount >= MAX_ROWS_IN_FILE) {
 				break;
 			}
 			line = br.readLine();
 			if (line != null) {
 				final String rLine = randomizeLine(line);
-				if (totalCount > 200) {
-					for (int i = 0; i < 100; i++) {
+				if (totalCount > INITIAL_ROWS) {
+					for (int i = 0; i < REPEAT_RATIO; i++) {
 						if (rLine != null) {
 							bw.write(rLine);
 							bw.newLine();
