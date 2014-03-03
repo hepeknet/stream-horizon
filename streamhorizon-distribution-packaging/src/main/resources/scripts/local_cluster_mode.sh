@@ -9,6 +9,9 @@ engineInstanceId="0"
 totalInstancesCount=""
 
 heapSizeGb="8"
+
+# FOLLOWING VALUES WILL OVERRIDE VALUES IN engine-config.xml
+
 etlProcessingThreadCount="10"
 databaseProcessingThreadCount="10"
 readBufferSizeMb="20"

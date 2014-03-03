@@ -38,7 +38,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private final boolean deleteBulkFileAfterLoading;
 
-	private final BulkFileSubmissionRecorder fileSubmissionRecorder;
+	private BulkFileSubmissionRecorder fileSubmissionRecorder;
 	private final String processorId;
 	private final boolean isDebugEnabled;
 	private final boolean outputProcessingStatistics;
@@ -58,7 +58,6 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.factFeed = factFeed;
-		fileSubmissionRecorder = new BulkFileSubmissionRecorder();
 		processorId = String.valueOf(COUNTER.incrementAndGet());
 		isDebugEnabled = log.isDebugEnabled();
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
@@ -95,6 +94,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		if (!recordFileSubmissionAttempts) {
 			log.warn("Engine will not record bulk file submission attempts.");
 		} else {
+			fileSubmissionRecorder = new BulkFileSubmissionRecorder();
 			log.info("Engine will record all bulk file submission attempts.");
 		}
 		this.initializeFeedFileNameProcessor();

@@ -64,15 +64,19 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 		}
 		if (partitionedMultiInstanceProcessing) {
 			if (isDebugEnabled) {
-				log.debug("Multi instance partitioning enabled. Will check if file belongs to me!");
+				log.debug("Multi instance partitioning enabled. Will check if I should process file {}", fileName);
 			}
-			final int fileNameHash = fileName.hashCode();
+			int fileNameHash = fileName.hashCode();
+			if (fileNameHash < 0) {
+				fileNameHash = -fileNameHash;
+			}
 			final int hashMod = fileNameHash % totalMultipleInstances;
 			if (hashMod == currentInstanceIdentifier) {
 				log.info("File {} belongs to me", fileName);
 			} else {
 				if (isDebugEnabled) {
-					log.debug("File {} does not belong to me. Some other instance will process it", fileName);
+					log.debug("File {} does not belong to me. Some other instance will process it. Module of hash is {} my instance number is {}",
+							fileName, hashMod, currentInstanceIdentifier);
 				}
 				return false;
 			}

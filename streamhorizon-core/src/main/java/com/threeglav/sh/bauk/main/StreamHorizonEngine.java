@@ -62,6 +62,14 @@ public class StreamHorizonEngine {
 				BaukUtil.logEngineMessageSync("ENGINE IS RUNNING IN THROUGHPUT TESTING MODE! ONE INPUT FEED FILE PER THREAD WILL BE CACHED AND PROCESSED REPEATEDLY!!!");
 			}
 			instanceStartTime = System.currentTimeMillis();
+			final boolean isMultiInstance = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
+			if (isMultiInstance) {
+				final int totalPartitionsCount = ConfigurationProperties.getSystemProperty(
+						BaukEngineConfigurationConstants.MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME, -1);
+				final String myUniqueIdentifier = ConfigurationProperties.getBaukInstanceIdentifier();
+				BaukUtil.logEngineMessageSync("Configured to run in multi-instance mode of " + totalPartitionsCount
+						+ " instances in total. My unique identifier is " + myUniqueIdentifier);
+			}
 			BaukUtil.logEngineMessageSync("Finished initialization! Started counting uptime");
 			startProcessing();
 			final long total = System.currentTimeMillis() - start;

@@ -8,6 +8,9 @@ rem should be set only when multiple instances are processing files from the sam
 set "totalInstancesCount=4"
 
 set "heapSizeGb=8"
+
+rem FOLLOWING VALUES WILL OVERRIDE VALUES IN engine-config.xml
+
 set "etlProcessingThreadCount=2"
 set "databaseProcessingThreadCount=0"
 set "readBufferSizeMb=20"

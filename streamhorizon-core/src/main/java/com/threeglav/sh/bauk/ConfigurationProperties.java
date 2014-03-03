@@ -175,7 +175,7 @@ public abstract class ConfigurationProperties {
 					currentBaukInstance = -1;
 					// ignored
 				}
-				if (currentBaukInstance > 0 && currentBaukInstance < totalPartitionsCount) {
+				if (currentBaukInstance >= 0 && currentBaukInstance < totalPartitionsCount) {
 					LOG.info("Configured to partition work among multiple instances. Current bauk instance id {}, total instances {}",
 							currentBaukInstance, totalPartitionsCount);
 					return true;
