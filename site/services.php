@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Threeglav | Services</title>
+<title>StreamHorizon | Services</title>
 <?php include 'header.php' ?>
 <div class="servicess center part clearfix">
   <header class="title">
@@ -44,9 +44,9 @@
 			</tr>
 			<tr>
 				<th>Support Hours</th>
-				<td>2 X 8</td>
 				<td>7 X 24</td>
-				<td>2 X 8</td>
+				<td>7 X 24</td>
+				<td>7 X 24</td>
 			</tr>
 			<tr>
 				<th>Number of supported calls</th>
@@ -57,7 +57,7 @@
 			<tr>
 				<th>StreamHorizon Staff Accessibility</th>
 				<td>Email</td>
-				<td>Phone</td>
+				<td>Phone and Email</td>
 				<td>Phone and Email</td>
 			</tr>
 			<tr>
@@ -101,7 +101,7 @@
     </article>
     <article id="cpd" class="detail">
       <h2>Customization/Plugin Development</h2>
-      StreamHorizon is highly customizable platform. We can help you extend it and customize it specifically for your needs.
+	  StreamHorizon is a highly customizable platform. We can help you extend it and customize it specifically for your needs.
     </article>
     <article id="cons" class="detail">
       <h2>Consulting</h2>
@@ -110,7 +110,7 @@
     </article>
     <article id="train" class="detail">
       <h2>Training</h2>
-		<p>Threeglav provides web based training to our existing and potential clients who wish to learn more about utilisation of StreamHorizon Data Processing Platform.</p>
+		<p>We provide web based training to our existing and potential clients who wish to learn more about utilisation of the StreamHorizon Data Processing Platform.</p>
 		<p>Web based training is agreed and scheduled upon request and is tailored to suit clients business needs.</p>
 		<p class="fright"><a href="contact.php" class="more arrow">Contact Us</a></p>
     </article>

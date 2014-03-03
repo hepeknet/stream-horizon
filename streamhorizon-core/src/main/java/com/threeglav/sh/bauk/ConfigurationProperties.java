@@ -152,7 +152,8 @@ public abstract class ConfigurationProperties {
 	}
 
 	public static String getDbDataFolder() {
-		final String fullFolderPath = getApplicationHome() + BaukEngineConfigurationConstants.DB_DATA_FOLDER;
+		final String fullFolderPath = getApplicationHome() + BaukEngineConfigurationConstants.DB_DATA_FOLDER + "instance_"
+				+ getBaukInstanceIdentifier() + "/";
 		final File dir = new File(fullFolderPath);
 		dir.mkdirs();
 		if (!dir.exists() || !dir.isDirectory() || !dir.canRead() || !dir.canExecute()) {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Threeglav | Request Download</title>
+<title>StreamHorizon | Request Download</title>
 <?php include 'header.php' ?>
 <div class="contact center part clearfix">
   <header class="title">
@@ -17,9 +17,17 @@ if (!isset($_POST["email"])){
     <p class="more">Fill in the form below and we will email you download link to try out StreamHorizon</p>
     <form id="contact_form" class="contact_form" action="request_download.php" method="post" name="contact_form">
       <ul class="contact_ie9">
+	    <li>
+          <label for="username">Your name:</label>
+          <input type="text" name="username" id="username" required class="required">
+        </li>
         <li>
-          <label for="email">Your email:</label>
+          <label for="email">Your corporate email:</label>
           <input type="email" name="email" id="email" required class="required email">
+        </li>
+		<li>
+          <label for="projectinfo">We would like to know more about your project (optional):</label>
+          <textarea name="projectinfo" id="projectinfo" cols="40" rows="6" ></textarea>
         </li>
         <li>
           <button type="submit" id="submit" class="button fleft">Get Me The Link!</button>
@@ -36,18 +44,20 @@ if (!isset($_POST["email"])){
   } else {
   // the user has submitted the form
   // Check if the "from" input field is filled out
-  if (isset($_POST["email"])){
+  if (isset($_POST["email"]) && isset($_POST["username"])){
     $from = $_POST["email"]; // sender
+	$username = $_POST["username"];
+	$project = $_POST["projectinfo"];
     // message lines should not exceed 70 characters (PHP rule), so wrap it
-	$message = "Dear potential customer, \n\r here is your link to download trial version of StreamHorizon \n\r http://threeglav.com/downloads/qw324a8902jlsd4lnljolkjdsgsd232/stream-horizon-" . SH_LATEST_VERSION . "-dist.zip";
-	$message .= "\n\r Do not hesitate to contact us in case you have any questions \n\r looking forward to cooperate with you \n\r StreamHorizon team \n\r support@threeglav.com";
-	$notifyMessage = "$from asked for trial version of StreamHorizon DPP and download link was sent";
+	$message = "Thank you for expressing interest in StreamHorizon Data Processing Platform. \n\rYour link to download trial version of StreamHorizon \n\r http://stream-horizon.com/downloads/qw324a8902jlsd4lnljolkjdsgsd232/stream-horizon-" . SH_LATEST_VERSION . "-dist.zip";
+	$message .= "\n\rDo not hesitate to contact us in case you have any questions or suggestions. \n\r We are looking forward to further cooperation.\n\r\n\r StreamHorizon Team \n\r support@stream-horizon.com \n\r www.stream-horizon.com";
+	$notifyMessage = "$from asked for trial version of StreamHorizon DPP and download link was sent. \n\r Name: $username \n\r Project info: $project";
     $message = wordwrap($message, 70);
     // send mail
-    mail($from,"Your trial version of StreamHorizon DataProcessingPlatform",$message,"From: support@threeglav.com\n");
-	mail("borisha.zivkovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@threeglav.com\n");
-	mail("mladen.golubovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@threeglav.com\n");
-    echo "<p>Thank you for your interest in StreamHorizon. An email has been sent to you with download link.</p><p>Do not hesitate to contact us in case you have any questions at <b>support@threeglav.com</b>!</p>";
+    mail($from,"Your trial version of StreamHorizon Data Processing Platform",$message,"From: support@stream-horizon.com\n");
+	mail("borisha.zivkovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@stream-horizon.com\n");
+	mail("mladen.golubovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@stream-horizon.com\n");
+    echo "<p>Thank you for expressing interest in StreamHorizon Data Processing Platform. An email has been sent to you with download link.</p><p>Do not hesitate to contact us in case you have any questions at <b>support@stream-horizon.com</b>!</p>";
     }
   }
 ?>

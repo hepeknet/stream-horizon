@@ -586,39 +586,6 @@ bulkErrorDescription varchar2(1000) null,
 recordInserted timestamp null
 ); 
 
-create or replace view sh_dashboard_ext_tables as
-select 
-servername,instancestarted,
-round(
-            "total file records processed"/
-            (
-                to_number(extract( second from "processing window" ))  + 
-                to_number(extract( minute from "processing window" )*60) + 
-                to_number(extract( hour from "processing window" )*3600)
-            )
-) as "througput records/second",
- "processing window",
- "total file records processed"
-from
-(
-select etl.servername,etl.instancestarted,sum(filerecordcount) as "total file records processed",nvl(max(bulkfileprocessingfinish),max(filejdbcinsertfinish)) - min(fileprocessingstart)  as "processing window"
-from 
-(
-select 
-servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName
-from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='<afterFeedProcessingCompletion>'
-)etl,
-(
-select 
-servername,instancestarted,bulkfileprocessingfinish,bulkFileName
-from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
-)db
-where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName
-group by  etl.servername,etl.instancestarted
-);
-
 
 CREATE OR REPLACE procedure log_sh_metrics
 (
@@ -710,7 +677,7 @@ commit;
 end log_sh_metrics_bulk;
 /
 
-create or replace view sh_etl as
+create or replace view sh_etl_bulk as
 select etl.servername,etl.instancestarted, fileProcessingStart,fileProcessingFinish,"etl recordInserted",bulkFileProcessingStart,bulkFileProcessingFinish,"bulk recordInserted"
 from 
 (
@@ -723,16 +690,17 @@ where  instancestarted = (select max(instancestarted) from sh_metrics) and filen
 select 
 servername,instancestarted,bulkfileprocessingfinish,bulkFileName,bulkFileProcessingStart,recordInserted as "bulk recordInserted"
 from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
+where instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
 )db
-where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName;
+where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName 
+order by instancestarted desc, servername asc;
 
 
 
 
-create or replace view sh_dashboard_jdbc as
+create or replace view sh_dashboard as
 select 
-servername,instancestarted,
+servername as "server name",instancestarted as "instance started",
 round(
             "total file records processed"/
             (
@@ -740,18 +708,56 @@ round(
                 to_number(extract( minute from "processing window" )*60) + 
                 to_number(extract( hour from "processing window" )*3600)
             )
-) as "througput records/second",
+) as "throughput records/second",
  "processing window",
  "total file records processed"
 from
 (
-select servername,instancestarted,sum(filerecordcount) as "total file records processed",max(filejdbcinsertfinish) - min(fileprocessingstart)  as "processing window"
+select servername,instancestarted,sum(filerecordcount) as "total file records processed",nvl(max(filejdbcinsertfinish),max(fileprocessingfinish)) - min(fileprocessingstart)  as "processing window"
+from 
+(
+select 
+servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName,fileprocessingfinish
+from sh_metrics
+where filename is not null and eventname='<afterFeedProcessingCompletion>'
+)
+group by servername,instancestarted
+)
+order by instancestarted desc, servername asc;
+
+
+
+create or replace view sh_dashboard_bulk as
+select 
+servername as "server name",instancestarted as "instance started",
+round(
+            "total file records processed"/
+            (
+                to_number(extract( second from "processing window" ))  + 
+                to_number(extract( minute from "processing window" )*60) + 
+                to_number(extract( hour from "processing window" )*3600)
+            )
+) as "throughput records/second",
+ "processing window",
+ "total file records processed"
+from
+(
+select etl.servername,etl.instancestarted,sum(filerecordcount) as "total file records processed",nvl(max(bulkfileprocessingfinish),max(filejdbcinsertfinish)) - min(fileprocessingstart)  as "processing window"
 from 
 (
 select 
 servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName
 from sh_metrics
 where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='<afterFeedProcessingCompletion>'
+)etl,
+(
+select 
+servername,instancestarted,bulkfileprocessingfinish,bulkFileName
+from sh_metrics
+where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
+)db
+where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName
+group by  etl.servername,etl.instancestarted
 )
-group by servername,instancestarted
-);
+order by instancestarted desc, servername asc;
+

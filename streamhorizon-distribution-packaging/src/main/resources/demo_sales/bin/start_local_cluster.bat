@@ -1,0 +1,4 @@
+START local_cluster_mode_0.bat
+START local_cluster_mode_1.bat
+START local_cluster_mode_2.bat
+START local_cluster_mode_3.bat

@@ -1,2 +1,2 @@
 In this folder you can find example how to run local cluster of 4 StreamHorizon instances each with 2 etl threads and no db threads.
-See respective startup scripts. These scripts should be copied to $ENGINE_HOME/bin/ and execute there.
+See respective startup scripts. These scripts should be copied to $ENGINE_HOME/bin/ and executed there.

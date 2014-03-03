@@ -45,11 +45,11 @@ DROP TABLE promotion_dim;
 
 DROP TABLE sh_metrics;
 
-DROP VIEW sh_etl;
+DROP VIEW sh_etl_bulk;
 
-DROP VIEW sh_dashboard_ext_tables;
+DROP VIEW sh_dashboard_bulk;
 
-DROP VIEW sh_dashboard_jdbc;
+DROP VIEW sh_dashboard;
 
 DROP PROCEDURE log_sh_metrics;
 

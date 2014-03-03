@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Threeglav - Home of StreamHorizon</title>
+<title>StreamHorizon - Data Processing Platform</title>
 <?php include 'header.php' ?>
 </script>
 <div class="main center">
@@ -11,7 +11,6 @@
       <a href="streamhorizon.php" class="arrow more fright">Find out more about StreamHorizon</a> 
 	</header>
     <div class="column2 mright">
-      <div class="map center"><a href="#"><img src="img/sh-logo.png" alt="" /></a></div>
       <p>
 		<ul>
 			<li>- Process 1 million records per second on a commodity server</li>
@@ -41,7 +40,7 @@
       <div class="slides_container">
         <div class="slide">
           <figure> 
-			<img src="img/one.png" alt="" width="250">
+			<img src="img/one.png" alt="" width="270">
           </figure>
         </div>
         <div class="slide">

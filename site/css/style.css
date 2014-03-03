@@ -92,8 +92,8 @@ body { width: 100%; min-width: 988px; overflow: hidden; }
 .fright { float: right }
 .fleft { float: left }
 /* HEADER */
-header#navtop { margin-bottom: 50px; }
-.logo { margin: 50px 0 }
+header#navtop { margin-bottom: 20px; }
+.logo { margin: 20px 0 }
 header nav { margin-top: 60px }
     header nav ul { float: left; overflow: hidden; padding: 0 30px 0 20px; border-left: 1px solid #ddd; line-height: 24px; }
 nav a, menu a { text-decoration: none; color: #666; }

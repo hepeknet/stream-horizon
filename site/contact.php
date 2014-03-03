@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Threeglav | Contact</title>
+<title>StreamHorizon | Contact</title>
 <?php include 'header.php' ?>
 <div class="contact center part clearfix">
   <header class="title">
@@ -11,9 +11,9 @@
   <aside class="column4 mright">
     <p class="mbottom">We would love to talk to you and answer all of your questions</p>
     <p class="mbottom"> 
-	  <a href="mailto:info@threeglav.com">info@threeglav.com</a><br >
-      <a href="mailto:support@threeglav.com">support@threeglav.com</a><br >
-      <a href="mailto:sales@threeglav.com">sales@threeglav.com</a><br >
+	  <a href="mailto:info@stream-horizon.com">info@stream-horizon.com</a><br >
+      <a href="mailto:support@stream-horizon.com">support@stream-horizon.com</a><br >
+      <a href="mailto:sales@stream-horizon.com">sales@stream-horizon.com</a><br >
 	</p>
 	<!--
     <div class="map mbottom"><a href="#"><img src="img/map.jpg" alt="" /></a></div>

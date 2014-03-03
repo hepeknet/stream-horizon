@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Threeglav | StreamHorizon</title>
+<title>StreamHorizon - Data Processing Platform</title>
 <?php include 'header.php' ?>
 <div class="works singlework center part clearfix">
   <header class="title">
     <h5 class="fleft">StreamHorizon - Data Processing Platform</h5>
-    <p class="fright"><a href="resources.php" class="more arrow">Try it now</a></p>
+    <p class="fright"><a href="request_download.php" class="more arrow">Try it now</a></p>
   </header>
   <section class="part clearfix">
     <article class="column3 mright services">
@@ -21,7 +21,7 @@
       <h5>All we ask for is one hour of your time</h5>
       <div class="sepmini"></div>
       <ul>
-		  <li>- <b>1 Hour Proof of Concept</b> – Download & test-run StreamHorizon’s demo Data Warehousing project (<a href="./request_download.php"><b>more info</b></a>)</li>
+		  <li>- <b>1 Hour Proof of Concept</b> – Download & test-run StreamHorizon’s demo Data Warehousing project (<a href="./request_download.php"><b>Demo Download</b></a>)</li>
       </ul>
     </article>
     <article class="column3 services">

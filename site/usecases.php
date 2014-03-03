@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Threeglav | Industries</title>
+<title>StreamHorizon | Industries</title>
 <?php include 'header.php' ?>
 <div class="servicess center part clearfix">
   <header class="title">
