@@ -189,8 +189,10 @@ public class FeedFileProcessor implements FileProcessor {
 			}
 		}
 		final boolean isEmptyExtension = StringUtil.isEmpty(fileExtension);
-		if (isEmptyExtension && bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.NONE
-				&& bulkDefinition.getOutputType() != BulkLoadDefinitionOutputType.JDBC) {
+		if (isEmptyExtension
+				&& (bulkDefinition.getOutputType().equalsIgnoreCase(BulkLoadDefinitionOutputType.FILE.toString())
+						|| bulkDefinition.getOutputType().equalsIgnoreCase(BulkLoadDefinitionOutputType.ZIP.toString()) || bulkDefinition
+						.getOutputType().equalsIgnoreCase(BulkLoadDefinitionOutputType.GZ.toString()))) {
 			throw new IllegalStateException(
 					"Extension for recognizing bulk output files is required to be specified in configuration file because file output will be generated. Problematic feed is ["
 							+ factFeed.getName() + "]!");

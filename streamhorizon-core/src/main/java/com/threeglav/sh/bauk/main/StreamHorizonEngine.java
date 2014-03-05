@@ -52,7 +52,12 @@ public class StreamHorizonEngine {
 		if (conf != null) {
 			ConfigurationProperties.setBaukProperties(conf.getProperties());
 			final ConfigurationValidator configValidator = new ConfigurationValidator(conf);
-			configValidator.validate();
+			try {
+				configValidator.validate();
+			} catch (final Exception exc) {
+				LOG.error("", exc);
+				System.exit(-1);
+			}
 			remotingHandler = new RemotingServer();
 			remotingHandler.start();
 			createProcessingRoutes(conf);

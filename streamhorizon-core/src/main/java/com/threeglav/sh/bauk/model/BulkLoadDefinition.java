@@ -43,7 +43,7 @@ public class BulkLoadDefinition {
 	private ArrayList<BaukCommand> bulkLoadInsert;
 
 	@XmlAttribute(required = false)
-	private BulkLoadDefinitionOutputType outputType = BulkLoadDefinitionOutputType.FILE;
+	private String outputType = BulkLoadDefinitionOutputType.FILE.toString();
 
 	@XmlElement(name = "output-file-name-pattern", required = false)
 	private String outputFileNamePattern;
@@ -64,11 +64,11 @@ public class BulkLoadDefinition {
 		this.bulkLoadOutputExtension = bulkLoadOutputExtension;
 	}
 
-	public BulkLoadDefinitionOutputType getOutputType() {
+	public String getOutputType() {
 		return outputType;
 	}
 
-	public void setOutputType(final BulkLoadDefinitionOutputType outputType) {
+	public void setOutputType(final String outputType) {
 		this.outputType = outputType;
 	}
 

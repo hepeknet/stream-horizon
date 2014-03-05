@@ -131,14 +131,14 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	@Override
-	public void initialize(final Map<String, String> globalAttributes) {
+	public void startWriting(final Map<String, String> globalAttributes) {
 		rowCounter = 0;
 		this.initializePreparedStatement(globalAttributes);
 		globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_STARTED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 	}
 
 	@Override
-	public void doOutput(final Object[] resolvedData, final Map<String, String> globalAttributes) {
+	public void doWriteOutput(final Object[] resolvedData, final Map<String, String> globalAttributes) {
 		try {
 			rowCounter++;
 			if (isDebugEnabled) {
@@ -167,7 +167,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	@Override
-	public void closeResources(final Map<String, String> globalAttributes, final boolean success) {
+	public void closeResourcesAfterWriting(final Map<String, String> globalAttributes, final boolean success) {
 		if (preparedStatement == null) {
 			throw new IllegalStateException("Prepared statement is null! Should not happen!");
 		}

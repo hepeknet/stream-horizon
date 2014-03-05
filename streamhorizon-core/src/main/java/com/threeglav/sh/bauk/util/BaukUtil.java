@@ -1,6 +1,8 @@
 package com.threeglav.sh.bauk.util;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -14,9 +16,12 @@ import org.slf4j.LoggerFactory;
 import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
+import com.threeglav.sh.bauk.io.BulkOutputWriter;
 import com.threeglav.sh.bauk.main.StreamHorizonEngine;
 
 public abstract class BaukUtil {
+
+	private static final Logger LOG = LoggerFactory.getLogger(BaukUtil.class);
 
 	private static String engineInstanceIdentifier;
 
@@ -72,6 +77,24 @@ public abstract class BaukUtil {
 			engineInstanceIdentifier = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BAUK_INSTANCE_ID_PARAM_NAME, "");
 		}
 		return engineInstanceIdentifier;
+	}
+
+	public static BulkOutputWriter loadWriterByProtocol(final String protocol) throws InstantiationException, IllegalAccessException {
+		if (StringUtil.isEmpty(protocol)) {
+			throw new IllegalArgumentException("Protocol must not be null or empty!");
+		}
+		LOG.debug("Trying to find bulk output writer that understands protocol {}", protocol);
+		final ServiceLoader<BulkOutputWriter> loader = ServiceLoader.load(BulkOutputWriter.class);
+		final Iterator<BulkOutputWriter> iterator = loader.iterator();
+		while (iterator.hasNext()) {
+			final BulkOutputWriter bow = iterator.next();
+			if (bow.understandsProtocol(protocol)) {
+				final BulkOutputWriter bulkWriterInstance = bow.getClass().newInstance();
+				LOG.debug("Found bulk output writer that understands protocol {}", protocol);
+				return bulkWriterInstance;
+			}
+		}
+		throw new IllegalStateException("Was not able to find bulk output writer that understands protocol [" + protocol + "]");
 	}
 
 }

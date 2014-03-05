@@ -8,6 +8,7 @@ import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.ConfigurationProperties;
+import com.threeglav.sh.bauk.io.BulkOutputWriter;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.FactFeed;
@@ -18,7 +19,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 
 	protected final String NEWLINE_STRING = "\n";
 
-	protected final String TEMPORARY_FILE_EXTENSION = ".baukTmp";
+	protected final String TEMPORARY_FILE_EXTENSION = ".shTmp";
 
 	private final boolean performFileRenameOperation;
 	protected final String bulkOutputFileDelimiter;
@@ -82,7 +83,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 
 	private void validate() {
 		final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
-		if (this.getFactFeed().getBulkLoadDefinition().getOutputType() == BulkLoadDefinitionOutputType.NONE
+		if (this.getFactFeed().getBulkLoadDefinition().getOutputType() == BulkLoadDefinitionOutputType.NONE.toString()
 				&& !StringUtil.isEmpty(outputFileNamePattern)) {
 			throw new IllegalStateException("Fact feed " + this.getFactFeed().getName() + " can not have output none and rename pattern!");
 		}
@@ -147,7 +148,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	}
 
 	@Override
-	public void initialize(final Map<String, String> globalAttributes) {
+	public void startWriting(final Map<String, String> globalAttributes) {
 		final String bulkOutputPath = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH);
 		this.initialize(bulkOutputPath);
 	}
@@ -161,6 +162,11 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 			currentThreadName = Thread.currentThread().getName();
 		}
 		return currentThreadName;
+	}
+
+	@Override
+	public boolean understandsProtocol(final String protocol) {
+		throw new UnsupportedOperationException("Not supported");
 	}
 
 }

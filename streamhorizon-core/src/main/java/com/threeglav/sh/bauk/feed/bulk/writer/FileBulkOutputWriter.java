@@ -47,7 +47,7 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	@Override
-	public void doOutput(final Object[] resolvedData, final Map<String, String> globalAttributes) {
+	public void doWriteOutput(final Object[] resolvedData, final Map<String, String> globalAttributes) {
 		try {
 			final String str = this.concatenateAllValues(resolvedData);
 			writer.write(str);
@@ -57,7 +57,7 @@ public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	@Override
-	public void closeResources(final Map<String, String> globalAttributes, final boolean success) {
+	public void closeResourcesAfterWriting(final Map<String, String> globalAttributes, final boolean success) {
 		IOUtils.closeQuietly(writer);
 		writer = null;
 		if (success) {

@@ -18,7 +18,7 @@ public final class SingleThreadedFeedDataProcessor extends AbstractFeedDataProce
 		}
 		final String[] parsedData = feedParserComponent.parseData(line, globalAttributes);
 		final Object[] resolvedData = bulkoutputResolver.resolveValues(parsedData, globalAttributes);
-		bulkOutputWriter.doOutput(resolvedData, globalAttributes);
+		bulkOutputWriter.doWriteOutput(resolvedData, globalAttributes);
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public final class SingleThreadedFeedDataProcessor extends AbstractFeedDataProce
 		}
 		final String[] parsedData = feedParserComponent.parseData(line, globalAttributes);
 		final Object[] resolvedData = bulkoutputResolver.resolveLastLineValues(parsedData, globalAttributes);
-		bulkOutputWriter.doOutput(resolvedData, globalAttributes);
+		bulkOutputWriter.doWriteOutput(resolvedData, globalAttributes);
 	}
 
 }

@@ -19,7 +19,8 @@
   <section class="columnthird content">
 	<article id="doc" class="detail">
       <h2>StreamHorizon Documentation</h2>
-      <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon Overview presentation (PDF)</a><br>
+      <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview presentation (PDF)</a><br>
+	  <a href="./downloads/StreamHorizon_and_BigData_Overview.pdf">StreamHorizon and big data overview presentation (PDF)</a><br>
 	  <a href="./downloads/streamhorizon_test_demo_deployment_guide.pdf">Test demo deployment guide (PDF)</a><br>
     </article>
     <article id="down" class="detail">

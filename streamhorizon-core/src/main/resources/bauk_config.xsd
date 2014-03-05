@@ -215,7 +215,7 @@
       </xs:element>
       <xs:element name="output-file-name-pattern" type="xs:string" minOccurs="0"/>
     </xs:all>
-    <xs:attribute name="outputType" type="bulkLoadDefinitionOutputType"/>
+    <xs:attribute name="outputType" type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="bulkLoadFormatDefinition">
@@ -337,16 +337,6 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="sql"/>
       <xs:enumeration value="shell"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="bulkLoadDefinitionOutputType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="file"/>
-      <xs:enumeration value="zip"/>
-      <xs:enumeration value="gz"/>
-      <xs:enumeration value="jdbc"/>
-      <xs:enumeration value="none"/>
     </xs:restriction>
   </xs:simpleType>
 
