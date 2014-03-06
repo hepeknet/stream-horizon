@@ -66,6 +66,7 @@ public class FeedFileProcessor implements FileProcessor {
 	private String fileExtension;
 	private final boolean isDebugEnabled;
 	private final String processorId;
+	private final String multiInstanceProcessorId;
 	private FileProcessingErrorHandler moveToArchiveFileProcessor;
 	private final boolean executeRollbackSequence;
 	private BaukCommandsExecutor feedProcessingFailureCommandsExecutor;
@@ -92,8 +93,17 @@ public class FeedFileProcessor implements FileProcessor {
 		inputFeedsProcessed = MetricsUtil.createMeter("(" + cleanFileMask + ") - processed files count");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
-		processorId = String.valueOf(COUNTER.incrementAndGet());
+		final int localProcessorId = COUNTER.incrementAndGet();
+		processorId = String.valueOf(localProcessorId);
 		log.debug("Number of feed processing instances is {}", processorId);
+		final boolean isMultiInstance = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
+		if (isMultiInstance) {
+			final int multiInst = ConfigurationProperties.calculateMultiInstanceFeedProcessorId(localProcessorId, this.factFeed);
+			multiInstanceProcessorId = String.valueOf(multiInst);
+			log.info("Successfully set multi instance feed thread identifier to {}", multiInst);
+		} else {
+			multiInstanceProcessorId = "-1";
+		}
 		isDebugEnabled = log.isDebugEnabled();
 		final String archiveFolderPath = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
 				config.getArchiveDirectory());
@@ -273,6 +283,7 @@ public class FeedFileProcessor implements FileProcessor {
 	private void clearImplicitAttributes() {
 		implicitAttributes.clear();
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID, processorId);
+		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_MULTI_INSTANCE_FEED_PROCESSOR_ID, multiInstanceProcessorId);
 		BaukUtil.populateEngineImplicitAttributes(implicitAttributes);
 	}
 

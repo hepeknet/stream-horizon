@@ -34,6 +34,9 @@ public class BaukTestSetupUtil {
 	public boolean setupTestEnvironment(final String configFileName) {
 		try {
 			System.setProperty(StreamHorizonEngine.CONFIG_FILE_PROP_NAME, configFileName);
+			System.setProperty(BaukEngineConfigurationConstants.BAUK_INSTANCE_ID_PARAM_NAME, "0");
+			System.setProperty(BaukEngineConfigurationConstants.MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME, "1");
+			System.setProperty(BaukEngineConfigurationConstants.FEED_PROCESSING_THREADS_PARAM_NAME, "3");
 
 			final Path tempInDir = Files.createTempDirectory("bauk_test_in");
 			tempInputDir = tempInDir.toFile();

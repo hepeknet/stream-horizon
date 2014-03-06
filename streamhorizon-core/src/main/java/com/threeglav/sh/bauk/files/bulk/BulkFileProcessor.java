@@ -40,6 +40,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private BulkFileSubmissionRecorder fileSubmissionRecorder;
 	private final String processorId;
+	private final String multiInstanceProcessorId;
 	private final boolean isDebugEnabled;
 	private final boolean outputProcessingStatistics;
 	private final boolean shouldExecuteOnBulkLoadSuccess;
@@ -58,11 +59,20 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.factFeed = factFeed;
-		processorId = String.valueOf(COUNTER.incrementAndGet());
+		final int localProcessorId = COUNTER.incrementAndGet();
+		processorId = String.valueOf(localProcessorId);
 		isDebugEnabled = log.isDebugEnabled();
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
 				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
 		log.debug("Current processing id is {}", processorId);
+		final boolean isMultiInstance = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
+		if (isMultiInstance) {
+			final int multiInst = ConfigurationProperties.calculateMultiInstanceFeedProcessorId(localProcessorId, this.factFeed);
+			multiInstanceProcessorId = String.valueOf(multiInst);
+			log.info("Successfully set multi instance feed thread identifier to {}", multiInst);
+		} else {
+			multiInstanceProcessorId = "-1";
+		}
 		bulkInsertCommands = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert();
 		if (bulkInsertCommands == null || bulkInsertCommands.isEmpty()) {
 			throw new IllegalStateException("Could not find any bulk load insert statements for bulk loading files - for feed "
@@ -225,6 +235,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		final Map<String, String> implicitAttributes = new THashMap<String, String>();
 		BaukUtil.populateEngineImplicitAttributes(implicitAttributes);
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
+		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_MULTI_INSTANCE_BULK_PROCESSOR_ID, multiInstanceProcessorId);
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
 		final String inputFileAbsolutePath = file.getFullFilePath();
 		try {

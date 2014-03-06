@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.sh.bauk.model.BaukProperty;
+import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -162,24 +163,62 @@ public abstract class ConfigurationProperties {
 		return fullFolderPath;
 	}
 
+	public static int calculateMultiInstanceFeedProcessorId(final int localFeedProcessorId, final FactFeed feed) {
+		if (feed == null) {
+			throw new IllegalArgumentException("Fact feed must not be null");
+		}
+		if (localFeedProcessorId <= 0) {
+			throw new IllegalArgumentException("Local feed processor id must not be non-positive integer");
+		}
+		final int etlThreadNum = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.FEED_PROCESSING_THREADS_PARAM_NAME, feed
+				.getThreadPoolSettings().getEtlProcessingThreadCount());
+		final int currentInstanceId = getCurrentBaukInstanceIdentifierAsInteger();
+		if (currentInstanceId < 0) {
+			return -1;
+		}
+		return currentInstanceId * etlThreadNum + localFeedProcessorId;
+	}
+
+	public static int calculateMultiInstanceBulkProcessorId(final int localBulkProcessorId, final FactFeed feed) {
+		if (feed == null) {
+			throw new IllegalArgumentException("Fact feed must not be null");
+		}
+		if (localBulkProcessorId <= 0) {
+			throw new IllegalArgumentException("Local bulk processor id must not be non-positive integer");
+		}
+		final int bulkProcessingThreads = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.BULK_PROCESSING_THREADS_PARAM_NAME, feed.getThreadPoolSettings().getDatabaseProcessingThreadCount());
+		final int currentInstanceId = getCurrentBaukInstanceIdentifierAsInteger();
+		if (currentInstanceId < 0) {
+			return -1;
+		}
+		return currentInstanceId * bulkProcessingThreads + localBulkProcessorId;
+	}
+
+	public static int getCurrentBaukInstanceIdentifierAsInteger() {
+		final String currentBaukInstanceIdentifier = ConfigurationProperties.getBaukInstanceIdentifier();
+		if (!StringUtil.isEmpty(currentBaukInstanceIdentifier)) {
+			try {
+				return Integer.parseInt(currentBaukInstanceIdentifier);
+			} catch (final Exception exc) {
+				LOG.warn("Was not able to find properly set integer instance identifier. Currently supplied is [{}]", currentBaukInstanceIdentifier);
+				// ignored
+			}
+		} else {
+			LOG.warn("Can not find set integer instance identifier!");
+		}
+		return -1;
+	}
+
 	public static boolean isConfiguredPartitionedMultipleInstances() {
 		final int totalPartitionsCount = ConfigurationProperties.getSystemProperty(
 				BaukEngineConfigurationConstants.MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME, -1);
 		if (totalPartitionsCount > 0) {
-			final String currentBaukInstanceIdentifier = ConfigurationProperties.getBaukInstanceIdentifier();
-			if (!StringUtil.isEmpty(currentBaukInstanceIdentifier)) {
-				int currentBaukInstance = -1;
-				try {
-					currentBaukInstance = Integer.parseInt(currentBaukInstanceIdentifier);
-				} catch (final Exception exc) {
-					currentBaukInstance = -1;
-					// ignored
-				}
-				if (currentBaukInstance >= 0 && currentBaukInstance < totalPartitionsCount) {
-					LOG.info("Configured to partition work among multiple instances. Current bauk instance id {}, total instances {}",
-							currentBaukInstance, totalPartitionsCount);
-					return true;
-				}
+			final int currentBaukInstance = getCurrentBaukInstanceIdentifierAsInteger();
+			if (currentBaukInstance >= 0 && currentBaukInstance < totalPartitionsCount) {
+				LOG.info("Configured to partition work among multiple instances. Current bauk instance id {}, total instances {}",
+						currentBaukInstance, totalPartitionsCount);
+				return true;
 			}
 		}
 		LOG.info("Not configured to partition work among multiple instances.");

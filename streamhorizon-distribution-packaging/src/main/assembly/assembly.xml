@@ -101,8 +101,18 @@
 		<fileSet>
 			<directory>src/main/resources/demo_sales/bin/</directory>
 			<outputDirectory>demo_sales/local_cluster_example/bin</outputDirectory>
+			<fileMode>777</fileMode>
+			<lineEnding>unix</lineEnding>
 			<includes>
-				<include>*.*</include>
+				<include>*.sh</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/demo_sales/bin/</directory>
+			<outputDirectory>demo_sales/local_cluster_example/bin</outputDirectory>
+			<lineEnding>windows</lineEnding>
+			<includes>
+				<include>*.bat</include>
 			</includes>
 		</fileSet>
 		<fileSet>

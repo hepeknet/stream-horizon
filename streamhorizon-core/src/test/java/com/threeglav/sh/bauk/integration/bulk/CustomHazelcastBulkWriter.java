@@ -14,6 +14,7 @@ public class CustomHazelcastBulkWriter implements BulkOutputWriter {
 
 	private IMap<Integer, String> values;
 	private int counter;
+	private final IMap<String, String> attributes = CustomBulkWriterTest.INSTANCE.getMap("context_attributes");
 
 	@Override
 	public void startWriting(final Map<String, String> globalAttributes) {
@@ -30,6 +31,8 @@ public class CustomHazelcastBulkWriter implements BulkOutputWriter {
 		counter++;
 		values.put(counter, allVals);
 		log.info("Wrote data {} to hazelcast", allVals);
+		attributes.putAll(globalAttributes);
+		log.info("Put all context attributes {}", globalAttributes);
 	}
 
 	@Override

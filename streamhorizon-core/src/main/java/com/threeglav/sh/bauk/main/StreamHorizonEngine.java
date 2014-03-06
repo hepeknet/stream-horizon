@@ -55,6 +55,7 @@ public class StreamHorizonEngine {
 			try {
 				configValidator.validate();
 			} catch (final Exception exc) {
+				BaukUtil.logEngineMessageSync("Error while validating configuration: " + exc.getMessage());
 				LOG.error("", exc);
 				System.exit(-1);
 			}

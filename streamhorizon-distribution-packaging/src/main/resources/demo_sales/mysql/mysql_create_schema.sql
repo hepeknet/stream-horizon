@@ -37,10 +37,10 @@ UNIQUE INDEX product_dim_index1010(product_name, product_category, product_model
 
 CREATE TABLE customer_dim (
   customer_id INTEGER UNSIGNED  NOT NULL   AUTO_INCREMENT,
-  customer_address VARCHAR(500)  NOT NULL  ,
-  customer_name VARCHAR(200)  NOT NULL  ,
-  customer_country VARCHAR(200)  NOT NULL  ,
-  customer_phone VARCHAR(100)  NULL    ,
+  customer_address VARCHAR(300)  NOT NULL  ,
+  customer_name VARCHAR(150)  NOT NULL  ,
+  customer_country VARCHAR(100)  NOT NULL  ,
+  customer_phone VARCHAR(50)  NULL    ,
 PRIMARY KEY(customer_id)  ,
 UNIQUE INDEX customer_dim_index1018(customer_name, customer_address, customer_country, customer_phone));
 
