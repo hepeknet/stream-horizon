@@ -15,11 +15,11 @@
 		<ul>
 			<li>- Process 1 million records per second on a commodity server</li>
 			<li>- Process 250 thousand records per seconds on your desktop</li>
-			<li>- Fully configurable via single XML file. Enables you to deliver Data Mart without writing a single line of ETL code.</li>
+			<li>- Fully configurable via single XML file. Enables you to deliver Data Mart without writing a single line of ETL code</li>
 		</ul>
 		<br>
 		<ul>
-			<li>- <a href="resources.php">Download</a> and test run StreamHorizon in less then 20 minutes</li>
+			<li>- <a href="resources.php">Download</a> and test run StreamHorizon in less than 60 minutes</li>
 			<li>- Deliver your Data Warehouse with StreamHorizon in 1-3 days by configuring StreamHorizon xml configuration file</li>
 		</ul>
 		<br>
