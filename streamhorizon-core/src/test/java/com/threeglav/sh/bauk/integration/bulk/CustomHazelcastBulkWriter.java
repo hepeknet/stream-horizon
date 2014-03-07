@@ -44,4 +44,9 @@ public class CustomHazelcastBulkWriter implements BulkOutputWriter {
 		return protocol != null && protocol.toLowerCase().equals("hazelcast");
 	}
 
+	@Override
+	public void init(final Map<String, String> engineProperties) {
+
+	}
+
 }

@@ -169,4 +169,9 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		throw new UnsupportedOperationException("Not supported");
 	}
 
+	@Override
+	public void init(final Map<String, String> engineProperties) {
+		throw new UnsupportedOperationException("Not supported");
+	}
+
 }

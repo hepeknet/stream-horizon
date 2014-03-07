@@ -55,10 +55,10 @@ if (!isset($_POST["email"])){
 	$notifyMessage = "$from asked for trial version of StreamHorizon DPP and download link was sent. \n\r Name: $username \n\r Project info: $project";
     $message = wordwrap($message, 70);
     // send mail
-    mail($from,"Your trial version of StreamHorizon Data Processing Platform",$message,"From: support@stream-horizon.com\n");
+    // mail($from,"Your trial version of StreamHorizon Data Processing Platform",$message,"From: support@stream-horizon.com\n");
 	mail("borisha.zivkovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@stream-horizon.com\n");
 	mail("mladen.golubovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@stream-horizon.com\n");
-    echo "<p>Thank you for expressing interest in StreamHorizon Data Processing Platform. An email has been sent to you with download link.</p><p>Do not hesitate to contact us in case you have any questions at <b>support@stream-horizon.com</b>!</p>";
+    echo "<p>Thank you for expressing interest in StreamHorizon Data Processing Platform. An email will be sent to you with download link.</p><p>Do not hesitate to contact us in case you have any questions at <b>support@stream-horizon.com</b>!</p>";
     }
   }
 ?>

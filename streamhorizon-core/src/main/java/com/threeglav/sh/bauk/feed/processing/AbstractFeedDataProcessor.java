@@ -3,6 +3,7 @@ package com.threeglav.sh.bauk.feed.processing;
 import java.util.Map;
 
 import com.threeglav.sh.bauk.ConfigAware;
+import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.sh.bauk.feed.FeedParserComponent;
 import com.threeglav.sh.bauk.feed.bulk.writer.FileBulkOutputWriter;
@@ -50,6 +51,10 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 			log.info("Was not able to find built-in bulk output writer for {}. Will try to find it as user-defind plugin", outputType);
 			try {
 				bulkOutputWriter = BaukUtil.loadWriterByProtocol(outputType);
+				final Map<String, String> engineConfigurationProperties = ConfigurationProperties.getEngineConfigurationProperties();
+				log.debug("Initializing custom bulk output writer with engine properties {}", engineConfigurationProperties);
+				bulkOutputWriter.init(engineConfigurationProperties);
+				log.debug("Successfully initialized bulk output writer with engine properties");
 			} catch (final Exception exc) {
 				log.error("Exception while loading bulk output writer for protocol {} from plugins. Details {}", outputType, exc.getMessage());
 				log.error("Exception", exc);

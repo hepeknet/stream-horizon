@@ -20,7 +20,7 @@ public abstract class MetricsUtil {
 		metricsOff = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.METRICS_OFF_SYS_PARAM_NAME, false);
 		if (!metricsOff) {
 			registry = new MetricRegistry();
-			final JmxReporter reporter = JmxReporter.forRegistry(registry).inDomain("bauk-metrics").build();
+			final JmxReporter reporter = JmxReporter.forRegistry(registry).inDomain("stream-horizon-metrics").build();
 			reporter.start();
 		}
 	}

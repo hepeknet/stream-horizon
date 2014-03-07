@@ -3,8 +3,10 @@ package com.threeglav.sh.bauk;
 import gnu.trove.map.hash.THashMap;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,21 @@ public abstract class ConfigurationProperties {
 	public static void setBaukProperties(final List<BaukProperty> baukProps) {
 		BAUK_PROPERTIES = baukProps;
 		BaukUtil.logEngineMessage("Engine properties are " + BAUK_PROPERTIES);
+		validateProperties(baukProps);
+	}
+
+	private static void validateProperties(final List<BaukProperty> props) {
+		final Set<String> allProperties = new HashSet<>();
+		if (props != null) {
+			for (final BaukProperty bp : props) {
+				final String name = bp.getName();
+				if (allProperties.contains(name)) {
+					BaukUtil.logEngineMessageSync("WARNING: Detected that configuration property [" + name + "] has been defined more than once!");
+				} else {
+					allProperties.add(name);
+				}
+			}
+		}
 	}
 
 	public static Map<String, String> getEngineConfigurationProperties() {
