@@ -15,8 +15,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.threeglav.sh.bauk.BaukConstants;
-import com.threeglav.sh.bauk.dimension.DimensionHandler;
-import com.threeglav.sh.bauk.dimension.DimensionKeysPair;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.dimension.db.DbHandler;
 import com.threeglav.sh.bauk.model.BaukAttribute;
@@ -114,13 +112,16 @@ public class DimensionHandlerTest {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
 		final String[] parsedLine = { "aa", "bb", "cc", "dd", "ee", "ff", "gg", "hh", "ii", "jj" };
-		final Object key = dh.getBulkLoadValue(parsedLine, null);
+		final HashMap<String, String> globalAttrs = new HashMap<String, String>();
+		globalAttrs.put("nk_100", "g1");
+		globalAttrs.put("h1", "g2");
+		final Object key = dh.getBulkLoadValue(parsedLine, globalAttrs);
 		Assert.assertEquals("100", "" + key);
 		final String nkLookup = "cc" + BaukConstants.NATURAL_KEY_DELIMITER + "dd" + BaukConstants.NATURAL_KEY_DELIMITER + "gg"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "ff" + BaukConstants.NATURAL_KEY_DELIMITER + "aa";
 		Assert.assertEquals(nkLookup, lastRequiredFromCache);
 		Assert.assertEquals(
-				"insert into dim where nk_0=cc and nk_4=aa and nk_2=gg and a='b' and nk_100=${nk_100} or p='${h1}' or p1='h2' and mapped1='hh' or mapped2>'jj'",
+				"insert into dim where nk_0=cc and nk_4=aa and nk_2=gg and a='b' and nk_100=g1 or p='g2' or p1='h2' and mapped1='hh' or mapped2>'jj'",
 				lastStatementToExecute);
 		lastRequiredFromCache = null;
 		lastStatementToExecute = null;
@@ -148,12 +149,14 @@ public class DimensionHandlerTest {
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
-		final Object key = dh.getLastLineBulkLoadValue(parsedLine, null);
+		final HashMap<String, String> globalAttrs = new HashMap<String, String>();
+		globalAttrs.put("nk_100", "100");
+		final Object key = dh.getLastLineBulkLoadValue(parsedLine, globalAttrs);
 		Assert.assertEquals("100", "" + key);
 		final String nkLookup = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
 		Assert.assertEquals(nkLookup, lastRequiredFromCache);
-		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='${h1}' or p1='h2'",
+		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=100 or p=NULL or p1='h2'",
 				lastStatementToExecute);
 		lastRequiredFromCache = null;
 		lastStatementToExecute = null;
@@ -166,14 +169,15 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
-		Assert.assertEquals(2, headerValues.size());
+		headerValues.put("nk_100", "g100");
+		Assert.assertEquals(3, headerValues.size());
 		final Object key1 = dh1.getBulkLoadValue(parsedLine1, headerValues);
-		Assert.assertEquals(2, headerValues.size());
+		Assert.assertEquals(3, headerValues.size());
 		Assert.assertEquals("100", "" + key1);
 		final String nkLookup1 = "c" + BaukConstants.NATURAL_KEY_DELIMITER + "d" + BaukConstants.NATURAL_KEY_DELIMITER + "g"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "f" + BaukConstants.NATURAL_KEY_DELIMITER + "a";
 		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
-		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
+		Assert.assertEquals("insert into dim where nk_0=c and nk_4=a and nk_2=g and a='b' and nk_100=g100 or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -198,7 +202,7 @@ public class DimensionHandlerTest {
 		final String nkLookup1 = "d" + BaukConstants.NATURAL_KEY_DELIMITER + "e" + BaukConstants.NATURAL_KEY_DELIMITER + "h"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "g" + BaukConstants.NATURAL_KEY_DELIMITER + "b";
 		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
-		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
+		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=NULL or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -223,7 +227,7 @@ public class DimensionHandlerTest {
 		final String nkLookup1 = "d" + BaukConstants.NATURAL_KEY_DELIMITER + "e" + BaukConstants.NATURAL_KEY_DELIMITER + "h"
 				+ BaukConstants.NATURAL_KEY_DELIMITER + "g" + BaukConstants.NATURAL_KEY_DELIMITER + "b";
 		Assert.assertEquals(nkLookup1, lastRequiredFromCache);
-		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
+		Assert.assertEquals("insert into dim where nk_0=d and nk_4=b and nk_2=h and a='b' and nk_100=NULL or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -240,12 +244,14 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
+		headerValues.put("nk_0", "g1");
+		headerValues.put("nk_4", "g2");
+		headerValues.put("nk_2", "g3");
 		final Object key1 = dh1.getLastLineBulkLoadValue(parsedLine1, headerValues);
 		Assert.assertEquals("" + key1, headerValues.get("dim1.sk"));
 		Assert.assertEquals("100", "" + key1);
 		Assert.assertNull(lastRequiredFromCache);
-		Assert.assertEquals(
-				"insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
+		Assert.assertEquals("insert into dim where nk_0=g1 and nk_4=g2 and nk_2=g3 and a='b' and nk_100=NULL or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -262,12 +268,14 @@ public class DimensionHandlerTest {
 		final Map<String, String> headerValues = new HashMap<String, String>();
 		headerValues.put("h1", "100");
 		headerValues.put("h2", "200");
+		headerValues.put("nk_0", "nk_0v");
+		headerValues.put("nk_4", "nk_4v");
+		headerValues.put("nk_2", "nk_2v");
 		final Object key1 = dh1.getLastLineBulkLoadValue(parsedLine1, headerValues);
 		Assert.assertNull(headerValues.get("dim1.sk"));
 		Assert.assertEquals("100", "" + key1);
 		Assert.assertNull(lastRequiredFromCache);
-		Assert.assertEquals(
-				"insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='100' or p1='h2'",
+		Assert.assertEquals("insert into dim where nk_0=nk_0v and nk_4=nk_4v and nk_2=nk_2v and a='b' and nk_100=NULL or p='100' or p1='h2'",
 				lastStatementToExecute);
 	}
 
@@ -353,6 +361,7 @@ public class DimensionHandlerTest {
 		final SqlStatements sqlStatements = new SqlStatements();
 		sqlStatements
 				.setInsertSingle("insert into dim where nk_0=${nk_0} and nk_4=${nk_4} and nk_2=${nk_2} and a='b' and nk_100=${nk_100} or p='${h1}' or p1='h2'");
+		sqlStatements.setSelectRecordIdentifier("select 1 from 2");
 		dim.setSqlStatements(sqlStatements);
 		return dim;
 	}

@@ -1,5 +1,7 @@
 package com.threeglav.sh.bauk.dimension;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +23,15 @@ import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
+import com.threeglav.sh.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.sh.bauk.util.StringUtil;
 
+/**
+ * One instance per dimension. Must be thread-safe.
+ * 
+ * @author Borisa
+ * 
+ */
 public class DimensionHandler extends ConfigAware implements BulkLoadOutputValueHandler {
 
 	private static final String DIMENSION_SK_SUFFIX = ".sk";
@@ -55,6 +64,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final DimensionCache dimensionCache;
 	private final boolean hasNaturalKeysNotPresentInFeed;
 	private final boolean exposeLastLineValueInContext;
+	private final StatefulAttributeReplacer insertStatementReplacer;
+	private final StatefulAttributeReplacer selectStatementReplacer;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
@@ -97,6 +108,18 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			this.preCacheAllKeys();
 		} else {
 			log.info("Precaching for all dimensions is disabled!");
+		}
+		if (dimension.getSqlStatements() != null && !StringUtil.isEmpty(dimension.getSqlStatements().getInsertSingle())) {
+			insertStatementReplacer = new StatefulAttributeReplacer(dimension.getSqlStatements().getInsertSingle(), dbStringLiteral,
+					dbStringEscapeLiteral);
+		} else {
+			insertStatementReplacer = null;
+		}
+		if (dimension.getSqlStatements() != null && !StringUtil.isEmpty(dimension.getSqlStatements().getSelectRecordIdentifier())) {
+			selectStatementReplacer = new StatefulAttributeReplacer(dimension.getSqlStatements().getSelectRecordIdentifier(), dbStringLiteral,
+					dbStringEscapeLiteral);
+		} else {
+			selectStatementReplacer = null;
 		}
 	}
 
@@ -281,8 +304,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	private Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
-		final String insertStatement = dimension.getSqlStatements().getInsertSingle();
-		final String preparedInsertStatement = this.prepareStatement(insertStatement, parsedLine, globalAttributes);
+		final String preparedInsertStatement = this.prepareStatement(parsedLine, globalAttributes, insertStatementReplacer);
 		try {
 			return this.tryInsertStatement(preparedInsertStatement);
 		} catch (final DuplicateKeyException dexc) {
@@ -302,8 +324,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 					exc);
 			log.error("Insert statement was {}", preparedInsertStatement);
 		}
-		final String selectSurrogateKey = dimension.getSqlStatements().getSelectRecordIdentifier();
-		final String preparedSelectStatement = this.prepareStatement(selectSurrogateKey, parsedLine, globalAttributes);
+		final String preparedSelectStatement = this.prepareStatement(parsedLine, globalAttributes, selectStatementReplacer);
 		final Integer result = this.trySelectStatement(preparedSelectStatement);
 		if (result == null) {
 			log.warn("After failing to insert record could not find key by select. Select ctatement is {}", preparedSelectStatement);
@@ -339,29 +360,25 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return result.intValue();
 	}
 
-	private String prepareStatement(final String statement, final String[] parsedLine, final Map<String, String> globalAttributes) {
-		if (isDebugEnabled) {
-			final String placeHolderFormat = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + "ATTRIBUTE_NAME"
-					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
-			log.debug("Will prepare statement {}. Replacing all placeholders {} with their real values (from feed or header)", statement,
-					placeHolderFormat);
+	private String prepareStatement(final String[] parsedLine, final Map<String, String> globalAttributes, final StatefulAttributeReplacer replacer) {
+		Map<String, String> mappedColumnValues = this.getAllMappedColumnValues(parsedLine);
+		if (mappedColumnValues != null) {
+			mappedColumnValues.putAll(globalAttributes);
+		} else {
+			mappedColumnValues = globalAttributes;
 		}
-		String stat = this.replaceAllMappedColumnValues(statement, parsedLine);
+		final String stat = replacer.replaceAttributes(mappedColumnValues);
 		if (isDebugEnabled) {
-			log.debug("Replacing all global attributes {}", globalAttributes);
-		}
-		stat = StringUtil.replaceAllAttributes(stat, globalAttributes, dbStringLiteral, dbStringEscapeLiteral);
-		if (isDebugEnabled) {
-			log.debug("Final statement is {}", stat);
+			log.debug("Final statement (after replacing all values) is {}", stat);
 		}
 		return stat;
 	}
 
-	private String replaceAllMappedColumnValues(final String statement, final String[] parsedLine) {
+	private Map<String, String> getAllMappedColumnValues(final String[] parsedLine) {
 		if (mappedColumnNames == null || parsedLine == null) {
-			return statement;
+			return null;
 		}
-		String replaced = statement;
+		final Map<String, String> vals = new THashMap<>(50);
 		for (int i = 0; i < mappedColumnNames.length; i++) {
 			final int mappedColumnValuePositionInFeed = mappedColumnsPositionsInFeed[i];
 			if (mappedColumnValuePositionInFeed == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
@@ -372,14 +389,9 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 				throw new IllegalArgumentException("Parsed line has less values than needed " + mappedColumnValuePositionInFeed);
 			}
 			final String value = parsedLine[mappedColumnValuePositionInFeed];
-			final String mappedColumnNamePlaceholder = BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + mappedColumnNames[i]
-					+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END;
-			if (isDebugEnabled) {
-				log.debug("Replacing {} with {}", mappedColumnNamePlaceholder, value);
-			}
-			replaced = StringUtil.replaceSingleAttribute(replaced, mappedColumnNamePlaceholder, value, dbStringLiteral, dbStringEscapeLiteral);
+			vals.put(mappedColumnNames[i], value);
 		}
-		return replaced;
+		return vals;
 	}
 
 	final String buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(final String[] parsedLine, final Map<String, String> globalAttributes,
