@@ -18,12 +18,28 @@ if (!isset($_POST["email"])){
     <form id="contact_form" class="contact_form" action="request_download.php" method="post" name="contact_form">
       <ul class="contact_ie9">
 	    <li>
-          <label for="username">Your name:</label>
+          <label for="username">Full name:</label>
           <input type="text" name="username" id="username" required class="required">
         </li>
+		<li>
+          <label for="jobtitle">Job title:</label>
+          <input type="text" name="jobtitle" id="jobtitle" required class="required">
+        </li>
+		<li>
+          <label for="company">Company name:</label>
+          <input type="text" name="company" id="company" required class="required">
+        </li>
         <li>
-          <label for="email">Your corporate email:</label>
+          <label for="email">Corporate email:</label>
           <input type="email" name="email" id="email" required class="required email">
+        </li>
+		<li>
+          <label for="country">Country:</label>
+          <input type="text" name="country" id="country" required class="required">
+        </li>
+		<li>
+          <label for="telephone">Telephone number:</label>
+          <input type="text" name="telephone" id="telephone" required class="required">
         </li>
 		<li>
           <label for="projectinfo">We would like to know more about your project (optional):</label>
@@ -48,11 +64,15 @@ if (!isset($_POST["email"])){
     $from = $_POST["email"]; // sender
 	$username = $_POST["username"];
 	$project = $_POST["projectinfo"];
+	$phone = $_POST["telephone"];
+	$company = $_POST["company"];
+	$country = $_POST["country"];
+	$title = $_POST["jobtitle"];
     // message lines should not exceed 70 characters (PHP rule), so wrap it
 	$message = "Thank you for expressing interest in StreamHorizon Data Processing Platform. \n\rYour link to download trial version of StreamHorizon \n\r http://stream-horizon.com/downloads/qw324a8902jlsd4lnljolkjdsgsd232/stream-horizon-" . SH_LATEST_VERSION . "-dist.zip";
 	$message .= "\n\r or \n\r http://stream-horizon.com/downloads/qw324a8902jlsd4lnljolkjdsgsd232/stream-horizon-" . SH_LATEST_VERSION . "-dist.tar.gz";
 	$message .= "\n\rDo not hesitate to contact us in case you have any questions or suggestions. \n\r We are looking forward to further cooperation.\n\r\n\r StreamHorizon Team \n\r support@stream-horizon.com \n\r www.stream-horizon.com";
-	$notifyMessage = "$from asked for trial version of StreamHorizon DPP and download link was sent. \n\r Name: $username \n\r Project info: $project";
+	$notifyMessage = "$from asked for trial version of StreamHorizon DPP and download link was sent. \n\r Name: $username \n\r Company: $company \n\r Job title: $title \n\r Phone: $phone \n\r Country: $country \n\r Project info: $project";
     $message = wordwrap($message, 70);
     // send mail
     // mail($from,"Your trial version of StreamHorizon Data Processing Platform",$message,"From: support@stream-horizon.com\n");

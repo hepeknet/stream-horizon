@@ -12,6 +12,6 @@ public interface BulkOutputWriter {
 
 	public abstract void closeResourcesAfterWriting(final Map<String, String> globalAttributes, boolean success);
 
-	public boolean understandsProtocol(String protocol);
+	public boolean understandsURI(String uri);
 
 }

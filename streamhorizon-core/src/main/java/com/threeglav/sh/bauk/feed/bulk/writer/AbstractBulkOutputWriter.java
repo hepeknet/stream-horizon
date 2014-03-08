@@ -165,7 +165,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	}
 
 	@Override
-	public boolean understandsProtocol(final String protocol) {
+	public boolean understandsURI(final String protocol) {
 		throw new UnsupportedOperationException("Not supported");
 	}
 

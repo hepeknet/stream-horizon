@@ -88,7 +88,7 @@ public abstract class BaukUtil {
 		final Iterator<BulkOutputWriter> iterator = loader.iterator();
 		while (iterator.hasNext()) {
 			final BulkOutputWriter bow = iterator.next();
-			if (bow.understandsProtocol(protocol)) {
+			if (bow.understandsURI(protocol)) {
 				final BulkOutputWriter bulkWriterInstance = bow.getClass().newInstance();
 				LOG.debug("Found bulk output writer that understands protocol {}", protocol);
 				return bulkWriterInstance;

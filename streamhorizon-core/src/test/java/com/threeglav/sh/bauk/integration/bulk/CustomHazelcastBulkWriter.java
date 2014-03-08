@@ -40,7 +40,7 @@ public class CustomHazelcastBulkWriter implements BulkOutputWriter {
 	}
 
 	@Override
-	public boolean understandsProtocol(final String protocol) {
+	public boolean understandsURI(final String protocol) {
 		return protocol != null && protocol.toLowerCase().equals("hazelcast");
 	}
 

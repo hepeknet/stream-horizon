@@ -19,7 +19,7 @@ public final class NullBulkOutputWriter implements BulkOutputWriter {
 	}
 
 	@Override
-	public boolean understandsProtocol(final String protocol) {
+	public boolean understandsURI(final String protocol) {
 		throw new UnsupportedOperationException("Not supported");
 	}
 

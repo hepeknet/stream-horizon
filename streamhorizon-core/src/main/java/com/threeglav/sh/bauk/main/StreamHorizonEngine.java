@@ -230,7 +230,7 @@ public class StreamHorizonEngine {
 		}
 		LOG.debug("Stopped {} bulk file handlers", bulkFileHandlers.size());
 		CacheUtil.getCacheInstanceManager().stop();
-		BaukUtil.logEngineMessage("Bauk engine is down!");
+		BaukUtil.logEngineMessageSync("StreamHorizon engine is down!");
 		printStatistics();
 	}
 
@@ -242,15 +242,16 @@ public class StreamHorizonEngine {
 			final long totalUpTimeSec = totalUpTimeMillis / 1000;
 			final long minutes = totalUpTimeSec / 60;
 			final long remainedSeconds = totalUpTimeSec % 60;
-			// final long averageFilesPerSecond = totalInputFeedFilesProcessed / totalUpTimeSec;
-			// final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
+			final boolean printFinalAverageStatistics = ConfigurationProperties.getSystemProperty(
+					BaukEngineConfigurationConstants.PRINT_STATISTICS_AVERAGE_PARAM_NAME, false);
 			BaukUtil.logEngineMessageSync("Uptime of this instance was " + totalUpTimeSec + " seconds (" + minutes + " minutes and "
 					+ remainedSeconds + " seconds). In total processed " + totalInputFeedFilesProcessed + " input feed files and "
 					+ totalInputFeedRowsProcessed + " rows.");
-			// BaukUtil.logEngineMessageSync("On average processed " + averageFilesPerSecond + " files/sec, " +
-			// averageRowsPerSecond + " rows/sec.");
-		} else {
-			// BaukUtil.logEngineMessageSync("No files were processed or statistics are turned off.");
+			if (printFinalAverageStatistics) {
+				final long averageFilesPerSecond = totalInputFeedFilesProcessed / totalUpTimeSec;
+				final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
+				BaukUtil.logEngineMessageSync("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
+			}
 		}
 	}
 

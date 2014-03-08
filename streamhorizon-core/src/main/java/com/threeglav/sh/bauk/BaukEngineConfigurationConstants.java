@@ -54,6 +54,8 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String PRINT_PROCESSING_STATISTICS_PARAM_NAME = "output.processing.statistics";
 
+	public static final String PRINT_STATISTICS_AVERAGE_PARAM_NAME = "output.final.average.statistics";
+
 	public static final String ENABLE_PER_THREAD_CACHING_PARAM_NAME = "per.thread.caching.enabled";
 
 	/**

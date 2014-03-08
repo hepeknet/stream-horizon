@@ -354,6 +354,8 @@
 		<property name="dimension.precaching.disabled">false</property>
 		<!-- should processing statistics be written to log file and console as files are processed -->
 		<property name="output.processing.statistics">false</property>
+		<!-- should average statistics be written to log file and console when engine is shut down -->
+		<property name="output.final.average.statistics">false</property>
 		<!-- when persisting NULL value what should actually be written to output (bulk) file, by default this is empty string (no character will be written) -->
 		<property name="bulk.output.file.null.value.string"></property>
 		<!-- should bulk files be deleted after they are loaded. if set to true, bulk files will be deleted from bulkOutputDirectory -->

@@ -73,8 +73,21 @@
 		<fileSet>
 			<directory>src/main/resources/demo_sales/</directory>
 			<outputDirectory>demo_sales</outputDirectory>
+			<fileMode>777</fileMode>
 			<includes>
 				<include>*.*</include>
+			</includes>
+			<excludes>
+				<exclude>*.sh</exclude>
+			</excludes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/demo_sales/</directory>
+			<outputDirectory>demo_sales</outputDirectory>
+			<fileMode>777</fileMode>
+			<lineEnding>unix</lineEnding>
+			<includes>
+				<include>*.sh</include>
 			</includes>
 		</fileSet>
 		<fileSet>
