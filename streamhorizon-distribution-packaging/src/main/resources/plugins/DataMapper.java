@@ -2,7 +2,7 @@ import java.util.Map;
 
 import com.threeglav.sh.bauk.feed.FeedDataLineProcessor;
 
-public class DataMapper implements FeedDataLineProcessor {
+public class CustomDataMapper implements FeedDataLineProcessor {
 
 	/**
 	 * Invoked once per feed line before that line is passed further for processing (just after line has been read from

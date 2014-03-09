@@ -23,7 +23,7 @@ public class CustomHeaderParser implements HeaderParser {
 	public void init(final String configuredHeaderStartsWithString, final String configuredDelimiter, final Map<String, String> engineConfigProperties){
 		this.configuredHeaderStartsWithString = configuredHeaderStartsWithString;
 		this.configuredDelimiter = configuredDelimiter;
-		// do init some other expensive resources
+		// do initialize some other expensive resources
 	}
 
 	/**
