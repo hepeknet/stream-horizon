@@ -66,6 +66,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	private final boolean exposeLastLineValueInContext;
 	private final StatefulAttributeReplacer insertStatementReplacer;
 	private final StatefulAttributeReplacer selectStatementReplacer;
+	private final boolean hasOnlyOneNaturalKeyDefinedForLookup;
 
 	public DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
@@ -88,6 +89,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		mappedColumnsPositionOffset = naturalKeyPositionOffset;
 		this.calculatePositionOfMappedColumnValues();
 		hasNaturalKeysNotPresentInFeed = this.calculatePositionOfNaturalKeyValues();
+		hasOnlyOneNaturalKeyDefinedForLookup = naturalKeyPositionsInFeed.length == 1;
 		dbAccessSelectCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database selects executed");
 		dbAccessInsertCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database inserts executed");
 		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total pre-cached values retrieved");
@@ -394,8 +396,20 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		return vals;
 	}
 
-	final String buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(final String[] parsedLine, final Map<String, String> globalAttributes,
-			final StringBuilder sb) {
+	final String buildNaturalKeyForCacheLookupOnlyOneNaturalKeyUseForLookup(final String[] parsedLine) {
+		final int key = naturalKeyPositionsInFeed[0];
+		try {
+			final String value = parsedLine[key];
+			return value;
+		} catch (final ArrayIndexOutOfBoundsException aioobe) {
+			log.error(
+					"Tried to get data from input feed, position {} but looks like there is not enough data values in this row. Did you configure footer correctly? Do all rows in input feed have same length?",
+					key);
+			throw aioobe;
+		}
+	}
+
+	final String buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(final String[] parsedLine, final StringBuilder sb) {
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			if (i != 0) {
 				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
@@ -444,8 +458,11 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	final String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes, final StringBuilder sb) {
 		if (hasNaturalKeysNotPresentInFeed) {
 			return this.buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(parsedLine, globalAttributes, sb);
+		} else if (hasOnlyOneNaturalKeyDefinedForLookup) {
+			return this.buildNaturalKeyForCacheLookupOnlyOneNaturalKeyUseForLookup(parsedLine);
+		} else {
+			return this.buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(parsedLine, sb);
 		}
-		return this.buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(parsedLine, globalAttributes, sb);
 	}
 
 	final String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
