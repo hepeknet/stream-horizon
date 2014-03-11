@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -240,6 +241,24 @@ public abstract class ConfigurationProperties {
 		}
 		LOG.info("Not configured to partition work among multiple instances.");
 		return false;
+	}
+
+	public static String getRunningEngineVersion() {
+		return getRuntimeProperties().getProperty("version");
+	}
+
+	public static String getLicensedEntity() {
+		return getRuntimeProperties().getProperty("entity");
+	}
+
+	private static Properties getRuntimeProperties() {
+		final Properties props = new Properties();
+		try {
+			props.load(ConfigurationProperties.class.getResourceAsStream("/dist.sh"));
+		} catch (final Exception exc) {
+			LOG.error("Was not able to find runtime engine properties!");
+		}
+		return props;
 	}
 
 }

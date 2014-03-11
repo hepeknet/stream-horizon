@@ -44,7 +44,8 @@ public class StreamHorizonEngine {
 	private static final List<BulkFilesHandler> bulkFileHandlers = new LinkedList<>();
 
 	public static void main(final String[] args) throws Exception {
-		BaukUtil.logEngineMessage("Starting StreamHorizon engine");
+		BaukUtil.logEngineMessage("\n\n\nStarting StreamHorizon engine");
+		printRuntimeInfo();
 		final long start = System.currentTimeMillis();
 		LOG.info("To run in test mode set system parameter {}=true", BaukEngineConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());
@@ -252,6 +253,26 @@ public class StreamHorizonEngine {
 				final long averageRowsPerSecond = totalInputFeedRowsProcessed / totalUpTimeSec;
 				BaukUtil.logEngineMessageSync("On average processed " + averageFilesPerSecond + " files/sec, " + averageRowsPerSecond + " rows/sec.");
 			}
+		}
+	}
+
+	private static void printRuntimeInfo() {
+		final String version = ConfigurationProperties.getRunningEngineVersion();
+		final String entity = ConfigurationProperties.getLicensedEntity();
+		if (!StringUtil.isEmpty(version)) {
+			BaukUtil.logEngineMessageSync("Running StreamHorizon engine version " + version);
+		}
+		if (StringUtil.isEmpty(entity) || entity.contains("${lic}")) {
+			String notLicensedCopy = "\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+			notLicensedCopy += "++++THIS IS UNLICENCED, DEMO COPY OF STREAMHORIZON ENGINE++++\n";
+			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n\n";
+			BaukUtil.logEngineMessageSync(notLicensedCopy);
+		} else {
+			BaukUtil.logEngineMessageSync("This copy of StreamHorizon is licenced to " + entity);
 		}
 	}
 

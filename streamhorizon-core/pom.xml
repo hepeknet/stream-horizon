@@ -9,6 +9,15 @@
 	<artifactId>streamhorizon-core</artifactId>
 	<name>streamhorizon-core</name>
 
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -58,13 +67,8 @@
 			<version>${version.oracle.jdbc}</version>
 		</dependency>
 		<!-- looks like MSFT does not allow distribution of JDBC driver -->
-		<!--
-		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>sqljdbc4</artifactId>
-			<version>${version.mssql.jdbc.driver}</version>
-		</dependency>
-		-->
+		<!-- <dependency> <groupId>com.microsoft.sqlserver</groupId> <artifactId>sqljdbc4</artifactId> 
+			<version>${version.mssql.jdbc.driver}</version> </dependency> -->
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
