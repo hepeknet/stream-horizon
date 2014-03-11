@@ -97,4 +97,9 @@ public abstract class BaukUtil {
 		throw new IllegalStateException("Was not able to find bulk output writer that understands protocol [" + protocol + "]");
 	}
 
+	public static boolean isWindowsPlatform() {
+		final String osName = System.getProperty("os.name");
+		return osName != null && osName.toLowerCase().contains("windows");
+	}
+
 }

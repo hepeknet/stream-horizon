@@ -39,7 +39,7 @@ public final class BaukCommandsExecutor extends ConfigAware {
 		}
 	}
 
-	private String executeShellCommand(final String command) {
+	private String executeShellCommand(final String command, final Map<String, String> attributes) {
 		if (isDebugEnabled) {
 			log.debug("Executing shell command [{}]", command);
 		}
@@ -56,6 +56,7 @@ public final class BaukCommandsExecutor extends ConfigAware {
 				log.debug("Execution of [{}] finished with exit value [{}] and data [{}]", command, p.exitValue(), output.toString());
 			}
 		} catch (final Exception e) {
+			log.error("Command that was executed was {}. All available context attributes used for replacement are {}", command, attributes);
 			log.error("Exception while executing shell command", e);
 		}
 		return output.toString();
@@ -67,7 +68,7 @@ public final class BaukCommandsExecutor extends ConfigAware {
 			final StatefulAttributeReplacer replacer = replacers[counter++];
 			final String replacedCommand = replacer.replaceAttributes(attributes);
 			if (bc.getType() == CommandType.SHELL) {
-				this.executeShellCommand(replacedCommand);
+				this.executeShellCommand(replacedCommand, attributes);
 			} else if (bc.getType() == CommandType.SQL) {
 				if (isDebugEnabled) {
 					log.debug("Executing {} as part of {}", replacedCommand, description);
