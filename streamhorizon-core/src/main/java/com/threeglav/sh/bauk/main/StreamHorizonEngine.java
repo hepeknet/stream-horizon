@@ -22,6 +22,7 @@ import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.EngineRegistry;
 import com.threeglav.sh.bauk.command.BaukCommandsExecutor;
 import com.threeglav.sh.bauk.dimension.cache.HazelcastCacheInstanceManager;
+import com.threeglav.sh.bauk.dimension.db.DataSourceProvider;
 import com.threeglav.sh.bauk.files.bulk.BulkFilesHandler;
 import com.threeglav.sh.bauk.files.feed.FeedFilesHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
@@ -44,7 +45,6 @@ public class StreamHorizonEngine {
 	private static final List<BulkFilesHandler> bulkFileHandlers = new LinkedList<>();
 
 	public static void main(final String[] args) throws Exception {
-		BaukUtil.logEngineMessage("\n\n\nStarting StreamHorizon engine");
 		printRuntimeInfo();
 		final long start = System.currentTimeMillis();
 		LOG.info("To run in test mode set system parameter {}=true", BaukEngineConfigurationConstants.IDEMPOTENT_FEED_PROCESSING_PARAM_NAME);
@@ -231,6 +231,7 @@ public class StreamHorizonEngine {
 		}
 		LOG.debug("Stopped {} bulk file handlers", bulkFileHandlers.size());
 		CacheUtil.getCacheInstanceManager().stop();
+		DataSourceProvider.shutdown();
 		BaukUtil.logEngineMessageSync("StreamHorizon engine is down!");
 		printStatistics();
 	}
@@ -260,7 +261,7 @@ public class StreamHorizonEngine {
 		final String version = ConfigurationProperties.getRunningEngineVersion();
 		final String entity = ConfigurationProperties.getLicensedEntity();
 		if (!StringUtil.isEmpty(version)) {
-			BaukUtil.logEngineMessageSync("Running StreamHorizon engine version " + version);
+			BaukUtil.logEngineMessageSync("Starting StreamHorizon engine version " + version);
 		}
 		if (StringUtil.isEmpty(entity) || entity.contains("${lic}")) {
 			String notLicensedCopy = "\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";

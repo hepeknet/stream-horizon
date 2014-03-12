@@ -17,10 +17,12 @@ public abstract class InMemoryDbUtil {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InMemoryDbUtil.class);
 
+	private static final boolean isDebugEnabled = LOG.isDebugEnabled();
+
 	public static String getJdbcUrl(final String databaseName) {
 		final String dbDataFolder = ConfigurationProperties.getDbDataFolder();
 		// cache size in KB
-		final String url = "jdbc:h2:" + dbDataFolder + "/" + databaseName + ";DB_CLOSE_DELAY=20;CACHE_SIZE=131072";
+		final String url = "jdbc:h2:" + dbDataFolder + "/" + databaseName + ";DB_CLOSE_DELAY=20;CACHE_SIZE=131072;MVCC=TRUE;DB_CLOSE_ON_EXIT=FALSE";
 		return url;
 	}
 
@@ -31,10 +33,14 @@ public abstract class InMemoryDbUtil {
 		if (ds == null) {
 			throw new IllegalArgumentException("DataSource must not be null");
 		}
-		LOG.debug("Executing [{}]", sql);
+		if (isDebugEnabled) {
+			LOG.debug("Executing [{}]", sql);
+		}
 		try (Connection conn = ds.getConnection(); Statement stat = conn.createStatement()) {
 			stat.executeUpdate(sql);
-			LOG.debug("Successfully executed {}", sql);
+			if (isDebugEnabled) {
+				LOG.debug("Successfully executed {}", sql);
+			}
 			conn.commit();
 		} catch (final SQLException e) {
 			final boolean shutdownStarted = BaukUtil.shutdownStarted();
@@ -52,7 +58,9 @@ public abstract class InMemoryDbUtil {
 		if (ds == null) {
 			throw new IllegalArgumentException("DataSource must not be null");
 		}
-		LOG.debug("Executing [{}], parameter is [{}]", sql, parameter);
+		if (isDebugEnabled) {
+			LOG.debug("Executing [{}], parameter is [{}]", sql, parameter);
+		}
 		try (Connection conn = ds.getConnection(); PreparedStatement stat = conn.prepareStatement(sql)) {
 			if (parameter != null) {
 				stat.setString(1, parameter);
@@ -62,12 +70,16 @@ public abstract class InMemoryDbUtil {
 				try (ResultSet rs = stat.getResultSet()) {
 					if (rs.next()) {
 						final Object res = rs.getObject(1);
-						LOG.debug("Successfully executed [{}]. Returned [{}]", sql, res);
+						if (isDebugEnabled) {
+							LOG.debug("Successfully executed [{}]. Returned [{}]", sql, res);
+						}
 						return res;
 					}
 				}
 			}
-			LOG.debug("Successfully executed [{}]. Nothing to return", sql);
+			if (isDebugEnabled) {
+				LOG.debug("Successfully executed [{}]. Nothing to return", sql);
+			}
 			return null;
 		} catch (final SQLException e) {
 			final boolean shutdownStarted = BaukUtil.shutdownStarted();

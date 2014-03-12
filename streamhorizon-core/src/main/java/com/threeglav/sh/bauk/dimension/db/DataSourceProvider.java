@@ -23,13 +23,15 @@ public class DataSourceProvider {
 
 	private static final DataSourceProvider INSTANCE = new DataSourceProvider();
 
-	private DataSource dataSource;
+	private HikariDataSource warehouseDataSource;
+
+	private HikariDataSource inMemoryDataSource;
 
 	private DataSourceProvider() {
 
 	}
 
-	private DataSource createWhDataSource(final BaukConfiguration config) {
+	private HikariDataSource createWhDataSource(final BaukConfiguration config) {
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
@@ -54,6 +56,7 @@ public class DataSourceProvider {
 			}
 			hc.setMaximumPoolSize(connectionProperties.getJdbcPoolSize());
 			hc.setInitializationFailFast(true);
+			hc.setRegisterMbeans(false);
 			setDataSourceProperties(jdbcUrl, hc);
 			log.info("JDBC URL is {}", jdbcUrl);
 			if (!StringUtil.isEmpty(connectionProperties.getJdbcUserName())) {
@@ -69,6 +72,23 @@ public class DataSourceProvider {
 		} catch (final Exception e) {
 			log.error("Exception starting connection pool", e);
 			throw new RuntimeException("Unable to start connection pool", e);
+		}
+	}
+
+	public static synchronized void shutdown() {
+		if (INSTANCE.warehouseDataSource != null) {
+			try {
+				INSTANCE.warehouseDataSource.shutdown();
+			} catch (final Exception ignored) {
+				// ignore
+			}
+		}
+		if (INSTANCE.inMemoryDataSource != null) {
+			try {
+				INSTANCE.inMemoryDataSource.shutdown();
+			} catch (final Exception ignored) {
+				// ignore
+			}
 		}
 	}
 
@@ -93,21 +113,26 @@ public class DataSourceProvider {
 	}
 
 	public static synchronized DataSource getDataSource(final BaukConfiguration config) {
-		if (INSTANCE.dataSource == null) {
-			INSTANCE.dataSource = INSTANCE.createWhDataSource(config);
+		if (INSTANCE.warehouseDataSource == null) {
+			INSTANCE.warehouseDataSource = INSTANCE.createWhDataSource(config);
 		}
-		return INSTANCE.dataSource;
+		return INSTANCE.warehouseDataSource;
 	}
 
-	public static DataSource getSimpleDataSource(final String jdbcUrl) {
-		if (StringUtil.isEmpty(jdbcUrl)) {
-			throw new IllegalArgumentException("JDBC url must not be null or empty");
+	public static synchronized DataSource getSimpleDataSource(final String jdbcUrl) {
+		if (INSTANCE.inMemoryDataSource == null) {
+			if (StringUtil.isEmpty(jdbcUrl)) {
+				throw new IllegalArgumentException("JDBC url must not be null or empty");
+			}
+			final HikariConfig config = new HikariConfig();
+			// TODO: check if this needs to be configurable
+			config.setMaximumPoolSize(100);
+			config.setRegisterMbeans(false);
+			setDataSourceProperties(jdbcUrl, config);
+			final HikariDataSource ds = new HikariDataSource(config);
+			INSTANCE.inMemoryDataSource = ds;
 		}
-		final HikariConfig config = new HikariConfig();
-		config.setMaximumPoolSize(50);
-		setDataSourceProperties(jdbcUrl, config);
-		final DataSource ds = new HikariDataSource(config);
-		return ds;
+		return INSTANCE.inMemoryDataSource;
 	}
 
 	public static void close(final Connection connection) {

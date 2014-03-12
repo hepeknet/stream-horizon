@@ -100,7 +100,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			log.info("Will not delete bulk files after loading!");
 		}
 		recordFileSubmissionAttempts = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BULK_FILE_RECORD_FILE_SUBMISSIONS,
-				true);
+				false);
 		if (!recordFileSubmissionAttempts) {
 			log.warn("Engine will not record bulk file submission attempts.");
 		} else {
@@ -148,7 +148,9 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			log.debug("Bulk loading {}", bulkLoadFilePath);
 		}
 		final String fileNameOnly = file.getFileNameOnly();
-		this.recordFileLoadingAttempt(globalAttributes, fileNameOnly);
+		if (recordFileSubmissionAttempts) {
+			this.recordFileLoadingAttempt(globalAttributes, fileNameOnly);
+		}
 		this.executeBulkLoadingCommandSequence(globalAttributes);
 		if (recordFileSubmissionAttempts) {
 			fileSubmissionRecorder.deleteLoadedFile(fileNameOnly);
@@ -163,22 +165,20 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	}
 
 	private void recordFileLoadingAttempt(final Map<String, String> globalAttributes, final String fileNameOnly) {
-		if (recordFileSubmissionAttempts) {
-			final boolean alreadySubmitted = fileSubmissionRecorder.wasAlreadySubmitted(fileNameOnly);
-			if (alreadySubmitted) {
-				if (isDebugEnabled) {
-					log.debug("File [{}] was already submitted for loading previously. Will set {} to {}", fileNameOnly,
-							BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
-				}
-				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
-			} else {
-				if (isDebugEnabled) {
-					log.debug("File [{}] was not submitted for loading before. Will set {} to {}", fileNameOnly,
-							BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
-				}
-				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
-				fileSubmissionRecorder.recordSubmissionAttempt(fileNameOnly);
+		final boolean alreadySubmitted = fileSubmissionRecorder.wasAlreadySubmitted(fileNameOnly);
+		if (alreadySubmitted) {
+			if (isDebugEnabled) {
+				log.debug("File [{}] was already submitted for loading previously. Will set {} to {}", fileNameOnly,
+						BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
 			}
+			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_TRUE_VALUE);
+		} else {
+			if (isDebugEnabled) {
+				log.debug("File [{}] was not submitted for loading before. Will set {} to {}", fileNameOnly,
+						BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
+			}
+			globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED, BaukConstants.ALREADY_SUBMITTED_FALSE_VALUE);
+			fileSubmissionRecorder.recordSubmissionAttempt(fileNameOnly);
 		}
 	}
 

@@ -28,9 +28,7 @@ public class BulkFilesHandler {
 	private final BaukConfiguration config;
 	private int bulkProcessingThreads = ThreadPoolSettings.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
-	private final int bulkFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
-			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS_PARAM_NAME,
-			BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
+	private final int bulkFileAcceptanceTimeoutMillis;
 
 	private final ExecutorService EXEC_SERVICE;
 
@@ -56,6 +54,9 @@ public class BulkFilesHandler {
 		} else {
 			EXEC_SERVICE = null;
 		}
+		bulkFileAcceptanceTimeoutMillis = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_OLDER_THAN_MILLIS_PARAM_NAME,
+				BaukEngineConfigurationConstants.BULK_FILE_ACCEPTANCE_TIMEOUT_MILLIS_DEFAULT);
 	}
 
 	private void validate() {
