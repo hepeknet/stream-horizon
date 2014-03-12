@@ -311,8 +311,8 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 			return this.tryInsertStatement(preparedInsertStatement);
 		} catch (final DuplicateKeyException dexc) {
 			if (naturalCacheKey != null) {
-				// maybe some other thread inserted this record just a moment ago - so, let's try to find it in cache
-				// faster than going to database
+				// Maybe some other thread inserted this record just a moment ago - so, let's try to find it in cache.
+				// This is faster than going to database
 				final Integer doubleCheckInCache = dimensionCache.getSurrogateKeyFromCache(naturalCacheKey);
 				if (doubleCheckInCache != null) {
 					return doubleCheckInCache;

@@ -361,7 +361,7 @@
 		<!-- should bulk files be deleted after they are loaded. if set to true, bulk files will be deleted from bulkOutputDirectory -->
 		<property name="bulk.delete.files.after.load">true</property>
 		<!-- should engine record (internally) submission of every file it tries to bulk load? this setting is used for recovery, in case when engine dies halfway through bulk-loading file it will know that file was submitted for loading beforehand (this info is persisted and it survives engine crash and/or restart) -->
-		<property name="bulk.file.record.submission.attempts">true</property>
+		<property name="bulk.file.record.submission.attempts">false</property>
 		<!-- how often (in milliseconds) to poll for input files (feed, bulk). -->
 		<property name="file.polling.delay.millis">1000</property>
 		<!-- following two properties can be 0 if file system allows atomic renames/moves of files. Data corruption can occur in case someone is writing to files while engine is consuming them. this can be prevented by user (files can be renamed by file writer after writing is done) -->
