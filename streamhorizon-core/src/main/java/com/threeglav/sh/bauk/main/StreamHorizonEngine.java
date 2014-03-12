@@ -261,7 +261,7 @@ public class StreamHorizonEngine {
 		final String version = ConfigurationProperties.getRunningEngineVersion();
 		final String entity = ConfigurationProperties.getLicensedEntity();
 		if (!StringUtil.isEmpty(version)) {
-			BaukUtil.logEngineMessageSync("Starting StreamHorizon engine version " + version);
+			BaukUtil.logEngineMessageSync("\n\nStarting StreamHorizon engine version " + version);
 		}
 		if (StringUtil.isEmpty(entity) || entity.contains("${lic}")) {
 			String notLicensedCopy = "\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
