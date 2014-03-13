@@ -267,7 +267,7 @@ public class StreamHorizonEngine {
 			String notLicensedCopy = "\n\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-			notLicensedCopy += "++++THIS IS UNLICENCED, DEMO COPY OF STREAMHORIZON ENGINE++++\n";
+			notLicensedCopy += "+++++ THIS IS UNLICENCED COPY OF STREAMHORIZON PLATFORM +++++\n";
 			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
 			notLicensedCopy += "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n\n\n";

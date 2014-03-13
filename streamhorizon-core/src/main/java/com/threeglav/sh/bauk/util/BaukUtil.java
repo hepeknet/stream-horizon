@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
+import com.threeglav.sh.bauk.EngineRegistry;
 import com.threeglav.sh.bauk.io.BulkOutputWriter;
 import com.threeglav.sh.bauk.main.StreamHorizonEngine;
 
@@ -30,13 +31,13 @@ public abstract class BaukUtil {
 
 	private static BlockingQueue<Runnable> blockingQueue = new LinkedBlockingQueue<>();
 	private static RejectedExecutionHandler rejectedExecutionHandler = new ThreadPoolExecutor.CallerRunsPolicy();
-	private static ExecutorService EXEC_SERVICE = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, blockingQueue, new BaukThreadFactory(
-			"engine-logging", "engine-logging"), rejectedExecutionHandler);
+	private static ExecutorService LOGGING_EXEC_SERVICE = new ThreadPoolExecutor(2, 2, 0L, TimeUnit.MILLISECONDS, blockingQueue,
+			new BaukThreadFactory("engine-logging", "engine-logging"), rejectedExecutionHandler);
 
 	private static volatile boolean shutdownStarted = false;
 
 	public static void logEngineMessage(final String message) {
-		EXEC_SERVICE.submit(new Runnable() {
+		LOGGING_EXEC_SERVICE.submit(new Runnable() {
 			@Override
 			public void run() {
 				ENGINE_LOG.info(message);
@@ -49,17 +50,23 @@ public abstract class BaukUtil {
 	}
 
 	public static void logBulkLoadEngineMessage(final String message) {
-		EXEC_SERVICE.submit(new Runnable() {
+		LOGGING_EXEC_SERVICE.submit(new Runnable() {
 			@Override
 			public void run() {
-				BULK_LOAD_ENGINE_LOG.info(message);
+				final long loadedSoFar = EngineRegistry.getSuccessfulBulkFilesCount();
+				final boolean shouldReportCount = ((loadedSoFar % 10) == 0);
+				if (!shouldReportCount) {
+					BULK_LOAD_ENGINE_LOG.info(message);
+				} else {
+					BULK_LOAD_ENGINE_LOG.info(message + ". Bulk loaded approximately " + loadedSoFar + " files so far");
+				}
 			}
 		});
 	}
 
 	public static void startShutdown() {
 		shutdownStarted = true;
-		EXEC_SERVICE.shutdown();
+		LOGGING_EXEC_SERVICE.shutdown();
 	}
 
 	public static boolean shutdownStarted() {
