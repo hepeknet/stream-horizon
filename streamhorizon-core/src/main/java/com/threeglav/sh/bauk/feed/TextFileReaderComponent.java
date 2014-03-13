@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -33,8 +32,6 @@ import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 public class TextFileReaderComponent extends ConfigAware {
-
-	private static final DecimalFormat DEC_FORMAT = new DecimalFormat("#########.#");
 
 	private final int bufferSize;
 	private HeaderParser headerParser;
@@ -311,17 +308,17 @@ public class TextFileReaderComponent extends ConfigAware {
 			String averagePerSec;
 			if (totalSec > 0 && feedLinesNumber > 0) {
 				final float val = feedLinesNumber / totalSec;
-				averagePerSec = DEC_FORMAT.format(val) + " rows/second";
+				averagePerSec = BaukUtil.DEC_FORMAT.format(val) + " rows/second";
 			} else if (totalSec == 0 && totalMillis > 0) {
 				final float val = feedLinesNumber / totalMillis;
-				averagePerSec = DEC_FORMAT.format(val) + " rows/millisecond";
+				averagePerSec = BaukUtil.DEC_FORMAT.format(val) + " rows/millisecond";
 			} else {
 				averagePerSec = "N/A";
 			}
-			String messageToOutput = this.getCurrentThreadName() + " - Processed " + feedLinesNumber + " rows in " + DEC_FORMAT.format(totalMillis)
-					+ "ms";
+			String messageToOutput = this.getCurrentThreadName() + " - Processed " + feedLinesNumber + " rows in "
+					+ BaukUtil.DEC_FORMAT.format(totalMillis) + "ms";
 			if (totalMillis > 1000) {
-				messageToOutput += " (" + DEC_FORMAT.format(totalSec) + " sec)";
+				messageToOutput += " (" + BaukUtil.DEC_FORMAT.format(totalSec) + " sec)";
 			}
 			messageToOutput += ". Average " + averagePerSec;
 			BaukUtil.logEngineMessage(messageToOutput);

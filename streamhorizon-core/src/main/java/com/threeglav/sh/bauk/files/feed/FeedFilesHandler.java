@@ -54,7 +54,7 @@ public class FeedFilesHandler {
 				config.getErrorDirectory());
 		moveToErrorFileProcessor = new MoveFileErrorHandler(errorDirectory);
 		if (feedProcessingThreads > 0) {
-			EXEC_SERVICE = Executors.newFixedThreadPool(feedProcessingThreads, new BaukThreadFactory("feedHandlingThreadGroup", "feed-processing-"
+			EXEC_SERVICE = Executors.newFixedThreadPool(feedProcessingThreads, new BaukThreadFactory("feedHandlingThreadGroup", "etl-thread-"
 					+ factFeed.getName()));
 		} else {
 			EXEC_SERVICE = null;

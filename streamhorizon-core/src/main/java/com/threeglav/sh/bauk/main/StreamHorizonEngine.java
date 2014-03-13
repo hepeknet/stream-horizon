@@ -111,12 +111,12 @@ public class StreamHorizonEngine {
 		for (final FeedFilesHandler ffh : feedFileHandlers) {
 			ffhStartedCount += ffh.start();
 		}
-		BaukUtil.logEngineMessageSync("Started in total " + ffhStartedCount + " feed processing threads!");
+		BaukUtil.logEngineMessageSync("Started in total " + ffhStartedCount + " ETL (feed processing) threads!");
 		int bfhStartedCount = 0;
 		for (final BulkFilesHandler bfh : bulkFileHandlers) {
 			bfhStartedCount += bfh.start();
 		}
-		BaukUtil.logEngineMessageSync("Started in total " + bfhStartedCount + " bulk file processing threads!");
+		BaukUtil.logEngineMessageSync("Started in total " + bfhStartedCount + " DB (bulk file processing) threads!");
 	}
 
 	private static void createProcessingRoutes(final BaukConfiguration config) throws Exception {

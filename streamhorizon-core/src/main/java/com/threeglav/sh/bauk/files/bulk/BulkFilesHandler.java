@@ -50,7 +50,7 @@ public class BulkFilesHandler {
 				config.getErrorDirectory());
 		moveToErrorFileProcessor = new MoveFileErrorHandler(errorDirectory);
 		if (bulkProcessingThreads > 0) {
-			EXEC_SERVICE = Executors.newFixedThreadPool(bulkProcessingThreads, new BaukThreadFactory("bulkProcessingThreads", "bulk-processing"));
+			EXEC_SERVICE = Executors.newFixedThreadPool(bulkProcessingThreads, new BaukThreadFactory("bulkProcessingThreads", "db-thread"));
 		} else {
 			EXEC_SERVICE = null;
 		}

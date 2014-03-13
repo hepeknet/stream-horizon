@@ -1,5 +1,6 @@
 package com.threeglav.sh.bauk.util;
 
+import java.text.DecimalFormat;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -23,6 +24,8 @@ import com.threeglav.sh.bauk.main.StreamHorizonEngine;
 public abstract class BaukUtil {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BaukUtil.class);
+
+	public static final DecimalFormat DEC_FORMAT = new DecimalFormat("#########.#");
 
 	private static String engineInstanceIdentifier;
 
