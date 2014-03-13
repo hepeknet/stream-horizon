@@ -21,6 +21,9 @@ public enum BulkLoadDefinitionOutputType {
 	JDBC,
 
 	@XmlEnumValue("none")
-	NONE;
+	NONE,
+
+	@XmlEnumValue("pipe")
+	PIPE;
 
 }

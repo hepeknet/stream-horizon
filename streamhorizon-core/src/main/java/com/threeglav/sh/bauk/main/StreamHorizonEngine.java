@@ -146,7 +146,7 @@ public class StreamHorizonEngine {
 			try {
 				LOG.debug("Executing on-startup commands for feed {}", feed.getName());
 				final BaukCommandsExecutor bce = new BaukCommandsExecutor(feed, config, feed.getOnStartup());
-				bce.executeBaukCommandSequence(null, "On startup commands for feed " + feed.getName());
+				bce.executeBaukCommandSequence(null, "On startup commands for feed [" + feed.getName() + "]");
 				LOG.debug("Finished executing on startup commands for {}", feed.getName());
 			} catch (final Exception exc) {
 				LOG.error("Exception while executing on startup commands. Will continue with processing.", exc);

@@ -9,6 +9,7 @@ import com.threeglav.sh.bauk.feed.FeedParserComponent;
 import com.threeglav.sh.bauk.feed.bulk.writer.FileBulkOutputWriter;
 import com.threeglav.sh.bauk.feed.bulk.writer.GzipFileBulkOutputWriter;
 import com.threeglav.sh.bauk.feed.bulk.writer.JdbcBulkOutputWriter;
+import com.threeglav.sh.bauk.feed.bulk.writer.NamedPipeBulkOutputWriter;
 import com.threeglav.sh.bauk.feed.bulk.writer.NullBulkOutputWriter;
 import com.threeglav.sh.bauk.feed.bulk.writer.ZipFileBulkOutputWriter;
 import com.threeglav.sh.bauk.io.BulkOutputWriter;
@@ -47,6 +48,9 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		} else if (BulkLoadDefinitionOutputType.JDBC.toString().equalsIgnoreCase(outputType)) {
 			log.info("Will output bulk output results for feed {} to file using JDBC batch inserts", factFeed.getName());
 			bulkOutputWriter = new JdbcBulkOutputWriter(factFeed, config);
+		} else if (BulkLoadDefinitionOutputType.PIPE.toString().equalsIgnoreCase(outputType)) {
+			log.info("Will output bulk output results for feed {} to file using named pipes", factFeed.getName());
+			bulkOutputWriter = new NamedPipeBulkOutputWriter(factFeed, config);
 		} else {
 			log.info("Was not able to find built-in bulk output writer for {}. Will try to find it as user-defind plugin", outputType);
 			try {
