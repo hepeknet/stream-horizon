@@ -84,6 +84,8 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String JDBC_BULK_LOADING_BATCH_SIZE_PARAM_NAME = "jdbc.bulk.loading.batch.size";
 
+	public static final String JDBC_THREADS_PARTITION_COUNT = "jdbc.threads.partition.count";
+
 	public static final int JDBC_BULK_LOADING_BATCH_SIZE_DEFAULT = 10000;
 
 	public static final String REMOTING_SERVER_PORT_PARAM_NAME = "remoting.server.port";

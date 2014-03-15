@@ -120,6 +120,11 @@
 			<artifactId>jetty-server</artifactId>
 			<version>${version.jetty}</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>${version.commons.lang}</version>
+		</dependency>
 	</dependencies>
 
 </project>

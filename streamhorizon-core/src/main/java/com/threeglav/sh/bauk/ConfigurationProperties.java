@@ -185,7 +185,7 @@ public abstract class ConfigurationProperties {
 		if (feed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}
-		if (localFeedProcessorId <= 0) {
+		if (localFeedProcessorId < 0) {
 			throw new IllegalArgumentException("Local feed processor id must not be non-positive integer");
 		}
 		final int etlThreadNum = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.FEED_PROCESSING_THREADS_PARAM_NAME, feed
@@ -201,7 +201,7 @@ public abstract class ConfigurationProperties {
 		if (feed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}
-		if (localBulkProcessorId <= 0) {
+		if (localBulkProcessorId < 0) {
 			throw new IllegalArgumentException("Local bulk processor id must not be non-positive integer");
 		}
 		final int bulkProcessingThreads = ConfigurationProperties.getSystemProperty(

@@ -59,7 +59,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.factFeed = factFeed;
-		final int localProcessorId = COUNTER.incrementAndGet();
+		final int localProcessorId = COUNTER.getAndIncrement();
 		processorId = String.valueOf(localProcessorId);
 		isDebugEnabled = log.isDebugEnabled();
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(

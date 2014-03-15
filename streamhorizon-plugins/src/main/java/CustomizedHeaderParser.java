@@ -1,5 +1,3 @@
-import gnu.trove.map.hash.THashMap;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.sh.bauk.header.HeaderParser;
-import com.threeglav.sh.bauk.parser.FullFeedParser;
-import com.threeglav.sh.bauk.util.StringUtil;
 
 public class CustomizedHeaderParser implements HeaderParser {
 
@@ -20,7 +16,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 	/*
 	 * zero based counter - pointing to position where header date is, including first (control) character
 	 */
-	private static final int DEFAULT_DATE_POSITION_IN_HEADER = 10;
+	private static final int DEFAULT_DATE_POSITION_IN_HEADER = 9;
 	private static final String DEFAULT_INPUT_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 	private static final String DEFAULT_OUTPUT_DATE_FORMAT = "yyyyMMdd";
 	/*
@@ -44,7 +40,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private String startsWithString;
-	private FullFeedParser fullFeedParser;
+	private String delimiterString;
 	private final boolean isDebugEnabled;
 
 	private int datePositionInHeader = DEFAULT_DATE_POSITION_IN_HEADER;
@@ -60,7 +56,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 	public void init(final String configuredHeaderStartsWithString, final String configuredDelimiter,
 			final Map<String, String> engineConfigurationProperties) {
 		startsWithString = configuredHeaderStartsWithString;
-		fullFeedParser = new FullFeedParser(configuredDelimiter);
+		delimiterString = configuredDelimiter;
 		if (startsWithString == null) {
 			throw new IllegalStateException("Expected character for header not set");
 		}
@@ -69,7 +65,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 		}
 		if (engineConfigurationProperties != null) {
 			final String configuredDatePositionInHeader = engineConfigurationProperties.get(CUSTOMIZED_DATE_POSITION_IN_HEADER_PARAM_NAME);
-			if (!StringUtil.isEmpty(configuredDatePositionInHeader)) {
+			if (configuredDatePositionInHeader != null) {
 				log.info("Found {} = {}", CUSTOMIZED_DATE_POSITION_IN_HEADER_PARAM_NAME, configuredDatePositionInHeader);
 				datePositionInHeader = Integer.parseInt(configuredDatePositionInHeader);
 			} else {
@@ -78,7 +74,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 			}
 			final String configuredFeedProcessingThreadModulo = engineConfigurationProperties
 					.get(CUSTOMIZED_FEED_PROCESSSING_THREAD_MODULO_PARAM_NAME);
-			if (!StringUtil.isEmpty(configuredFeedProcessingThreadModulo)) {
+			if (configuredFeedProcessingThreadModulo != null) {
 				log.info("Found {} = {}", CUSTOMIZED_FEED_PROCESSSING_THREAD_MODULO_PARAM_NAME, configuredDatePositionInHeader);
 				feedProcessingThreadModulo = Integer.parseInt(configuredFeedProcessingThreadModulo);
 			} else {
@@ -94,8 +90,8 @@ public class CustomizedHeaderParser implements HeaderParser {
 		if (headerLine == null) {
 			return new HashMap<String, String>();
 		}
-		final Map<String, String> headerValues = new THashMap<String, String>();
-		final String[] parsed = fullFeedParser.parse(headerLine);
+		final Map<String, String> headerValues = new HashMap<String, String>();
+		final String[] parsed = headerLine.split(delimiterString);
 		if (parsed == null || parsed.length == 0) {
 			throw new IllegalArgumentException("Header is null or has zero length");
 		}

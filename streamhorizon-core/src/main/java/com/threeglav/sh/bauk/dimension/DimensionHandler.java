@@ -78,7 +78,7 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 		if (cacheInstance == null) {
 			throw new IllegalArgumentException("Cache handler must not be null");
 		}
-		dimensionCache = new DimensionCache(cacheInstance, dimension);
+		dimensionCache = new DimensionCacheTroveImpl(cacheInstance, dimension);
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}

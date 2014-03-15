@@ -25,7 +25,8 @@ rem if needed increase the size of heap to be used
 set "HEAP_OPTS=-Xmx%heapSizeGb%G -Xms%heapSizeGb%G"
 
 rem set "GC_OPTS=-XX:+UseG1GC -XX:MaxGCPauseMillis=200 "
-set "GC_OPTS=-XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled "
+set "GC_OPTS=-XX:+UseConcMarkSweepGC -XX:+CMSScavengeBeforeRemark -XX:+CMSParallelRemarkEnabled -XX:ParallelGCThreads=2 "
+rem set "GC_OPTS=%GC_OPTS% -XX:TLABSize=5M -XX:-ResizeTLAB"
 rem set "GC_OPTS=%GC_OPTS% -verbose:gc "
 set "JAVA_OPTS=-server -d64 -XX:+UseCompressedOops -XX:+AggressiveOpts -XX:+UseStringCache -XX:+OptimizeStringConcat -XX:+UseBiasedLocking -XX:+UseFastAccessorMethods -XX:+UseFastEmptyMethods -XX:+TieredCompilation -XX:+DisableExplicitGC"
 set "JAVA_OPTS=%JAVA_OPTS% -Dsun.rmi.dgc.server.gcInterval=3600000 -Dsun.rmi.dgc.client.gcInterval=3600000 -Djava.net.preferIPv4Stack=true"
@@ -35,6 +36,7 @@ set "JAVA_OPTS=%GC_OPTS% %JAVA_OPTS%"
 
 set "JAVA_OPTS=%JAVA_OPTS% %additionalJVMProperties% "
 
+rem try setting these to half of total heap size
 rem set "JAVA_OPTS=%JAVA_OPTS% -XX:NewSize=1G -XX:MaxNewSize=2G"
 
 rem set "JAVA_OPTS=%JAVA_OPTS% -XX:+UnlockCommercialFeatures -XX:+FlightRecorder"

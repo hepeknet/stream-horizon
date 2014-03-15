@@ -39,14 +39,15 @@ public final class BaukCommandsExecutor extends ConfigAware {
 		}
 	}
 
-	private String executeShellCommand(final String command, final Map<String, String> attributes) {
+	private boolean executeShellCommand(final String command, final Map<String, String> attributes) {
 		if (isDebugEnabled) {
 			log.debug("Executing shell command [{}]", command);
 		}
 		final StringBuffer output = new StringBuffer();
+		int outputResult = -1;
 		try {
 			final Process p = Runtime.getRuntime().exec(command);
-			p.waitFor();
+			outputResult = p.waitFor();
 			final BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -59,7 +60,7 @@ public final class BaukCommandsExecutor extends ConfigAware {
 			log.error("Command that was executed was {}. All available context attributes used for replacement are {}", command, attributes);
 			log.error("Exception while executing shell command", e);
 		}
-		return output.toString();
+		return outputResult == 0;
 	}
 
 	public void executeBaukCommandSequence(final Map<String, String> attributes, final String description) {

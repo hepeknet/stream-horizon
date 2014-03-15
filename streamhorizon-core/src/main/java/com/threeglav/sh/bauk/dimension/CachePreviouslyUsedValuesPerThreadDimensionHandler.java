@@ -33,7 +33,7 @@ public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements
 	private final String dimensionName;
 	private final StringBuilder reusedForPerformance = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 
-	private final Map<String, Integer> perThreadCachedValues = new THashMap<>(1000);
+	private final Map<String, Integer> perThreadCachedValues = new THashMap<>(5000);
 
 	public CachePreviouslyUsedValuesPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
 		this.delegate = (DimensionHandler) delegate;

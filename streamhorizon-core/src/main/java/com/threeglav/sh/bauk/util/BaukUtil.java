@@ -112,4 +112,32 @@ public abstract class BaukUtil {
 		return osName != null && osName.toLowerCase().contains("windows");
 	}
 
+	public static int calculatePartition(final int totalThreads, final int partitionCount, final int currentThreadId) {
+		if (totalThreads <= 0) {
+			throw new IllegalArgumentException("Total threads must be positive integer");
+		}
+		if (partitionCount <= 0) {
+			throw new IllegalArgumentException("Partition count must be positive integer");
+		}
+		if (currentThreadId < 0) {
+			throw new IllegalArgumentException("Current thread must be non-negative integer");
+		}
+		if (totalThreads < partitionCount) {
+			throw new IllegalArgumentException("Total threads must be >= partition count");
+		}
+		final int threadsPerPartition = totalThreads / partitionCount;
+		final int myPartition = currentThreadId / threadsPerPartition;
+		int result;
+		if (myPartition >= partitionCount) {
+			result = partitionCount - 1;
+		} else {
+			result = myPartition;
+		}
+		if (result < 0 || result >= partitionCount) {
+			throw new IllegalArgumentException("Must not happen, total=" + totalThreads + ", partitions=" + partitionCount + ",  current="
+					+ currentThreadId);
+		}
+		return result;
+	}
+
 }

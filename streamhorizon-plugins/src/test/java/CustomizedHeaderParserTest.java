@@ -10,8 +10,8 @@ public class CustomizedHeaderParserTest {
 	public void testCustomizations() {
 		final CustomizedHeaderParser chp = new CustomizedHeaderParser();
 		chp.init("0", ",", new HashMap<String, String>());
-		final String line = "0,one,two,three,four,five,six,seven,eight,nine,11/12/2001 10:12:13,eleven";
-		final String[] attributes = new String[] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "date", "eleven" };
+		final String line = "0,one,two,three,four,five,six,seven,eight,11/12/2001 10:12:13,ten";
+		final String[] attributes = new String[] { "one", "two", "three", "four", "five", "six", "seven", "eight", "date", "ten" };
 		final Map<String, String> parsedAttributes = chp.parseHeader(line, attributes, createGlobalAttributes());
 		Assert.assertNotNull(parsedAttributes);
 		System.out.println(parsedAttributes);

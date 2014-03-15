@@ -53,4 +53,6 @@ public interface BaukConstants {
 
 	public static final String NATURAL_KEY_DELIMITER = "|";
 
+	public static final String BULK_FILE_NAMED_PIPE_PLACEHOLDER = "${bulkNamedPipePath}";
+
 }

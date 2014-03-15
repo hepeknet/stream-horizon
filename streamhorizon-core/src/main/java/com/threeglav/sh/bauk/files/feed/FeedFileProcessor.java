@@ -44,6 +44,8 @@ import com.threeglav.sh.bauk.util.StringUtil;
 
 public class FeedFileProcessor implements FileProcessor {
 
+	private static final int THREADS_PER_GROUP = 2;
+
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final AtomicInteger COUNTER = new AtomicInteger(0);
@@ -93,7 +95,7 @@ public class FeedFileProcessor implements FileProcessor {
 		inputFeedsProcessed = MetricsUtil.createMeter("(" + cleanFileMask + ") - processed files count");
 		inputFeedProcessingTime = MetricsUtil.createHistogram("(" + cleanFileMask + ") - processing time (millis)");
 		this.initializeFeedFileNameProcessor();
-		final int localProcessorId = COUNTER.incrementAndGet();
+		final int localProcessorId = this.calculateCurrentThreadId();
 		processorId = String.valueOf(localProcessorId);
 		log.debug("Number of feed processing instances is {}", processorId);
 		final boolean isMultiInstance = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
@@ -120,6 +122,36 @@ public class FeedFileProcessor implements FileProcessor {
 		bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
 				config.getBulkOutputDirectory());
 		this.validate();
+	}
+
+	private int calculateCurrentThreadId() {
+		int currentCounter = COUNTER.getAndIncrement();
+		boolean isJdbcLoadingOn = false;
+		final BulkLoadDefinition bulkLoadDefinition = factFeed.getBulkLoadDefinition();
+		if (bulkLoadDefinition != null) {
+			isJdbcLoadingOn = "jdbc".equalsIgnoreCase(bulkLoadDefinition.getOutputType());
+		}
+		if (isJdbcLoadingOn) {
+			log.debug("Checking whether to turn on jdbc thread partitioning");
+			final int jdbcThreadPartitionCount = ConfigurationProperties.getSystemProperty(
+					BaukEngineConfigurationConstants.JDBC_THREADS_PARTITION_COUNT, -1);
+			if (jdbcThreadPartitionCount > 0) {
+				final int totalEtlThreads = factFeed.getThreadPoolSettings().getEtlProcessingThreadCount();
+				if (totalEtlThreads > jdbcThreadPartitionCount) {
+					log.info("Will turn on JDBC thread partitioning. {} ETL threads will be grouped in {} partitions", totalEtlThreads,
+							jdbcThreadPartitionCount);
+					currentCounter = BaukUtil.calculatePartition(totalEtlThreads, jdbcThreadPartitionCount, currentCounter);
+				} else {
+					log.warn(
+							"Value for {} can not be higher than total number of etl threads. Will not turn on JDBC thread partitioning. Found value partition count {}",
+							BaukEngineConfigurationConstants.JDBC_THREADS_PARTITION_COUNT, jdbcThreadPartitionCount);
+				}
+			} else {
+				log.info("Will not turn on jdbc partitioning because {} is set to {} - must be positive integer",
+						BaukEngineConfigurationConstants.JDBC_THREADS_PARTITION_COUNT, jdbcThreadPartitionCount);
+			}
+		}
+		return currentCounter;
 	}
 
 	@Override

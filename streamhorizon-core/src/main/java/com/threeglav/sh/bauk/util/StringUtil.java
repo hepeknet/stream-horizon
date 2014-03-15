@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,18 +80,18 @@ public abstract class StringUtil {
 			if (isDebugEnabled) {
 				LOG.debug("Trying to replace {} with {}", stringEnclosedPlaceHolder, NULL_VALUE);
 			}
-			replaced = replaced.replace(stringEnclosedPlaceHolder, NULL_VALUE);
+			replaced = StringUtils.replace(replaced, stringEnclosedPlaceHolder, NULL_VALUE);
 			if (isDebugEnabled) {
 				LOG.debug("Trying to replace {} with {}", attributeName, NULL_VALUE);
 			}
-			replaced = replaced.replace(attributeName, NULL_VALUE);
+			replaced = StringUtils.replace(replaced, attributeName, NULL_VALUE);
 		} else {
 			if (isDebugEnabled) {
 				LOG.debug("Replacing {} with {}", attributeName, attributeValue);
 			}
 			// escape all quotes
-			final String cleanedUpValue = attributeValue.replace(dbStringLiteral, dbStringEscapeLiteral);
-			replaced = replaced.replace(attributeName, cleanedUpValue);
+			final String cleanedUpValue = StringUtils.replace(attributeValue, dbStringLiteral, dbStringEscapeLiteral);
+			replaced = StringUtils.replace(replaced, attributeName, cleanedUpValue);
 		}
 		return replaced;
 	}
