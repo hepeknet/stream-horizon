@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>StreamHorizon | Resources</title>
+<title>StreamHorizon | Resources & Downloads</title>
 <?php include 'header.php' ?>
 <div class="servicess center part clearfix">
   <header class="title">
@@ -19,9 +19,26 @@
   <section class="columnthird content">
 	<article id="doc" class="detail">
       <h2>StreamHorizon Documentation</h2>
-      <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview presentation (PDF)</a><br>
-	  <a href="./downloads/StreamHorizon_and_BigData_Overview.pdf">StreamHorizon and big data overview presentation (PDF)</a><br>
+	  <p>
+      <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview (PDF)</a>
+	  <br>
+		Detailed Overview of StreamHorizon platform. Document covers:
+		<ul>
+			<li>- Defines Target Project Profiles for StreamHrizon Platform</li>
+			<li>- Offers detailed Cost Effectiveness Analysis</li>
+			<li>- Gives High level Architecture insight</li>
+			<li>- Lists most commonly used Deployment Topologies</li>
+		</ul>
+	  </p>
+	  <p>
+	  <a href="./downloads/StreamHorizon_and_BigData_Overview.pdf">StreamHorizon and big data overview (PDF)</a><br>
+	  Overview of abilities of StreamHorizon Platform within Big Data domain (Hadoop, HDFS and other). <br>
+	  Document presents Big Data specific deployment strategies, integration patterns and design approach, thinking & topologies.
+	  </p>
+	  <p>
 	  <a href="./downloads/streamhorizon_test_demo_deployment_guide.pdf">Test demo deployment guide (PDF)</a><br>
+	  Offers detailed insight into detailed steps required to setup and test-run StreamHorizon demo data warehouse
+	  </p>
     </article>
     <article id="down" class="detail">
       <h2>StreamHorizon Downloads</h2>

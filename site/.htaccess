@@ -1,3 +1,6 @@
 # Do not remove this line, otherwise mod_rewrite rules will stop working
 RewriteBase /
 
+php_flag zlib.output_compression On
+php_value zlib.output_compression_level 5
+

@@ -59,8 +59,8 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 	}
 
-	private void createNamedPipe(final String threadName) {
-		final String fileName = DEFAULT_PIPE_DIRECTORY + "/bulkFile" + threadName + ".pipe";
+	private void createNamedPipe() {
+		final String fileName = this.getBulkFilePipeName();
 		final File f = new File(fileName);
 		final String command = "mkfifo " + fileName;
 		if (!f.exists()) {
@@ -77,26 +77,28 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 			throw new IllegalStateException("Was not able to find named pipe " + fileName);
 		}
 		preparedBulkReadCommand = bulkReadCommand.replace(BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER, fileName);
-		log.debug("Prepared bulk command to read from named pipe is [{}]", preparedBulkReadCommand);
+		if (isDebugEnabled) {
+			log.debug("Prepared bulk command to read from named pipe is [{}]", preparedBulkReadCommand);
+		}
+	}
+
+	private String getBulkFilePipeName() {
+		return DEFAULT_PIPE_DIRECTORY + "/bulkFile" + threadName + ".pipe";
 	}
 
 	@Override
 	public void startWriting(final Map<String, String> globalAttributes) {
 		if (threadName == null) {
 			threadName = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID);
-			this.createNamedPipe(threadName);
-			final String fileName = DEFAULT_PIPE_DIRECTORY + "/bulkFile" + threadName + ".pipe";
-			final File f = new File(fileName);
-			if (!f.exists()) {
-				throw new IllegalArgumentException("Unable to find named pipe [" + fileName + "]. This has to be created before starting engine!");
-			}
-			try {
-				writer = new BufferedWriter(new FileWriter(f));
-				log.debug("Successfully created writer to named pipe {}", fileName);
-			} catch (final IOException e) {
-				log.error("Error while creating writer to named pipe " + fileName + ".", e);
-				throw new IllegalStateException(e);
-			}
+			this.createNamedPipe();
+		}
+		final String fileName = this.getBulkFilePipeName();
+		final File f = new File(fileName);
+		if (!f.exists()) {
+			throw new IllegalArgumentException("Unable to find named pipe [" + fileName + "]! Check directory permissions!");
+		}
+		if (isDebugEnabled) {
+			log.debug("Named pipe {} exists", fileName);
 		}
 		try {
 			if (isDebugEnabled) {
@@ -108,6 +110,15 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 			}
 		} catch (final IOException e) {
 			log.error("Exception while executing [{}] in separate process. Details {}", preparedBulkReadCommand, e.getMessage());
+			throw new IllegalStateException(e);
+		}
+		try {
+			writer = new BufferedWriter(new FileWriter(f));
+			if (isDebugEnabled) {
+				log.debug("Successfully created writer to named pipe {}", fileName);
+			}
+		} catch (final IOException e) {
+			log.error("Error while creating writer to named pipe " + fileName + ".", e);
 			throw new IllegalStateException(e);
 		}
 	}
