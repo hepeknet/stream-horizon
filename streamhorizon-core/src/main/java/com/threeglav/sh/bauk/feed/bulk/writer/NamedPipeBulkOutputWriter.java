@@ -136,16 +136,21 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private boolean wasBulkLoadingSuccessful() {
 		try {
-			final int res = bulkLoadingProcess.waitFor();
-			final boolean success = (res == 0);
-			if (!success) {
-				log.warn("Command [{}] returned exit code {} - will report this as unsuccessful bulk loading", preparedBulkReadCommand, res);
-			} else {
-				if (isDebugEnabled) {
-					log.debug("Command [{}] returned exit code 0. Bulk loading was successful", preparedBulkReadCommand);
+			if (bulkLoadingProcess != null) {
+				final int res = bulkLoadingProcess.waitFor();
+				final boolean success = (res == 0);
+				if (!success) {
+					log.warn("Command [{}] returned exit code {} - will report this as unsuccessful bulk loading", preparedBulkReadCommand, res);
+				} else {
+					if (isDebugEnabled) {
+						log.debug("Command [{}] returned exit code 0. Bulk loading was successful", preparedBulkReadCommand);
+					}
 				}
+				return success;
+			} else {
+				log.error("Process is null");
+				return false;
 			}
-			return success;
 		} catch (final InterruptedException e) {
 			log.error("Exception while checking if bulk loading was successful", e);
 			throw new IllegalStateException(e);

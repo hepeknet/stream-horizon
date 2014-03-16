@@ -120,7 +120,8 @@
 			<!-- when set to 'none' if you want to test performance of processing without actually writing bulk file to bulk directory. 'none' value tests performance by eliminating write I/O -->
 			<!-- when set to 'zip' then .zip output file will be zip compressed and will have .zip extension added -->
 			<!-- when set to 'gz' then .gz output file will be gzip compressed and will have .gz extension added -->
-			<!-- when set to  'jdbc' you must specify types for all attributes in <bulkLoadFormatDefinition> tag and bulk records will be inserted using JDBC -->
+			<!-- when set to 'jdbc' you must specify types for all attributes in <bulkLoadFormatDefinition> tag and bulk records will be inserted using JDBC -->
+			<!-- when set to 'pipe' uses named pipes to transfer data. Have to follow same guidelins as 'file' -->
 			<bulkLoadDefinition outputType="file">
 				<!-- this section is executed by db loading threads <bulkLoadProcessingThreads> -->
 				<!-- <bulkLoadOutputExtension> defines the extension of bulk output file. db threads will consider only files with given extension for loading into database . for example, if you expect 'zip' files to be loaded change this extension to zip (there is no need to add dot character for example '.zip'). if property is left as null or empty, extension will not be used as part of matching files in the bulk load folder -->
@@ -371,6 +372,8 @@
 		<property name="bulk.file.acceptance.timeout.millis">2000</property>
 		<!-- batch size to be used when bulk loading using jdbc. Whenever number of batched values reaches this number it will be executed, committed and batching will start again -->
 		<property name="jdbc.bulk.loading.batch.size">10000</property>
+		<!-- applicable only when using JDBC output type. Ensures that identifiers assigned to ETL threads are only in range [0-partition.count-1] regardless how many ETL threads we have -->
+		<property name="jdbc.threads.partition.count">-1</property>
 		<!-- throughput.testing.mode eliminates read I/O bottleneck while testing. when set to true, etl threads <feedProcessingThreads> will each cache one random file and process it not by reading it from disk but by reading it from repeatedly (while test lasts) from internal buffer. this will give idea of throughput without read I/O bottleneck. it is advisable that source directory contains more files than number of etl threads <feedProcessingThreads> -->
 		<property name="throughput.testing.mode">false</property>
 		<!-- port to be used by http server for remote commands. If set to 0 then http server will not be started.
