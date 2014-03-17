@@ -39,6 +39,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private String currentStatementWithReplacedValues;
 	private final DataSource dataSource;
 	private final StatefulAttributeReplacer statefulReplacer;
+	private int batchCommitCounter;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -133,8 +134,8 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void startWriting(final Map<String, String> globalAttributes) {
 		rowCounter = 0;
+		batchCommitCounter = 0;
 		this.initializePreparedStatement(globalAttributes);
-		globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_STARTED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
 	}
 
 	@Override
@@ -192,8 +193,14 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private void doExecuteJdbcBatch(final Map<String, String> globalAttributes) {
 		try {
 			final long start = System.currentTimeMillis();
+			if (batchCommitCounter == 0) {
+				// we start counting jdbc insert at the first execute to database (per feed)
+				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_STARTED_PROCESSING_TIMESTAMP,
+						String.valueOf(System.currentTimeMillis()));
+			}
 			final int[] values = preparedStatement.executeBatch();
 			connection.commit();
+			batchCommitCounter++;
 			if (isDebugEnabled) {
 				int count = 0;
 				for (int i = 0; i < values.length; i++) {

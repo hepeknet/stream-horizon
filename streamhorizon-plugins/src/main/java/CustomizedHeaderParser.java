@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -56,7 +57,7 @@ public class CustomizedHeaderParser implements HeaderParser {
 	public void init(final String configuredHeaderStartsWithString, final String configuredDelimiter,
 			final Map<String, String> engineConfigurationProperties) {
 		startsWithString = configuredHeaderStartsWithString;
-		delimiterString = configuredDelimiter;
+		delimiterString = Pattern.quote(configuredDelimiter);
 		if (startsWithString == null) {
 			throw new IllegalStateException("Expected character for header not set");
 		}

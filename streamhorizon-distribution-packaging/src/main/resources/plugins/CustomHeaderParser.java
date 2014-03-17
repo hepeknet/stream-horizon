@@ -42,8 +42,7 @@ public class CustomHeaderParser implements HeaderParser {
 	 */
 	@Override
 	public Map<String, String> parseHeader(final String headerLine, final String[] declaredHeaderAttributeNames, final Map<String, String> globalAttributes){
-			Map<String, String> headerValues = new HashMap();
-			header.values.put("abc", "someCustomValue");
-			return headerValues;		
+		globalAttributes.put("abc", "someCustomValue");
+		return globalAttributes;		
 	}
 }
