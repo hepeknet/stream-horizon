@@ -51,11 +51,6 @@ public final class PositionalMappingHandler implements BulkLoadOutputValueHandle
 	}
 
 	@Override
-	public boolean hasCalculatePerFeedValues() {
-		return false;
-	}
-
-	@Override
 	public boolean closeShouldBeInvoked() {
 		return false;
 	}

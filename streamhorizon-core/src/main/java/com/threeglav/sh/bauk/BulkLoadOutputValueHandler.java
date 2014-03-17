@@ -10,8 +10,6 @@ public interface BulkLoadOutputValueHandler {
 
 	Object getLastLineBulkLoadValue(String[] parsedLine, Map<String, String> globalValues);
 
-	boolean hasCalculatePerFeedValues();
-
 	void closeCurrentFeed();
 
 	boolean closeShouldBeInvoked();

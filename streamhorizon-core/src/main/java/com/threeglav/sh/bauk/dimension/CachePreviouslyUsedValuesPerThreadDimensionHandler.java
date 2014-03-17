@@ -90,11 +90,6 @@ public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements
 	}
 
 	@Override
-	public boolean hasCalculatePerFeedValues() {
-		return delegate.hasCalculatePerFeedValues();
-	}
-
-	@Override
 	public boolean closeShouldBeInvoked() {
 		return true;
 	}

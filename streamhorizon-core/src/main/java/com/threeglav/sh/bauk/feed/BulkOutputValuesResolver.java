@@ -56,9 +56,6 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private final boolean hasCloseFeedValueHandlers;
 	private final int[] closeValueHandlerPositions;
 
-	// optimization - only invoke handlers interested in per-feed calculations
-	private final boolean hasCalculatePerFeedValueHandlers;
-	private final int[] perFeedValueHandlerPositions;
 	private final int uniqueResolverIdentifier;
 
 	// we want to reduce a chance that all threads try to resolve same values from database at the same time
@@ -89,25 +86,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
 		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
 		this.createOutputValueHandlers();
-		final List<Integer> perFeedValueHandlers = new ArrayList<>();
 		final List<Integer> closeFeedValueHandlers = new ArrayList<>();
 		for (int i = 0; i < outputValueHandlers.length; i++) {
-			if (outputValueHandlers[i].hasCalculatePerFeedValues()) {
-				perFeedValueHandlers.add(i);
-			}
 			if (outputValueHandlers[i].closeShouldBeInvoked()) {
 				closeFeedValueHandlers.add(i);
 			}
-		}
-		hasCalculatePerFeedValueHandlers = !perFeedValueHandlers.isEmpty();
-		if (hasCalculatePerFeedValueHandlers) {
-			perFeedValueHandlerPositions = new int[perFeedValueHandlers.size()];
-			int counter = 0;
-			for (final Integer pos : perFeedValueHandlers) {
-				perFeedValueHandlerPositions[counter++] = pos;
-			}
-		} else {
-			perFeedValueHandlerPositions = null;
 		}
 
 		hasCloseFeedValueHandlers = !closeFeedValueHandlers.isEmpty();
@@ -269,18 +252,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	public void startFeed(final Map<String, String> globalData) {
-		if (hasCalculatePerFeedValueHandlers) {
-			if (isDebugEnabled) {
-				log.debug("Starting feed with attributes {}", globalData);
-			}
-			for (int i = 0; i < perFeedValueHandlerPositions.length; i++) {
-				final int pos = perFeedValueHandlerPositions[i];
-				outputValueHandlers[pos].calculatePerFeedValues(globalData);
-			}
-			if (isDebugEnabled) {
-				log.debug("Started feed. In total have {} dimension handlers. Global attributes {}", outputValueHandlers.length, globalData);
-			}
-		}
+
 	}
 
 	public final Object[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {

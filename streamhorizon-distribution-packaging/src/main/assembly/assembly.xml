@@ -150,6 +150,16 @@
 			<includes>
 				<include>*:jar:*</include>
 			</includes>
+			<excludes>
+				<exclude>com.threeglav.streamhorizon.bauk:streamhorizon-plugins</exclude>
+			</excludes>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>ext-lib</outputDirectory>
+			<fileMode>666</fileMode>
+			<includes>
+				<include>com.threeglav.streamhorizon.bauk:streamhorizon-plugins</include>
+			</includes>
 		</dependencySet>
 	</dependencySets>
 </assembly>

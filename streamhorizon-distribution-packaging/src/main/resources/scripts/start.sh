@@ -36,7 +36,7 @@ JAVA_OPTS="$GC_OPTS $JAVA_OPTS"
 JAVA_OPTS="$JAVA_OPTS $additionalJVMProperties "
 
 # try setting these to half of total heap size
-#JAVA_OPTS="$JAVA_OPTS -XX:NewSize=1G -XX:MaxNewSize=2G"
+JAVA_OPTS="$JAVA_OPTS -XX:NewSize=2G -XX:MaxNewSize=2G"
 
 #JAVA_OPTS="$JAVA_OPTS -XX:+UnlockCommercialFeatures -XX:+FlightRecorder"
 #JAVA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"

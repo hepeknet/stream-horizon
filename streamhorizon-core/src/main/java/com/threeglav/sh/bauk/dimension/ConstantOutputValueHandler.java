@@ -33,11 +33,6 @@ public final class ConstantOutputValueHandler implements BulkLoadOutputValueHand
 	}
 
 	@Override
-	public boolean hasCalculatePerFeedValues() {
-		return false;
-	}
-
-	@Override
 	public boolean closeShouldBeInvoked() {
 		return false;
 	}

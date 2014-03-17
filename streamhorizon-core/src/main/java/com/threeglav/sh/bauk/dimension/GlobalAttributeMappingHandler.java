@@ -42,11 +42,6 @@ public final class GlobalAttributeMappingHandler implements BulkLoadOutputValueH
 	}
 
 	@Override
-	public boolean hasCalculatePerFeedValues() {
-		return false;
-	}
-
-	@Override
 	public boolean closeShouldBeInvoked() {
 		return false;
 	}

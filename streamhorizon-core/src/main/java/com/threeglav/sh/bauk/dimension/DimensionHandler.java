@@ -499,11 +499,6 @@ public class DimensionHandler extends ConfigAware implements BulkLoadOutputValue
 	}
 
 	@Override
-	public boolean hasCalculatePerFeedValues() {
-		return false;
-	}
-
-	@Override
 	public boolean closeShouldBeInvoked() {
 		return false;
 	}

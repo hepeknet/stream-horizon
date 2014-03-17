@@ -37,7 +37,7 @@ set "JAVA_OPTS=%GC_OPTS% %JAVA_OPTS%"
 set "JAVA_OPTS=%JAVA_OPTS% %additionalJVMProperties% "
 
 rem try setting these to half of total heap size
-rem set "JAVA_OPTS=%JAVA_OPTS% -XX:NewSize=1G -XX:MaxNewSize=2G"
+set "JAVA_OPTS=%JAVA_OPTS% -XX:NewSize=2G -XX:MaxNewSize=2G"
 
 rem set "JAVA_OPTS=%JAVA_OPTS% -XX:+UnlockCommercialFeatures -XX:+FlightRecorder"
 rem set "JAVA_OPTS=%JAVA_OPTS% -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
