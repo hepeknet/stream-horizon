@@ -27,7 +27,7 @@ public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements
 
 	private static final String NOT_SET_PREVIOUS_KEY_VALUE = "___";
 
-	private final DimensionHandler delegate;
+	private final InsertOnlyDimensionHandler delegate;
 	private String previouslyUsedKey = NOT_SET_PREVIOUS_KEY_VALUE;
 	private Integer previouslyUsedValue;
 	private final String dimensionName;
@@ -36,7 +36,7 @@ public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements
 	private final Map<String, Integer> perThreadCachedValues = new THashMap<>(5000);
 
 	public CachePreviouslyUsedValuesPerThreadDimensionHandler(final BulkLoadOutputValueHandler delegate) {
-		this.delegate = (DimensionHandler) delegate;
+		this.delegate = (InsertOnlyDimensionHandler) delegate;
 		dimensionName = this.delegate.getDimension().getName();
 		log.info("Will cache previously used values for dimension {}", dimensionName);
 		EngineEvents.registerForFlushDimensionCache(this);

@@ -25,7 +25,7 @@ import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.model.SqlStatements;
 
-public class DimensionHandlerTest {
+public class InsertOnlyDimensionHandlerTest {
 
 	private String lastRequiredFromCache;
 	private String lastStatementToExecute;
@@ -33,19 +33,19 @@ public class DimensionHandlerTest {
 	@Test
 	public void testNulls() {
 		try {
-			new DimensionHandler(null, this.createFactFeed(), this.createCacheHandler(), 0, this.createConfig());
+			new InsertOnlyDimensionHandler(null, this.createFactFeed(), this.createCacheHandler(), 0, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new DimensionHandler(this.createDimension(), null, this.createCacheHandler(), 0, this.createConfig());
+			new InsertOnlyDimensionHandler(this.createDimension(), null, this.createCacheHandler(), 0, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new DimensionHandler(this.createDimension(), this.createFactFeed(), null, 0, this.createConfig());
+			new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), null, 0, this.createConfig());
 			fail("Should fail");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
@@ -54,7 +54,7 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testSimple() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig());
 		Assert.assertEquals(5, dh.getMappedColumnPositions().length);
 		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
@@ -70,7 +70,7 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testNaturalKeyMappedToHeader() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(10, false), this.createFactFeed(), this.createCacheHandler(), 0,
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(10, false), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig());
 		Assert.assertEquals(10, dh.getMappedColumnPositions().length);
 		Assert.assertEquals(10, dh.getNaturalKeyPositionsInFeed().length);
@@ -91,7 +91,7 @@ public class DimensionHandlerTest {
 
 	@Test
 	public void testNaturalAndMapped() {
-		final DimensionHandler dh = spy(new DimensionHandler(this.createDimensionNaturalAndMapped(5), this.createFactFeed(),
+		final InsertOnlyDimensionHandler dh = spy(new InsertOnlyDimensionHandler(this.createDimensionNaturalAndMapped(5), this.createFactFeed(),
 				this.createCacheHandler(), 0, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		Assert.assertEquals(7, dh.getMappedColumnPositions().length);
@@ -129,14 +129,14 @@ public class DimensionHandlerTest {
 
 	@Test(expected = NullPointerException.class)
 	public void testNullParsedLine() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig());
 		dh.getBulkLoadValue(null, null);
 	}
 
 	@Test(expected = ArrayIndexOutOfBoundsException.class)
 	public void testSmallParsedLine() {
-		final DimensionHandler dh = new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig());
 		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null);
 	}
@@ -145,7 +145,7 @@ public class DimensionHandlerTest {
 	public void testLookups() {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh = spy(new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
+		final InsertOnlyDimensionHandler dh = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -162,7 +162,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = spy(new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
+		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -187,7 +187,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = spy(new DimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 1,
+		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 1,
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -212,7 +212,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = spy(new DimensionHandler(this.createDimension(true), this.createFactFeed(), this.createCacheHandler(), 1,
+		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(true), this.createFactFeed(), this.createCacheHandler(), 1,
 				this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -237,7 +237,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = Mockito.spy(new DimensionHandler(this.createDimension(0, true), this.createFactFeed(),
+		final InsertOnlyDimensionHandler dh1 = Mockito.spy(new InsertOnlyDimensionHandler(this.createDimension(0, true), this.createFactFeed(),
 				this.createCacheHandler(), 1, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
@@ -261,7 +261,7 @@ public class DimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final DimensionHandler dh1 = Mockito.spy(new DimensionHandler(this.createDimension(0, false), this.createFactFeed(), this
+		final InsertOnlyDimensionHandler dh1 = Mockito.spy(new InsertOnlyDimensionHandler(this.createDimension(0, false), this.createFactFeed(), this
 				.createCacheHandler(), 1, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };

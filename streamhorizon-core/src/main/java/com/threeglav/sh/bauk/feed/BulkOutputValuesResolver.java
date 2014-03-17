@@ -20,7 +20,7 @@ import com.threeglav.sh.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.dimension.CachePreviouslyUsedValuesPerThreadDimensionHandler;
 import com.threeglav.sh.bauk.dimension.ConstantOutputValueHandler;
-import com.threeglav.sh.bauk.dimension.DimensionHandler;
+import com.threeglav.sh.bauk.dimension.InsertOnlyDimensionHandler;
 import com.threeglav.sh.bauk.dimension.GlobalAttributeMappingHandler;
 import com.threeglav.sh.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
@@ -64,7 +64,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private final boolean reverseResolution;
 
 	// one handler per dimension only
-	static final Map<String, DimensionHandler> cachedDimensionHandlers = new THashMap<String, DimensionHandler>();
+	static final Map<String, InsertOnlyDimensionHandler> cachedDimensionHandlers = new THashMap<String, InsertOnlyDimensionHandler>();
 
 	static final Set<String> alreadyStartedCreatingDimensionNames = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
@@ -200,7 +200,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		} else if (bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
 			final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
 			log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
-			final DimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
+			final InsertOnlyDimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
 			if (cachedDimensionHandler != null) {
 				final boolean cachePerThreadEnabled = cachedDimensionHandler.getDimension().getCachePerThreadEnabled();
 				if (cachePerThreadEnabled) {
@@ -246,7 +246,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name [" + requiredDimensionName
 					+ "]. This dimension is used to create bulk output! Please check your configuration!");
 		}
-		final DimensionHandler dimHandler = new DimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
+		final InsertOnlyDimensionHandler dimHandler = new InsertOnlyDimensionHandler(dim, this.getFactFeed(), cacheInstanceManager.getCacheInstance(dim.getName()),
 				feedDataLineOffset, this.getConfig());
 		cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 	}
