@@ -205,7 +205,6 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				log.debug("For dimension {} caching per thread is disabled!");
 				dimensionHandler = cachedDimensionHandler;
 			}
-
 		} else {
 			throw new IllegalStateException("Was not able to find previously cached dimension handler for " + requiredDimensionName);
 		}

@@ -108,6 +108,8 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String DELETE_BULK_LOADED_FILES_PARAM_NAME = "bulk.delete.files.after.load";
 
+	public static final String BULK_LOADING_THREADS_PARTITION_COUNT = "bulk.load.threads.partition.count";
+
 	public static final String BAUK_INSTANCE_ID_PARAM_NAME = "BAUK_INSTANCE_ID";
 
 	// partitioning - multiple instances

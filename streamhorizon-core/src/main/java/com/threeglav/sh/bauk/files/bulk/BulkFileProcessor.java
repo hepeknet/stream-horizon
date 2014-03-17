@@ -59,7 +59,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.factFeed = factFeed;
-		final int localProcessorId = COUNTER.getAndIncrement();
+		final int localProcessorId = this.calculateCurrentThreadId();
 		processorId = String.valueOf(localProcessorId);
 		isDebugEnabled = log.isDebugEnabled();
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
@@ -108,6 +108,29 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 			log.info("Engine will record all bulk file submission attempts.");
 		}
 		this.initializeFeedFileNameProcessor();
+	}
+
+	private int calculateCurrentThreadId() {
+		int currentCounter = COUNTER.getAndIncrement();
+		log.debug("Checking whether to turn on bulk loading thread partitioning");
+		final int bulkLoadThreadPartitionCount = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.BULK_LOADING_THREADS_PARTITION_COUNT, -1);
+		if (bulkLoadThreadPartitionCount > 0) {
+			final int totalBulkLoadingThreads = factFeed.getThreadPoolSettings().getDatabaseProcessingThreadCount();
+			if (totalBulkLoadingThreads > bulkLoadThreadPartitionCount) {
+				log.info("Will turn on bulk loading thread partitioning. {} bulk loading threads will be grouped in {} partitions",
+						totalBulkLoadingThreads, bulkLoadThreadPartitionCount);
+				currentCounter = BaukUtil.calculatePartition(totalBulkLoadingThreads, bulkLoadThreadPartitionCount, currentCounter);
+			} else {
+				log.warn(
+						"Value for {} can not be higher than the total number of DB threads. Will not turn on bulk loading thread partitioning. Found value partition count {}",
+						BaukEngineConfigurationConstants.BULK_LOADING_THREADS_PARTITION_COUNT, bulkLoadThreadPartitionCount);
+			}
+		} else {
+			log.info("Will not turn on bulk load thread partitioning because {} is set to {} - must be positive integer",
+					BaukEngineConfigurationConstants.BULK_LOADING_THREADS_PARTITION_COUNT, bulkLoadThreadPartitionCount);
+		}
+		return currentCounter;
 	}
 
 	private void initializeFeedFileNameProcessor() {
