@@ -44,8 +44,6 @@ import com.threeglav.sh.bauk.util.StringUtil;
 
 public class FeedFileProcessor implements FileProcessor {
 
-	private static final int THREADS_PER_GROUP = 2;
-
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	private static final AtomicInteger COUNTER = new AtomicInteger(0);

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
-<title>StreamHorizon | MSG</title>
+<title>MSG</title>
 <head>
-<?php include 'header.php' ?>
+<?php include 'header-nologo.php' ?>
 <div class="contact center part clearfix">
   <header class="title">
     <p class="fleft"></p>
@@ -53,4 +53,4 @@ if (!isset($_POST["message"])){
 ?>
   </section>
 </div>
-<?php include 'footer.php' ?>
+<?php include 'footer-nologo.php' ?>

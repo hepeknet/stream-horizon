@@ -6,10 +6,7 @@ public final class LineBuffer {
 	private String line2;
 	private String olderLine;
 
-	public void add(final String line) {
-		if (line == null) {
-			return;
-		}
+	public final void add(final String line) {
 		if (line1 == null) {
 			line1 = line;
 			olderLine = line2;
@@ -21,7 +18,7 @@ public final class LineBuffer {
 		}
 	}
 
-	public String getLine() {
+	public final String getLine() {
 		if (line1 != null && line2 != null) {
 			if (olderLine == line1) {
 				olderLine = line2;
@@ -47,16 +44,11 @@ public final class LineBuffer {
 		}
 	}
 
-	public void clear() {
-		line1 = null;
-		line2 = null;
+	public final boolean canAdd() {
+		return line1 == null || line2 == null;
 	}
 
-	public boolean canAdd() {
-		return this.getSize() < 2;
-	}
-
-	public int getSize() {
+	public final int getSize() {
 		if (line1 != null && line2 != null) {
 			return 2;
 		} else if (line1 != null || line2 != null) {

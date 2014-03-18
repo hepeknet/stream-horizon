@@ -3,8 +3,6 @@ package com.threeglav.sh.bauk.feed;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.threeglav.sh.bauk.feed.LineBuffer;
-
 public class LineBufferTest {
 
 	@Test
@@ -82,7 +80,7 @@ public class LineBufferTest {
 	}
 
 	@Test
-	public void testAddign() {
+	public void testAdding() {
 		final LineBuffer lb = new LineBuffer();
 		Assert.assertEquals(0, lb.getSize());
 		while (lb.canAdd()) {
