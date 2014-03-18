@@ -43,11 +43,6 @@ public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements
 	}
 
 	@Override
-	public void calculatePerFeedValues(final Map<String, String> globalValues) {
-		delegate.calculatePerFeedValues(globalValues);
-	}
-
-	@Override
 	public Integer getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalValues) {
 		reusedForPerformance.setLength(0);
 		final String lookupKey = delegate.buildNaturalKeyForCacheLookup(parsedLine, globalValues, reusedForPerformance);

@@ -491,10 +491,6 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	}
 
 	@Override
-	public void calculatePerFeedValues(final Map<String, String> globalValues) {
-	}
-
-	@Override
 	public boolean closeShouldBeInvoked() {
 		return false;
 	}
