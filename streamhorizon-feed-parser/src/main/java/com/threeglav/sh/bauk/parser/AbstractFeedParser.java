@@ -54,7 +54,7 @@ public abstract class AbstractFeedParser implements FeedParser {
 		return this.splitLine(line, 0);
 	}
 
-	protected String[] splitLine(final String line, final int skipCharacters) {
+	private String[] splitLine(final String line, final int skipCharacters) {
 		try {
 			if (isSingleCharacterDelimiter) {
 				return this.splitCharacterDelimiter(line, skipCharacters);
