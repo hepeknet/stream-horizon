@@ -75,7 +75,6 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		if (isDebugEnabled) {
 			log.debug("Starting new feed with global attributes {}", globalAttributes);
 		}
-		bulkoutputResolver.startFeed(globalAttributes);
 		bulkOutputWriter.startWriting(globalAttributes);
 	}
 

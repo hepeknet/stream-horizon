@@ -256,10 +256,6 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 	}
 
-	public void startFeed(final Map<String, String> globalData) {
-
-	}
-
 	public final Object[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
 		if (reverseResolution) {
 			final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];

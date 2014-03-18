@@ -399,8 +399,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	final String buildNaturalKeyForCacheLookupOnlyOneNaturalKeyUseForLookup(final String[] parsedLine) {
 		final int key = naturalKeyPositionsInFeed[0];
 		try {
-			final String value = parsedLine[key];
-			return value;
+			return parsedLine[key];
 		} catch (final ArrayIndexOutOfBoundsException aioobe) {
 			log.error(
 					"Tried to get data from input feed, position {} but looks like there is not enough data values in this row. Did you configure footer correctly? Do all rows in input feed have same length?",
@@ -416,8 +415,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 			}
 			final int key = naturalKeyPositionsInFeed[i];
 			try {
-				final String value = parsedLine[key];
-				sb.append(value);
+				sb.append(parsedLine[key]);
 			} catch (final ArrayIndexOutOfBoundsException aioobe) {
 				log.error(
 						"Tried to get data from input feed, position {} but looks like there is not enough data values in this row. Did you configure footer correctly? Do all rows in input feed have same length?",
@@ -444,12 +442,10 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 								"Natural key {}.{} is not mapped to any of declared feed attributes. Will use value [{}] found in global attributes",
 								dimension.getName(), attributeName, globalAttributeValue);
 					}
-					final String value = globalAttributeValue;
-					sb.append(value);
+					sb.append(globalAttributeValue);
 				}
 			} else {
-				final String value = parsedLine[key];
-				sb.append(value);
+				sb.append(parsedLine[key]);
 			}
 		}
 		return sb.toString();
