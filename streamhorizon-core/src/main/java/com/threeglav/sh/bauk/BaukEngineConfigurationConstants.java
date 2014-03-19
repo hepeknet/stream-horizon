@@ -112,6 +112,8 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String BAUK_INSTANCE_ID_PARAM_NAME = "BAUK_INSTANCE_ID";
 
+	public static final String NAMED_PIPE_LOCATION_DIRECTORY_PATH = "named.pipes.location.directory.path";
+
 	// partitioning - multiple instances
 
 	public static final String MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME = "multi.instance.total.partition.count";

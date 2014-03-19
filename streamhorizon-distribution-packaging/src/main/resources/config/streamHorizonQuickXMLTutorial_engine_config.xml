@@ -372,9 +372,10 @@
 		<property name="bulk.file.acceptance.timeout.millis">2000</property>
 		<!-- batch size to be used when bulk loading using jdbc. Whenever number of batched values reaches this number it will be executed, committed and batching will start again -->
 		<property name="jdbc.bulk.loading.batch.size">10000</property>
-		<!-- applicable only when using JDBC output type. Ensures that identifiers assigned to ETL threads are only in range [0-partition.count-1] regardless how many ETL threads we have -->
+		<!-- applicable only when using JDBC output type. Ensures that identifiers assigned to ETL threads are only in range [0-partition.count-1] regardless how many ETL threads we have. If set to <=0 partitions will not be used -->
 		<property name="jdbc.threads.partition.count">-1</property>
-		<!-- applicable to DB threads when performing bulk loading (not when ETL threads are doing inserts like: pipes and JDBC). Ensures that identifiers assigned to DB threads are only in range [0-partition.count-1] regardless how many DB threads we have -->
+		<!-- applicable to DB threads when performing bulk loading (not when ETL threads are doing inserts like: pipes and JDBC). Ensures that identifiers bulkProcessingPartitionedThreadID assigned to DB threads are only in range [0-partition.count-1] regardless how many DB threads we have -->
+		<!-- if set to <=0 partitions will not be used -->
 		<property name="bulk.load.threads.partition.count">-1</property>
 		<!-- throughput.testing.mode eliminates read I/O bottleneck while testing. when set to true, etl threads <feedProcessingThreads> will each cache one random file and process it not by reading it from disk but by reading it from repeatedly (while test lasts) from internal buffer. this will give idea of throughput without read I/O bottleneck. it is advisable that source directory contains more files than number of etl threads <feedProcessingThreads> -->
 		<property name="throughput.testing.mode">false</property>

@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.threeglav.sh.bauk.BaukConstants;
+import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
+import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.CommandType;
@@ -16,8 +18,6 @@ import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
-
-	private static final String DEFAULT_PIPE_DIRECTORY = "/var/streamhorizon";
 
 	private BufferedWriter writer;
 	private String threadName;
@@ -83,7 +83,14 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	private String getBulkFilePipeName() {
-		return DEFAULT_PIPE_DIRECTORY + "/bulkFile" + threadName + ".pipe";
+		final String dataDirectory = ConfigurationProperties.getDbDataFolder();
+		final String directory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.NAMED_PIPE_LOCATION_DIRECTORY_PATH,
+				dataDirectory);
+		final File dir = new File(directory);
+		if (!dir.exists() || !dir.isDirectory()) {
+			throw new IllegalStateException("Unable to find directory [" + directory + "] to create named pipes!");
+		}
+		return directory + "/bulkFile" + threadName + ".pipe";
 	}
 
 	@Override

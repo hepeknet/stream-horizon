@@ -31,7 +31,7 @@ public class CustomProcessorResolver<T> {
 		T inst = classResolver.createInstanceFromClasspath();
 		if (inst == null) {
 			final String simpleClassName = StringUtil.getSimpleClassName(fullClassName);
-			final String appHome = ConfigurationProperties.getApplicationHome();
+			final String appHome = ConfigurationProperties.getApplicationHomeDirectory();
 			if (StringUtil.isEmpty(appHome)) {
 				log.error("Was not able to resolve application home. Please set {} system property",
 						BaukEngineConfigurationConstants.APP_HOME_SYS_PARAM_NAME);

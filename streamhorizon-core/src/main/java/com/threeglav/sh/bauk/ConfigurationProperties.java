@@ -148,22 +148,22 @@ public abstract class ConfigurationProperties {
 		return defaultValue;
 	}
 
-	public static String getApplicationHome() {
+	public static String getApplicationHomeDirectory() {
 		final String home = System.getProperty(BaukEngineConfigurationConstants.APP_HOME_SYS_PARAM_NAME);
 		LOG.debug("Application home is {}", home);
 		return home;
 	}
 
 	public static String getConfigFolder() {
-		return getApplicationHome() + BaukEngineConfigurationConstants.CONFIG_FOLDER_NAME;
+		return getApplicationHomeDirectory() + BaukEngineConfigurationConstants.CONFIG_FOLDER_NAME;
 	}
 
 	public static String getPluginFolder() {
-		return getApplicationHome() + BaukEngineConfigurationConstants.PLUGINS_FOLDER_NAME;
+		return getApplicationHomeDirectory() + BaukEngineConfigurationConstants.PLUGINS_FOLDER_NAME;
 	}
 
 	public static String getWebAppsFolder() {
-		return getApplicationHome() + BaukEngineConfigurationConstants.WEB_APPS_FOLDER_NAME;
+		return getApplicationHomeDirectory() + BaukEngineConfigurationConstants.WEB_APPS_FOLDER_NAME;
 	}
 
 	public static String getBaukInstanceIdentifier() {
@@ -171,7 +171,7 @@ public abstract class ConfigurationProperties {
 	}
 
 	public static String getDbDataFolder() {
-		final String fullFolderPath = getApplicationHome() + BaukEngineConfigurationConstants.DB_DATA_FOLDER + "instance_"
+		final String fullFolderPath = getApplicationHomeDirectory() + BaukEngineConfigurationConstants.DB_DATA_FOLDER + "instance_"
 				+ getBaukInstanceIdentifier() + "/";
 		final File dir = new File(fullFolderPath);
 		dir.mkdirs();

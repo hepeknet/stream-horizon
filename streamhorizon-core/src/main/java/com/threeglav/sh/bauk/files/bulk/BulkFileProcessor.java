@@ -40,6 +40,7 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 
 	private BulkFileSubmissionRecorder fileSubmissionRecorder;
 	private final String processorId;
+	private final String partitionedProcessorId;
 	private final String multiInstanceProcessorId;
 	private final boolean isDebugEnabled;
 	private final boolean outputProcessingStatistics;
@@ -59,15 +60,21 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.factFeed = factFeed;
-		final int localProcessorId = this.calculateCurrentThreadId();
-		processorId = String.valueOf(localProcessorId);
+		final int currentCounterValue = COUNTER.getAndIncrement();
+		processorId = String.valueOf(currentCounterValue);
+		final int calculatedPartitionedProcId = this.calculateCurrentThreadId(currentCounterValue);
+		if (calculatedPartitionedProcId < 0) {
+			partitionedProcessorId = null;
+		} else {
+			partitionedProcessorId = String.valueOf(calculatedPartitionedProcId);
+		}
 		isDebugEnabled = log.isDebugEnabled();
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
 				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
 		log.debug("Current processing id is {}", processorId);
 		final boolean isMultiInstance = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
 		if (isMultiInstance) {
-			final int multiInst = ConfigurationProperties.calculateMultiInstanceFeedProcessorId(localProcessorId, this.factFeed);
+			final int multiInst = ConfigurationProperties.calculateMultiInstanceFeedProcessorId(currentCounterValue, this.factFeed);
 			multiInstanceProcessorId = String.valueOf(multiInst);
 			log.info("Successfully set multi instance feed thread identifier to {}", multiInst);
 		} else {
@@ -110,8 +117,8 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		this.initializeFeedFileNameProcessor();
 	}
 
-	private int calculateCurrentThreadId() {
-		int currentCounter = COUNTER.getAndIncrement();
+	private int calculateCurrentThreadId(final int currentCounterValue) {
+		int currentCounter = -1;
 		log.debug("Checking whether to turn on bulk loading thread partitioning");
 		final int bulkLoadThreadPartitionCount = ConfigurationProperties.getSystemProperty(
 				BaukEngineConfigurationConstants.BULK_LOADING_THREADS_PARTITION_COUNT, -1);
@@ -256,6 +263,9 @@ public class BulkFileProcessor extends ConfigAware implements FileProcessor {
 		final Map<String, String> implicitAttributes = new THashMap<String, String>();
 		BaukUtil.populateEngineImplicitAttributes(implicitAttributes);
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_ID, processorId);
+		if (partitionedProcessorId != null) {
+			implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_PROCESSOR_PARTITIONED_ID, partitionedProcessorId);
+		}
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_MULTI_INSTANCE_BULK_PROCESSOR_ID, multiInstanceProcessorId);
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, fileNameOnly);
 		final String inputFileAbsolutePath = file.getFullFilePath();

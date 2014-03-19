@@ -12,7 +12,8 @@ public class EmailSender {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final String allErrorRecipients = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.EMAIL_RECIPIENTS_LIST_PARAM_NAME, null);
+	private final String allErrorRecipients = ConfigurationProperties.getSystemProperty(
+			BaukEngineConfigurationConstants.EMAIL_RECIPIENTS_LIST_PARAM_NAME, null);
 
 	private final JavaMailSenderImpl mailSender;
 
@@ -48,8 +49,8 @@ public class EmailSender {
 			return;
 		}
 		final SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom("BaukEtlEngine");
-		message.setSubject("BaukEtl - processing error");
+		message.setFrom("StreamHorizonEngine");
+		message.setSubject("StreamHorizon - processing error");
 		String[] recipients = null;
 		if (!StringUtil.isEmpty(allErrorRecipients)) {
 			recipients = allErrorRecipients.split(",");
