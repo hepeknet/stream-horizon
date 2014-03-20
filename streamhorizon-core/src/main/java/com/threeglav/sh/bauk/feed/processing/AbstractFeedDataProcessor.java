@@ -2,10 +2,12 @@ package com.threeglav.sh.bauk.feed.processing;
 
 import java.util.Map;
 
+import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.feed.BulkOutputValuesResolver;
 import com.threeglav.sh.bauk.feed.FeedParserComponent;
+import com.threeglav.sh.bauk.feed.LowCardinalityBulkOutputValuesResolver;
 import com.threeglav.sh.bauk.feed.bulk.writer.FileBulkOutputWriter;
 import com.threeglav.sh.bauk.feed.bulk.writer.GzipFileBulkOutputWriter;
 import com.threeglav.sh.bauk.feed.bulk.writer.JdbcBulkOutputWriter;
@@ -16,6 +18,7 @@ import com.threeglav.sh.bauk.io.BulkOutputWriter;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
+import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.CacheUtil;
@@ -66,8 +69,31 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 						+ " in built-in or user-defined bulk output writers. Please check your configuration and packaging.");
 			}
 		}
-		bulkoutputResolver = new BulkOutputValuesResolver(factFeed, config, CacheUtil.getCacheInstanceManager());
+		bulkoutputResolver = this.createBulkOutputResolver();
 		feedParserComponent = new FeedParserComponent(factFeed, config);
+	}
+
+	private BulkOutputValuesResolver createBulkOutputResolver() {
+		if (this.shouldCreateLowCardinalityResolver()) {
+			return new LowCardinalityBulkOutputValuesResolver(this.getFactFeed(), this.getConfig(), CacheUtil.getCacheInstanceManager());
+		} else {
+			return new BulkOutputValuesResolver(this.getFactFeed(), this.getConfig(), CacheUtil.getCacheInstanceManager());
+		}
+	}
+
+	private boolean shouldCreateLowCardinalityResolver() {
+		final boolean isFeatureDisabled = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.DISABLE_COMBINED_LOOKUP_FOR_LOW_CARDINALITY_DIMENSIONS, true);
+		if (isFeatureDisabled) {
+			return false;
+		}
+		int numberOfLowCardinalityDimensions = 0;
+		for (final Dimension dim : this.getConfig().getDimensions()) {
+			if (dim.getLowCardinality()) {
+				numberOfLowCardinalityDimensions++;
+			}
+		}
+		return numberOfLowCardinalityDimensions > 1;
 	}
 
 	@Override

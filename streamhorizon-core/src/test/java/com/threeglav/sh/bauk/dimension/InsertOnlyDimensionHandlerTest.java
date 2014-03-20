@@ -56,13 +56,13 @@ public class InsertOnlyDimensionHandlerTest {
 	public void testSimple() {
 		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig());
-		Assert.assertEquals(5, dh.getMappedColumnPositions().length);
+		Assert.assertEquals(5, dh.getMappedColumnPositionsInFeed().length);
 		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(5, dh.getMappedColumnNames().length);
 		Assert.assertEquals(5, dh.getNaturalKeyNames().length);
 		Assert.assertEquals("nk_2", dh.getMappedColumnNames()[2]);
-		Assert.assertEquals(6, dh.getMappedColumnPositions()[2]);
-		Assert.assertEquals(3, dh.getMappedColumnPositions()[1]);
+		Assert.assertEquals(6, dh.getMappedColumnPositionsInFeed()[2]);
+		Assert.assertEquals(3, dh.getMappedColumnPositionsInFeed()[1]);
 		Assert.assertEquals("nk_2", dh.getNaturalKeyNames()[2]);
 		Assert.assertEquals(6, dh.getNaturalKeyPositionsInFeed()[2]);
 		Assert.assertEquals(3, dh.getNaturalKeyPositionsInFeed()[1]);
@@ -72,19 +72,19 @@ public class InsertOnlyDimensionHandlerTest {
 	public void testNaturalKeyMappedToHeader() {
 		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(10, false), this.createFactFeed(), this.createCacheHandler(), 0,
 				this.createConfig());
-		Assert.assertEquals(10, dh.getMappedColumnPositions().length);
+		Assert.assertEquals(10, dh.getMappedColumnPositionsInFeed().length);
 		Assert.assertEquals(10, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(10, dh.getMappedColumnNames().length);
 		Assert.assertEquals(10, dh.getNaturalKeyNames().length);
 		Assert.assertEquals("nk_2", dh.getMappedColumnNames()[2]);
-		Assert.assertEquals(6, dh.getMappedColumnPositions()[2]);
-		Assert.assertEquals(3, dh.getMappedColumnPositions()[1]);
+		Assert.assertEquals(6, dh.getMappedColumnPositionsInFeed()[2]);
+		Assert.assertEquals(3, dh.getMappedColumnPositionsInFeed()[1]);
 		Assert.assertEquals("nk_2", dh.getNaturalKeyNames()[2]);
 		Assert.assertEquals(6, dh.getNaturalKeyPositionsInFeed()[2]);
 		Assert.assertEquals(3, dh.getNaturalKeyPositionsInFeed()[1]);
 
 		Assert.assertEquals("nk_9", dh.getMappedColumnNames()[9]);
-		Assert.assertEquals(-1, dh.getMappedColumnPositions()[9]);
+		Assert.assertEquals(-1, dh.getMappedColumnPositionsInFeed()[9]);
 		Assert.assertEquals("nk_9", dh.getNaturalKeyNames()[9]);
 		Assert.assertEquals(-1, dh.getNaturalKeyPositionsInFeed()[9]);
 	}
@@ -94,17 +94,17 @@ public class InsertOnlyDimensionHandlerTest {
 		final InsertOnlyDimensionHandler dh = spy(new InsertOnlyDimensionHandler(this.createDimensionNaturalAndMapped(5), this.createFactFeed(),
 				this.createCacheHandler(), 0, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh).getDbHandler();
-		Assert.assertEquals(7, dh.getMappedColumnPositions().length);
+		Assert.assertEquals(7, dh.getMappedColumnPositionsInFeed().length);
 		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(7, dh.getMappedColumnNames().length);
 		Assert.assertEquals(5, dh.getNaturalKeyNames().length);
 		Assert.assertEquals("nk_2", dh.getMappedColumnNames()[2]);
-		Assert.assertEquals(6, dh.getMappedColumnPositions()[2]);
+		Assert.assertEquals(6, dh.getMappedColumnPositionsInFeed()[2]);
 		Assert.assertEquals("mapped1", dh.getMappedColumnNames()[5]);
-		Assert.assertEquals(7, dh.getMappedColumnPositions()[5]);
+		Assert.assertEquals(7, dh.getMappedColumnPositionsInFeed()[5]);
 		Assert.assertEquals("mapped2", dh.getMappedColumnNames()[6]);
-		Assert.assertEquals(9, dh.getMappedColumnPositions()[6]);
-		Assert.assertEquals(3, dh.getMappedColumnPositions()[1]);
+		Assert.assertEquals(9, dh.getMappedColumnPositionsInFeed()[6]);
+		Assert.assertEquals(3, dh.getMappedColumnPositionsInFeed()[1]);
 		Assert.assertEquals("nk_2", dh.getNaturalKeyNames()[2]);
 		Assert.assertEquals(6, dh.getNaturalKeyPositionsInFeed()[2]);
 		Assert.assertEquals(3, dh.getNaturalKeyPositionsInFeed()[1]);

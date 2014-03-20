@@ -39,6 +39,9 @@ public class Dimension {
 	@XmlAttribute(required = false)
 	private Boolean exposeLastLineValueInContext = Boolean.FALSE;
 
+	@XmlAttribute(required = false)
+	private Boolean lowCardinality = Boolean.FALSE;
+
 	public String getName() {
 		return name;
 	}
@@ -93,6 +96,14 @@ public class Dimension {
 
 	public void setCachePerThreadEnabled(final Boolean cachePerThreadEnabled) {
 		this.cachePerThreadEnabled = cachePerThreadEnabled;
+	}
+
+	public Boolean getLowCardinality() {
+		return lowCardinality;
+	}
+
+	public void setLowCardinality(final Boolean lowCardinality) {
+		this.lowCardinality = lowCardinality;
 	}
 
 	/*

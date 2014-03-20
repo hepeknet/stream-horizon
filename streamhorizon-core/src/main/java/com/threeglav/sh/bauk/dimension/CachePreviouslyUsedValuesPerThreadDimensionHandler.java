@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.threeglav.sh.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.sh.bauk.events.EngineEvents;
+import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 /**
@@ -19,7 +20,7 @@ import com.threeglav.sh.bauk.util.StringUtil;
  * @author Borisa
  * 
  */
-public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements BulkLoadOutputValueHandler, Observer {
+public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements BulkLoadOutputValueHandler, Observer, DimensionHandler {
 
 	private static final int MAX_LOCALLY_CACHED_VALUES = 100000;
 
@@ -87,6 +88,16 @@ public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements
 	@Override
 	public boolean closeShouldBeInvoked() {
 		return true;
+	}
+
+	@Override
+	public Dimension getDimension() {
+		return delegate.getDimension();
+	}
+
+	@Override
+	public int[] getMappedColumnPositionsInFeed() {
+		return delegate.getMappedColumnPositionsInFeed();
 	}
 
 }

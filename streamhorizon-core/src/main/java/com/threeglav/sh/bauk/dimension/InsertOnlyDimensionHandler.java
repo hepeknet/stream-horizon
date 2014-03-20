@@ -35,8 +35,6 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 
 	private static final String DIMENSION_SK_SUFFIX = ".sk";
 
-	private static final int NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION = -1;
-
 	private static final int NUMBER_OF_PRE_CACHED_ROWS_WARNING = 500000;
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
@@ -466,16 +464,17 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes, sb);
 	}
 
+	@Override
+	public int[] getMappedColumnPositionsInFeed() {
+		return mappedColumnsPositionsInFeed;
+	}
+
 	/*
 	 * used for testing
 	 */
 
 	String[] getMappedColumnNames() {
 		return mappedColumnNames;
-	}
-
-	int[] getMappedColumnPositions() {
-		return mappedColumnsPositionsInFeed;
 	}
 
 	String[] getNaturalKeyNames() {

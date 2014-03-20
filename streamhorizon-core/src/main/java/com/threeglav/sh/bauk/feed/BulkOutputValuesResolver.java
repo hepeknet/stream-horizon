@@ -48,8 +48,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private static final String DIMENSION_PREFIX = "dimension.";
 	private static final String FEED_PREFIX = "feed.";
 
-	private final int bulkOutputFileNumberOfValues;
-	private final BulkLoadOutputValueHandler[] outputValueHandlers;
+	protected final int bulkOutputFileNumberOfValues;
+	protected final BulkLoadOutputValueHandler[] outputValueHandlers;
 	private final CacheInstanceManager cacheInstanceManager;
 
 	// optimization - only invoke handlers interested in per-feed calculations
@@ -256,7 +256,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 	}
 
-	public final Object[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
+	public Object[] resolveValues(final String[] inputValues, final Map<String, String> globalData) {
 		if (reverseResolution) {
 			final Object[] reusedForPerformanceOutputValues = new Object[bulkOutputFileNumberOfValues];
 			for (int i = bulkOutputFileNumberOfValues - 1; i >= 0; i--) {

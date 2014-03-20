@@ -114,6 +114,8 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String NAMED_PIPE_LOCATION_DIRECTORY_PATH = "named.pipes.location.directory.path";
 
+	public static final String DISABLE_COMBINED_LOOKUP_FOR_LOW_CARDINALITY_DIMENSIONS = "disable.dimension.combined.lookup";
+
 	// partitioning - multiple instances
 
 	public static final String MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME = "multi.instance.total.partition.count";

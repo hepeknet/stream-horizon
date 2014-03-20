@@ -353,6 +353,8 @@
 		<property name="dimension.precache.jdbc.fetch.size">10000</property>
 		<!-- whether pre-caching for all dimensions is disabled for both global <cache.provider> (Infinispan) and etl threads <feedProcessingThreads> -->
 		<property name="dimension.precaching.disabled">false</property>
+		<!-- should combined lookup feature for low cardinality dimensions be disabled -->
+		<property name="disable.dimension.combined.lookup">true</property>
 		<!-- should processing statistics be written to log file and console as files are processed -->
 		<property name="output.processing.statistics">false</property>
 		<!-- should average statistics be written to log file and console when engine is shut down -->
