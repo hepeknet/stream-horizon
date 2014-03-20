@@ -140,7 +140,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 			} else {
 				reusedForPerformance.append(resolvedData[i]);
 				// help GC
-				resolvedData[i] = null;
+				// resolvedData[i] = null;
 			}
 		}
 		reusedForPerformance.append(NEWLINE_STRING);

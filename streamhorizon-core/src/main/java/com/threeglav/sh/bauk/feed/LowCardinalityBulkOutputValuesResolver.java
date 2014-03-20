@@ -27,7 +27,7 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 	private int[][] dimensionFeedLocationMapping;
 	private int[] flattenedDimensionFeedLocationMapping;
 	private final boolean shouldTryCombinedLookups;
-	private boolean[] positionsUsedInCombinedLookup;
+	private boolean[] isPositionUsedInCombinedLookup;
 
 	public LowCardinalityBulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config,
 			final CacheInstanceManager cacheInstanceManager) {
@@ -58,14 +58,14 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 
 	private List<DimensionHandler> collectAllDimensionHandlers() {
 		final List<DimensionHandler> handlers = new LinkedList<>();
-		positionsUsedInCombinedLookup = new boolean[outputValueHandlers.length];
+		isPositionUsedInCombinedLookup = new boolean[outputValueHandlers.length];
 		int counter = 0;
 		for (final BulkLoadOutputValueHandler handler : outputValueHandlers) {
-			positionsUsedInCombinedLookup[counter] = false;
+			isPositionUsedInCombinedLookup[counter] = false;
 			if (handler instanceof DimensionHandler) {
 				final DimensionHandler dh = (DimensionHandler) handler;
 				if (this.isLowCardinalityFeedOnlyDimension(dh)) {
-					positionsUsedInCombinedLookup[counter] = true;
+					isPositionUsedInCombinedLookup[counter] = true;
 					handlers.add(dh);
 				}
 			}
@@ -102,39 +102,32 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 		if (!shouldTryCombinedLookups) {
 			return super.resolveValues(inputValues, globalData);
 		} else {
-			final Object[] resolvedData = new Object[bulkOutputFileNumberOfValues];
 			final String combinedLookupKey = this.createCombinedLookupValue(inputValues);
 			final Object[] cached = combinedLookupValues.get(combinedLookupKey);
 			if (cached != null) {
 				if (isDebugEnabled) {
 					log.debug("Found combined lookup cached value for {}", combinedLookupKey);
 				}
-				int positionCounter = 0;
 				for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-					if (positionsUsedInCombinedLookup[i]) {
-						resolvedData[i] = cached[positionCounter++];
-					} else {
-						resolvedData[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
+					if (!isPositionUsedInCombinedLookup[i]) {
+						cached[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
 					}
 				}
+				return cached;
 			} else {
 				if (isDebugEnabled) {
 					log.debug("Did not find combined lookup cached value for {}. Will create it and cache it", combinedLookupKey);
 				}
-				final Object[] dataToCache = new Object[dimensionFeedLocationMapping.length];
-				int positionCounter = 0;
+				final Object[] dataToCache = new Object[bulkOutputFileNumberOfValues];
 				for (int i = 0; i < bulkOutputFileNumberOfValues; i++) {
-					resolvedData[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
-					if (positionsUsedInCombinedLookup[i]) {
-						dataToCache[positionCounter++] = resolvedData[i];
-					}
+					dataToCache[i] = outputValueHandlers[i].getBulkLoadValue(inputValues, globalData);
 				}
-				combinedLookupValues.putIfAbsent(combinedLookupKey, dataToCache);
+				combinedLookupValues.put(combinedLookupKey, dataToCache);
 				if (isDebugEnabled) {
 					log.debug("Cached {}={}. Total size of map is {}", combinedLookupKey, Arrays.toString(dataToCache), combinedLookupValues.size());
 				}
+				return dataToCache;
 			}
-			return resolvedData;
 		}
 	}
 

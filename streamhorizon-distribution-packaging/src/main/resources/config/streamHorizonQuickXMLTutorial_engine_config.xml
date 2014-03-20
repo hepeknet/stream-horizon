@@ -271,13 +271,14 @@
 				1)surrogate key ('sk' from now on) for every dimension used in feed will be exposed as  context attribute under name ${DIMENSION_NAME.sk}. it will have value of last line in the feed
 				2)<exposeLastLineValueInContext> determines whether surrogate key caculated for the last line of every feed should be available in context as attribute named ${DIMENSION_NAME.sk}, default is false
 				3)<cachePerThreadEnabled> caching per thread for dimension makes sense only if cardinality for that dimension is low. avoid caching for dimensions of high cardinalities (over million distinct values). or alternatively test both scenarios to derive performance statistiscs
+				4) lowCardinality should be used only for dimensions which do not have many values - at most few thousand. This helps engine to optimize access to those dimensions
 				
 				three dimension types will be supported INSERT_ONLY, T1, T2. Currently only type="INSERT_ONLY"  is supported
 				
 				INSERT_ONLY-mode of operation assumes that all dimensional attributes are part of natural key. if exact match isn't found in cache inser statement will be issued and new generated surrogate key will be used. pelase see below
 				
 		-->
-		<dimension name="dimension1" type="INSERT_ONLY" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">
+		<dimension name="dimension1" type="INSERT_ONLY" exposeLastLineValueInContext="false" cachePerThreadEnabled="true" lowCardinality="true">
 			<!-- define how many elements can be stored in local cache for this dimension (local etl thread cache (not global (Infinispan cache)).  if not set then default value will be used <dimension.local.cache.default.size>  -->	
 			<localCacheMaxSize>10000</localCacheMaxSize>
 			<mappedColumns>
