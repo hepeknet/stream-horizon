@@ -14,6 +14,7 @@ import com.threeglav.sh.bauk.dimension.DimensionHandler;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.util.ArrayUtil;
 
 public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesResolver {
 
@@ -24,6 +25,7 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 	private final THashMap<String, Object[]> combinedLookupValues = new THashMap<String, Object[]>(MAX_COMBINED_LOOKUP_MAP_SIZE);
 
 	private int[][] dimensionFeedLocationMapping;
+	private int[] flattenedDimensionFeedLocationMapping;
 	private final boolean shouldTryCombinedLookups;
 	private boolean[] positionsUsedInCombinedLookup;
 
@@ -32,10 +34,13 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 		super(factFeed, config, cacheInstanceManager);
 		this.prepareAllGoodDimensions();
 		shouldTryCombinedLookups = dimensionFeedLocationMapping != null && dimensionFeedLocationMapping.length > 1;
+		if (shouldTryCombinedLookups) {
+			flattenedDimensionFeedLocationMapping = ArrayUtil.flattenArray(dimensionFeedLocationMapping);
+		}
 	}
 
 	private boolean isLowCardinalityFeedOnlyDimension(final DimensionHandler dimHandler) {
-		final boolean isLowCardinality = true;
+		final boolean isLowCardinality = dimHandler.getDimension().getLowCardinality();
 		boolean hasAllDataInFeed = true;
 		for (final int m : dimHandler.getMappedColumnPositionsInFeed()) {
 			if (m == DimensionHandler.NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
@@ -45,7 +50,7 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 		}
 		if (isLowCardinality && !hasAllDataInFeed) {
 			log.warn(
-					"Dimension {} is marked as low cardinality but not all of its data is coming from input feed. Will not be used for combined lookup optimization",
+					"Dimension {} is marked as low cardinality but not all of its data is coming from input feed. This dimension can not be used for combined lookup optimization",
 					dimHandler.getDimension().getName());
 		}
 		return isLowCardinality && hasAllDataInFeed;
@@ -135,13 +140,9 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 
 	private String createCombinedLookupValue(final String[] parsedValues) {
 		reusedForPerformance.setLength(0);
-		for (int i = 0; i < dimensionFeedLocationMapping.length; i++) {
+		for (int i = 0; i < flattenedDimensionFeedLocationMapping.length; i++) {
 			reusedForPerformance.append(BaukConstants.NATURAL_KEY_DELIMITER);
-			final int[] feedMappingsForDimension = dimensionFeedLocationMapping[i];
-			for (final int fm : feedMappingsForDimension) {
-				reusedForPerformance.append(parsedValues[fm]);
-				reusedForPerformance.append(BaukConstants.NATURAL_KEY_DELIMITER);
-			}
+			reusedForPerformance.append(parsedValues[i]);
 		}
 		return reusedForPerformance.toString();
 	}
