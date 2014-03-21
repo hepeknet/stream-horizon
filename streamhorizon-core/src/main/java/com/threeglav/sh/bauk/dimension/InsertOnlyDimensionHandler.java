@@ -244,7 +244,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 				}
 			}
 			log.debug("Pre-cached {} keys for {}", cachedValuesCount, dimension.getName());
-			if (cachedValuesCount > BaukConstants.LOW_CARDINALITY_DIMENSION_PRE_CACHE_KEYS_THRESHOLD && dimension.getLowCardinality()) {
+			if (cachedValuesCount > BaukConstants.LOW_CARDINALITY_DIMENSION_PRE_CACHE_KEYS_THRESHOLD && dimension.getUseInCombinedLookup()) {
 				log.warn(
 						"Dimension [{}] is marked as low cardinality but precaching statement returned in total {} values! Maximum recommended values for low cardinality dimensions is {}",
 						dimension.getName(), cachedValuesCount, BaukConstants.LOW_CARDINALITY_DIMENSION_PRE_CACHE_KEYS_THRESHOLD);

@@ -40,7 +40,7 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 	}
 
 	private boolean isLowCardinalityFeedOnlyDimension(final DimensionHandler dimHandler) {
-		final boolean isLowCardinality = dimHandler.getDimension().getLowCardinality();
+		final boolean isLowCardinality = dimHandler.getDimension().getUseInCombinedLookup();
 		boolean hasAllDataInFeed = true;
 		for (final int m : dimHandler.getMappedColumnPositionsInFeed()) {
 			if (m == DimensionHandler.NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {

@@ -17,7 +17,7 @@ import com.threeglav.sh.bauk.util.StringUtil;
 
 public abstract class AbstractBulkOutputWriter extends ConfigAware implements BulkOutputWriter {
 
-	protected final String NEWLINE_STRING = "\n";
+	static final String NEWLINE_STRING = System.getProperty("line.separator");
 
 	protected final String TEMPORARY_FILE_EXTENSION = ".shTmp";
 
@@ -61,6 +61,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		nullReplacementString = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_PARAM_NAME,
 				BaukEngineConfigurationConstants.BULK_OUTPUT_FILE_NULL_VALUE_DEFAULT);
 		log.info("Write buffer size is {} bytes", bufferSize);
+		log.info("Newline string will be {}", NEWLINE_STRING);
 	}
 
 	protected void renameTemporaryBulkOutputFile() {

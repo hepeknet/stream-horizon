@@ -89,7 +89,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 		}
 		int numberOfLowCardinalityDimensions = 0;
 		for (final Dimension dim : this.getConfig().getDimensions()) {
-			if (dim.getLowCardinality()) {
+			if (dim.getUseInCombinedLookup()) {
 				numberOfLowCardinalityDimensions++;
 			}
 		}

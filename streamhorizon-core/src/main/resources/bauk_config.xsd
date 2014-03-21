@@ -269,7 +269,7 @@
     <xs:attribute name="type" type="dimensionType" use="required"/>
     <xs:attribute name="cachePerThreadEnabled" type="xs:boolean"/>
     <xs:attribute name="exposeLastLineValueInContext" type="xs:boolean"/>
-    <xs:attribute name="lowCardinality" type="xs:boolean"/>
+    <xs:attribute name="useInCombinedLookup" type="xs:boolean"/>
   </xs:complexType>
 
   <xs:complexType name="mappedColumn">

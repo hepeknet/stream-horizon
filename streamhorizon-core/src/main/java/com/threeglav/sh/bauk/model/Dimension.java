@@ -40,7 +40,7 @@ public class Dimension {
 	private Boolean exposeLastLineValueInContext = Boolean.FALSE;
 
 	@XmlAttribute(required = false)
-	private Boolean lowCardinality = Boolean.FALSE;
+	private Boolean useInCombinedLookup = Boolean.FALSE;
 
 	public String getName() {
 		return name;
@@ -98,12 +98,12 @@ public class Dimension {
 		this.cachePerThreadEnabled = cachePerThreadEnabled;
 	}
 
-	public Boolean getLowCardinality() {
-		return lowCardinality;
+	public Boolean getUseInCombinedLookup() {
+		return useInCombinedLookup;
 	}
 
-	public void setLowCardinality(final Boolean lowCardinality) {
-		this.lowCardinality = lowCardinality;
+	public void setUseInCombinedLookup(final Boolean useInCombinedLookup) {
+		this.useInCombinedLookup = useInCombinedLookup;
 	}
 
 	/*
