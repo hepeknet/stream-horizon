@@ -10,6 +10,8 @@ public interface CacheInstance {
 
 	public void putAll(Map<String, Integer> values);
 
+	public void remove(String key);
+
 	public void clear();
 
 }

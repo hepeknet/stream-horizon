@@ -47,4 +47,9 @@ public final class HazelcastCacheInstance implements CacheInstance {
 		cache.clear();
 	}
 
+	@Override
+	public void remove(final String key) {
+		cache.remove(key);
+	}
+
 }

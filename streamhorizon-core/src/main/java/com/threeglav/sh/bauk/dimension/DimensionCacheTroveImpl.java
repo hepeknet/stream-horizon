@@ -106,7 +106,7 @@ public class DimensionCacheTroveImpl implements Observer, DimensionCache {
 			}
 			final DimensionKeysPair row = iter.next();
 			final int surrogateKeyValue = row.surrogateKey;
-			final String naturalKeyValue = row.naturalKey;
+			final String naturalKeyValue = row.lookupKey;
 			valuesToCache.put(naturalKeyValue, surrogateKeyValue);
 		}
 		if (!valuesToCache.isEmpty()) {
@@ -155,6 +155,14 @@ public class DimensionCacheTroveImpl implements Observer, DimensionCache {
 				dimensionCacheFlushCounter.inc();
 			}
 			log.info("Cleared caches for dimension {}", dimensionName);
+		}
+	}
+
+	@Override
+	public void removeFromCache(final String cacheKey) {
+		cacheInstance.remove(cacheKey);
+		if (!LOCAL_CACHE_DISABLED) {
+			localCache.remove(cacheKey);
 		}
 	}
 

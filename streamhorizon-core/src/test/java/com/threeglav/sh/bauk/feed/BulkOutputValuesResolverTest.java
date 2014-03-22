@@ -19,6 +19,7 @@ import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
+import com.threeglav.sh.bauk.model.DimensionType;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.model.SqlStatements;
@@ -162,6 +163,7 @@ public class BulkOutputValuesResolverTest {
 		final ArrayList<Dimension> dims = new ArrayList<Dimension>();
 		for (int i = 0; i < num; i++) {
 			final Dimension d = new Dimension();
+			d.setType(DimensionType.INSERT_ONLY);
 			d.setName("dim_" + i);
 			final ArrayList<MappedColumn> nat = new ArrayList<MappedColumn>();
 			final MappedColumn nk = new MappedColumn();

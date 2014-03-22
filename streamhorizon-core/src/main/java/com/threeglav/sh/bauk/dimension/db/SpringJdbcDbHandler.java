@@ -3,7 +3,6 @@ package com.threeglav.sh.bauk.dimension.db;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -22,7 +21,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.dimension.DimensionKeysPair;
@@ -177,7 +175,8 @@ public final class SpringJdbcDbHandler implements DbHandler {
 	}
 
 	@Override
-	public List<DimensionKeysPair> queryForDimensionKeys(final String dimensionName, final String statement, final int numberOfNaturalKeyColumns) {
+	public List<DimensionKeysPair> queryForDimensionKeys(final String dimensionName, final String statement, final int expectedTotalValues,
+			final RowMapper<DimensionKeysPair> rowMapper) {
 		if (StringUtil.isEmpty(statement)) {
 			throw new IllegalArgumentException("Statement must not be null");
 		}
@@ -185,14 +184,12 @@ public final class SpringJdbcDbHandler implements DbHandler {
 			throw new IllegalArgumentException("Dimension name must not be null");
 		}
 		try {
-			final int expectedTotalValues = numberOfNaturalKeyColumns + 1;
 			final long start = System.currentTimeMillis();
 			log.debug("About to execute query statement [{}]", statement);
 			log.info(
 					"Will expect in exactly {} results per row. First one should be surrogate key, others should be natural keys in order as defined in configuration!",
 					expectedTotalValues);
-			final List<DimensionKeysPair> allRows = jdbcTemplate.query(new BaukPreparedStatementCreator(statement), new DimensionKeysRowMapper(
-					dimensionName, statement, expectedTotalValues));
+			final List<DimensionKeysPair> allRows = jdbcTemplate.query(new BaukPreparedStatementCreator(statement), rowMapper);
 			final int rowsReturned = allRows.size();
 			final long total = System.currentTimeMillis() - start;
 			if (total > warningThreshold) {
@@ -255,48 +252,6 @@ public final class SpringJdbcDbHandler implements DbHandler {
 			return ps;
 		}
 
-	}
-
-	private static final class DimensionKeysRowMapper implements RowMapper<DimensionKeysPair> {
-
-		private final String dimensionName;
-		private final String statement;
-		private final int expectedTotalValues;
-		private boolean alreadyCheckedForColumnNumber = false;
-
-		private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-		private DimensionKeysRowMapper(final String dimensionName, final String statement, final int expectedTotalValues) {
-			this.dimensionName = dimensionName;
-			this.statement = statement;
-			this.expectedTotalValues = expectedTotalValues;
-		}
-
-		@Override
-		public DimensionKeysPair mapRow(final ResultSet rs, final int rowNum) throws SQLException {
-			if (!alreadyCheckedForColumnNumber) {
-				final ResultSetMetaData rsmd = rs.getMetaData();
-				final int columnsNumber = rsmd.getColumnCount();
-				if (columnsNumber != expectedTotalValues) {
-					log.error("For dimension {} sql statement {} does not return correct number of values", dimensionName, statement);
-					throw new IllegalStateException("SQL statement for dimension " + dimensionName
-							+ " should return surrogate key and all natural keys (in order as declared in configuration). In total expected "
-							+ expectedTotalValues + " columns, but database query returned " + columnsNumber + " values!");
-				}
-				alreadyCheckedForColumnNumber = true;
-			}
-			final DimensionKeysPair dkp = new DimensionKeysPair();
-			dkp.surrogateKey = rs.getInt(1);
-			final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
-			for (int i = 2; i <= expectedTotalValues; i++) {
-				if (i != 2) {
-					sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
-				}
-				sb.append(rs.getString(i));
-			}
-			dkp.naturalKey = sb.toString();
-			return dkp;
-		}
 	}
 
 }

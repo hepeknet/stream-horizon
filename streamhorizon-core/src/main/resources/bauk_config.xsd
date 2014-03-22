@@ -283,6 +283,7 @@
       <xs:element name="insertSingleRecord" type="xs:string" minOccurs="0"/>
       <xs:element name="selectRecordIdentifier" type="xs:string" minOccurs="0"/>
       <xs:element name="preCacheRecords" type="xs:string" minOccurs="0"/>
+      <xs:element name="updateSingleRecord" type="xs:string" minOccurs="0"/>
     </xs:all>
   </xs:complexType>
 

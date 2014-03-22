@@ -13,6 +13,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.jdbc.core.RowMapper;
 
 import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
@@ -54,8 +55,8 @@ public class InsertOnlyDimensionHandlerTest {
 
 	@Test
 	public void testSimple() {
-		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
-				this.createConfig());
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(),
+				this.createCacheHandler(), 0, this.createConfig());
 		Assert.assertEquals(5, dh.getMappedColumnPositionsInFeed().length);
 		Assert.assertEquals(5, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(5, dh.getMappedColumnNames().length);
@@ -70,8 +71,8 @@ public class InsertOnlyDimensionHandlerTest {
 
 	@Test
 	public void testNaturalKeyMappedToHeader() {
-		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(10, false), this.createFactFeed(), this.createCacheHandler(), 0,
-				this.createConfig());
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(10, false), this.createFactFeed(),
+				this.createCacheHandler(), 0, this.createConfig());
 		Assert.assertEquals(10, dh.getMappedColumnPositionsInFeed().length);
 		Assert.assertEquals(10, dh.getNaturalKeyPositionsInFeed().length);
 		Assert.assertEquals(10, dh.getMappedColumnNames().length);
@@ -129,15 +130,15 @@ public class InsertOnlyDimensionHandlerTest {
 
 	@Test(expected = NullPointerException.class)
 	public void testNullParsedLine() {
-		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
-				this.createConfig());
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(),
+				this.createCacheHandler(), 0, this.createConfig());
 		dh.getBulkLoadValue(null, null);
 	}
 
 	@Test(expected = ArrayIndexOutOfBoundsException.class)
 	public void testSmallParsedLine() {
-		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
-				this.createConfig());
+		final InsertOnlyDimensionHandler dh = new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(),
+				this.createCacheHandler(), 0, this.createConfig());
 		dh.getBulkLoadValue(new String[] { "a", "b", "c" }, null);
 	}
 
@@ -145,8 +146,8 @@ public class InsertOnlyDimensionHandlerTest {
 	public void testLookups() {
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final InsertOnlyDimensionHandler dh = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
-				this.createConfig()));
+		final InsertOnlyDimensionHandler dh = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(),
+				this.createCacheHandler(), 0, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh).getDbHandler();
 		final String[] parsedLine = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final HashMap<String, String> globalAttrs = new HashMap<String, String>();
@@ -162,8 +163,8 @@ public class InsertOnlyDimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 0,
-				this.createConfig()));
+		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(),
+				this.createCacheHandler(), 0, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -187,8 +188,8 @@ public class InsertOnlyDimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(), this.createCacheHandler(), 1,
-				this.createConfig()));
+		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(), this.createFactFeed(),
+				this.createCacheHandler(), 1, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -212,8 +213,8 @@ public class InsertOnlyDimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(true), this.createFactFeed(), this.createCacheHandler(), 1,
-				this.createConfig()));
+		final InsertOnlyDimensionHandler dh1 = spy(new InsertOnlyDimensionHandler(this.createDimension(true), this.createFactFeed(),
+				this.createCacheHandler(), 1, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -237,8 +238,8 @@ public class InsertOnlyDimensionHandlerTest {
 		lastStatementToExecute = null;
 		Assert.assertNull(lastRequiredFromCache);
 		Assert.assertNull(lastStatementToExecute);
-		final InsertOnlyDimensionHandler dh1 = Mockito.spy(new InsertOnlyDimensionHandler(this.createDimension(0, true), this.createFactFeed(),
-				this.createCacheHandler(), 1, this.createConfig()));
+		final InsertOnlyDimensionHandler dh1 = Mockito.spy(new InsertOnlyDimensionHandler(this.createDimension(0, true), this.createFactFeed(), this
+				.createCacheHandler(), 1, this.createConfig()));
 		doReturn(this.createDbHandler()).when(dh1).getDbHandler();
 		final String[] parsedLine1 = { "a", "b", "c", "d", "e", "f", "g", "h" };
 		final Map<String, String> headerValues = new HashMap<String, String>();
@@ -303,6 +304,11 @@ public class InsertOnlyDimensionHandlerTest {
 			public void clear() {
 
 			}
+
+			@Override
+			public void remove(final String key) {
+
+			}
 		};
 	}
 
@@ -334,7 +340,8 @@ public class InsertOnlyDimensionHandlerTest {
 			}
 
 			@Override
-			public List<DimensionKeysPair> queryForDimensionKeys(final String dimName, final String statement, final int numberOfNaturalKeyColumns) {
+			public List<DimensionKeysPair> queryForDimensionKeys(final String dimName, final String statement, final int numberOfNaturalKeyColumns,
+					final RowMapper<DimensionKeysPair> rowMapper) {
 				return null;
 			}
 

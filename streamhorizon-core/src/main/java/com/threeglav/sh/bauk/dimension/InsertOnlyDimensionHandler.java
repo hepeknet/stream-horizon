@@ -8,6 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.RowMapper;
 
 import com.codahale.metrics.Counter;
 import com.threeglav.sh.bauk.BaukConstants;
@@ -15,8 +16,11 @@ import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
+import com.threeglav.sh.bauk.dimension.db.InsertOnlyDimensionKeysRowMapper;
+import com.threeglav.sh.bauk.dimension.db.T1DimensionKeysRowMapper;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
+import com.threeglav.sh.bauk.model.DimensionType;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
@@ -50,15 +54,15 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	private String[] mappedColumnNames;
 	private int[] mappedColumnsPositionsInFeed;
 	private String[] naturalKeyNames;
-	private int[] naturalKeyPositionsInFeed;
+	protected int[] naturalKeyPositionsInFeed;
 	private final Counter dbAccessSelectCounter;
 	private final Counter dbAccessInsertCounter;
 	private final Counter dbAccessPreCachedValuesCounter;
-	private final int mappedColumnsPositionOffset;
-	private final String dbStringLiteral;
-	private final String dbStringEscapeLiteral;
-	private final boolean noNaturalKeyColumnsDefined;
-	private final DimensionCache dimensionCache;
+	protected final int mappedColumnsPositionOffset;
+	protected final String dbStringLiteral;
+	protected final String dbStringEscapeLiteral;
+	protected final boolean noNaturalKeyColumnsDefined;
+	protected final DimensionCache dimensionCache;
 	private final boolean hasNaturalKeysNotPresentInFeed;
 	private final boolean exposeLastLineValueInContext;
 	private final StatefulAttributeReplacer insertStatementReplacer;
@@ -228,10 +232,22 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 			log.debug("For dimension {} statement for pre-caching is {}", dimension.getName(), preCacheStatement);
 			final long start = System.currentTimeMillis();
 			int numberOfRows = 0;
+			int numberOfExpectedColumnsReturnedByPreCache = naturalKeyNames.length + 1;
+			RowMapper<DimensionKeysPair> rowMapper = new InsertOnlyDimensionKeysRowMapper(dimension.getName(), preCacheStatement,
+					numberOfExpectedColumnsReturnedByPreCache);
+			if (dimension.getType() == DimensionType.T1) {
+				numberOfExpectedColumnsReturnedByPreCache = mappedColumnNames.length + 1;
+				rowMapper = new T1DimensionKeysRowMapper(dimension.getName(), preCacheStatement, numberOfExpectedColumnsReturnedByPreCache,
+						dimension.getNumberOfNaturalKeys());
+			}
 			List<DimensionKeysPair> retrievedValues = this.getDbHandler().queryForDimensionKeys(dimension.getName(), preCacheStatement,
-					naturalKeyNames.length);
+					numberOfExpectedColumnsReturnedByPreCache, rowMapper);
 			int cachedValuesCount = 0;
 			if (retrievedValues != null) {
+				if (isDebugEnabled) {
+					log.debug("Passing {} for processing", retrievedValues);
+				}
+				this.processReturnedPreCacheValues(retrievedValues);
 				numberOfRows = retrievedValues.size();
 				if (numberOfRows > NUMBER_OF_PRE_CACHED_ROWS_WARNING) {
 					log.warn("For dimension {} will pre-cache {} rows. This might take a while!", dimension.getName(), numberOfRows);
@@ -259,6 +275,10 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		} else {
 			log.info("Could not find pre-cache sql statement for {}!", dimension.getName());
 		}
+	}
+
+	protected void processReturnedPreCacheValues(final List<DimensionKeysPair> retrievedValues) {
+		// used by subclasses
 	}
 
 	@Override
@@ -308,7 +328,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return surrogateKey;
 	}
 
-	private Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
+	protected Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
 		final String preparedInsertStatement = this.prepareStatement(parsedLine, globalAttributes, insertStatementReplacer);
 		try {
 			return this.tryInsertStatement(preparedInsertStatement);
@@ -365,7 +385,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return result.intValue();
 	}
 
-	private String prepareStatement(final String[] parsedLine, final Map<String, String> globalAttributes, final StatefulAttributeReplacer replacer) {
+	protected String prepareStatement(final String[] parsedLine, final Map<String, String> globalAttributes, final StatefulAttributeReplacer replacer) {
 		Map<String, String> mappedColumnValues = this.getAllMappedColumnValues(parsedLine);
 		if (mappedColumnValues != null) {
 			mappedColumnValues.putAll(globalAttributes);
@@ -399,7 +419,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return vals;
 	}
 
-	final String buildNaturalKeyForCacheLookupOnlyOneNaturalKeyUseForLookup(final String[] parsedLine) {
+	private final String buildNaturalKeyForCacheLookupOnlyOneNaturalKeyUseForLookup(final String[] parsedLine) {
 		final int key = naturalKeyPositionsInFeed[0];
 		try {
 			return parsedLine[key];
@@ -411,7 +431,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		}
 	}
 
-	final String buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(final String[] parsedLine, final StringBuilder sb) {
+	private final String buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(final String[] parsedLine, final StringBuilder sb) {
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			if (i != 0) {
 				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
@@ -429,7 +449,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return sb.toString();
 	}
 
-	final String buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(final String[] parsedLine, final Map<String, String> globalAttributes,
+	private final String buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(final String[] parsedLine, final Map<String, String> globalAttributes,
 			final StringBuilder sb) {
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			if (i != 0) {
@@ -454,7 +474,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return sb.toString();
 	}
 
-	final String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes, final StringBuilder sb) {
+	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes, final StringBuilder sb) {
 		if (hasNaturalKeysNotPresentInFeed) {
 			return this.buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(parsedLine, globalAttributes, sb);
 		} else if (hasOnlyOneNaturalKeyDefinedForLookup) {
@@ -464,7 +484,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		}
 	}
 
-	final String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		return this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes, sb);
 	}

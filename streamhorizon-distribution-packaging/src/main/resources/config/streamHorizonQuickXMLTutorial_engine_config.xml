@@ -313,17 +313,20 @@
 				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName2</preCacheRecords>
 			</sqlStatements>
 		</dimension>		
-		<dimension name="dimension3" type="INSERT_ONLY" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
+		<dimension name="dimension3" type="T1" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
 			<localCacheMaxSize>10000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="dataAttributeName_5" naturalKey="true" />
 				<mappedColumn name="dataAttributeName_6" naturalKey="true" />
+				<mappedColumn name="dataAttributeName_7" naturalKey="false" />
+				<mappedColumn name="dataAttributeName_8" naturalKey="false" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingleRecord>
 					insert into dimensionTableName3(dimensionSurrogateKey, tableAttribute1, tableAttribute2)
 					values (dimensionSequenceName.nextval,'${dataAttributeName_1}','${dataAttributeName_2}')
 				</insertSingleRecord>
+				<updateSingleRecord>update dimensionTableName3 set dataAttributeName_7='${dataAttributeName_7}', dataAttributeName_8='${dataAttributeName_8}' where dataAttributeName_5='${dataAttributeName_5}' and dataAttributeName_6='${dataAttributeName_6}'</updateSingleRecord>
 				<selectRecordIdentifier>select dimensionSurrogateKey from dimensionTableName3 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectRecordIdentifier>
 				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName3</preCacheRecords>
 			</sqlStatements>

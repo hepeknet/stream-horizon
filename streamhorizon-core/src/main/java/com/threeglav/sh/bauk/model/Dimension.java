@@ -121,4 +121,16 @@ public class Dimension {
 		return num;
 	}
 
+	public int getNumberOfNonNaturalKeys() {
+		int num = 0;
+		if (this.getMappedColumns() != null && !this.getMappedColumns().isEmpty()) {
+			for (final MappedColumn mp : this.getMappedColumns()) {
+				if (!mp.isNaturalKey()) {
+					num++;
+				}
+			}
+		}
+		return num;
+	}
+
 }

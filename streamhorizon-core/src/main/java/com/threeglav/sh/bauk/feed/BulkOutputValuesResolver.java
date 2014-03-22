@@ -23,6 +23,7 @@ import com.threeglav.sh.bauk.dimension.ConstantOutputValueHandler;
 import com.threeglav.sh.bauk.dimension.GlobalAttributeMappingHandler;
 import com.threeglav.sh.bauk.dimension.InsertOnlyDimensionHandler;
 import com.threeglav.sh.bauk.dimension.PositionalMappingHandler;
+import com.threeglav.sh.bauk.dimension.T1DimensionHandler;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
@@ -30,6 +31,7 @@ import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadFormatDefinition;
 import com.threeglav.sh.bauk.model.Data;
 import com.threeglav.sh.bauk.model.Dimension;
+import com.threeglav.sh.bauk.model.DimensionType;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
@@ -251,9 +253,17 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name [" + requiredDimensionName
 					+ "]. This dimension is used to create bulk output! Please check your configuration!");
 		}
-		final InsertOnlyDimensionHandler dimHandler = new InsertOnlyDimensionHandler(dim, this.getFactFeed(),
-				cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
-		cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
+		if (dim.getType() == DimensionType.INSERT_ONLY) {
+			final InsertOnlyDimensionHandler dimHandler = new InsertOnlyDimensionHandler(dim, this.getFactFeed(),
+					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
+			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
+		} else if (dim.getType() == DimensionType.T1) {
+			final T1DimensionHandler dimHandler = new T1DimensionHandler(dim, this.getFactFeed(),
+					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
+			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
+		} else {
+			throw new IllegalStateException("Was not able to find type for dimension " + requiredDimensionName);
+		}
 	}
 
 	/**

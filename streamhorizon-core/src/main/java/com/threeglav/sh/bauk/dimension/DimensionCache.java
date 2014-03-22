@@ -11,6 +11,8 @@ public interface DimensionCache {
 
 	public abstract void putInCache(String cacheKey, int cachedValue);
 
+	public abstract void removeFromCache(String cacheKey);
+
 	public abstract void update(Observable o, Object arg);
 
 }

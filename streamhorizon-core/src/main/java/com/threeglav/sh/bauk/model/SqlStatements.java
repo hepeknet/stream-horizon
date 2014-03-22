@@ -20,12 +20,15 @@ public class SqlStatements {
 	@XmlElement
 	private String preCacheRecords;
 
+	@XmlElement
+	private String updateSingleRecord;
+
 	public String getInsertSingle() {
 		return insertSingleRecord;
 	}
 
 	public void setInsertSingle(final String insertSingle) {
-		this.insertSingleRecord = insertSingle;
+		insertSingleRecord = insertSingle;
 	}
 
 	public String getSelectRecordIdentifier() {
@@ -33,7 +36,7 @@ public class SqlStatements {
 	}
 
 	public void setSelectRecordIdentifier(final String selectSurrogateKey) {
-		this.selectRecordIdentifier = selectSurrogateKey;
+		selectRecordIdentifier = selectSurrogateKey;
 	}
 
 	public String getPreCacheRecords() {
@@ -41,7 +44,15 @@ public class SqlStatements {
 	}
 
 	public void setPreCacheRecords(final String preCacheKeys) {
-		this.preCacheRecords = preCacheKeys;
+		preCacheRecords = preCacheKeys;
+	}
+
+	public String getUpdateSingleRecord() {
+		return updateSingleRecord;
+	}
+
+	public void setUpdateSingleRecord(final String updateSingleRecord) {
+		this.updateSingleRecord = updateSingleRecord;
 	}
 
 }
