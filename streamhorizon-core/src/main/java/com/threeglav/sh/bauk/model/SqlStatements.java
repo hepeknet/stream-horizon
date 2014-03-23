@@ -23,6 +23,9 @@ public class SqlStatements {
 	@XmlElement
 	private String updateSingleRecord;
 
+	@XmlElement
+	private String retireSingleRecord;
+
 	public String getInsertSingle() {
 		return insertSingleRecord;
 	}
@@ -53,6 +56,14 @@ public class SqlStatements {
 
 	public void setUpdateSingleRecord(final String updateSingleRecord) {
 		this.updateSingleRecord = updateSingleRecord;
+	}
+
+	public String getRetireSingleRecord() {
+		return retireSingleRecord;
+	}
+
+	public void setRetireSingleRecord(final String retireSingleRecord) {
+		this.retireSingleRecord = retireSingleRecord;
 	}
 
 }

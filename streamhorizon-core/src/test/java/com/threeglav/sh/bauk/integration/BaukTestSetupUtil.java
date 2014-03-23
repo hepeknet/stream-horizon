@@ -114,8 +114,11 @@ public class BaukTestSetupUtil {
 		stat.execute("insert into TEST_DIM (id,a,b) values (1,'a1','b1')");
 		stat.execute("insert into TEST_DIM (id,a,b) values (2,'a2','b2')");
 		stat.execute("insert into TEST_DIM (id,a,b) values (3,'a3','b3')");
-		stat.execute("insert into BIG_TEST_DIM (id,a,b,c,d) values (1,'a11','b11','c11','d11')");
-		stat.execute("insert into BIG_TEST_DIM (id,a,b,c,d) values (2,'a22','b22','c22','d22')");
+		stat.execute("insert into BIG_TEST_DIM (id,a,b,c,d, num_updates) values (1,'a11','b11','c11','d11', 0)");
+		stat.execute("insert into BIG_TEST_DIM (id,a,b,c,d, num_updates) values (2,'a22','b22','c22','d22', 0)");
+		stat.execute("insert into T2_TEST_DIM (id,a,b,c,d, valid) values (1,'a11','b11','c11','d11', 'Y')");
+		stat.execute("insert into T2_TEST_DIM (id,a,b,c,d, valid) values (2,'a11','b11','c11','d11', 'N')");
+		stat.execute("insert into T2_TEST_DIM (id,a,b,c,d, valid) values (3,'a22','b22','c22','d22', 'Y')");
 		conn.commit();
 		stat.close();
 		conn.close();
@@ -144,7 +147,7 @@ public class BaukTestSetupUtil {
 		final List<Map<String, String>> results = new LinkedList<>();
 		final Connection conn = getConnection();
 		final Statement stat = conn.createStatement();
-		stat.execute("select id, a, b, c, d from BIG_TEST_DIM order by id");
+		stat.execute("select id, a, b, c, d, num_updates from BIG_TEST_DIM order by id");
 		final ResultSet rs = stat.getResultSet();
 		while (rs.next()) {
 			final Map<String, String> row = new HashMap<String, String>();
@@ -153,6 +156,28 @@ public class BaukTestSetupUtil {
 			row.put("b", rs.getString(3));
 			row.put("c", rs.getString(4));
 			row.put("d", rs.getString(5));
+			row.put("num_updates", rs.getString(6));
+			results.add(row);
+		}
+		stat.close();
+		conn.close();
+		return results;
+	}
+
+	public static Collection<Map<String, String>> getDataFromT2Dimension() throws Exception {
+		final List<Map<String, String>> results = new LinkedList<>();
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("select id, a, b, c, d, valid from T2_TEST_DIM order by id");
+		final ResultSet rs = stat.getResultSet();
+		while (rs.next()) {
+			final Map<String, String> row = new HashMap<String, String>();
+			row.put("id", rs.getString(1));
+			row.put("a", rs.getString(2));
+			row.put("b", rs.getString(3));
+			row.put("c", rs.getString(4));
+			row.put("d", rs.getString(5));
+			row.put("valid", rs.getString(6));
 			results.add(row);
 		}
 		stat.close();
@@ -210,6 +235,7 @@ public class BaukTestSetupUtil {
 		try {
 			stat.execute("drop table TEST_DIM");
 			stat.execute("drop table BIG_TEST_DIM");
+			stat.execute("drop table T2_TEST_DIM");
 		} catch (final Exception ignored) {
 		}
 		try {
@@ -217,7 +243,8 @@ public class BaukTestSetupUtil {
 		} catch (final Exception ignored) {
 		}
 		stat.execute("create table TEST_DIM (id INTEGER NOT NULL AUTO_INCREMENT, a VARCHAR(100),b VARCHAR(100))");
-		stat.execute("create table BIG_TEST_DIM (id INTEGER NOT NULL AUTO_INCREMENT, a VARCHAR(100),b VARCHAR(100),c VARCHAR(100),d VARCHAR(100))");
+		stat.execute("create table BIG_TEST_DIM (id INTEGER NOT NULL AUTO_INCREMENT, a VARCHAR(100),b VARCHAR(100),c VARCHAR(100),d VARCHAR(100), num_updates INTEGER)");
+		stat.execute("create table T2_TEST_DIM (id INTEGER NOT NULL AUTO_INCREMENT, a VARCHAR(100),b VARCHAR(100),c VARCHAR(100),d VARCHAR(100), valid VARCHAR(1))");
 		stat.execute("create table TEST_FACT (f1 INTEGER,f2 INTEGER,f3 INTEGER, f4 VARCHAR(100))");
 		stat.execute("create table FEED_REC(cnt INTEGER, flag VARCHAR(10))");
 		stat.execute("create table BULK_LOAD_REC(cnt INTEGER, filepath VARCHAR(200))");

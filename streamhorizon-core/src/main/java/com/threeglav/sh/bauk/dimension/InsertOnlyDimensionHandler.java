@@ -235,7 +235,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 			int numberOfExpectedColumnsReturnedByPreCache = naturalKeyNames.length + 1;
 			RowMapper<DimensionKeysPair> rowMapper = new InsertOnlyDimensionKeysRowMapper(dimension.getName(), preCacheStatement,
 					numberOfExpectedColumnsReturnedByPreCache);
-			if (dimension.getType() == DimensionType.T1) {
+			if (dimension.getType() == DimensionType.T1 || dimension.getType() == DimensionType.T2) {
 				numberOfExpectedColumnsReturnedByPreCache = mappedColumnNames.length + 1;
 				rowMapper = new T1DimensionKeysRowMapper(dimension.getName(), preCacheStatement, numberOfExpectedColumnsReturnedByPreCache,
 						dimension.getNumberOfNaturalKeys());
@@ -329,6 +329,19 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	}
 
 	protected Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
+		final Integer surrogateKey = this.doExecuteInsertStatement(parsedLine, globalAttributes, naturalCacheKey);
+		if (surrogateKey != null) {
+			return surrogateKey;
+		}
+		final String preparedSelectStatement = this.prepareStatement(parsedLine, globalAttributes, selectStatementReplacer);
+		final Integer result = this.trySelectStatement(preparedSelectStatement);
+		if (result == null) {
+			log.warn("After failing to insert record could not find key by select. Select ctatement is {}", preparedSelectStatement);
+		}
+		return result;
+	}
+
+	protected Integer doExecuteInsertStatement(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
 		final String preparedInsertStatement = this.prepareStatement(parsedLine, globalAttributes, insertStatementReplacer);
 		try {
 			return this.tryInsertStatement(preparedInsertStatement);
@@ -349,12 +362,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 					exc);
 			log.error("Insert statement was {}", preparedInsertStatement);
 		}
-		final String preparedSelectStatement = this.prepareStatement(parsedLine, globalAttributes, selectStatementReplacer);
-		final Integer result = this.trySelectStatement(preparedSelectStatement);
-		if (result == null) {
-			log.warn("After failing to insert record could not find key by select. Select ctatement is {}", preparedSelectStatement);
-		}
-		return result;
+		return null;
 	}
 
 	private Integer trySelectStatement(final String preparedStatement) {

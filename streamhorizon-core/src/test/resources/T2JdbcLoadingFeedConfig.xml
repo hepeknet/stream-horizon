@@ -35,7 +35,7 @@
 				</bulkLoadInsert>
 				<bulkLoadFormatDefinition>
 					<attributes>
-						<attribute name="dimension.BIG_TEST_DIM" type="int" />
+						<attribute name="dimension.T2_TEST_DIM" type="int" />
 						<attribute name="feed.attr1" type="int" />
 						<attribute name="feed.attr2" type="int" />
 					</attributes>
@@ -48,7 +48,7 @@
 		</factFeed>
 	</factFeeds>
 	<dimensions>
-		<dimension name="BIG_TEST_DIM" type="T1">
+		<dimension name="T2_TEST_DIM" type="T2">
 			<localCacheMaxSize>50000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="a_in" naturalKey="true" />
@@ -58,11 +58,11 @@
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingleRecord>
-					insert into BIG_TEST_DIM(a,b,c,d) values ('${a_in}','${b_in}', '${c_in}', '${d_in}')
+					insert into T2_TEST_DIM(a,b,c,d,valid) values ('${a_in}','${b_in}', '${c_in}', '${d_in}', 'Y')
 				</insertSingleRecord>
-				<updateSingleRecord>update BIG_TEST_DIM set c='${c_in}', d='${d_in}', num_updates = num_updates + 1 where a='${a_in}' and b='${b_in}'</updateSingleRecord>
-				<selectRecordIdentifier>select id from BIG_TEST_DIM where a='${a_in}' and b='${b_in}'</selectRecordIdentifier>
-				<preCacheRecords>select id, a, b, c, d from BIG_TEST_DIM</preCacheRecords>
+				<selectRecordIdentifier>select id from T2_TEST_DIM where a='${a_in}' and b='${b_in}' and valid='Y'</selectRecordIdentifier>
+				<retireSingleRecord>update T2_TEST_DIM set valid='N' where a='${a_in}' and b='${b_in}' and valid='Y'</retireSingleRecord>
+				<preCacheRecords>select id, a, b, c, d from T2_TEST_DIM where valid='Y'</preCacheRecords>
 			</sqlStatements>
 		</dimension>
 	</dimensions>

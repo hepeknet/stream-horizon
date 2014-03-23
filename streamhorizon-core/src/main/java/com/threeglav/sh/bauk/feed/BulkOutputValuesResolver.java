@@ -24,6 +24,7 @@ import com.threeglav.sh.bauk.dimension.GlobalAttributeMappingHandler;
 import com.threeglav.sh.bauk.dimension.InsertOnlyDimensionHandler;
 import com.threeglav.sh.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.sh.bauk.dimension.T1DimensionHandler;
+import com.threeglav.sh.bauk.dimension.T2DimensionHandler;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
@@ -254,11 +255,18 @@ public class BulkOutputValuesResolver extends ConfigAware {
 					+ "]. This dimension is used to create bulk output! Please check your configuration!");
 		}
 		if (dim.getType() == DimensionType.INSERT_ONLY) {
+			log.debug("Dimension {} is type INSERT_ONLY", requiredDimensionName);
 			final InsertOnlyDimensionHandler dimHandler = new InsertOnlyDimensionHandler(dim, this.getFactFeed(),
 					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
 			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 		} else if (dim.getType() == DimensionType.T1) {
+			log.debug("Dimension {} is type T1", requiredDimensionName);
 			final T1DimensionHandler dimHandler = new T1DimensionHandler(dim, this.getFactFeed(),
+					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
+			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
+		} else if (dim.getType() == DimensionType.T2) {
+			log.debug("Dimension {} is type T2", requiredDimensionName);
+			final T2DimensionHandler dimHandler = new T2DimensionHandler(dim, this.getFactFeed(),
 					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
 			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 		} else {

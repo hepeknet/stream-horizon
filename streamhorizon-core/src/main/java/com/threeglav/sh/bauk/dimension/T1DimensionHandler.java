@@ -9,6 +9,7 @@ import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
+import com.threeglav.sh.bauk.model.DimensionType;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
@@ -20,9 +21,9 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 
 	private String[] nonNaturalKeyNames;
 	private int[] nonNaturalKeyPositionsInFeed;
-	private final StatefulAttributeReplacer updateStatementReplacer;
+	private StatefulAttributeReplacer updateStatementReplacer;
 	private final Counter dbAccessUpdateCounter;
-	private Map<String, String> naturalKeyToNonNaturalKeyMapping;
+	protected Map<String, String> naturalKeyToNonNaturalKeyMapping;
 
 	public T1DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
@@ -30,23 +31,24 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		if (dimension.getSqlStatements() != null && !StringUtil.isEmpty(dimension.getSqlStatements().getUpdateSingleRecord())) {
 			updateStatementReplacer = new StatefulAttributeReplacer(dimension.getSqlStatements().getUpdateSingleRecord(), dbStringLiteral,
 					dbStringEscapeLiteral);
-		} else {
-			throw new IllegalStateException("T1 dimension " + dimension.getName() + " must have updateSingleRecord statement defined");
+		} else if (dimension.getType() == DimensionType.T1) {
+			throw new IllegalStateException(dimension.getType() + " dimension " + dimension.getName()
+					+ " must have updateSingleRecord statement defined");
 		}
 		this.checkNoNaturalKeysExist();
 		this.findAllNonNaturalKeys();
 		dbAccessUpdateCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database updates executed");
 	}
 
-	private void checkNoNaturalKeysExist() {
+	protected void checkNoNaturalKeysExist() {
 		final int nonNaturalKeys = dimension.getNumberOfNonNaturalKeys();
 		if (nonNaturalKeys <= 0) {
-			throw new IllegalStateException("Dimension [" + dimension.getName()
-					+ "] can not be marked as T1 dimension because it does not have any non-natural keys defined!");
+			throw new IllegalStateException("Dimension [" + dimension.getName() + "] can not be marked as " + dimension.getType()
+					+ " dimension because it does not have any non-natural keys defined!");
 		}
 	}
 
-	private void findAllNonNaturalKeys() {
+	protected void findAllNonNaturalKeys() {
 		final int numberOfNonNaturalKeys = dimension.getNumberOfNonNaturalKeys();
 		nonNaturalKeyNames = new String[numberOfNonNaturalKeys];
 		nonNaturalKeyPositionsInFeed = new int[numberOfNonNaturalKeys];
@@ -66,7 +68,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			if (attrPosition == null) {
 				log.error("Was not able to find mapping for {}.{} in feed. T1 dimensions must have all their non natural keys available in feed!",
 						dimension.getName(), mappedColumnName);
-				throw new IllegalStateException("T1 dimension " + dimension.getName()
+				throw new IllegalStateException(dimension.getType() + " dimension " + dimension.getName()
 						+ " must have all its non-natural keys available in feed. Was not able to find " + mappedColumnName + " defined in feed!");
 			}
 			naturalKeyPositionValue = attrPosition + mappedColumnsPositionOffset;
@@ -86,7 +88,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		return sb.toString();
 	}
 
-	private void concatenateAllNaturalKeyValues(final String[] parsedLine, final StringBuilder sb) {
+	protected void concatenateAllNaturalKeyValues(final String[] parsedLine, final StringBuilder sb) {
 		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
 			if (i != 0) {
 				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
@@ -103,7 +105,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		}
 	}
 
-	private void concatenateAllNonNaturalKeyValues(final String[] parsedLine, final StringBuilder sb) {
+	protected void concatenateAllNonNaturalKeyValues(final String[] parsedLine, final StringBuilder sb) {
 		for (int i = 0; i < nonNaturalKeyPositionsInFeed.length; i++) {
 			if (i != 0) {
 				sb.append(BaukConstants.NON_NATURAL_KEY_DELIMITER);
@@ -157,6 +159,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		dimensionCache.removeFromCache(oldLookupKey);
 		final String newLookupKey = naturalKeyFromFeed + BaukConstants.NATURAL_NON_NATURAL_DELIMITER + nonNaturalKeyFromFeed;
 		dimensionCache.putInCache(newLookupKey, oldSurrogateKey);
+		naturalKeyToNonNaturalKeyMapping.put(naturalKeyFromFeed, nonNaturalKeyFromFeed);
 	}
 
 	@Override
@@ -171,17 +174,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			}
 			final boolean shouldDoUpdate = !this.nonNaturalKeysEqualInFeedAndInCache(parsedLine);
 			if (shouldDoUpdate) {
-				final String preparedUpdateStatement = this.prepareStatement(parsedLine, globalAttributes, updateStatementReplacer);
-				this.tryUpdateStatement(preparedUpdateStatement);
-				this.updateKeysInCache(parsedLine);
-				surrogateKey = dimensionCache.getSurrogateKeyFromCache(lookupKey);
-				if (surrogateKey == null) {
-					throw new IllegalStateException("Performed update operation but still was not able to find surrogate key for lookup ["
-							+ lookupKey + "]");
-				}
-				if (isDebugEnabled) {
-					log.debug("Surrogate key after update is {}. Lookup key is {}", surrogateKey, lookupKey);
-				}
+				surrogateKey = this.doPerformRecordUpdate(parsedLine, globalAttributes, lookupKey);
 			} else {
 				surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, lookupKey);
 			}
@@ -195,11 +188,21 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		return surrogateKey;
 	}
 
-	private void tryUpdateStatement(final String preparedStatement) {
-		this.getDbHandler().executeInsertOrUpdateStatement(preparedStatement, dimension.getName());
+	protected Integer doPerformRecordUpdate(final String[] parsedLine, final Map<String, String> globalAttributes, final String lookupKey) {
+		final String preparedUpdateStatement = this.prepareStatement(parsedLine, globalAttributes, updateStatementReplacer);
+		this.getDbHandler().executeInsertOrUpdateStatement(preparedUpdateStatement, dimension.getName());
 		if (dbAccessUpdateCounter != null) {
 			dbAccessUpdateCounter.inc();
 		}
+		this.updateKeysInCache(parsedLine);
+		final Integer surrogateKey = dimensionCache.getSurrogateKeyFromCache(lookupKey);
+		if (surrogateKey == null) {
+			throw new IllegalStateException("Performed update operation but still was not able to find surrogate key for lookup [" + lookupKey + "]");
+		}
+		if (isDebugEnabled) {
+			log.debug("Surrogate key after update is {}. Lookup key is {}", surrogateKey, lookupKey);
+		}
+		return surrogateKey;
 	}
 
 	@Override
