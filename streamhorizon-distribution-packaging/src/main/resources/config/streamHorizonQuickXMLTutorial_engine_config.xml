@@ -298,19 +298,21 @@
 				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName1</preCacheRecords>
 			</sqlStatements>
 		</dimension>
-		<dimension name="dimension2" type="INSERT_ONLY" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
+		<dimension name="dimension2" type="T2" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
 			<localCacheMaxSize>10000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="dataAttributeName_3" naturalKey="true" />
 				<mappedColumn name="dataAttributeName_4" naturalKey="true" />
+				<mappedColumn name="dataAttributeName_41" naturalKey="false" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingleRecord>
-					insert into dimensionTableName2(dimensionSurrogateKey, tableAttribute1, tableAttribute2)
-					values (dimensionSequenceName.nextval,'${dataAttributeName_1}','${dataAttributeName_2}')
+					insert into dimensionTableName2(dimensionSurrogateKey, tableAttribute1, tableAttribute2, dataAttributeName_41, valid)
+					values (dimensionSequenceName.nextval,'${dataAttributeName_1}','${dataAttributeName_2}', 'dataAttributeName_41', 'Y')
 				</insertSingleRecord>
 				<selectRecordIdentifier>select dimensionSurrogateKey from dimensionTableName2 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectRecordIdentifier>
-				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName2</preCacheRecords>
+				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName2 where valid='Y'</preCacheRecords>
+				<retireSingleRecord>update dimensionTableName2 set valid='N' where dataAttributeName_3='${dataAttributeName_3}' and dataAttributeName_4='${dataAttributeName_4}' and valid='Y'</retireSingleRecord>
 			</sqlStatements>
 		</dimension>		
 		<dimension name="dimension3" type="T1" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		

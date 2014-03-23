@@ -282,7 +282,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	}
 
 	@Override
-	public Integer getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
+	public final Integer getBulkLoadValue(final String[] parsedLine, final Map<String, String> globalAttributes) {
 		String naturalCacheKey = null;
 		if (!noNaturalKeyColumnsDefined) {
 			naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes);
@@ -328,7 +328,8 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return surrogateKey;
 	}
 
-	protected Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
+	protected final Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes,
+			final String naturalCacheKey) {
 		final Integer surrogateKey = this.doExecuteInsertStatement(parsedLine, globalAttributes, naturalCacheKey);
 		if (surrogateKey != null) {
 			return surrogateKey;
@@ -341,7 +342,8 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return result;
 	}
 
-	protected Integer doExecuteInsertStatement(final String[] parsedLine, final Map<String, String> globalAttributes, final String naturalCacheKey) {
+	protected final Integer doExecuteInsertStatement(final String[] parsedLine, final Map<String, String> globalAttributes,
+			final String naturalCacheKey) {
 		final String preparedInsertStatement = this.prepareStatement(parsedLine, globalAttributes, insertStatementReplacer);
 		try {
 			return this.tryInsertStatement(preparedInsertStatement);
@@ -393,7 +395,8 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		return result.intValue();
 	}
 
-	protected String prepareStatement(final String[] parsedLine, final Map<String, String> globalAttributes, final StatefulAttributeReplacer replacer) {
+	protected final String prepareStatement(final String[] parsedLine, final Map<String, String> globalAttributes,
+			final StatefulAttributeReplacer replacer) {
 		Map<String, String> mappedColumnValues = this.getAllMappedColumnValues(parsedLine);
 		if (mappedColumnValues != null) {
 			mappedColumnValues.putAll(globalAttributes);
@@ -498,7 +501,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	}
 
 	@Override
-	public int[] getMappedColumnPositionsInFeed() {
+	public final int[] getMappedColumnPositionsInFeed() {
 		return mappedColumnsPositionsInFeed;
 	}
 
