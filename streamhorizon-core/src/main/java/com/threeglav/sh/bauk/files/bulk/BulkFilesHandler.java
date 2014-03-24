@@ -44,6 +44,14 @@ public class BulkFilesHandler {
 		log.debug("Will use {} threads to process bulk load files for {}", bulkProcessingThreads, factFeed.getName());
 		if (bulkProcessingThreads <= 0) {
 			log.info("For feed {} bulk processing set to use non-positive number of threads. Will not be started!", factFeed.getName());
+		} else {
+			final boolean shouldBeEtlThreadsOnly = factFeed.isEtlOnlyFactFeed();
+			if (shouldBeEtlThreadsOnly) {
+				log.warn(
+						"Fact feed {} should be running ETL threads only (because of declared outputType in configuration file) but number of DB threads is set to {}. Will not start DB threads!",
+						factFeed.getName(), bulkProcessingThreads);
+				bulkProcessingThreads = -1;
+			}
 		}
 		this.validate();
 		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,

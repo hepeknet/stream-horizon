@@ -15,15 +15,20 @@ import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.CommandType;
 import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.util.BaukUtil;
+import com.threeglav.sh.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.sh.bauk.util.StringUtil;
 
-public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
+public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
+
+	private static boolean namedPipesDeleted = false;
 
 	private BufferedWriter writer;
 	private String threadName;
 	private final String bulkReadCommand;
 	private String preparedBulkReadCommand;
 	private Process bulkLoadingProcess;
+	private final StatefulAttributeReplacer bulkReadCommandReplacer;
 
 	public NamedPipeBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -34,6 +39,13 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 		if (!bulkReadCommand.contains(BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER)) {
 			throw new IllegalArgumentException("Bulk insert command must use named pipe attribute " + BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER);
+		}
+		bulkReadCommandReplacer = new StatefulAttributeReplacer(bulkReadCommand, config.getDatabaseStringLiteral(),
+				config.getDatabaseStringEscapeLiteral());
+		this.deleteAllNamedPipes();
+		final boolean isWindows = BaukUtil.isWindowsPlatform();
+		if (isWindows) {
+			log.error("Named pipes feature is not available on windows platform! Files will not be processed correctly!");
 		}
 	}
 
@@ -59,7 +71,35 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 	}
 
-	private void createNamedPipe() {
+	private void deleteAllNamedPipes() {
+		synchronized (NamedPipeBulkOutputWriter.class) {
+			if (!namedPipesDeleted) {
+				final String directory = this.getBulkFilePipeFolder();
+				log.debug("Deleting all named pipes in [{}]", directory);
+				final File dir = new File(directory);
+				final File[] files = dir.listFiles();
+				if (files != null) {
+					int counter = 0;
+					for (final File f : files) {
+						if (f.isFile() && f.getName().endsWith("pipe")) {
+							log.debug("Deleting file {}", f.getName());
+							final boolean deleted = f.delete();
+							if (!deleted) {
+								log.warn("Was not able to delete named pipe file {}. Please check permissions!", f.getName());
+							} else {
+								log.debug("Successfully deleted named pipe file {}", f.getName());
+								counter++;
+							}
+						}
+					}
+					log.debug("Successfully deleted {} named pipe files", counter);
+				}
+				namedPipesDeleted = true;
+			}
+		}
+	}
+
+	private void createNamedPipe(final Map<String, String> globalAttributes) {
 		final String fileName = this.getBulkFilePipeName();
 		final File f = new File(fileName);
 		final String command = "mkfifo " + fileName;
@@ -77,12 +117,13 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 			throw new IllegalStateException("Was not able to find named pipe " + fileName);
 		}
 		preparedBulkReadCommand = bulkReadCommand.replace(BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER, fileName);
+		preparedBulkReadCommand = bulkReadCommandReplacer.replaceAttributes(globalAttributes);
 		if (isDebugEnabled) {
 			log.debug("Prepared bulk command to read from named pipe is [{}]", preparedBulkReadCommand);
 		}
 	}
 
-	private String getBulkFilePipeName() {
+	private String getBulkFilePipeFolder() {
 		final String dataDirectory = ConfigurationProperties.getDbDataFolder();
 		final String directory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.NAMED_PIPE_LOCATION_DIRECTORY_PATH,
 				dataDirectory);
@@ -90,6 +131,11 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (!dir.exists() || !dir.isDirectory()) {
 			throw new IllegalStateException("Unable to find directory [" + directory + "] to create named pipes!");
 		}
+		return directory;
+	}
+
+	private String getBulkFilePipeName() {
+		final String directory = this.getBulkFilePipeFolder();
 		return directory + "/bulkFile" + threadName + ".pipe";
 	}
 
@@ -97,7 +143,7 @@ public class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void startWriting(final Map<String, String> globalAttributes) {
 		if (threadName == null) {
 			threadName = globalAttributes.get(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID);
-			this.createNamedPipe();
+			this.createNamedPipe(globalAttributes);
 		}
 		final String fileName = this.getBulkFilePipeName();
 		final File f = new File(fileName);

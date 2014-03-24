@@ -11,6 +11,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.threeglav.sh.bauk.util.StringUtil;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {})
@@ -154,7 +156,7 @@ public class FactFeed {
 	}
 
 	public void setThreadPoolSettings(final ThreadPoolSettings threadPoolSizes) {
-		this.threadPoolSettings = threadPoolSizes;
+		threadPoolSettings = threadPoolSizes;
 	}
 
 	public List<MappedResultsSQLStatement> getBeforeFeedProcessing() {
@@ -195,6 +197,23 @@ public class FactFeed {
 
 	public void setOnFeedProcessingFailure(final ArrayList<BaukCommand> onFeedProcessingFailure) {
 		this.onFeedProcessingFailure = onFeedProcessingFailure;
+	}
+
+	/**
+	 * Not represented in xml. Only ETL threads should be running if this is true.
+	 * 
+	 * @return
+	 */
+	public boolean isEtlOnlyFactFeed() {
+		if (this.getBulkLoadDefinition() != null) {
+			final BulkLoadDefinition bld = this.getBulkLoadDefinition();
+			final String outputType = bld.getOutputType();
+			if (!StringUtil.isEmpty(outputType)) {
+				final String outputTypeLower = outputType.toLowerCase();
+				return outputTypeLower.equals("jdbc") || outputTypeLower.equals("pipe");
+			}
+		}
+		return false;
 	}
 
 }
