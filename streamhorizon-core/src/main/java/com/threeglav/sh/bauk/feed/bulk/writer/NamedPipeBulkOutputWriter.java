@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -37,7 +38,8 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (StringUtil.isEmpty(bulkReadCommand)) {
 			throw new IllegalArgumentException("Bulk insert command must not be null or empty string");
 		}
-		if (!bulkReadCommand.contains(BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER)) {
+		if (!bulkReadCommand.contains(BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_START + BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER
+				+ BaukConstants.STATEMENT_PLACEHOLDER_DELIMITER_END)) {
 			throw new IllegalArgumentException("Bulk insert command must use named pipe attribute " + BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER);
 		}
 		bulkReadCommandReplacer = new StatefulAttributeReplacer(bulkReadCommand, config.getDatabaseStringLiteral(),
@@ -81,7 +83,7 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 				if (files != null) {
 					int counter = 0;
 					for (final File f : files) {
-						if (f.isFile() && f.getName().endsWith("pipe")) {
+						if (f.getName().endsWith("pipe")) {
 							log.debug("Deleting file {}", f.getName());
 							final boolean deleted = f.delete();
 							if (!deleted) {
@@ -106,8 +108,13 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (!f.exists()) {
 			log.debug("Named pipe [{}] does not exist. Will try to create it", fileName);
 			try {
-				Runtime.getRuntime().exec(command);
-				log.debug("Successfully created named pipe {}", fileName);
+				final Process proc = Runtime.getRuntime().exec(command);
+				try {
+					final int returnedCode = proc.waitFor();
+					log.debug("Successfully created named pipe {}. Returned code was {}", fileName, returnedCode);
+				} catch (final InterruptedException e) {
+					log.error("Exception while waiting for pipe to be created", e);
+				}
 			} catch (final IOException e) {
 				log.error("Exception while creating named pipe {}. Details {}", fileName, e.getMessage());
 				throw new IllegalStateException("Was not able to create named pipe " + fileName + ". Executed command was [" + command + "]", e);
@@ -116,8 +123,10 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (!f.exists()) {
 			throw new IllegalStateException("Was not able to find named pipe " + fileName);
 		}
-		preparedBulkReadCommand = bulkReadCommand.replace(BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER, fileName);
-		preparedBulkReadCommand = bulkReadCommandReplacer.replaceAttributes(globalAttributes);
+		final Map<String, String> global = new HashMap<>();
+		global.putAll(globalAttributes);
+		global.put(BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER, fileName);
+		preparedBulkReadCommand = bulkReadCommandReplacer.replaceAttributes(global);
 		if (isDebugEnabled) {
 			log.debug("Prepared bulk command to read from named pipe is [{}]", preparedBulkReadCommand);
 		}
@@ -155,7 +164,7 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 		try {
 			if (isDebugEnabled) {
-				log.debug("Executing [{}] in separate process", preparedBulkReadCommand);
+				log.debug("Executing command [{}] in separate process", preparedBulkReadCommand);
 			}
 			bulkLoadingProcess = Runtime.getRuntime().exec(preparedBulkReadCommand);
 			if (isDebugEnabled) {

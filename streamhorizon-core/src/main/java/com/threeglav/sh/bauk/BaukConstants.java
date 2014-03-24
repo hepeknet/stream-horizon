@@ -58,6 +58,6 @@ public interface BaukConstants {
 	public static final String NON_NATURAL_KEY_DELIMITER = "*";
 	public static final String NATURAL_NON_NATURAL_DELIMITER = "#";
 
-	public static final String BULK_FILE_NAMED_PIPE_PLACEHOLDER = "${bulkNamedPipePath}";
+	public static final String BULK_FILE_NAMED_PIPE_PLACEHOLDER = "bulkNamedPipePath";
 
 }
