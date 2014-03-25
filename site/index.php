@@ -7,32 +7,32 @@
 <div class="main center">
   <section class="part clearfix">
     <header class="title clearfix">
-      <p class="fleft"></p>
+      <p class="fleft"><h2>Data Processing & Data Integration Platform</h2></p>
       <a href="streamhorizon.php" class="arrow more fright">Find out more about StreamHorizon</a> 
 	</header>
     <div class="column2 mright">
       <p>
 		<ul>
-			<li>- Process 1 million records per second on a commodity server</li>
-			<li>- Process 250 thousand records per seconds on your desktop</li>
-			<li>- Fully configurable via single XML file. Enables you to deliver Data Mart without writing a single line of ETL code</li>
+			<li>- Data Processing throughput of <b>1+ Million Records per second</b> (single commodity server)</li>
+			<li>- Quick Time to Market – deploy StreamHorizon & <b>deliver</b> your Data integration project <b>in a single week</b></li>
 		</ul>
 		<br>
 		<ul>
-			<li>- <a href="resources.php">Download</a> and test run StreamHorizon in less than 60 minutes</li>
-			<li>- Deliver your Data Warehouse with StreamHorizon in 1-3 days by configuring StreamHorizon xml configuration file</li>
+			<li>- Fully <b>Configurable</b> via XML – making a project <b>ideal outsourcing candidate</b></li>
+			<li>- <b>Utilizes skills of your IT staff</b> - requires no ETL platform specific knowledge</li>
 		</ul>
 		<br>
 		<ul>
-			<li>- Tested on Linux, Solaris, Windows, EC2</li>
-			<li>- StreamHorizon as your Data Processing (ETL) Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
+			<li>- <b>Total Project Cost / Data Throughput</b> ratio = 0.2 (<b>20% of budget required</b> in comparison with Market Leaders)</li>
+			<li>- <b>1 Hour Proof of Concept</b> – <a href="./resources.php">download</a> and test-run StreamHorizon’s demo Data Warehousing project</li>
 		</ul>
 		<br>
 		<ul>
-			<li>- Run StreamHorizon on your Compute Grid (<a href="downloads/StreamHorizon_Overview.pdf">more info</a>)</li>
-			<li>- Horizontally and vertically scalable</li>
-			<li>- Highly Available</li>
-			<li>- Clusterable</li>
+			<li>- Runs on <b>Big Data</b> clusters: <b>Hadoop</b>, HDFS, Kafka, Storm, Hive, Impala and more…</li>
+			<li>- Run your <b>StreamHorizon Data Processing Cluster</b> (ETL grid)</li>
+			<li>- Runs on <b>Compute Grid</b> (alongside grid libraries like Quant Library or any other)</li>
+			<li>- Horizontally & Vertically scalable, Highly Available (HA), Clusterable</li>
+			<li>- Running on Linux, Solaris, Windows, Compute Clouds (EC2 & others)</li>
 		</ul>
 	  </p>
     </div>

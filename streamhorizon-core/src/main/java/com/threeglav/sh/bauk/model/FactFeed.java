@@ -216,4 +216,18 @@ public class FactFeed {
 		return false;
 	}
 
+	public int getMinimumRequiredJdbcConnections() {
+		if (this.isEtlOnlyFactFeed()) {
+			return this.getThreadPoolSettings().getEtlProcessingThreadCount();
+		}
+		int minCount = 0;
+		if (this.getThreadPoolSettings().getDatabaseProcessingThreadCount() > 0) {
+			minCount += this.getThreadPoolSettings().getDatabaseProcessingThreadCount();
+		}
+		if (this.getThreadPoolSettings().getEtlProcessingThreadCount() > 0) {
+			minCount += this.getThreadPoolSettings().getEtlProcessingThreadCount();
+		}
+		return minCount;
+	}
+
 }

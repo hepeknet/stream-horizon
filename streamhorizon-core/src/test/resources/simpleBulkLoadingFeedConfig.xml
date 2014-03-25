@@ -9,6 +9,7 @@
 	</properties>
 	<connectionProperties>
 		<jdbcUrl>jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</jdbcUrl>
+		<jdbcPoolSize>20</jdbcPoolSize>
 	</connectionProperties>
 	<factFeeds>
 		<factFeed name="TEST_bulk_Feed" type="full">

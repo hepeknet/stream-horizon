@@ -88,6 +88,23 @@ class ConfigurationValidator {
 						baukInstanceIdentifier);
 			}
 		}
+		this.validateSizeOfJdbcConnectionPool();
+	}
+
+	private void validateSizeOfJdbcConnectionPool() {
+		final int maxConnections = config.getConnectionProperties().getJdbcPoolSize();
+		int minRequired = 0;
+		final int safetyNet = 10;
+		minRequired += safetyNet;
+		for (final FactFeed ff : config.getFactFeeds()) {
+			final int minRequiredPerFeed = ff.getMinimumRequiredJdbcConnections();
+			minRequired += minRequiredPerFeed;
+		}
+		if (maxConnections < minRequired) {
+			throw new IllegalStateException("JDBC pool size is too small. At least " + minRequired
+					+ " connections are needed for engine to function properly! Your current settings allow maximum " + maxConnections
+					+ " to be created!");
+		}
 	}
 
 	private void validateFactFeed(final FactFeed ff) {
@@ -289,6 +306,7 @@ class ConfigurationValidator {
 
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FULL_FILE_PATH);
+		attrs.add(BaukConstants.BULK_FILE_NAMED_PIPE_PLACEHOLDER);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_ALREADY_SUBMITTED);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME);
 		attrs.add(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_RECEIVED_FOR_PROCESSING_TIMESTAMP);
