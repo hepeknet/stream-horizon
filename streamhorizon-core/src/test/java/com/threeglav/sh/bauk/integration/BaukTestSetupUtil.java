@@ -116,6 +116,15 @@ public class BaukTestSetupUtil {
 		stat.execute("insert into TEST_DIM (id,a,b) values (3,'a3','b3')");
 		stat.execute("insert into BIG_TEST_DIM (id,a,b,c,d, num_updates) values (1,'a11','b11','c11','d11', 0)");
 		stat.execute("insert into BIG_TEST_DIM (id,a,b,c,d, num_updates) values (2,'a22','b22','c22','d22', 0)");
+		conn.commit();
+		stat.close();
+		conn.close();
+	}
+
+	public void populateT2Dimension() throws Exception {
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("ALTER TABLE T2_TEST_DIM ALTER COLUMN id RESTART WITH 1");
 		stat.execute("insert into T2_TEST_DIM (id,a,b,c,d, valid) values (1,'a11','b11','c11','d11', 'Y')");
 		stat.execute("insert into T2_TEST_DIM (id,a,b,c,d, valid) values (2,'a11','b11','c11','d11', 'N')");
 		stat.execute("insert into T2_TEST_DIM (id,a,b,c,d, valid) values (3,'a22','b22','c22','d22', 'Y')");
@@ -128,6 +137,19 @@ public class BaukTestSetupUtil {
 		final Connection conn = getConnection();
 		final Statement stat = conn.createStatement();
 		stat.execute("delete from BIG_TEST_DIM");
+		conn.commit();
+		stat.close();
+		conn.close();
+	}
+
+	public void deleteDataFromT2Dimension() throws Exception {
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("delete from T2_TEST_DIM");
+		stat.execute("ALTER TABLE T2_TEST_DIM ALTER COLUMN id RESTART WITH 1");
+		conn.commit();
+		stat.close();
+		conn.close();
 	}
 
 	public static Collection<Map<String, String>> getDataFromFactTable() throws Exception {
