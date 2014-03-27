@@ -52,14 +52,14 @@
 		<dimension name="BIG_TEST_DIM" type="T1">
 			<localCacheMaxSize>50000</localCacheMaxSize>
 			<mappedColumns>
-				<mappedColumn name="a_in" naturalKey="true" />
-				<mappedColumn name="b_in" naturalKey="true" />
 				<mappedColumn name="c_in" naturalKey="false" />
+				<mappedColumn name="a_in" naturalKey="true" />
 				<mappedColumn name="d_in" naturalKey="false" />
+				<mappedColumn name="b_in" naturalKey="true" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingleRecord>
-					insert into BIG_TEST_DIM(a,b,c,d) values ('${a_in}','${b_in}', '${c_in}', '${d_in}')
+					insert into BIG_TEST_DIM(a,b,c,d, num_updates) values ('${a_in}','${b_in}', '${c_in}', '${d_in}', 0)
 				</insertSingleRecord>
 				<updateSingleRecord>update BIG_TEST_DIM set c='${c_in}', d='${d_in}', num_updates = num_updates + 1 where a='${a_in}' and b='${b_in}'</updateSingleRecord>
 				<selectRecordIdentifier>select id from BIG_TEST_DIM where a='${a_in}' and b='${b_in}'</selectRecordIdentifier>

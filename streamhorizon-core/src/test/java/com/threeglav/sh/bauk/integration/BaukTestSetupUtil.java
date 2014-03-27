@@ -124,6 +124,12 @@ public class BaukTestSetupUtil {
 		conn.close();
 	}
 
+	public void deleteDataFromBigDimension() throws Exception {
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("delete from BIG_TEST_DIM");
+	}
+
 	public static Collection<Map<String, String>> getDataFromFactTable() throws Exception {
 		final List<Map<String, String>> results = new LinkedList<>();
 		final Connection conn = getConnection();

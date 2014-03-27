@@ -128,7 +128,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		return this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes, sb);
 	}
 
-	private boolean nonNaturalKeysEqualInFeedAndInCache(final String[] parsedLine) {
+	private Boolean nonNaturalKeysEqualInFeedAndInCache(final String[] parsedLine) {
 		final StringBuilder nonNaturalKey = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		this.concatenateAllNonNaturalKeyValues(parsedLine, nonNaturalKey);
 		final String nonNaturalKeyFromFeed = nonNaturalKey.toString();
@@ -136,6 +136,12 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		this.concatenateAllNaturalKeyValues(parsedLine, naturalKey);
 		final String naturalKeyFromFeed = naturalKey.toString();
 		final String nonNaturalKeyFromCache = naturalKeyToNonNaturalKeyMapping.get(naturalKeyFromFeed);
+		if (nonNaturalKeyFromCache == null) {
+			if (isDebugEnabled) {
+				log.debug("Could not find non natural key in cache for natural key {}", naturalKeyFromFeed);
+			}
+			return null;
+		}
 		if (isDebugEnabled) {
 			log.debug("Comparing non natural keys from feed [{}] with non natural keys found in lookup key [{}]", nonNaturalKeyFromFeed,
 					nonNaturalKeyFromCache);
@@ -152,14 +158,13 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		final String naturalKeyFromFeed = naturalKey.toString();
 		final String nonNaturalKeyFromCache = naturalKeyToNonNaturalKeyMapping.get(naturalKeyFromFeed);
 		final String oldLookupKey = naturalKeyFromFeed + BaukConstants.NATURAL_NON_NATURAL_DELIMITER + nonNaturalKeyFromCache;
-		final Integer oldSurrogateKey = dimensionCache.getSurrogateKeyFromCache(oldLookupKey);
-		if (oldSurrogateKey == null) {
-			throw new IllegalStateException("Should have found surrogate key for old lookup key " + oldLookupKey);
-		}
-		dimensionCache.removeFromCache(oldLookupKey);
-		final String newLookupKey = naturalKeyFromFeed + BaukConstants.NATURAL_NON_NATURAL_DELIMITER + nonNaturalKeyFromFeed;
-		dimensionCache.putInCache(newLookupKey, oldSurrogateKey);
 		naturalKeyToNonNaturalKeyMapping.put(naturalKeyFromFeed, nonNaturalKeyFromFeed);
+		final Integer oldSurrogateKey = dimensionCache.getSurrogateKeyFromCache(oldLookupKey);
+		if (oldSurrogateKey != null) {
+			dimensionCache.removeFromCache(oldLookupKey);
+			final String newLookupKey = naturalKeyFromFeed + BaukConstants.NATURAL_NON_NATURAL_DELIMITER + nonNaturalKeyFromFeed;
+			dimensionCache.putInCache(newLookupKey, oldSurrogateKey);
+		}
 	}
 
 	@Override
@@ -172,11 +177,15 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			if (isDebugEnabled) {
 				log.debug("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", lookupKey, dimension.getName());
 			}
-			final boolean shouldDoUpdate = !this.nonNaturalKeysEqualInFeedAndInCache(parsedLine);
+			final Boolean areKeysEqual = this.nonNaturalKeysEqualInFeedAndInCache(parsedLine);
+			final boolean shouldDoUpdate = Boolean.FALSE.equals(areKeysEqual);
 			if (shouldDoUpdate) {
 				surrogateKey = this.doPerformRecordUpdate(parsedLine, globalAttributes, lookupKey);
 			} else {
 				surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, lookupKey);
+				if (areKeysEqual == null) {
+					this.updateKeysInCache(parsedLine);
+				}
 			}
 			if (!noNaturalKeyColumnsDefined && lookupKey != null) {
 				dimensionCache.putInCache(lookupKey, surrogateKey);

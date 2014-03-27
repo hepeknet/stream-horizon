@@ -330,6 +330,9 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 
 	protected final Integer getSurrogateKeyFromDatabase(final String[] parsedLine, final Map<String, String> globalAttributes,
 			final String naturalCacheKey) {
+		if (isDebugEnabled) {
+			log.debug("Will try to execute insert and then select from database for natural cache key {}", naturalCacheKey);
+		}
 		final Integer surrogateKey = this.doExecuteInsertStatement(parsedLine, globalAttributes, naturalCacheKey);
 		if (surrogateKey != null) {
 			return surrogateKey;

@@ -31,6 +31,8 @@
 			<li>- Runs on <b>Big Data</b> clusters: <b>Hadoop</b>, HDFS, Kafka, Storm, Hive, Impala and more…</li>
 			<li>- Run your <b>StreamHorizon Data Processing Cluster</b> (ETL grid)</li>
 			<li>- Runs on <b>Compute Grid</b> (alongside grid libraries like Quant Library or any other)</li>
+		</ul>
+		<ul>
 			<li>- Horizontally & Vertically scalable, Highly Available (HA), Clusterable</li>
 			<li>- Running on Linux, Solaris, Windows, Compute Clouds (EC2 & others)</li>
 		</ul>
@@ -75,22 +77,31 @@
       <h5>Complexity</h5>
       <div class="sepmini"></div>
       <p>
-	   Data Integration can typically be characterised as a set of large (in numbers), interdependent and usually trivial units of ETL transformations/code. </p>
-	  <p> 
-	   Above stated spells ‘high complexity’ for majority of Data Integration, Business Intelligence and Data Processing projects.
-	  </p>
+	   Data Integration = set of large (in numbers), interdependent & usually trivial units of ETL transformations</p>
     </article>
     <article class="column3 mright services">
       
       <h5>Performance</h5>
       <div class="sepmini"></div>
-      <p>Data Processing commonly faces performance issues, long load times, SLA breaks, long processing windows. Consequence of batch oriented rather than real time (low latency) design paradigms & thinking.</p>
+      <p>
+	  <ul>
+		<li>- Long loading time windows</li>
+		<li>- Frequent SLA breaks</li>
+		<li>- 'Domino Effect' execution & dependencies (Waterfall paradigm)</li>
+	  </ul>
+			...above are consequence of batch oriented rather than ‘Real Time’ & ‘Data Streaming’ design paradigms
+	  </p>
     </article>
     <article class="column3 services">
      
       <h5>Query Latency</h5>
       <div class="sepmini"></div>
-      <p>Business Intelligence users often require much smaller query latencies from the ones delivered.</p>
+      <p>
+	  <ul>
+		<li>- Longer than expected query response times</li>
+		<li>- Inadequate Ad-Hoc query capability</li>
+		</ul>
+	  </p>
     </article>
   </section>
   <section class="part clearfix">
@@ -98,22 +109,43 @@
       <p class="fleft"><h3>Our Solution</h3></p>
       <a href="streamhorizon.php" class="arrow more fright">Find out more about StreamHorizon</a>
 	</header>
-    <article class="column3 mright services">
-      <p>We have created generic platform which is simple to setup and deliver. </p>
-	  <p>Time to market of project delivery is being measured in day(s) rather than months. </p>
-	  <p>Skills required for delivery are reduced almost to the one of common sense and truly basic 101 IT knowledge.</p>
+	<p><h4>Data Throughput of StreamHorizon platform enables:</h4></p>
+    <article class="services">
+      <p>Indexing of Data Warehouses to extent previously unimaginable (4+ indexes per single fact table)</p>
+	  <p>Extensively indexed database delivers load throughput of 0.8 – 1.3 million records/second (intentional sacrifice of load latency for query performance)</p>
+	  <p>No need to utilize OLAP cubes or equivalents acting as 'query accelerators'</p>
+	  <p>No dependency on OLAP (MOLAP) and other In-Memory software which stops working when memory runs out (limited data volumes)</p>
     </article>
-    <article class="column3 mright services">
-      <p>We have delivered highly performing ETL platform, which eliminates performance issues even for volumes typical only for Financial Exchanges, Time Series Analysis & Real Time Risk Valuations. </p>
-	  <br>
-	  <p>Desktops running on our platform have more processing bandwidth than commodity servers with state of the art (read complex and expensive) ETL tools and couple of dozens of CPU’s.</p>
+	<br>
+	<article class="services">
+      <p>Horizontal scaling of In-Memory software comes with a price (increased latency) as queried data is collated from multiple servers into single resultset</p>
+	  <p>No need to purchase exotic or specialist hardware appliances</p>
+	  <p>No need to purchase In-Memory/OLAP hardware & licence</p>
+	</article>
+	<br>
+	<article class="services">
+	  <p>
+		Simple software stack:
+		<br><br>
+		<b>StreamHorizon + Vanilla Database</b>
+		<br>
+		vs 
+		<br>
+		<b>ETL Tool + Database (usually exotic) + OLAP/In-Memory solution (usually clustered)</b>
+	  </p>
     </article>
-    <article class="column3 services">
-      <p>Performance of our platform (throughput measured in millions of records per second) allows database experts to index their Data Mart to extent previously unimaginable (5+ indexes per single fact table) while still having real time ETL processing in place.</p>
-	  <br>
-	  <p>This ability further simplifies Business Intelligence stack by eliminating the need to have MOLAP or other alternatives acting as query accelerators behind their relational databases (aggregate tables or equivalents). </p>
-	  <br>
-	  <p>It also reduces complexity of the Business Intelligence stack and further reduces budget spend on hardware, licences and most importantly complexity of solution overall (reduction of man-day costs).</p>
+	<br>
+	<article class="services">
+      <p>Time to market of project delivery - measured in days rather than months.</p>
+	  <p>IT Skills required for development are reduced to basic IT knowledge.</p>
+	  <p>Manage data volumes typical only for Financial Exchanges, Telecom blue chips and ISP’s.</p>
+	  <p>Desktops running with StreamHorizon platform have more data processing bandwidth than commodity servers with state of the art (read complex and expensive) ETL tools and dozen of CPU’s.</p>
+    </article>
+	<br>
+	<article class="services">
+      <p>Generic & Adaptable ETL platform</p>
+	  <p>Simple to setup (XML configuration)</p>
+	  <p>Platform geared to deliver projects of high complexity (low latency or batch oriented fashion)</p>
     </article>
   </section>
 </div>
