@@ -315,7 +315,10 @@
 				<retireSingleRecord>update dimensionTableName2 set valid='N' where dataAttributeName_3='${dataAttributeName_3}' and dataAttributeName_4='${dataAttributeName_4}' and valid='Y'</retireSingleRecord>
 			</sqlStatements>
 		</dimension>		
-		<dimension name="dimension3" type="T1" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
+		<dimension name="dimension3" type="T1" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">
+			<!-- class implementing com.threeglav.sh.bauk.dimension.DimensionDataProvider interface -->
+			<!-- returns additional mappings from natural to surrogate key for this dimension -->
+			<dimensionDataProviderClassName>com.threeglav.sh.bauk.integration.plugins.TestDimensionDataProvider</dimensionDataProviderClassName>
 			<localCacheMaxSize>10000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="dataAttributeName_5" naturalKey="true" />

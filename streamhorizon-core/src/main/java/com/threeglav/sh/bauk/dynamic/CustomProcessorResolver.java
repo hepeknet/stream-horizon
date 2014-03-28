@@ -38,7 +38,7 @@ public class CustomProcessorResolver<T> {
 				return null;
 			}
 			final String fullCustomProcessorFilePath = ConfigurationProperties.getPluginFolder() + simpleClassName + ".java";
-			log.debug("Will try to find customisation for {} at path {}", fullClassName, fullCustomProcessorFilePath);
+			log.debug("Will try to find plugin class {} at path {}", fullClassName, fullCustomProcessorFilePath);
 			final String fileText = FileUtil.getFileAsText(fullCustomProcessorFilePath);
 			if (!StringUtil.isEmpty(fileText)) {
 				inst = classResolver.createInstanceFromSource(fileText);

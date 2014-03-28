@@ -77,7 +77,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		}
 		this.dimension = dimension;
 		if (cacheInstance == null) {
-			throw new IllegalArgumentException("Cache handler must not be null");
+			throw new IllegalArgumentException("Cache instance must not be null");
 		}
 		dimensionCache = new DimensionCacheTroveImpl(cacheInstance, dimension);
 		if (naturalKeyPositionOffset < 0) {

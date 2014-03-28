@@ -42,6 +42,9 @@ public class Dimension {
 	@XmlAttribute(required = false)
 	private Boolean useInCombinedLookup = Boolean.FALSE;
 
+	@XmlElement(required = false)
+	private String dimensionDataProviderClassName;
+
 	public String getName() {
 		return name;
 	}
@@ -104,6 +107,14 @@ public class Dimension {
 
 	public void setUseInCombinedLookup(final Boolean useInCombinedLookup) {
 		this.useInCombinedLookup = useInCombinedLookup;
+	}
+
+	public String getDimensionDataProviderClassName() {
+		return dimensionDataProviderClassName;
+	}
+
+	public void setDimensionDataProviderClassName(final String dimensionDataProviderClassName) {
+		this.dimensionDataProviderClassName = dimensionDataProviderClassName;
 	}
 
 	/*
