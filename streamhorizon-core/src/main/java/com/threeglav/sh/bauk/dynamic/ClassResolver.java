@@ -22,7 +22,7 @@ public class ClassResolver<T> {
 	private final String fullClassName;
 	private final Class<T> expectedType;
 
-	public ClassResolver(final String fullClassName, final Class<T> expectedType) {
+	ClassResolver(final String fullClassName, final Class<T> expectedType) {
 		if (StringUtil.isEmpty(fullClassName)) {
 			throw new IllegalArgumentException("Full class name must not be null or empty!");
 		}
@@ -33,7 +33,7 @@ public class ClassResolver<T> {
 		this.expectedType = expectedType;
 	}
 
-	public T createInstanceFromClasspath() {
+	T createInstanceFromClasspath() {
 		log.debug("Trying to find {} in classpath", fullClassName);
 		try {
 			final Class clazz = Thread.currentThread().getContextClassLoader().loadClass(fullClassName);
@@ -57,7 +57,7 @@ public class ClassResolver<T> {
 		return null;
 	}
 
-	public T createInstanceFromSource(final String sourceCode) {
+	T createInstanceFromSource(final String sourceCode) {
 		if (StringUtil.isEmpty(sourceCode)) {
 			throw new IllegalArgumentException("Source must not be null or empty");
 		}
