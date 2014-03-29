@@ -71,6 +71,13 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<directory>src/main/java/</directory>
+			<outputDirectory>plugins</outputDirectory>
+			<includes>
+				<include>*.java</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>src/main/resources/demo_sales/</directory>
 			<outputDirectory>demo_sales</outputDirectory>
 			<fileMode>777</fileMode>
@@ -132,7 +139,7 @@
 			<directory>src/main/resources/data/</directory>
 			<outputDirectory>data</outputDirectory>
 			<includes>
-				<include>README.TXT</include>
+				<include>DATA_README.TXT</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -152,6 +159,7 @@
 			</includes>
 			<excludes>
 				<exclude>com.threeglav.streamhorizon.bauk:streamhorizon-plugins</exclude>
+				<exclude>com.threeglav.streamhorizon.bauk:streamhorizon-distribution-packaging</exclude>
 			</excludes>
 		</dependencySet>
 		<dependencySet>

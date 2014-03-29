@@ -1,4 +1,4 @@
-package com.threeglav.sh.bauk.examples;
+
 
 import com.threeglav.sh.bauk.io.BulkOutputWriter;
 
