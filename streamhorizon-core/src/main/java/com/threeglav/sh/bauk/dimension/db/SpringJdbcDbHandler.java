@@ -143,7 +143,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 	}
 
 	@Override
-	public void executeInsertOrUpdateStatement(final String statement, final String description) {
+	public int executeInsertOrUpdateStatement(final String statement, final String description) {
 		if (StringUtil.isEmpty(statement)) {
 			throw new IllegalArgumentException("Statement must not be null or empty!");
 		}
@@ -167,6 +167,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 			if (isDebugEnabled) {
 				log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
 			}
+			return res;
 		} catch (final Exception exc) {
 			final String message = "Exception while executing insert/update statement for " + description + ". Statement is " + statement + ".";
 			log.error(message, exc);

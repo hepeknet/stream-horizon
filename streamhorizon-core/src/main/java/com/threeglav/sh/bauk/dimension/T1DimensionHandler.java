@@ -1,5 +1,6 @@
 package com.threeglav.sh.bauk.dimension;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -128,7 +129,11 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		return this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes, sb);
 	}
 
-	private Boolean nonNaturalKeysEqualInFeedAndInCache(final String[] parsedLine) {
+	private static enum NaturalKeyComparisonResult {
+		EQUAL, NOT_EQUAL, KEY_NOT_FOUND;
+	}
+
+	private NaturalKeyComparisonResult nonNaturalKeysEqualInFeedAndInCache(final String[] parsedLine) {
 		final StringBuilder nonNaturalKey = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		this.concatenateAllNonNaturalKeyValues(parsedLine, nonNaturalKey);
 		final String nonNaturalKeyFromFeed = nonNaturalKey.toString();
@@ -140,16 +145,21 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			if (isDebugEnabled) {
 				log.debug("Could not find non natural key in cache for natural key {}", naturalKeyFromFeed);
 			}
-			return null;
+			return NaturalKeyComparisonResult.KEY_NOT_FOUND;
 		}
 		if (isDebugEnabled) {
 			log.debug("Comparing non natural keys from feed [{}] with non natural keys found in lookup key [{}]", nonNaturalKeyFromFeed,
 					nonNaturalKeyFromCache);
 		}
-		return nonNaturalKeyFromFeed.equals(nonNaturalKeyFromCache);
+		final boolean keysAreSame = nonNaturalKeyFromFeed.equals(nonNaturalKeyFromCache);
+		if (keysAreSame) {
+			return NaturalKeyComparisonResult.EQUAL;
+		} else {
+			return NaturalKeyComparisonResult.NOT_EQUAL;
+		}
 	}
 
-	private void updateKeysInCache(final String[] parsedLine) {
+	private Integer updateKeysInCache(final String[] parsedLine) {
 		final StringBuilder nonNaturalKey = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 		this.concatenateAllNonNaturalKeyValues(parsedLine, nonNaturalKey);
 		final String nonNaturalKeyFromFeed = nonNaturalKey.toString();
@@ -165,6 +175,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			final String newLookupKey = naturalKeyFromFeed + BaukConstants.NATURAL_NON_NATURAL_DELIMITER + nonNaturalKeyFromFeed;
 			dimensionCache.putInCache(newLookupKey, oldSurrogateKey);
 		}
+		return oldSurrogateKey;
 	}
 
 	@Override
@@ -177,13 +188,13 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			if (isDebugEnabled) {
 				log.debug("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", lookupKey, dimension.getName());
 			}
-			final Boolean areKeysEqual = this.nonNaturalKeysEqualInFeedAndInCache(parsedLine);
-			final boolean shouldDoUpdate = Boolean.FALSE.equals(areKeysEqual);
+			final NaturalKeyComparisonResult keyComparison = this.nonNaturalKeysEqualInFeedAndInCache(parsedLine);
+			final boolean shouldDoUpdate = (keyComparison == NaturalKeyComparisonResult.NOT_EQUAL);
 			if (shouldDoUpdate) {
 				surrogateKey = this.doPerformRecordUpdate(parsedLine, globalAttributes, lookupKey);
 			} else {
 				surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, lookupKey);
-				if (areKeysEqual == null) {
+				if (keyComparison == NaturalKeyComparisonResult.KEY_NOT_FOUND) {
 					this.updateKeysInCache(parsedLine);
 				}
 			}
@@ -199,13 +210,15 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 
 	protected Integer doPerformRecordUpdate(final String[] parsedLine, final Map<String, String> globalAttributes, final String lookupKey) {
 		final String preparedUpdateStatement = this.prepareStatement(parsedLine, globalAttributes, updateStatementReplacer);
-		this.getDbHandler().executeInsertOrUpdateStatement(preparedUpdateStatement, dimension.getName());
+		final int updatedRows = this.getDbHandler().executeInsertOrUpdateStatement(preparedUpdateStatement, dimension.getName());
 		if (dbAccessUpdateCounter != null) {
 			dbAccessUpdateCounter.inc();
 		}
-		this.updateKeysInCache(parsedLine);
-		final Integer surrogateKey = dimensionCache.getSurrogateKeyFromCache(lookupKey);
+		final Integer surrogateKey = this.updateKeysInCache(parsedLine);
 		if (surrogateKey == null) {
+			log.error(
+					"Could not find surrogate key after updating cache. Update statement [{}] updated in total {} rows in database. Parsed line was {}",
+					preparedUpdateStatement, updatedRows, Arrays.toString(parsedLine));
 			throw new IllegalStateException("Performed update operation but still was not able to find surrogate key for lookup [" + lookupKey + "]");
 		}
 		if (isDebugEnabled) {

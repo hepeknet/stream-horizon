@@ -335,8 +335,8 @@ public class InsertOnlyDimensionHandlerTest {
 			}
 
 			@Override
-			public void executeInsertOrUpdateStatement(final String statement, final String description) {
-
+			public int executeInsertOrUpdateStatement(final String statement, final String description) {
+				return -1;
 			}
 
 			@Override

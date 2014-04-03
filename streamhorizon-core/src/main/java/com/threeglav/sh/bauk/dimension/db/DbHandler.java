@@ -13,7 +13,7 @@ public interface DbHandler {
 
 	public Long executeInsertStatementAndReturnKey(final String statement, String description);
 
-	public void executeInsertOrUpdateStatement(final String statement, String description);
+	public int executeInsertOrUpdateStatement(final String statement, String description);
 
 	public List<DimensionKeysPair> queryForDimensionKeys(final String dimensionName, final String statement, int expectedTotalValues,
 			RowMapper<DimensionKeysPair> rowMapper);
