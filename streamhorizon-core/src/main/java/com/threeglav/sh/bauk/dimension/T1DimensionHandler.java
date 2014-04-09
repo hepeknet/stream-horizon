@@ -216,10 +216,31 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		}
 		final Integer surrogateKey = this.updateKeysInCache(parsedLine);
 		if (surrogateKey == null) {
-			log.error(
-					"Could not find surrogate key after updating cache. Update statement [{}] updated in total {} rows in database. Parsed line was {}",
-					preparedUpdateStatement, updatedRows, Arrays.toString(parsedLine));
-			throw new IllegalStateException("Performed update operation but still was not able to find surrogate key for lookup [" + lookupKey + "]");
+			if (updatedRows == 1) {
+				if (isDebugEnabled) {
+					log.debug(
+							"Updated 1 row in database but could not find key in cache. Will perform database lookup. Lookup key = [{}], line = [{}]",
+							lookupKey, Arrays.toString(parsedLine));
+				}
+				final Integer surrogateKeyInDb = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, lookupKey);
+				if (surrogateKeyInDb != null) {
+					this.updateKeysInCache(parsedLine);
+					return surrogateKeyInDb;
+				} else {
+					log.error(
+							"Was not able to find surrogate key in database, even after update statement {} successfully updated 1 row in database. Parsed line is {}",
+							preparedUpdateStatement, Arrays.toString(parsedLine));
+					throw new IllegalStateException(
+							"Performed update operation and lookup in database but still was not able to find surrogate key for lookup [" + lookupKey
+									+ "]");
+				}
+			} else {
+				log.error(
+						"Could not find surrogate key after updating cache. Update statement [{}] updated in total {} rows in database. Parsed line was {}",
+						preparedUpdateStatement, updatedRows, Arrays.toString(parsedLine));
+				throw new IllegalStateException("Performed update operation but still was not able to find surrogate key for lookup [" + lookupKey
+						+ "]");
+			}
 		}
 		if (isDebugEnabled) {
 			log.debug("Surrogate key after update is {}. Lookup key is {}", surrogateKey, lookupKey);

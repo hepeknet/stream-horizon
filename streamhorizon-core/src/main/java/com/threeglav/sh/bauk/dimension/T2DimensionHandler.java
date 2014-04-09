@@ -2,6 +2,8 @@ package com.threeglav.sh.bauk.dimension;
 
 import java.util.Map;
 
+import org.springframework.dao.DuplicateKeyException;
+
 import com.codahale.metrics.Counter;
 import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
@@ -29,21 +31,42 @@ public class T2DimensionHandler extends T1DimensionHandler {
 		}
 		this.checkNoNaturalKeysExist();
 		this.findAllNonNaturalKeys();
-		dbAccessRetireCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database retire statements executed");
+		dbAccessRetireCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database retire statement executions");
 	}
 
 	@Override
 	protected Integer doPerformRecordUpdate(final String[] parsedLine, final Map<String, String> globalAttributes, final String lookupKey) {
 		final String preparedUpdateStatement = this.prepareStatement(parsedLine, globalAttributes, retireRecordReplacer);
-		this.getDbHandler().executeInsertOrUpdateStatement(preparedUpdateStatement, "Retire single record statement for " + dimension.getName());
-		final Integer newlyCreatedSurrogateKey = this.doExecuteInsertStatement(parsedLine, globalAttributes, null);
-		if (dbAccessRetireCounter != null) {
-			dbAccessRetireCounter.inc();
+		int retiredRows = 0;
+		try {
+			retiredRows = this.getDbHandler().executeInsertOrUpdateStatement(preparedUpdateStatement,
+					"Retire single record statement for " + dimension.getName());
+			if (dbAccessRetireCounter != null) {
+				dbAccessRetireCounter.inc();
+			}
+		} catch (final DuplicateKeyException dexc) {
+			log.warn("Duplicate key exception while trying to retire row. Statement was {}. Will try to look-up key from database",
+					preparedUpdateStatement);
 		}
-		this.updateKeysInCache(parsedLine, newlyCreatedSurrogateKey);
-		final Integer surrogateKey = dimensionCache.getSurrogateKeyFromCache(lookupKey);
+		if (retiredRows == 1) {
+			final Integer newlyCreatedSurrogateKey = this.doExecuteInsertStatement(parsedLine, globalAttributes, lookupKey);
+			if (newlyCreatedSurrogateKey != null) {
+				this.updateKeysInCache(parsedLine, newlyCreatedSurrogateKey);
+			}
+		}
+		Integer surrogateKey = dimensionCache.getSurrogateKeyFromCache(lookupKey);
 		if (surrogateKey == null) {
-			throw new IllegalStateException("Performed update operation but still was not able to find surrogate key for lookup [" + lookupKey + "]");
+			final Integer surrogateKeyFromDatabase = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, lookupKey);
+			if (surrogateKeyFromDatabase == null) {
+				throw new IllegalStateException(
+						"Performed update operation and lookup in cache and database but still was not able to find surrogate key for lookup ["
+								+ lookupKey + "]");
+			}
+			if (isDebugEnabled) {
+				log.debug("Was not able to find record for {} in cache but found it in database = {}. Retired rows = {}", lookupKey,
+						surrogateKeyFromDatabase, retiredRows);
+			}
+			surrogateKey = surrogateKeyFromDatabase;
 		}
 		if (isDebugEnabled) {
 			log.debug("Surrogate key after update is {}. Lookup key is {}", surrogateKey, lookupKey);

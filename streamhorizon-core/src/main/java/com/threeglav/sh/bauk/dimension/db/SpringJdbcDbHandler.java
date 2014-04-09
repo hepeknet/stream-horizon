@@ -168,6 +168,8 @@ public final class SpringJdbcDbHandler implements DbHandler {
 				log.debug("Successfully executed {}. Returned value is {}. In total took {}ms to execute", statement, res, total);
 			}
 			return res;
+		} catch (final DuplicateKeyException dke) {
+			throw dke;
 		} catch (final Exception exc) {
 			final String message = "Exception while executing insert/update statement for " + description + ". Statement is " + statement + ".";
 			log.error(message, exc);
