@@ -79,7 +79,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		if (cacheInstance == null) {
 			throw new IllegalArgumentException("Cache instance must not be null");
 		}
-		dimensionCache = new DimensionCacheTroveImpl(cacheInstance, dimension);
+		dimensionCache = this.initializeDimensionCache(cacheInstance, dimension);
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
@@ -124,6 +124,10 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		} else {
 			selectStatementReplacer = null;
 		}
+	}
+
+	protected DimensionCache initializeDimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
+		return new DimensionCacheTroveImpl(cacheInstance, dimension);
 	}
 
 	@Override

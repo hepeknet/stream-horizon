@@ -192,13 +192,27 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 	}
 
+	private boolean shouldCachePerThreadValues(final InsertOnlyDimensionHandler cachedDimensionHandler) {
+		final Dimension dimension = cachedDimensionHandler.getDimension();
+		boolean cachePerThreadEnabled = dimension.getCachePerThreadEnabled();
+		final DimensionType type = dimension.getType();
+		if (type == DimensionType.T1 || type == DimensionType.T2) {
+			if (cachePerThreadEnabled) {
+				log.warn("Dimensions {} is of type {} which does not allow caching values per thread. Will disable this feature for this dimension!",
+						dimension.getName(), dimension.getType());
+			}
+			cachePerThreadEnabled = false;
+		}
+		return cachePerThreadEnabled;
+	}
+
 	private BulkLoadOutputValueHandler getDimensionHandler(final String bulkOutputAttributeName, final int bulkHandlerPosition) {
 		final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
 		log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
 		final InsertOnlyDimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
 		BulkLoadOutputValueHandler dimensionHandler;
 		if (cachedDimensionHandler != null) {
-			final boolean cachePerThreadEnabled = cachedDimensionHandler.getDimension().getCachePerThreadEnabled();
+			final boolean cachePerThreadEnabled = this.shouldCachePerThreadValues(cachedDimensionHandler);
 			if (cachePerThreadEnabled) {
 				final CachePreviouslyUsedValuesPerThreadDimensionHandler proxyDimHandler = new CachePreviouslyUsedValuesPerThreadDimensionHandler(
 						cachedDimensionHandler);

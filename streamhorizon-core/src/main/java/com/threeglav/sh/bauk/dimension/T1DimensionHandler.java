@@ -41,6 +41,11 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		dbAccessUpdateCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database updates executed");
 	}
 
+	@Override
+	protected DimensionCache initializeDimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
+		return new DimensionCacheMapImpl(cacheInstance, dimension);
+	}
+
 	protected void checkNoNaturalKeysExist() {
 		final int nonNaturalKeys = dimension.getNumberOfNonNaturalKeys();
 		if (nonNaturalKeys <= 0) {
@@ -170,8 +175,8 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		final String oldLookupKey = naturalKeyFromFeed + BaukConstants.NATURAL_NON_NATURAL_DELIMITER + nonNaturalKeyFromCache;
 		naturalKeyToNonNaturalKeyMapping.put(naturalKeyFromFeed, nonNaturalKeyFromFeed);
 		final Integer oldSurrogateKey = dimensionCache.getSurrogateKeyFromCache(oldLookupKey);
+		dimensionCache.removeFromCache(oldLookupKey);
 		if (oldSurrogateKey != null) {
-			dimensionCache.removeFromCache(oldLookupKey);
 			final String newLookupKey = naturalKeyFromFeed + BaukConstants.NATURAL_NON_NATURAL_DELIMITER + nonNaturalKeyFromFeed;
 			dimensionCache.putInCache(newLookupKey, oldSurrogateKey);
 		}

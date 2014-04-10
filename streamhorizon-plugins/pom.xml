@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.threeglav.streamhorizon.bauk</groupId>
 		<artifactId>streamhorizon</artifactId>
-		<version>3.1.4</version>
+		<version>3.1.5</version>
 	</parent>
 	<artifactId>streamhorizon-plugins</artifactId>
 	<name>streamhorizon Plugins</name>
