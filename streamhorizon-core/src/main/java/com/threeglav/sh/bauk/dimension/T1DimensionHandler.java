@@ -196,7 +196,9 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			final NaturalKeyComparisonResult keyComparison = this.nonNaturalKeysEqualInFeedAndInCache(parsedLine);
 			final boolean shouldDoUpdate = (keyComparison == NaturalKeyComparisonResult.NOT_EQUAL);
 			if (shouldDoUpdate) {
-				surrogateKey = this.doPerformRecordUpdate(parsedLine, globalAttributes, lookupKey);
+				synchronized (this) {
+					surrogateKey = this.doPerformRecordUpdate(parsedLine, globalAttributes, lookupKey);
+				}
 			} else {
 				surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, lookupKey);
 				if (keyComparison == NaturalKeyComparisonResult.KEY_NOT_FOUND) {

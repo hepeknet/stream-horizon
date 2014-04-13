@@ -310,7 +310,7 @@
 					insert into dimensionTableName2(dimensionSurrogateKey, tableAttribute1, tableAttribute2, dataAttributeName_41, valid)
 					values (dimensionSequenceName.nextval,'${dataAttributeName_1}','${dataAttributeName_2}', 'dataAttributeName_41', 'Y')
 				</insertSingleRecord>
-				<selectRecordIdentifier>select dimensionSurrogateKey from dimensionTableName2 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}'</selectRecordIdentifier>
+				<selectRecordIdentifier>select dimensionSurrogateKey from dimensionTableName2 where tableAttribute1='${dataAttributeName_1}' and tableAttribute2='${dataAttributeName_2}' and valid='Y'</selectRecordIdentifier>
 				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName2 where valid='Y'</preCacheRecords>
 				<retireSingleRecord>update dimensionTableName2 set valid='N' where dataAttributeName_3='${dataAttributeName_3}' and dataAttributeName_4='${dataAttributeName_4}' and valid='Y'</retireSingleRecord>
 			</sqlStatements>
