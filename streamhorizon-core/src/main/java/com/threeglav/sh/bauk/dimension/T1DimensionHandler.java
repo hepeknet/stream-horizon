@@ -20,6 +20,9 @@ import com.threeglav.sh.bauk.util.StringUtil;
 
 public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 
+	private static final int MAX_NUMBER_OF_LOCKS = 20;
+	private final Object[] LOCKS = new Object[MAX_NUMBER_OF_LOCKS];
+
 	private String[] nonNaturalKeyNames;
 	private int[] nonNaturalKeyPositionsInFeed;
 	private StatefulAttributeReplacer updateStatementReplacer;
@@ -39,6 +42,18 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		this.checkNoNaturalKeysExist();
 		this.findAllNonNaturalKeys();
 		dbAccessUpdateCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database updates executed");
+		this.initializeLocks();
+	}
+
+	private void initializeLocks() {
+		for (int i = 0; i < MAX_NUMBER_OF_LOCKS; i++) {
+			LOCKS[i] = new Object();
+		}
+	}
+
+	private Object getLockForLookupKey(final String lookupKey) {
+		final int lockPosition = lookupKey.hashCode() % MAX_NUMBER_OF_LOCKS;
+		return LOCKS[Math.abs(lockPosition)];
 	}
 
 	@Override
@@ -196,7 +211,8 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			final NaturalKeyComparisonResult keyComparison = this.nonNaturalKeysEqualInFeedAndInCache(parsedLine);
 			final boolean shouldDoUpdate = (keyComparison == NaturalKeyComparisonResult.NOT_EQUAL);
 			if (shouldDoUpdate) {
-				synchronized (this) {
+				final Object lock = this.getLockForLookupKey(lookupKey);
+				synchronized (lock) {
 					surrogateKey = this.doPerformRecordUpdate(parsedLine, globalAttributes, lookupKey);
 				}
 			} else {
