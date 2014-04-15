@@ -52,7 +52,12 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 	}
 
 	private Object getLockForLookupKey(final String lookupKey) {
-		final int lockPosition = lookupKey.hashCode() % MAX_NUMBER_OF_LOCKS;
+		final int locationOfDelimiter = lookupKey.indexOf(BaukConstants.NATURAL_NON_NATURAL_DELIMITER);
+		String strToUse = lookupKey;
+		if (locationOfDelimiter > 0) {
+			strToUse = lookupKey.substring(0, locationOfDelimiter);
+		}
+		final int lockPosition = strToUse.hashCode() % MAX_NUMBER_OF_LOCKS;
 		return LOCKS[Math.abs(lockPosition)];
 	}
 

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.threeglav.sh.bauk.dimension.DimensionKeysPair;
 
@@ -19,5 +20,7 @@ public interface DbHandler {
 			RowMapper<DimensionKeysPair> rowMapper);
 
 	public Map<String, String> executeSelectStatement(final String statement, String description);
+
+	public TransactionTemplate getTransactionTemplate();
 
 }

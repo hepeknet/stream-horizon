@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
@@ -347,6 +348,11 @@ public class InsertOnlyDimensionHandlerTest {
 
 			@Override
 			public Map<String, String> executeSelectStatement(final String statement, final String description) {
+				return null;
+			}
+
+			@Override
+			public TransactionTemplate getTransactionTemplate() {
 				return null;
 			}
 		};

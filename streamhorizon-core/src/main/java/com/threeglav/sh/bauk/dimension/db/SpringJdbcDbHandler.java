@@ -18,8 +18,10 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
@@ -36,6 +38,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 	private final JdbcTemplate jdbcTemplate;
 	private final int warningThreshold;
 	private final boolean isDebugEnabled;
+	private final TransactionTemplate txTemplate;
 
 	public SpringJdbcDbHandler(final BaukConfiguration config) {
 		if (config == null) {
@@ -43,6 +46,8 @@ public final class SpringJdbcDbHandler implements DbHandler {
 		}
 		final DataSource ds = DataSourceProvider.getDataSource(config);
 		jdbcTemplate = new JdbcTemplate(ds);
+		final DataSourceTransactionManager dstm = new DataSourceTransactionManager(ds);
+		txTemplate = new TransactionTemplate(dstm);
 		final int fetchSize = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.PRE_CACHE_FETCH_SIZE_PARAM_NAME,
 				DEFAULT_FETCH_SIZE);
 		if (fetchSize <= 0) {
@@ -255,6 +260,11 @@ public final class SpringJdbcDbHandler implements DbHandler {
 			return ps;
 		}
 
+	}
+
+	@Override
+	public TransactionTemplate getTransactionTemplate() {
+		return txTemplate;
 	}
 
 }
