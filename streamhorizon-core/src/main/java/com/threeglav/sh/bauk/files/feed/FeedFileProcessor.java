@@ -127,7 +127,7 @@ public class FeedFileProcessor implements FileProcessor {
 		boolean isJdbcLoadingOn = false;
 		final BulkLoadDefinition bulkLoadDefinition = factFeed.getBulkLoadDefinition();
 		if (bulkLoadDefinition != null) {
-			isJdbcLoadingOn = "jdbc".equalsIgnoreCase(bulkLoadDefinition.getOutputType());
+			isJdbcLoadingOn = BulkLoadDefinitionOutputType.JDBC.toString().equalsIgnoreCase(bulkLoadDefinition.getOutputType());
 		}
 		if (isJdbcLoadingOn) {
 			log.debug("Checking whether to turn on jdbc thread partitioning");

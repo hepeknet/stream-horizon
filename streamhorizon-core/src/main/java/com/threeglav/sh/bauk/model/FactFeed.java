@@ -210,7 +210,8 @@ public class FactFeed {
 			final String outputType = bld.getOutputType();
 			if (!StringUtil.isEmpty(outputType)) {
 				final String outputTypeLower = outputType.toLowerCase();
-				return outputTypeLower.equals("jdbc") || outputTypeLower.equals("pipe");
+				return outputTypeLower.equalsIgnoreCase(BulkLoadDefinitionOutputType.JDBC.toString())
+						|| outputTypeLower.equalsIgnoreCase(BulkLoadDefinitionOutputType.PIPE.toString());
 			}
 		}
 		return false;
