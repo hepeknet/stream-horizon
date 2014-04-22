@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<sourceDirectory></sourceDirectory>
-	<archiveDirectory></archiveDirectory>
-	<errorDirectory></errorDirectory>
-	<bulkOutputDirectory></bulkOutputDirectory>
 	<properties>
 		<property name="remoting.server.port">0</property>
 	</properties>
@@ -13,6 +9,10 @@
 	</connectionProperties>
 	<factFeeds>
 		<factFeed name="TEST_bulk_Feed" type="full">
+			<sourceDirectory></sourceDirectory>
+			<archiveDirectory></archiveDirectory>
+			<errorDirectory></errorDirectory>
+			<bulkOutputDirectory></bulkOutputDirectory>
 			<fileNameMasks>
 				<fileNameMask>.*bauk_test</fileNameMask>
 			</fileNameMasks>

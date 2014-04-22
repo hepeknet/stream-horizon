@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<sourceDirectory><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></sourceDirectory>
-	<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
-	<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
-	<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
 	<connectionProperties>
 		<!--SET ME! Set value below to correct JDBC URL -->
 		<jdbcUrl>jdbc:mysql://localhost:3306/pet_shop?user=root&amp;password=shroot&amp;rewriteBatchedStatements=true&amp;cachePrepStmts=true&amp;cacheResultSetMetadata=true&amp;useDynamicCharsetInfo=false</jdbcUrl>
@@ -11,6 +7,12 @@
 	</connectionProperties>
 	<factFeeds>
 		<factFeed name="dataFeed" type="full">
+			
+			<sourceDirectory><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></sourceDirectory>
+			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
+			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
+			<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
+	
 			 <onStartupCommands>
 				<command type="sql">truncate table sales_fact</command>                                          
 				<command type="sql">truncate table sh_metrics</command>

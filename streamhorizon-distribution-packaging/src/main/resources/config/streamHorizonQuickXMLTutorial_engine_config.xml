@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<!-- if they do not exist folders will be created (if permissions allow) -->
-	<!-- source directory is directory from which file feeds will be processed -->
-	<sourceDirectory>/tmp/stream_horizon/input</sourceDirectory>
-	<!-- archive directory is directory into which successfully processed feeds will be moved-->
-	<archiveDirectory>/tmp/stream_horizon/archive</archiveDirectory>
-	<!-- error directory will contain feeds from source folder which if processing fails for any reason. for error & logging information please look at $ENGINE_HOME/log/engine*log -->
-	<errorDirectory>/tmp/stream_horizon/error</errorDirectory>
-	<!-- bulk direcory is directory where bulk files will be created. bulk files usually have format of fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT for MSSQL-->
-	<bulkOutputDirectory>/tmp/stream_horizon/bulkOutput</bulkOutputDirectory>
-	
 	<!-- RDBMS JDBC connection properties -->
 	<connectionProperties>	
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
@@ -30,6 +20,17 @@
 		<!-- feed can be full, delta or repetitive -->
 		<!-- for delta feed it is mandatory to set nullString value, see below -->
 		<factFeed name="dataFeed" type="full">
+			
+			<!-- if they do not exist folders will be created (if permissions allow) -->
+			<!-- source directory is directory from which file feeds will be processed -->
+			<sourceDirectory>/tmp/stream_horizon/input</sourceDirectory>
+			<!-- archive directory is directory into which successfully processed feeds will be moved-->
+			<archiveDirectory>/tmp/stream_horizon/archive</archiveDirectory>
+			<!-- error directory will contain feeds from source folder which if processing fails for any reason. for error & logging information please look at $ENGINE_HOME/log/engine*log -->
+			<errorDirectory>/tmp/stream_horizon/error</errorDirectory>
+			<!-- bulk direcory is directory where bulk files will be created. bulk files usually have format of fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT for MSSQL-->
+			<bulkOutputDirectory>/tmp/stream_horizon/bulkOutput</bulkOutputDirectory>
+			
 			<!-- at startup, prior to starting any processing engine will execute (in defined order) sql or script (shell) commands. please reference all recovery and startup related scripts in this section -->
 			<onStartupCommands>
 				<!-- all context attributes will be replaced in both sql and shell commands, use normal ${contextAttributeName} notation-->

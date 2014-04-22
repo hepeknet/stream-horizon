@@ -106,7 +106,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		}
 		isDebugEnabled = log.isDebugEnabled();
 		final String archiveFolderPath = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
-				config.getArchiveDirectory());
+				factFeed.getArchiveDirectory());
 		if (!StringUtil.isEmpty(archiveFolderPath)) {
 			moveToArchiveFileProcessor = new MoveFileErrorHandler(archiveFolderPath);
 			log.info("Will move all successfully processed files to {}", archiveFolderPath);
@@ -118,7 +118,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		}
 		throughputTestingMode = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 		bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
-				config.getBulkOutputDirectory());
+				factFeed.getBulkOutputDirectory());
 		this.validate();
 	}
 

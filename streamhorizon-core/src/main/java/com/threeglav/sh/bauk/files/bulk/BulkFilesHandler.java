@@ -55,7 +55,7 @@ public class BulkFilesHandler {
 		}
 		this.validate();
 		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
-				config.getErrorDirectory());
+				factFeed.getErrorDirectory());
 		moveToErrorFileProcessor = new MoveFileErrorHandler(errorDirectory);
 		if (bulkProcessingThreads > 0) {
 			EXEC_SERVICE = Executors.newFixedThreadPool(bulkProcessingThreads, new BaukThreadFactory("bulkProcessingThreads", "db-thread"));
@@ -117,7 +117,7 @@ public class BulkFilesHandler {
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, bulkProcessingThreads,
 				bulkFileAcceptanceTimeoutMillis);
 		final String bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
-				config.getBulkOutputDirectory());
+				factFeed.getBulkOutputDirectory());
 		final FileFindingHandler ffh = new FileFindingHandler(bulkOutDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		runnables.add(ffh);
 	}

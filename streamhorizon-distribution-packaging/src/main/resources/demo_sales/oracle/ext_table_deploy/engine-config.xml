@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
-	<sourceDirectory><!--SET ME! your file fed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></sourceDirectory>
-	<archiveDirectory><!--SET ME! your arhive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
-	<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
-	<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
 	<connectionProperties>	
 		<jdbcUrl><!--SET ME! jdbc:oracle:thin:@serverName:1522:orcl--></jdbcUrl>
 		<jdbcUserName><!--SET ME! yourUser --></jdbcUserName>
@@ -12,6 +8,12 @@
 	</connectionProperties>
 	<factFeeds>
 		<factFeed name="dataFeed" type="full">
+		
+			<sourceDirectory><!--SET ME! your file fed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></sourceDirectory>
+			<archiveDirectory><!--SET ME! your arhive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
+			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
+			<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
+		
 			<onStartupCommands>
 				<command type="sql">truncate table sales_fact</command>				
 				<command type="sql">truncate table sh_metrics</command>

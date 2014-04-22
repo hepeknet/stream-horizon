@@ -35,10 +35,6 @@
 
   <xs:complexType name="baukConfiguration">
     <xs:all>
-      <xs:element name="sourceDirectory" type="xs:string"/>
-      <xs:element name="archiveDirectory" type="xs:string"/>
-      <xs:element name="bulkOutputDirectory" type="xs:string"/>
-      <xs:element name="errorDirectory" type="xs:string"/>
       <xs:element ref="connectionProperties"/>
       <xs:element name="databaseStringLiteral" type="xs:string" default="'" minOccurs="0"/>
       <xs:element name="databaseStringEscapeLiteral" type="xs:string" default="''" minOccurs="0"/>
@@ -77,6 +73,10 @@
 
   <xs:complexType name="factFeed">
     <xs:all>
+      <xs:element name="sourceDirectory" type="xs:string"/>
+      <xs:element name="archiveDirectory" type="xs:string"/>
+      <xs:element name="bulkOutputDirectory" type="xs:string"/>
+      <xs:element name="errorDirectory" type="xs:string"/>
       <xs:element name="fileNameMasks" minOccurs="0">
         <xs:complexType>
           <xs:sequence>

@@ -51,7 +51,7 @@ public class FeedFilesHandler {
 		}
 		log.debug("Will use {} threads to process incoming files for {}", feedProcessingThreads, factFeed.getName());
 		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
-				config.getErrorDirectory());
+				factFeed.getErrorDirectory());
 		moveToErrorFileProcessor = new MoveFileErrorHandler(errorDirectory);
 		if (feedProcessingThreads > 0) {
 			EXEC_SERVICE = Executors.newFixedThreadPool(feedProcessingThreads, new BaukThreadFactory("feedHandlingThreadGroup", "etl-thread-"
@@ -73,7 +73,7 @@ public class FeedFilesHandler {
 				feedFileAcceptanceTimeoutMillis);
 		Runnable ffh;
 		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
-				config.getSourceDirectory());
+				factFeed.getSourceDirectory());
 		if (throughputTestingMode) {
 			ffh = new ThroughputTestingFileFindingHandler(sourceDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		} else {
@@ -112,7 +112,7 @@ public class FeedFilesHandler {
 	public void createFileHandlers() {
 		if (feedProcessingThreads > 0) {
 			final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
-					config.getSourceDirectory());
+					factFeed.getSourceDirectory());
 			for (final String fileMask : factFeed.getFileNameMasks()) {
 				log.debug("Creating {} processing threads for {}", feedProcessingThreads, fileMask);
 				for (int i = 0; i < feedProcessingThreads; i++) {

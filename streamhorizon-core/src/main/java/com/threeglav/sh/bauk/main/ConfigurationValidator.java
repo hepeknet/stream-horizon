@@ -33,30 +33,6 @@ class ConfigurationValidator {
 	}
 
 	void validate() throws Exception {
-		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
-				config.getSourceDirectory());
-		final boolean sourceOk = this.getOrCreateDirectory(sourceDirectory, false);
-		if (!sourceOk) {
-			throw new IllegalStateException("Was not able to find folder where input feeds will be stored! Aborting!");
-		}
-		final String archiveDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
-				config.getArchiveDirectory());
-		final boolean archiveOk = this.getOrCreateDirectory(archiveDirectory, true);
-		if (!archiveOk) {
-			log.warn("Was not able to find directory for storing archives. This feature will be disabled!");
-		}
-		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
-				config.getErrorDirectory());
-		final boolean errorOk = this.getOrCreateDirectory(errorDirectory, true);
-		if (!errorOk) {
-			throw new IllegalStateException("Was not able to find folder for storing corrupted/invalid data! Aborting!");
-		}
-		final String bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
-				config.getBulkOutputDirectory());
-		final boolean bulkOutOk = this.getOrCreateDirectory(bulkOutDirectory, true);
-		if (!bulkOutOk) {
-			throw new IllegalStateException("Was not able to find folder for storing bulk output data! Aborting!");
-		}
 		if (StringUtil.isEmpty(config.getDatabaseStringLiteral())) {
 			throw new IllegalStateException("Unable to find non-null, non-empty database string literal!");
 		}
@@ -107,7 +83,31 @@ class ConfigurationValidator {
 		}
 	}
 
-	private void validateFactFeed(final FactFeed ff) {
+	private void validateFactFeed(final FactFeed ff) throws Exception {
+		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
+				ff.getSourceDirectory());
+		final boolean sourceOk = this.getOrCreateDirectory(sourceDirectory, false);
+		if (!sourceOk) {
+			throw new IllegalStateException("Was not able to find folder where input feeds will be stored for feed " + ff.getName() + "! Aborting!");
+		}
+		final String archiveDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
+				ff.getArchiveDirectory());
+		final boolean archiveOk = this.getOrCreateDirectory(archiveDirectory, true);
+		if (!archiveOk) {
+			log.warn("Was not able to find directory for storing archives for feed {}. This feature will be disabled!", ff.getName());
+		}
+		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
+				ff.getErrorDirectory());
+		final boolean errorOk = this.getOrCreateDirectory(errorDirectory, true);
+		if (!errorOk) {
+			throw new IllegalStateException("Was not able to find folder for storing corrupted/invalid data for feed " + ff.getName() + "! Aborting!");
+		}
+		final String bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
+				ff.getBulkOutputDirectory());
+		final boolean bulkOutOk = this.getOrCreateDirectory(bulkOutDirectory, true);
+		if (!bulkOutOk) {
+			throw new IllegalStateException("Was not able to find folder for storing bulk output data for feed " + ff.getName() + "! Aborting!");
+		}
 		if (!StringUtil.isEmpty(ff.getData().getEachLineStartsWithCharacter())) {
 			log.warn(
 					"Configuration for feed {} requires every data line to start with [{}]. This is mandatory for correct data interpretation of input feeds!",
