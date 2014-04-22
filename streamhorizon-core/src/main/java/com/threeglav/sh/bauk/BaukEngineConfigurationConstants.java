@@ -116,6 +116,10 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String DISABLE_COMBINED_LOOKUP_FOR_LOW_CARDINALITY_DIMENSIONS = "disable.dimension.combined.lookup";
 
+	public static final String SCD_UPDATE_LOCK_STRIPING_LOCK_COUNT_PARAM_NAME = "scd.lock.striping.lock.count";
+
+	public static final int SCD_UPDATE_LOCK_STRIPING_LOCK_COUNT_DEFAULT = 50;
+
 	// partitioning - multiple instances
 
 	public static final String MULTI_INSTANCE_PARTITION_COUNT_PARAM_NAME = "multi.instance.total.partition.count";

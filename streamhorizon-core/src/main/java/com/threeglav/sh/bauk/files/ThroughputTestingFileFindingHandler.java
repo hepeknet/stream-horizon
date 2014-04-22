@@ -20,7 +20,7 @@ public class ThroughputTestingFileFindingHandler extends FileFindingHandler {
 
 	private BaukFile cachedFile;
 
-	public ThroughputTestingFileFindingHandler(final String pathTofolder, final FileProcessor fileProcessor, final Filter<Path> fileFilter,
+	public ThroughputTestingFileFindingHandler(final String pathTofolder, final InputFeedProcessor fileProcessor, final Filter<Path> fileFilter,
 			final FileProcessingErrorHandler errorHandler) {
 		super(pathTofolder, fileProcessor, fileFilter, errorHandler);
 	}

@@ -364,6 +364,8 @@
 		<property name="dimension.precaching.disabled">false</property>
 		<!-- should combined lookup feature for low cardinality dimensions be disabled -->
 		<property name="disable.dimension.combined.lookup">true</property>
+		<!-- number of locks used when updating slowly-changing dimensions. Must be positive integer -->
+		<property name="scd.lock.striping.lock.count">50</property>
 		<!-- should processing statistics be written to log file and console as files are processed -->
 		<property name="output.processing.statistics">false</property>
 		<!-- should average statistics be written to log file and console when engine is shut down -->

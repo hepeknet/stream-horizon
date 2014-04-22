@@ -23,14 +23,14 @@ import com.threeglav.sh.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.sh.bauk.feed.DefaultFeedFileNameProcessor;
 import com.threeglav.sh.bauk.feed.FeedFileNameProcessor;
 import com.threeglav.sh.bauk.files.BaukFile;
-import com.threeglav.sh.bauk.files.FileProcessor;
+import com.threeglav.sh.bauk.files.InputFeedProcessor;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
-public class BulkFileProcessor extends ConfigAware implements FileProcessor {
+public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 

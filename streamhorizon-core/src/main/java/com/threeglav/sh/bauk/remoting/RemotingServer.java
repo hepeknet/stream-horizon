@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.remoting.handlers.FlushDimensionCacheRemoteHandler;
-import com.threeglav.sh.bauk.remoting.handlers.MonitoringHandler;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 
 public class RemotingServer {
@@ -70,14 +69,14 @@ public class RemotingServer {
 		flushDimensionCacheCtx.setContextPath("/flushDimensionCache");
 		flushDimensionCacheCtx.setHandler(new FlushDimensionCacheRemoteHandler());
 
-		final ContextHandler monitoringCtx = new ContextHandler();
-		monitoringCtx.setContextPath("/monitor");
-		monitoringCtx.setHandler(new MonitoringHandler());
+		// final ContextHandler monitoringCtx = new ContextHandler();
+		// monitoringCtx.setContextPath("/monitor");
+		// monitoringCtx.setHandler(new MonitoringHandler());
 
 		final ContextHandlerCollection contexts = new ContextHandlerCollection();
 		contexts.addHandler(staticCtxHandler);
 		contexts.addHandler(flushDimensionCacheCtx);
-		contexts.addHandler(monitoringCtx);
+		// contexts.addHandler(monitoringCtx);
 
 		server.setHandler(contexts);
 

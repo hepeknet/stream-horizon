@@ -26,14 +26,14 @@ public class FileFindingHandler implements Runnable {
 	protected final String pathTofolder;
 	protected final int pollingDelayMillis = ConfigurationProperties.getSystemProperty(
 			BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_PARAM_NAME, BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_DEFAULT);
-	protected final FileProcessor fileProcessor;
+	protected final InputFeedProcessor fileProcessor;
 	private final DirectoryStream.Filter<Path> fileFilter;
 	protected final FileProcessingErrorHandler errorHandler;
 	private final Path folderToPollPath;
 	protected final boolean isDebugEnabled;
 	protected final EmailSender emailSender;
 
-	public FileFindingHandler(final String pathTofolder, final FileProcessor fileProcessor, final DirectoryStream.Filter<Path> fileFilter,
+	public FileFindingHandler(final String pathTofolder, final InputFeedProcessor fileProcessor, final DirectoryStream.Filter<Path> fileFilter,
 			final FileProcessingErrorHandler errorHandler) {
 		if (StringUtil.isEmpty(pathTofolder)) {
 			throw new IllegalArgumentException("Path to folder must not be null or empty");

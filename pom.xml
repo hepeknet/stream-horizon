@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.threeglav.streamhorizon.bauk</groupId>
 	<artifactId>streamhorizon</artifactId>
-	<version>3.1.6</version>
+	<version>3.1.7</version>
 	<packaging>pom</packaging>
 	<name>streamhorizon</name>
 
@@ -17,7 +17,7 @@
 		<version.spring>4.0.0.RELEASE</version.spring>
 		<version.mariadb.jdbc.driver>5.1.18</version.mariadb.jdbc.driver>
 		<version.mockito>1.9.5</version.mockito>
-		<version.hazelcast>3.1.3</version.hazelcast>
+		<version.hazelcast>3.2</version.hazelcast>
 		<version.trove>3.0.3</version.trove>
 		<version.oracle.jdbc>11.2.0.4</version.oracle.jdbc>
 		<version.mssql.jdbc.driver>4.0</version.mssql.jdbc.driver>

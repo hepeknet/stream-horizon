@@ -32,7 +32,7 @@ import com.threeglav.sh.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.sh.bauk.feed.processing.SingleThreadedFeedDataProcessor;
 import com.threeglav.sh.bauk.files.BaukFile;
 import com.threeglav.sh.bauk.files.FileProcessingErrorHandler;
-import com.threeglav.sh.bauk.files.FileProcessor;
+import com.threeglav.sh.bauk.files.InputFeedProcessor;
 import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinition;
@@ -42,7 +42,7 @@ import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
-public class FeedFileProcessor implements FileProcessor {
+public class FeedFileProcessor implements InputFeedProcessor {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 

@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.codahale.metrics.Counter;
 import com.threeglav.sh.bauk.BaukConstants;
+import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
+import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
@@ -20,14 +22,14 @@ import com.threeglav.sh.bauk.util.StringUtil;
 
 public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 
-	private static final int MAX_NUMBER_OF_LOCKS = 20;
-	private final Object[] LOCKS = new Object[MAX_NUMBER_OF_LOCKS];
+	private final Object[] LOCKS;
 
 	private String[] nonNaturalKeyNames;
 	private int[] nonNaturalKeyPositionsInFeed;
 	private StatefulAttributeReplacer updateStatementReplacer;
 	private final Counter dbAccessUpdateCounter;
 	protected Map<String, String> naturalKeyToNonNaturalKeyMapping;
+	private final int totalNumberOfLocks;
 
 	public T1DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
@@ -39,6 +41,13 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 			throw new IllegalStateException(dimension.getType() + " dimension " + dimension.getName()
 					+ " must have updateSingleRecord statement defined");
 		}
+		totalNumberOfLocks = ConfigurationProperties.getSystemProperty(
+				BaukEngineConfigurationConstants.SCD_UPDATE_LOCK_STRIPING_LOCK_COUNT_PARAM_NAME,
+				BaukEngineConfigurationConstants.SCD_UPDATE_LOCK_STRIPING_LOCK_COUNT_DEFAULT);
+		if (totalNumberOfLocks <= 0) {
+			throw new IllegalArgumentException(BaukEngineConfigurationConstants.SCD_UPDATE_LOCK_STRIPING_LOCK_COUNT_PARAM_NAME + " must be > 0");
+		}
+		LOCKS = new Object[totalNumberOfLocks];
 		this.checkNoNaturalKeysExist();
 		this.findAllNonNaturalKeys();
 		dbAccessUpdateCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database updates executed");
@@ -46,7 +55,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 	}
 
 	private void initializeLocks() {
-		for (int i = 0; i < MAX_NUMBER_OF_LOCKS; i++) {
+		for (int i = 0; i < totalNumberOfLocks; i++) {
 			LOCKS[i] = new Object();
 		}
 	}
@@ -57,7 +66,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		if (locationOfDelimiter > 0) {
 			strToUse = lookupKey.substring(0, locationOfDelimiter);
 		}
-		final int lockPosition = strToUse.hashCode() % MAX_NUMBER_OF_LOCKS;
+		final int lockPosition = strToUse.hashCode() % totalNumberOfLocks;
 		return LOCKS[Math.abs(lockPosition)];
 	}
 
