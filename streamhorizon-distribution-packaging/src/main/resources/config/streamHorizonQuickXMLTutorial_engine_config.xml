@@ -21,7 +21,7 @@
 		<!-- for delta feed it is mandatory to set nullString value, see below -->
 		<factFeed name="dataFeed" type="full">
 			
-			<!-- if they do not exist folders will be created (if permissions allow) -->
+			<!-- if they do not exist directories will be created by engine -->
 			<!-- source directory is directory from which file feeds will be processed -->
 			<sourceDirectory>/tmp/stream_horizon/input</sourceDirectory>
 			<!-- archive directory is directory into which successfully processed feeds will be moved-->
