@@ -1,5 +1,7 @@
 package com.threeglav.sh.bauk.files.feed;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -18,8 +20,11 @@ import com.threeglav.sh.bauk.files.FileProcessingErrorHandler;
 import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.files.ThroughputTestingFileFindingHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
+import com.threeglav.sh.bauk.model.BaukProperty;
 import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.FeedSource;
 import com.threeglav.sh.bauk.model.ThreadPoolSettings;
+import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 import com.threeglav.sh.bauk.util.BaukUtil;
 
@@ -62,7 +67,9 @@ public class FeedFilesHandler {
 	}
 
 	private void validate() {
-		if (factFeed.getFileNameMasks() == null || factFeed.getFileNameMasks().isEmpty()) {
+		final Collection<String> fileNameMasks = BaukPropertyUtil.getAllPropertyValuesByName(factFeed.getSource().getProperties(),
+				FeedSource.FILE_FEED_SOURCE_FILE_NAME_MASK_PROPERTY_NAME);
+		if (fileNameMasks == null || fileNameMasks.isEmpty()) {
 			throw new IllegalArgumentException("Could not find any file masks for " + factFeed.getName() + ". Check your configuration!");
 		}
 	}
@@ -72,14 +79,22 @@ public class FeedFilesHandler {
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, processingThreadId, feedProcessingThreads,
 				feedFileAcceptanceTimeoutMillis);
 		Runnable ffh;
+		final String configuredSourceDirectory = this.getConfiguredSourceFolder();
 		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
-				factFeed.getSourceDirectory());
+				configuredSourceDirectory);
 		if (throughputTestingMode) {
 			ffh = new ThroughputTestingFileFindingHandler(sourceDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		} else {
 			ffh = new FileFindingHandler(sourceDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		}
 		runnables.add(ffh);
+	}
+
+	private String getConfiguredSourceFolder() {
+		final ArrayList<BaukProperty> properties = factFeed.getSource().getProperties();
+		final String configuredSourceDirectory = BaukPropertyUtil.getRequiredUniqueProperty(properties,
+				FeedSource.FILE_FEED_SOURCE_DIRECTORY_PATH_PROPERTY_NAME).getValue();
+		return configuredSourceDirectory;
 	}
 
 	public int start() {
@@ -112,8 +127,10 @@ public class FeedFilesHandler {
 	public void createFileHandlers() {
 		if (feedProcessingThreads > 0) {
 			final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
-					factFeed.getSourceDirectory());
-			for (final String fileMask : factFeed.getFileNameMasks()) {
+					this.getConfiguredSourceFolder());
+			final Collection<String> fileNameMasks = BaukPropertyUtil.getAllPropertyValuesByName(factFeed.getSource().getProperties(),
+					FeedSource.FILE_FEED_SOURCE_FILE_NAME_MASK_PROPERTY_NAME);
+			for (final String fileMask : fileNameMasks) {
 				log.debug("Creating {} processing threads for {}", feedProcessingThreads, fileMask);
 				for (int i = 0; i < feedProcessingThreads; i++) {
 					this.createSingleFileHandler(i, fileMask);

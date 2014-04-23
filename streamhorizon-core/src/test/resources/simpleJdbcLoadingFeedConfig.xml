@@ -9,13 +9,15 @@
 	</connectionProperties>
 	<factFeeds>
 		<factFeed name="TEST_jdbc_Feed" type="full">
-			<sourceDirectory></sourceDirectory>
+			<source type="file">
+				<properties>
+					<property name="directoryPath"></property>
+					<property name="fileNameMask">.*bauk_test</property>
+				</properties>
+			</source>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
 			<bulkOutputDirectory></bulkOutputDirectory>
-			<fileNameMasks>
-				<fileNameMask>.*bauk_test</fileNameMask>
-			</fileNameMasks>
 			<delimiterString>,</delimiterString>
 			<header process="no_header" />
 			<data process="no_validation">

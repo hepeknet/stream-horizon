@@ -22,7 +22,7 @@ public class FactFeed {
 	private String name;
 
 	@XmlElement(required = true)
-	private String sourceDirectory;
+	private FeedSource source;
 
 	@XmlElement(required = true)
 	private String archiveDirectory;
@@ -32,10 +32,6 @@ public class FactFeed {
 
 	@XmlElement(required = true)
 	private String errorDirectory;
-
-	@XmlElementWrapper(name = "fileNameMasks")
-	@XmlElement(name = "fileNameMask")
-	private ArrayList<String> fileNameMasks;
 
 	@XmlElement(required = false)
 	private String fileNameProcessorClassName;
@@ -155,14 +151,6 @@ public class FactFeed {
 		this.bulkLoadDefinition = bulkLoadDefinition;
 	}
 
-	public ArrayList<String> getFileNameMasks() {
-		return fileNameMasks;
-	}
-
-	public void setFileNameMasks(final ArrayList<String> fileNameMasks) {
-		this.fileNameMasks = fileNameMasks;
-	}
-
 	public ThreadPoolSettings getThreadPoolSettings() {
 		return threadPoolSettings;
 	}
@@ -211,12 +199,12 @@ public class FactFeed {
 		this.onFeedProcessingFailure = onFeedProcessingFailure;
 	}
 
-	public String getSourceDirectory() {
-		return sourceDirectory;
+	public FeedSource getSource() {
+		return source;
 	}
 
-	public void setSourceDirectory(final String sourceDirectory) {
-		this.sourceDirectory = sourceDirectory;
+	public void setSource(final FeedSource source) {
+		this.source = source;
 	}
 
 	public String getArchiveDirectory() {

@@ -1,6 +1,8 @@
 package com.threeglav.sh.bauk.main;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,11 +16,14 @@ import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
+import com.threeglav.sh.bauk.model.BaukProperty;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.model.FactFeedType;
+import com.threeglav.sh.bauk.model.FeedSource;
 import com.threeglav.sh.bauk.model.MappedResultsSQLStatement;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
+import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -83,9 +88,36 @@ class ConfigurationValidator {
 		}
 	}
 
+	private String validateFeedSource(final FactFeed ff) {
+		if (ff.getSource() == null) {
+			throw new IllegalStateException("Feed source is not properly configured!");
+		}
+		final String sourceType = ff.getSource().getType();
+		if (StringUtil.isEmpty(sourceType)) {
+			throw new IllegalStateException("Feed source type can not be null or empty!");
+		}
+		if (FeedSource.FILE_FEED_SOURCE.equalsIgnoreCase(sourceType)) {
+			final ArrayList<BaukProperty> properties = ff.getSource().getProperties();
+			final String configuredSourceDirectory = BaukPropertyUtil.getRequiredUniqueProperty(properties,
+					FeedSource.FILE_FEED_SOURCE_DIRECTORY_PATH_PROPERTY_NAME).getName();
+			if (StringUtil.isEmpty(configuredSourceDirectory)) {
+				throw new IllegalStateException("For file feed source " + FeedSource.FILE_FEED_SOURCE_DIRECTORY_PATH_PROPERTY_NAME
+						+ " must be defined!");
+			}
+			final Collection<String> fileNameMasks = BaukPropertyUtil.getAllPropertyValuesByName(ff.getSource().getProperties(),
+					FeedSource.FILE_FEED_SOURCE_FILE_NAME_MASK_PROPERTY_NAME);
+			if (fileNameMasks == null || fileNameMasks.isEmpty()) {
+				throw new IllegalStateException("For file feed source at least one value for "
+						+ FeedSource.FILE_FEED_SOURCE_FILE_NAME_MASK_PROPERTY_NAME + " must be defined!");
+			}
+			return configuredSourceDirectory;
+		}
+		return null;
+	}
+
 	private void validateFactFeed(final FactFeed ff) throws Exception {
 		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
-				ff.getSourceDirectory());
+				this.validateFeedSource(ff));
 		final boolean sourceOk = this.getOrCreateDirectory(sourceDirectory, false);
 		if (!sourceOk) {
 			throw new IllegalStateException("Was not able to find folder where input feeds will be stored for feed " + ff.getName() + "! Aborting!");

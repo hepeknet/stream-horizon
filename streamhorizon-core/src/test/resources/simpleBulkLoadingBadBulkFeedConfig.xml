@@ -10,13 +10,15 @@
 	</connectionProperties>
 	<factFeeds>
 		<factFeed name="TEST_bulk_Feed" type="full">
-			<sourceDirectory></sourceDirectory>
+			<source type="file">
+				<properties>
+					<property name="directoryPath"></property>
+					<property name="fileNameMask">.*bauk_test</property>
+				</properties>
+			</source>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
 			<bulkOutputDirectory></bulkOutputDirectory>
-			<fileNameMasks>
-				<fileNameMask>.*bauk_test</fileNameMask>
-			</fileNameMasks>
 			<delimiterString>,</delimiterString>
 			<header process="normal">
 				<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
