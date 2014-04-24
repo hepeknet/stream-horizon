@@ -21,7 +21,6 @@ import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.model.FactFeedType;
 import com.threeglav.sh.bauk.model.FeedSource;
-import com.threeglav.sh.bauk.model.MappedResultsSQLStatement;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
@@ -227,8 +226,8 @@ class ConfigurationValidator {
 	private Set<String> getUsedFeedAttributes(final FactFeed ff) {
 		final Set<String> attrs = new HashSet<>();
 		if (ff.getBeforeFeedProcessing() != null) {
-			for (final MappedResultsSQLStatement mrss : ff.getBeforeFeedProcessing()) {
-				final String stat = mrss.getSqlStatement();
+			for (final BaukCommand mrss : ff.getBeforeFeedProcessing()) {
+				final String stat = mrss.getCommand();
 				if (!StringUtil.isEmpty(stat)) {
 					final Set<String> used = StringUtil.collectAllAttributesFromString(stat);
 					if (used != null) {

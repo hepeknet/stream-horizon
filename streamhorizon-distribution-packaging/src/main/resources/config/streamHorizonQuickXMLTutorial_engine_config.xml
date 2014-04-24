@@ -249,6 +249,11 @@
 					<command type="shell">d:/first.bat</command>
 				</onBulkLoadCompletion>
 			</bulkLoadDefinition>
+			<!-- executed by etl (feed processing thread) in the order specified, before processing every incoming feed -->
+			<beforeFeedProcessing>
+				<command type="sql">update something in database</command>
+				<command type="shell">/opt/prepare.sh</command>                                          
+			</beforeFeedProcessing>
 			<!-- following is executed by etl (feed processing) thread in the order specified, only if feed processing has failed, think of this as catch{} block in Java -->
 			<onFeedProcessingFailure>
 				<!-- by default files are moved to error folder on processing failure -->

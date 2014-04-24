@@ -1,7 +1,6 @@
 package com.threeglav.sh.bauk.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -61,8 +60,8 @@ public class FactFeed {
 	private BulkLoadDefinition bulkLoadDefinition;
 
 	@XmlElementWrapper(name = "beforeFeedProcessing")
-	@XmlElement(name = "sqlStatement")
-	private List<MappedResultsSQLStatement> beforeFeedProcessing;
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> beforeFeedProcessing;
 
 	@XmlElement
 	private ThreadPoolSettings threadPoolSettings;
@@ -159,11 +158,11 @@ public class FactFeed {
 		threadPoolSettings = threadPoolSizes;
 	}
 
-	public List<MappedResultsSQLStatement> getBeforeFeedProcessing() {
+	public ArrayList<BaukCommand> getBeforeFeedProcessing() {
 		return beforeFeedProcessing;
 	}
 
-	public void setBeforeFeedProcessing(final List<MappedResultsSQLStatement> beforeFeedProcessing) {
+	public void setBeforeFeedProcessing(final ArrayList<BaukCommand> beforeFeedProcessing) {
 		this.beforeFeedProcessing = beforeFeedProcessing;
 	}
 

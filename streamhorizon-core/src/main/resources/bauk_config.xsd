@@ -29,8 +29,6 @@
 
   <xs:element name="mappedColumn" type="mappedColumn"/>
 
-  <xs:element name="mappedResultsSQLStatement" type="mappedResultsSQLStatement"/>
-
   <xs:element name="sqlStatements" type="sqlStatements"/>
 
   <xs:element name="threadPoolSettings" type="threadPoolSettings"/>
@@ -90,7 +88,7 @@
       <xs:element name="beforeFeedProcessing" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
-            <xs:element name="sqlStatement" type="mappedResultsSQLStatement" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -254,14 +252,6 @@
     </xs:simpleContent>
   </xs:complexType>
 
-  <xs:complexType name="mappedResultsSQLStatement">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="type" type="sqlStatementType" use="required"/>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-
   <xs:complexType name="threadPoolSettings">
     <xs:all>
       <xs:element name="etlProcessingThreadCount" type="xs:int" default="5"/>
@@ -349,14 +339,6 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="sql"/>
       <xs:enumeration value="shell"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="sqlStatementType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="select"/>
-      <xs:enumeration value="insert"/>
-      <xs:enumeration value="insert_return_key"/>
     </xs:restriction>
   </xs:simpleType>
 

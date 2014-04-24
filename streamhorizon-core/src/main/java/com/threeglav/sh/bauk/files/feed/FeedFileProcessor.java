@@ -23,10 +23,9 @@ import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.command.BaukCommandsExecutor;
 import com.threeglav.sh.bauk.dynamic.CustomProcessorResolver;
-import com.threeglav.sh.bauk.feed.BeforeFeedProcessingProcessor;
 import com.threeglav.sh.bauk.feed.DefaultFeedFileNameProcessor;
-import com.threeglav.sh.bauk.feed.FeedCompletionProcessor;
 import com.threeglav.sh.bauk.feed.FeedFileNameProcessor;
+import com.threeglav.sh.bauk.feed.FeedProcessor;
 import com.threeglav.sh.bauk.feed.TextFileReaderComponent;
 import com.threeglav.sh.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.sh.bauk.feed.processing.SingleThreadedFeedDataProcessor;
@@ -60,8 +59,8 @@ public class FeedFileProcessor implements InputFeedProcessor {
 	private final Histogram inputFeedProcessingTime;
 	private final TextFileReaderComponent textFileReaderComponent;
 	private final FeedDataProcessor feedDataProcessor;
-	private final FeedCompletionProcessor feedCompletionProcessor;
-	private final BeforeFeedProcessingProcessor beforeFeedProcessingProcessor;
+	private final FeedProcessor feedCompletionProcessor;
+	private final FeedProcessor beforeFeedProcessingProcessor;
 	private FeedFileNameProcessor feedFileNameProcessor;
 	private String fileExtension;
 	private final boolean isDebugEnabled;
@@ -181,11 +180,11 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		}
 	}
 
-	private BeforeFeedProcessingProcessor createBeforeFeedProcessingProcessor() {
-		BeforeFeedProcessingProcessor processor = null;
+	private FeedProcessor createBeforeFeedProcessingProcessor() {
+		FeedProcessor processor = null;
 		if (factFeed.getBeforeFeedProcessing() != null && !factFeed.getBeforeFeedProcessing().isEmpty()) {
 			log.debug("Will perform before feed processing for {}", factFeed.getName());
-			processor = new BeforeFeedProcessingProcessor(factFeed, config);
+			processor = new FeedProcessor(factFeed, config, "BeforeFeedProcessor", factFeed.getBeforeFeedProcessing());
 		} else {
 			log.debug("Will not perform any before feed processing for {}", factFeed.getName());
 		}
@@ -239,11 +238,11 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		}
 	}
 
-	private FeedCompletionProcessor createFeedCompletionProcessor() {
-		final FeedCompletionProcessor processor = null;
+	private FeedProcessor createFeedCompletionProcessor() {
+		final FeedProcessor processor = null;
 		if (factFeed.getAfterFeedProcessingCompletion() != null && !factFeed.getAfterFeedProcessingCompletion().isEmpty()) {
 			log.debug("Found {} to be executed on feed completion for {}", factFeed.getAfterFeedProcessingCompletion(), factFeed.getName());
-			return new FeedCompletionProcessor(factFeed, config);
+			return new FeedProcessor(factFeed, config, "FeedCompletionProcessor", factFeed.getAfterFeedProcessingCompletion());
 		} else {
 			log.debug("Did not find anything to execute on feed completion for feed {}", factFeed.getName());
 		}
@@ -277,7 +276,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		final Map<String, String> globalAttributes = this.createImplicitGlobalAttributes(file);
 		try {
 			if (beforeFeedProcessingProcessor != null) {
-				beforeFeedProcessingProcessor.processAndGenerateNewAttributes(globalAttributes);
+				beforeFeedProcessingProcessor.process(globalAttributes);
 			}
 			if (feedCompletionProcessor == null) {
 				textFileReaderComponent.process(inputStream, globalAttributes);
