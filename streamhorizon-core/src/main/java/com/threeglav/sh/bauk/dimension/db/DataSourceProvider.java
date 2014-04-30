@@ -109,6 +109,11 @@ public class DataSourceProvider {
 		} else if (urlLower.startsWith("jdbc:h2")) {
 			hc.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource");
 			hc.addDataSourceProperty("URL", jdbcUrl);
+		} else if (urlLower.startsWith("jdbc:jtds")) {
+			hc.setDataSourceClassName("net.sourceforge.jtds.jdbcx.JtdsDataSource");
+			// hc.addDataSourceProperty("URL", jdbcUrl);
+			hc.setJdbc4ConnectionTest(false);
+			hc.setConnectionTestQuery("SELECT 1");
 		}
 	}
 

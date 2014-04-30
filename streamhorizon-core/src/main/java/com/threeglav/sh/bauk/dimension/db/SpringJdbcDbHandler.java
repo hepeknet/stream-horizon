@@ -161,7 +161,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 
 				@Override
 				public PreparedStatement createPreparedStatement(final Connection connection) throws SQLException {
-					return connection.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS);
+					return connection.prepareStatement(statement, Statement.NO_GENERATED_KEYS);
 				}
 
 			});
