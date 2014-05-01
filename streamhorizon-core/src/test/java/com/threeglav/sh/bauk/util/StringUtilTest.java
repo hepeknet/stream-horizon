@@ -4,12 +4,11 @@ import gnu.trove.map.hash.THashMap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.threeglav.sh.bauk.util.StringUtil;
 
 public class StringUtilTest {
 
@@ -127,6 +126,23 @@ public class StringUtilTest {
 
 		final Set<String> res3 = StringUtil.collectAllAttributesFromString("abc def ${");
 		Assert.assertEquals(0, res3.size());
+	}
+
+	@Test
+	public void testParseUrlProps() {
+		Properties props = StringUtil.parserUrlProperties(null);
+		Assert.assertTrue(props.isEmpty());
+		props = StringUtil.parserUrlProperties("");
+		Assert.assertTrue(props.isEmpty());
+		props = StringUtil.parserUrlProperties("  ");
+		Assert.assertTrue(props.isEmpty());
+		props = StringUtil.parserUrlProperties("jdbc:abc:efg/aaa:/bbb");
+		Assert.assertTrue(props.isEmpty());
+		props = StringUtil.parserUrlProperties("jdbc:abc:efg;a=1;b=2;c=3");
+		Assert.assertEquals(3, props.size());
+		Assert.assertEquals("1", props.getProperty("a"));
+		Assert.assertEquals("2", props.getProperty("b"));
+		Assert.assertEquals("3", props.getProperty("c"));
 	}
 
 }

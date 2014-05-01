@@ -3,6 +3,7 @@ package com.threeglav.sh.bauk.dimension.db;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import javax.sql.DataSource;
 
@@ -111,7 +112,8 @@ public class DataSourceProvider {
 			hc.addDataSourceProperty("URL", jdbcUrl);
 		} else if (urlLower.startsWith("jdbc:jtds")) {
 			hc.setDataSourceClassName("net.sourceforge.jtds.jdbcx.JtdsDataSource");
-			// hc.addDataSourceProperty("URL", jdbcUrl);
+			final Properties props = StringUtil.parserUrlProperties(jdbcUrl);
+			hc.setDataSourceProperties(props);
 			hc.setJdbc4ConnectionTest(false);
 			hc.setConnectionTestQuery("SELECT 1");
 		}

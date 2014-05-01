@@ -2,6 +2,7 @@ package com.threeglav.sh.bauk.util;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,6 +41,30 @@ public abstract class StringUtil {
 			return fileName.substring(0, lastDotIndex);
 		}
 		return fileName;
+	}
+
+	public static Properties parserUrlProperties(final String url) {
+		final Properties props = new Properties();
+		if (url == null) {
+			return props;
+		}
+		LOG.debug("Parsing properties from {}", url);
+		final int indexOfSemiColon = url.indexOf(';');
+		if (indexOfSemiColon > 0) {
+			final String sub = url.substring(indexOfSemiColon);
+			final String[] split = sub.split(";");
+			if (split != null && split.length > 0) {
+				for (final String s : split) {
+					final String[] kv = s.split("=");
+					if (kv != null && kv.length == 2) {
+						LOG.debug("Parsed property {}={}", kv[0], kv[1]);
+						props.put(kv[0], kv[1]);
+					}
+				}
+			}
+		}
+		LOG.debug("Parsed properties are {}", props);
+		return props;
 	}
 
 	public static String replaceAllAttributes(final String statement, final Map<String, String> attributes, final String dbStringLiteral,
