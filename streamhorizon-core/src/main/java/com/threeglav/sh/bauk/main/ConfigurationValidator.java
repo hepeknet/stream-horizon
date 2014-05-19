@@ -110,16 +110,41 @@ class ConfigurationValidator {
 						+ FeedSource.FILE_FEED_SOURCE_FILE_NAME_MASK_PROPERTY_NAME + " must be defined!");
 			}
 			return configuredSourceDirectory;
+		} else if (FeedSource.RPC_FEED_SOURCE.equalsIgnoreCase(sourceType)) {
+			final ArrayList<BaukProperty> properties = ff.getSource().getProperties();
+			final String configuredPortNumber = BaukPropertyUtil.getRequiredUniqueProperty(properties,
+					FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME).getName();
+			if (StringUtil.isEmpty(configuredPortNumber)) {
+				throw new IllegalStateException("When using " + FeedSource.RPC_FEED_SOURCE + " feed source you must specify "
+						+ FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME + " property!");
+			}
+			try {
+				final int portNum = Integer.parseInt(configuredPortNumber);
+				this.validatePort(portNum);
+				log.info("Feed source is {} and will use server port {}", FeedSource.RPC_FEED_SOURCE, portNum);
+
+			} catch (final Exception exc) {
+				throw new IllegalStateException("Exception while converting " + configuredPortNumber + " to integer value!");
+			}
 		}
 		return null;
+	}
+
+	private void validatePort(final int portNum) {
+		if (portNum < 1024 || portNum > 65535) {
+			throw new IllegalArgumentException("Port number must be in valid range [1024-65535]. You provided value " + portNum);
+		}
 	}
 
 	private void validateFactFeed(final FactFeed ff) throws Exception {
 		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
 				this.validateFeedSource(ff));
-		final boolean sourceOk = this.getOrCreateDirectory(sourceDirectory, false);
-		if (!sourceOk) {
-			throw new IllegalStateException("Was not able to find folder where input feeds will be stored for feed " + ff.getName() + "! Aborting!");
+		if (sourceDirectory != null) { // only if specified, otherwise no need for input directory
+			final boolean sourceOk = this.getOrCreateDirectory(sourceDirectory, false);
+			if (!sourceOk) {
+				throw new IllegalStateException("Was not able to find folder where input feeds will be stored for feed " + ff.getName()
+						+ "! Aborting!");
+			}
 		}
 		final String archiveDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
 				ff.getArchiveDirectory());

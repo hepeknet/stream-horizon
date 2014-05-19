@@ -45,7 +45,7 @@ public final class FeedFilesHandler extends AbstractFeedHandler {
 	}
 
 	private void createSingleFileHandler(final int processingThreadId, final String fullFileMask) {
-		final FeedFileProcessor bfp = new FeedFileProcessor(factFeed, config, fullFileMask);
+		final FeedFileProcessor feedFileProc = new FeedFileProcessor(factFeed, config, fullFileMask);
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, processingThreadId, feedProcessingThreads,
 				feedFileAcceptanceTimeoutMillis);
 		Runnable ffh;
@@ -53,9 +53,9 @@ public final class FeedFilesHandler extends AbstractFeedHandler {
 		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
 				configuredSourceDirectory);
 		if (throughputTestingMode) {
-			ffh = new ThroughputTestingFileFindingHandler(sourceDirectory, bfp, fileFilter, moveToErrorFileProcessor);
+			ffh = new ThroughputTestingFileFindingHandler(sourceDirectory, feedFileProc, fileFilter, moveToErrorFileProcessor);
 		} else {
-			ffh = new FileFindingHandler(sourceDirectory, bfp, fileFilter, moveToErrorFileProcessor);
+			ffh = new FileFindingHandler(sourceDirectory, feedFileProc, fileFilter, moveToErrorFileProcessor);
 		}
 		runnables.add(ffh);
 	}

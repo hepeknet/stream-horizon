@@ -21,6 +21,10 @@ public class FeedSource {
 
 	public static final String FILE_FEED_SOURCE_FILE_NAME_MASK_PROPERTY_NAME = "fileNameMask";
 
+	public static final String RPC_FEED_SOURCE = "rpc";
+
+	public static final String RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME = "port";
+
 	@XmlAttribute(required = true)
 	private String type;
 

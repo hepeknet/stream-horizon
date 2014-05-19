@@ -28,6 +28,7 @@ import com.threeglav.sh.bauk.files.feed.FeedFilesHandler;
 import com.threeglav.sh.bauk.files.feed.FeedHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.FeedSource;
 import com.threeglav.sh.bauk.remoting.RemotingServer;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.CacheUtil;
@@ -42,7 +43,7 @@ public class StreamHorizonEngine {
 
 	private static long instanceStartTime;
 	private static RemotingServer remotingHandler;
-	private static final List<FeedHandler> feedFileHandlers = new LinkedList<>();
+	private static final List<FeedHandler> feedHandlers = new LinkedList<>();
 	private static final List<BulkFilesHandler> bulkFileHandlers = new LinkedList<>();
 
 	public static void main(final String[] args) throws Exception {
@@ -109,7 +110,7 @@ public class StreamHorizonEngine {
 
 	private static void startProcessing() throws Exception {
 		int ffhStartedCount = 0;
-		for (final FeedHandler ffh : feedFileHandlers) {
+		for (final FeedHandler ffh : feedHandlers) {
 			ffhStartedCount += ffh.start();
 		}
 		BaukUtil.logEngineMessageSync("Started in total " + ffhStartedCount + " ETL (feed processing) threads!");
@@ -124,11 +125,19 @@ public class StreamHorizonEngine {
 		LOG.debug("Starting processing routes...");
 		for (final FactFeed feed : config.getFactFeeds()) {
 			executeOnStartupCommands(feed, config);
-			LOG.trace("Creating routes for feed [{}]", feed.getName());
+			LOG.trace("Creating processing routes for feed [{}]", feed.getName());
 			try {
-				final FeedHandler feedFilesHandler = new FeedFilesHandler(feed, config);
-				feedFilesHandler.init();
-				feedFileHandlers.add(feedFilesHandler);
+				final String feedSourceType = feed.getSource().getType();
+				FeedHandler feedHandler = null;
+				if (FeedSource.FILE_FEED_SOURCE.equalsIgnoreCase(feedSourceType)) {
+					feedHandler = new FeedFilesHandler(feed, config);
+				} else if (FeedSource.RPC_FEED_SOURCE.equalsIgnoreCase(feedSourceType)) {
+					// TODO
+				} else {
+					throw new IllegalArgumentException("Unsupported feed source type " + feedSourceType);
+				}
+				feedHandler.init();
+				feedHandlers.add(feedHandler);
 				final BulkFilesHandler bulkFilesHandler = new BulkFilesHandler(feed, config);
 				bulkFilesHandler.createFileHandlers();
 				bulkFileHandlers.add(bulkFilesHandler);
@@ -223,10 +232,10 @@ public class StreamHorizonEngine {
 		if (remotingHandler != null) {
 			remotingHandler.stop();
 		}
-		for (final FeedHandler ffh : feedFileHandlers) {
+		for (final FeedHandler ffh : feedHandlers) {
 			ffh.stop();
 		}
-		LOG.debug("Stopped {} feed file handlers", feedFileHandlers.size());
+		LOG.debug("Stopped {} feed file handlers", feedHandlers.size());
 		for (final BulkFilesHandler bfh : bulkFileHandlers) {
 			bfh.stop();
 		}
