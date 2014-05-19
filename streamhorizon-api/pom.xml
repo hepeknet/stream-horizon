@@ -8,6 +8,14 @@
 	</parent>
 	<artifactId>streamhorizon-api</artifactId>
 	<name>streamhorizon API</name>
+	
+	<dependencies>
+		<dependency>
+  			<groupId>org.apache.thrift</groupId>
+  			<artifactId>libthrift</artifactId>
+  			<version>${version.thrift}</version>
+		</dependency>
+	</dependencies>
 
 	<reporting>
 		<plugins>

@@ -26,13 +26,12 @@
 			<!-- type of source can be file -->
 			<source type="file">
 				<properties>
-					<!-- source directory is directory from which file feeds will be processed -->
+					<!-- source directory is the directory from which file feeds will be processed -->
 					<property name="directoryPath">/tmp/stream_horizon/input</property>
 					<!-- supply fileName masks for the fees to which this <factFeed> format definition is applicable. feeds will be loaded from source directory. Multiple masks can be specified -->
 					<property name="fileNameMask">.*FEED.*done</property>
 				</properties>
 			</source>
-			<sourceDirectory></sourceDirectory>
 			<!-- archive directory is directory into which successfully processed feeds will be moved-->
 			<archiveDirectory>/tmp/stream_horizon/archive</archiveDirectory>
 			<!-- error directory will contain feeds from source folder which if processing fails for any reason. for error & logging information please look at $ENGINE_HOME/log/engine*log -->

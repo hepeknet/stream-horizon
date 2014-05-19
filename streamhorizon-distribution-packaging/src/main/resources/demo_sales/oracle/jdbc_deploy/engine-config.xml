@@ -9,7 +9,12 @@
 	<factFeeds>
 		<factFeed name="dataFeed" type="full">
 		
-			<sourceDirectory><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></sourceDirectory>
+			<source type="file">
+				<properties>
+					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
+					<property name="fileNameMask">.*csv</property>
+				</properties>
+			</source>
 			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
 			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
 			<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
@@ -22,9 +27,6 @@
 				<etlProcessingThreadCount>24</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
 			</threadPoolSettings>				
-			<fileNameMasks>
-				<fileNameMask>.*csv</fileNameMask>
-			</fileNameMasks>
 			<delimiterString>,</delimiterString>
 			<header process="normal">
 				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
