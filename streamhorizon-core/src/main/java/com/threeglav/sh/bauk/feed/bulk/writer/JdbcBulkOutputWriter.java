@@ -170,10 +170,10 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void closeResourcesAfterWriting(final Map<String, String> globalAttributes, final boolean success) {
 		if (preparedStatement == null) {
-			throw new IllegalStateException("Prepared statement is null! Should not happen!");
+			return;
 		}
 		if (isDebugEnabled) {
-			log.debug("Closing feed, inserting remaining batched data. Attributes {}", globalAttributes);
+			log.debug("Closing feed, inserting remaining batched data. Attributes are {}", globalAttributes);
 		}
 		try {
 			this.doExecuteJdbcBatch(globalAttributes);
