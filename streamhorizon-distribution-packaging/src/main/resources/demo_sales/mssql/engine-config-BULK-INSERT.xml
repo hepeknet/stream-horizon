@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
 	<connectionProperties>
-		<jdbcUrl><!--SET ME! please change server name (instead of localhost) and port if required, final connectin string look like be: jdbc:sqlserver://localhost:1433;user=sh;password=StremHorizon369;databaseName=sh;PacketSize=-1;protocol=ncalrpc;TransactionMode=implicit;applicationName=StremHorizon;--></jdbcUrl>	
+		<jdbcUrl><!--SET ME! please change server name (instead of localhost) and port if required, final connection string look like be: jdbc:sqlserver://localhost:1433;user=sh;password=StreamHorizon369;databaseName=sh;PacketSize=-1;protocol=ncalrpc;TransactionMode=implicit;applicationName=StreamHorizon;--></jdbcUrl>	
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
 	<factFeeds>
@@ -20,8 +20,8 @@
 			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
 			<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>					
 			<threadPoolSettings>
-				<etlProcessingThreadCount><!--SET ME! set number of etl threads (etl paralelism). ideal setting will acheive maximal throughput to target database. to start with set this number to number of cores of your server. try reducing/increasing number depending on CPU% utilisation of your server--></etlProcessingThreadCount>	
-				<databaseProcessingThreadCount><!--SET ME! set number of db loader threads (db load paralelism). ideal setting will acheive maximal throughput to target database. to start with set this number to 40 which is maximum paralelism as sales_fact table has 40 partitions. depending on I/O performance paralelism of 40 may be too high (or too low), in which case trying setting less/more than 40 could be benefitial for throughput. if you need higher paralelism (40+) please alter create table (data file, log file and partition scheme) scripts for all sales_fact table --></databaseProcessingThreadCount>
+				<etlProcessingThreadCount><!--SET ME! set number of etl threads (etl parallelism). ideal setting will achieve maximal throughput to target database. to start with set this number to number of cores of your server. try reducing/increasing number depending on CPU% utilisation of your server--></etlProcessingThreadCount>	
+				<databaseProcessingThreadCount><!--SET ME! set number of db loader threads (db load parallelism). ideal setting will achieve maximum throughput to target database. to start with set this number to 40 which is maximum paralelism as sales_fact table has 40 partitions. depending on I/O performance paralelism of 40 may be too high (or too low), in which case trying setting less/more than 40 could be benefitial for throughput. if you need higher paralelism (40+) please alter create table (data file, log file and partition scheme) scripts for all sales_fact table --></databaseProcessingThreadCount>
 			</threadPoolSettings>				
 			<delimiterString>,</delimiterString>
 			<header process="normal">
