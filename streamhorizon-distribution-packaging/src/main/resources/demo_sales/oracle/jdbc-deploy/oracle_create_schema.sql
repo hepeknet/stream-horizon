@@ -1,6 +1,6 @@
 /*
 
-NOTE: create user with adequate privileges in your Oracle database and execute the script below (just in case you need create user statement: create USER streamhorizon identified by streamhorizon;  GRANT ALL PRIVILEGES TO StreamHorizon;)  please verify with your DBA that this privilege statement complies with your data access policy
+NOTE: create user with adequate privileges in your Oracle database and execute the script below (just in case you need create user statement: create USER sh identified by sh;  GRANT ALL PRIVILEGES TO sh;  )  please verify with your DBA that this privilege statement complies with your data access policy
 NOTE: change create table statement for sales_fact if you wish to load datae in tablespace other than USER tablespace
 NOTE: maximum number of StreamHorizon db threads (<bulkProcessingThreadID>) which this model supports is 50. If you wish to run more than 50 db threads please extend subpartition definition of fact table given below 
 NOTE: fact table has single partition created for value booking_date_id=20140107. if you wish to run your own rather than StreamHorizon sample data set you may want to create additional partitions. to do so run following statement: ALTER TABLE  WAREHOUSE.RWH_RISK_FACT_SMALL_SUB ADD PARTITION P_20130910 VALUES  (20130910)  COMPRESS BASIC
@@ -9,69 +9,98 @@ NOTE: for test purposes fact table sales_fact is created in NOLOGGING mode as lo
 */
 
 /* set your dataowner if desired...*/
---alter session set current_schema = <YourDataOwner>; 
+--alter session set current_schema = <YourDataOwner>;
+
+alter session set current_schema = sh; 
 
 CREATE TABLE promotion_dim (
   promotion_id INTEGER   NOT NULL ,
   promotion_name VARCHAR2(200)   NOT NULL ,
-  discount_pct FLOAT   NOT NULL   ,
-PRIMARY KEY(promotion_id));
+  discount_pct FLOAT   NOT NULL );
 
-CREATE UNIQUE INDEX promotion_nk ON promotion_dim (promotion_name,discount_pct);
+alter table promotion_dim 
+ add constraint pk_promotion
+ primary key (promotion_id) 
+ rely enable; 
+ 
+CREATE UNIQUE INDEX nk_promotion ON promotion_dim (promotion_name,discount_pct);
 
 CREATE TABLE sales_channel_dim (
   sales_channel_id INTEGER   NOT NULL ,
-  sales_channel_name VARCHAR2(100)   NOT NULL   ,
-PRIMARY KEY(sales_channel_id)  );
+  sales_channel_name VARCHAR2(100)   NOT NULL );
 
-CREATE UNIQUE INDEX sales_channe_nk ON sales_channel_dim (sales_channel_name);
+alter table sales_channel_dim 
+ add constraint pk_sales_channel
+ primary key (sales_channel_id) 
+ rely enable; 
+
+CREATE UNIQUE INDEX nk_sales_channel ON sales_channel_dim (sales_channel_name);
 
 CREATE TABLE supplier_dim (
   supplier_id INTEGER   NOT NULL ,
   supplier_name VARCHAR2(200)   NOT NULL ,
   supplier_address VARCHAR2(500)   NULL  ,
-  supplier_phone VARCHAR2(100)  NULL    ,
-PRIMARY KEY(supplier_id)  );
+  supplier_phone VARCHAR2(100)  NULL);
 
-CREATE UNIQUE INDEX supplier_nk ON supplier_dim (supplier_name);
+alter table supplier_dim 
+ add constraint pk_supplier
+ primary key (supplier_id) 
+ rely enable; 
+
+CREATE UNIQUE INDEX nk_supplier ON supplier_dim (supplier_name);
 
 CREATE TABLE product_dim (
   product_id INTEGER   NOT NULL ,
   product_name VARCHAR2(200)   NOT NULL ,
   product_model VARCHAR2(100)   NOT NULL ,
   product_category VARCHAR2(100)   NOT NULL ,
-  product_cost VARCHAR2(10)   NOT NULL   ,
-PRIMARY KEY(product_id)  );
+  product_cost VARCHAR2(10)   NOT NULL );
+  
+alter table product_dim 
+ add constraint pk_product
+ primary key (product_id) 
+ rely enable; 
 
-CREATE UNIQUE INDEX product_nk ON product_dim (product_name,product_model,product_category,product_cost);
+CREATE UNIQUE INDEX nk_product ON product_dim (product_name,product_model,product_category,product_cost);
 
 CREATE TABLE customer_dim (
   customer_id INTEGER   NOT NULL ,
   customer_address VARCHAR2(500)   NOT NULL ,
   customer_name VARCHAR2(200)   NOT NULL ,
   customer_country VARCHAR2(200)   NOT NULL ,
-  customer_phone VARCHAR2(100)   NULL  ,
-PRIMARY KEY(customer_id)  );
+  customer_phone VARCHAR2(100)   NULL );
 
-CREATE UNIQUE INDEX customer_nk ON customer_dim (customer_name,customer_address,customer_country,customer_phone);
+alter table customer_dim 
+ add constraint pk_customer
+ primary key (customer_id) 
+ rely enable; 
+
+CREATE UNIQUE INDEX nk_customer ON customer_dim (customer_name,customer_address,customer_country,customer_phone);
 
 CREATE TABLE date_dim (
   date_id INTEGER   NOT NULL ,
   date_val DATE   NOT NULL ,    
   month_num INTEGER   NOT NULL ,
-  year_num INTEGER   NOT NULL   ,
-PRIMARY KEY(date_id)  );
+  year_num INTEGER   NOT NULL  );
 
-CREATE UNIQUE INDEX date_nk ON date_dim (date_val);
+alter table date_dim 
+ add constraint pk_date
+ primary key (date_id) 
+ rely enable; 
+ 
+CREATE UNIQUE INDEX nk_date ON date_dim (date_val);
 
 CREATE TABLE employee_dim (
   employee_id INTEGER   NOT NULL ,
   employee_name VARCHAR2(100)   NOT NULL ,
-  employee_number INTEGER   NOT NULL   ,
-PRIMARY KEY(employee_id)  );
+  employee_number INTEGER   NOT NULL );
 
-CREATE UNIQUE INDEX employee_nk ON employee_dim (employee_name,employee_number);
-
+alter table employee_dim 
+ add constraint pk_employee
+ primary key (employee_id) 
+ rely enable; 
+ 
+CREATE UNIQUE INDEX nk_employee ON employee_dim (employee_name,employee_number);
 
 CREATE SEQUENCE promotion_dim_seq;
 
@@ -84,7 +113,9 @@ CREATE SEQUENCE product_dim_seq;
 CREATE SEQUENCE customer_dim_seq;
 
 CREATE SEQUENCE employee_dim_seq;
-  
+
+CREATE SEQUENCE sales_fact_seq;
+
 CREATE TABLE  sales_fact (
   employee_id NUMBER   NOT NULL ,
   customer_id NUMBER   NOT NULL ,
@@ -98,13 +129,14 @@ CREATE TABLE  sales_fact (
   priceBeforeDiscount FLOAT   NOT NULL ,
   priceAfterDiscount FLOAT   NOT NULL ,
   saleCosts FLOAT   NOT NULL,
-  sub    NUMBER   NOT NULL  /* used to acheive parallel loads, maps to streamHorizon context <bulkProcessingThreadID> parameter*/
+  sub    NUMBER   NOT NULL,
+  file_id NUMBER   NOT NULL
 )
 PCTFREE    0
 INITRANS   1
 MAXTRANS   255
 STORAGE    (
-            INITIAL          256K
+            INITIAL          1M
             NEXT             1M
             MINEXTENTS       1
             MAXEXTENTS       UNLIMITED
@@ -112,6 +144,7 @@ STORAGE    (
             BUFFER_POOL      DEFAULT
            )
 NOLOGGING
+TABLESPACE "RWH_DATA" --------------------------------------------------------------------------------------------------------------------------------------
 PARTITION BY LIST (booking_date_id)
 SUBPARTITION BY LIST (sub) SUBPARTITION TEMPLATE (
     SUBPARTITION SP_0 VALUES (0)  COMPRESS BASIC,
@@ -168,26 +201,125 @@ SUBPARTITION BY LIST (sub) SUBPARTITION TEMPLATE (
 (  
   PARTITION P_20140107 VALUES (20140107)
     NOLOGGING
-    COMPRESS      
+    COMPRESS          
     PCTFREE    0
     INITRANS   1
     MAXTRANS   255
     STORAGE    (
-                INITIAL          256K
+                INITIAL          1M
                 NEXT             1M
                 MINEXTENTS       1
                 MAXEXTENTS       UNLIMITED
                 PCTINCREASE      0
                 BUFFER_POOL      DEFAULT
                )
-)
+) 
 COMPRESS BASIC 
 NOCACHE
 NOPARALLEL
 MONITORING;
 
-
-
+CREATE TABLE  sales_fact_agg (
+  product_id NUMBER   NOT NULL ,
+  sales_channel_id NUMBER   NOT NULL ,
+  promotion_id NUMBER   NOT NULL ,
+  supplier_id NUMBER   NOT NULL ,
+  booking_date_id NUMBER   NOT NULL ,
+  sales_date_id NUMBER   NOT NULL ,
+  delivery_date_id NUMBER   NOT NULL ,
+  priceBeforeDiscount FLOAT   NOT NULL ,
+  priceAfterDiscount FLOAT   NOT NULL ,
+  saleCosts FLOAT   NOT NULL,
+  sub    NUMBER   NOT NULL,
+  file_id NUMBER   NOT NULL,
+  recordsAggregated NUMBER   NOT NULL
+)
+PCTFREE    0
+INITRANS   1
+MAXTRANS   255
+STORAGE    (
+            INITIAL          1M
+            NEXT             1M
+            MINEXTENTS       1
+            MAXEXTENTS       UNLIMITED
+            PCTINCREASE      0
+            BUFFER_POOL      DEFAULT
+           )
+NOLOGGING
+TABLESPACE "RWH_DATA" --------------------------------------------------------------------------------------------------------------------------------------
+PARTITION BY LIST (booking_date_id)
+SUBPARTITION BY LIST (sub) SUBPARTITION TEMPLATE (
+    SUBPARTITION SP_0 VALUES (0)  COMPRESS BASIC,
+    SUBPARTITION SP_1 VALUES (1)  COMPRESS BASIC,
+    SUBPARTITION SP_2 VALUES (2)  COMPRESS BASIC,
+    SUBPARTITION SP_3 VALUES (3)  COMPRESS BASIC,
+    SUBPARTITION SP_4 VALUES (4)  COMPRESS BASIC,
+    SUBPARTITION SP_5 VALUES (5)  COMPRESS BASIC,
+    SUBPARTITION SP_6 VALUES (6)  COMPRESS BASIC,
+    SUBPARTITION SP_7 VALUES (7)  COMPRESS BASIC,
+    SUBPARTITION SP_8 VALUES (8)  COMPRESS BASIC,
+    SUBPARTITION SP_9 VALUES (9)  COMPRESS BASIC,
+    SUBPARTITION SP_10 VALUES (10)  COMPRESS BASIC,
+    SUBPARTITION SP_11 VALUES (11)  COMPRESS BASIC,
+    SUBPARTITION SP_12 VALUES (12)  COMPRESS BASIC,
+    SUBPARTITION SP_13 VALUES (13)  COMPRESS BASIC,
+    SUBPARTITION SP_14 VALUES (14)  COMPRESS BASIC,
+    SUBPARTITION SP_15 VALUES (15)  COMPRESS BASIC,
+    SUBPARTITION SP_16 VALUES (16)  COMPRESS BASIC,
+    SUBPARTITION SP_17 VALUES (17)  COMPRESS BASIC,
+    SUBPARTITION SP_18 VALUES (18)  COMPRESS BASIC,
+    SUBPARTITION SP_19 VALUES (19)  COMPRESS BASIC,
+    SUBPARTITION SP_20 VALUES (20)  COMPRESS BASIC,
+    SUBPARTITION SP_21 VALUES (21)  COMPRESS BASIC,
+    SUBPARTITION SP_22 VALUES (22)  COMPRESS BASIC,
+    SUBPARTITION SP_23 VALUES (23)  COMPRESS BASIC,
+    SUBPARTITION SP_24 VALUES (24)  COMPRESS BASIC,        
+    SUBPARTITION SP_25 VALUES (25)  COMPRESS BASIC,
+    SUBPARTITION SP_26 VALUES (26)  COMPRESS BASIC,
+    SUBPARTITION SP_27 VALUES (27)  COMPRESS BASIC,
+    SUBPARTITION SP_28 VALUES (28)  COMPRESS BASIC,
+    SUBPARTITION SP_29 VALUES (29)  COMPRESS BASIC,
+    SUBPARTITION SP_30 VALUES (30)  COMPRESS BASIC,
+    SUBPARTITION SP_31 VALUES (31)  COMPRESS BASIC,
+    SUBPARTITION SP_32 VALUES (32)  COMPRESS BASIC,
+    SUBPARTITION SP_33 VALUES (33)  COMPRESS BASIC,
+    SUBPARTITION SP_34 VALUES (34)  COMPRESS BASIC,
+    SUBPARTITION SP_35 VALUES (35)  COMPRESS BASIC,
+    SUBPARTITION SP_36 VALUES (36)  COMPRESS BASIC,
+    SUBPARTITION SP_37 VALUES (37)  COMPRESS BASIC,
+    SUBPARTITION SP_38 VALUES (38)  COMPRESS BASIC,
+    SUBPARTITION SP_39 VALUES (39)  COMPRESS BASIC,
+    SUBPARTITION SP_40 VALUES (40)  COMPRESS BASIC,
+    SUBPARTITION SP_41 VALUES (41)  COMPRESS BASIC,
+    SUBPARTITION SP_42 VALUES (42)  COMPRESS BASIC,
+    SUBPARTITION SP_43 VALUES (43)  COMPRESS BASIC,
+    SUBPARTITION SP_44 VALUES (44)  COMPRESS BASIC,
+    SUBPARTITION SP_45 VALUES (45)  COMPRESS BASIC,
+    SUBPARTITION SP_46 VALUES (46)  COMPRESS BASIC,
+    SUBPARTITION SP_47 VALUES (47)  COMPRESS BASIC,
+    SUBPARTITION SP_48 VALUES (48)  COMPRESS BASIC,
+    SUBPARTITION SP_49 VALUES (49)  COMPRESS BASIC
+)
+(  
+  PARTITION P_20140107 VALUES (20140107)
+    NOLOGGING
+    COMPRESS          
+    PCTFREE    0
+    INITRANS   1
+    MAXTRANS   255
+    STORAGE    (
+                INITIAL          1M
+                NEXT             1M
+                MINEXTENTS       1
+                MAXEXTENTS       UNLIMITED
+                PCTINCREASE      0
+                BUFFER_POOL      DEFAULT
+               )
+) 
+COMPRESS BASIC 
+NOCACHE
+NOPARALLEL
+MONITORING;
 
 insert into date_dim values (20140101,to_date(20140101,'YYYYMMDD'), 1, 2014);
 insert into date_dim values (20140102,to_date(20140102,'YYYYMMDD'), 1, 2014);
@@ -643,7 +775,7 @@ end log_sh_metrics;
 
 CREATE OR REPLACE procedure log_sh_metrics_bulk
 (
-servername varchar2,instancenumber number,instancestarted number ,eventName varchar2,bulkFile varchar2,bulkFileProcessingStart number,bulkFileProcessingFinish number, bulkCompletionFlag varchar2, bulkErrorDesc varchar2
+servername varchar2,instancenumber number,instancestarted number ,eventName varchar2,bulkFile varchar2,bulkFileProcessingStart number,bulkFileProcessingFinish number, bulkCompletionFlag varchar2, bulkErrorDesc varchar2, bulkThreadId integer
 )
 is
     instancestarted_ts  timestamp;
@@ -671,13 +803,13 @@ bulkProcessingMillis := milliseconddiff(bulkFileProcessingStart_ts,bulkFileProce
 instancestarted_ts := timestamp '1970-01-01 00:00:00' + numtodsinterval((instancestarted)/1000/60, 'MINUTE');
 
 insert into sh_metrics 
-(servername,instancenumber,instancestarted,eventName,bulkErrorDescription,bulkCompletionFlag,bulkFileProcessingStart,bulkFileProcessingFinish,bulkProcessingMillis,bulkFileName,recordInserted) 
-values(log_sh_metrics_bulk.servername,log_sh_metrics_bulk.instancenumber,instancestarted_ts,'<'||log_sh_metrics_bulk.eventName||'>',log_sh_metrics_bulk.bulkErrorDesc,log_sh_metrics_bulk.bulkCompletionFlag,bulkFileProcessingStart_ts,bulkFileProcessingFinish_ts,bulkProcessingMillis,log_sh_metrics_bulk.bulkFile,systimestamp);
+(servername,instancenumber,instancestarted,eventName,bulkErrorDescription,bulkCompletionFlag,bulkFileProcessingStart,bulkFileProcessingFinish,bulkProcessingMillis,bulkFileName,recordInserted,dbThreadID) 
+values(log_sh_metrics_bulk.servername,log_sh_metrics_bulk.instancenumber,instancestarted_ts,'<'||log_sh_metrics_bulk.eventName||'>',log_sh_metrics_bulk.bulkErrorDesc,log_sh_metrics_bulk.bulkCompletionFlag,bulkFileProcessingStart_ts,bulkFileProcessingFinish_ts,bulkProcessingMillis,log_sh_metrics_bulk.bulkFile,systimestamp,bulkThreadId);
 commit;       
 end log_sh_metrics_bulk;
 /
 
-create or replace view sh_etl_bulk as
+create or replace view sh_etl_bulk_metrics as
 select etl.servername,etl.instancestarted, fileProcessingStart,fileProcessingFinish,"etl recordInserted",bulkFileProcessingStart,bulkFileProcessingFinish,"bulk recordInserted"
 from 
 (
@@ -694,7 +826,6 @@ where instancestarted = (select max(instancestarted) from sh_metrics) and filena
 )db
 where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName 
 order by instancestarted desc, servername asc;
-
 
 
 
@@ -726,6 +857,57 @@ group by servername,instancenumber,instancestarted
 order by instancestarted desc, servername asc,instancenumber asc;
 
 
+create or replace view sh_all_db_loader_proc_time as
+select servername as "server name",instancenumber as "instance number", instancestarted as "instance started", max(bulkFileProcessingFinish) - min(bulkFileProcessingStart)  as "processing window", count(*) as "files processed"
+from sh_metrics 
+where  eventname='<onBulkLoadCompletion>'
+group by servername,instancenumber,instancestarted
+order by instancestarted desc, servername asc,instancenumber asc;
+
+
+create or replace view sh_dashboard_db_loader_mode as
+select 
+"server name","instance number","instance started","processing window",
+round(
+            "total file records processed"/
+            (
+                to_number(extract( second from "processing window" ))  + 
+                to_number(extract( minute from "processing window" )*60) + 
+                to_number(extract( hour from "processing window" )*3600)
+            )
+) as "throughput records/second", 
+"total file records processed",  "files processed"
+from(
+select * from sh_all_db_loader_proc_time a,
+(select count(*) as "total file records processed" from sales_fact) b
+);
+
+
+/*
+select  
+"server name","instance number","instance started","processing window", 
+round(
+            "total file records processed"/
+            (
+                to_number(extract( second from "processing window" ))  + 
+                to_number(extract( minute from "processing window" )*60) + 
+                to_number(extract( hour from "processing window" )*3600)
+            )
+) as "throughput records/second",
+"avg file load time millisec", "number of files loaded" 
+from
+(
+select servername as "server name",instancenumber as "instance number", instancestarted as "instance started", max(bulkFileProcessingFinish) - min(bulkFileProcessingStart)  as "processing window",
+ (count(*)*100000 /* hardcoded size of demo sample file* /) as "total file records processed",sum(bulkprocessingmillis)/count(*) as "avg file load time millisec", count(*) as "number of files loaded"
+from sh_metrics
+where eventname = '<onBulkLoadCompletion>' and bulkcompletionflag='S'
+group by servername,instancenumber,instancestarted
+)
+group by "server name","instance number","instance started","processing window","avg file load time millisec", "number of files loaded","total file records processed"
+order by "instance started" desc,  "server name" asc,"instance number" asc;
+*/
+
+
 
 create or replace view sh_dashboard_bulk as
 select 
@@ -739,26 +921,71 @@ round(
             )
 ) as "throughput records/second",
  "processing window",
- "total file records processed"
+ "total file records processed",
+ "total files processed"
 from
 (
-select etl.servername,etl.instancenumber, etl.instancestarted,sum(filerecordcount) as "total file records processed",nvl(max(bulkfileprocessingfinish),max(filejdbcinsertfinish)) - min(fileprocessingstart)  as "processing window"
+select etl.servername,etl.instancenumber,etl.instancestarted,count(*) as "total files processed",
+sum(filerecordcount) as "total file records processed",(max(bulkfileprocessingfinish) - min(fileprocessingstart))  as "processing window"
 from 
 (
 select 
-servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName,instancenumber
+servername,instancenumber,instancestarted,filerecordcount,fileprocessingstart,bulkFileName
 from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='<afterFeedProcessingCompletion>'
+where filename is not null and eventname='<afterFeedProcessingCompletion>'
 )etl,
 (
 select 
-servername,instancestarted,bulkfileprocessingfinish,bulkFileName
+bulkfileprocessingfinish,bulkFileName
 from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
+where filename is null and eventname='<onBulkLoadCompletion>'
 )db
-where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName
+where etl.bulkFileName = db.bulkFileName
 group by etl.servername,etl.instancenumber,etl.instancestarted
 )
 order by instancestarted desc, servername asc,instancenumber asc;
 
 
+create or replace force view sh_etl_metrics as
+select 
+etl.servername, etl.instancestarted,fileprocessingstart,fileprocessingfinish,"etl recordInserted",bulkfileprocessingstart,bulkfileprocessingfinish, "bulk recordInserted"
+from (select servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkfilename,fileprocessingfinish, recordinserted as "etl recordInserted"
+               from sh_metrics
+              where instancestarted =
+                       (select max (instancestarted) from sh_metrics)
+                    and filename is not null
+                    and eventname = '<afterFeedProcessingCompletion>') etl,
+            (select servername,instancestarted,bulkfileprocessingfinish,bulkfilename,bulkfileprocessingstart,recordinserted as "bulk recordInserted"
+               from sh_metrics
+              where instancestarted =
+                       (select max (instancestarted) from sh_metrics)
+                    and filename is null
+                    and eventname = '<onBulkLoadCompletion>') db
+      where     etl.servername = db.servername
+            and etl.instancestarted = db.instancestarted
+            and etl.bulkfilename = db.bulkfilename
+   order by instancestarted desc, servername asc;
+
+create or replace force view sh_dashboard_jdbc as
+select * from sh_dashboard;
+
+create or replace force view sh_dashboard_file_2_file as
+select * from sh_dashboard;
+
+create or replace force view sh_dashboard_pipe as
+select * from sh_dashboard;
+
+create or replace force view sh_all_errors as
+select *  from sh_metrics where etlerrordescription is not null or bulkerrordescription is not null;
+
+create or replace force view sh_all_metrics as
+select *  from sh_metrics;
+
+create or replace force view sh_all_sales_fact as
+select *  from sales_fact;
+
+create or replace force view sh_all_sales_fact_agg as
+select *  from sales_fact_agg;
+
+create or replace force view sh_all_sales_fact_count as
+select count(*) as record_count  from sales_fact;

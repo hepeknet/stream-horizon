@@ -5,7 +5,7 @@ typedef i64 long
 
 struct InputFeed {
   1: string feedName,
-  2: long lastModified,
+  2: long lastModifiedTimestamp,
   3: long sizeBytes,
   4: list<string> data
 }

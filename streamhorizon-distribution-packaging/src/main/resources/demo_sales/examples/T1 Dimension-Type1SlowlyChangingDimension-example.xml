@@ -1,0 +1,69 @@
+<!--
+Assuming that your current deployment has INSERT_ONLY type dimeension (as given in Sales Demo) you can simply test 
+T1 dimension by making following changes:
+
+Process for creating T1 dimension from INSERT_ONLY dimension:
+
+1) Truncate table product_dim:
+2) Drop index nk_product
+3) Run following statement (re-creating index in line with new natural key (explanation is given below)):
+		For Oracle database: CREATE UNIQUE INDEX nk_product ON product_dim (product_model)
+		For MSSQL database:  ALTER TABLE [dbo].[product_dim] ADD CONSTRAINT nk_product UNIQUE (product_model)
+4) Change configuration for pdoduct_dim as given below (note, two versions are available for Oracle and MSSQL)
+5) Run StreamHorizon
+
+NOTES:
+Above changes simply re-define natural key of product_dim. Natural key in this example is only productModel attribute.
+In previous example (INSERT_ONLY dimension type natural key was made of three attributes  "productName + productModel + productCategory".
+
+You can run test data which comes with Sales Demo as a test of T1 functinality, hoewever this test isn't realilstic. Reason being is that
+Sales Demo loads same file over and over again. In every file natural key will be changed thousands of times. This is never the case in real
+life scenario. 
+
+This example is suitable for you to use as a quide how you can implement T1 type dimension for your own data model.
+
+Note that pre caching statement <preCacheRecords> must have attributes in select clause listed in following order:
+1)Surrogate Key attribute (product_id) 
+2)Natural Key attribute(s) (attributes with naturalKey="true")
+3)Non-Natural Key attribute(s) (attributes where  naturalKey="false")
+
+-->	
+
+<!--
+Oracle product_dim configuration for T1:
+-->
+<dimension name="product_dim" type="T1" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">
+    <localCacheMaxSize>10000</localCacheMaxSize>
+    <mappedColumns>
+        <mappedColumn name="productName" naturalKey="false" />
+		<mappedColumn name="productModel" naturalKey="true" />
+		<mappedColumn name="productCategory" naturalKey="false" />
+        <mappedColumn name="productCost" naturalKey="false" />    
+	</mappedColumns>
+	<sqlStatements>
+		<insertSingleRecord>insert into product_dim(product_id, product_name, product_model, product_category, product_cost) values (product_dim_seq.nextval, '${productName}', '${productModel}', '${productCategory}','${productCost}')</insertSingleRecord>
+		<updateSingleRecord>update product_dim set product_name='${productName}', product_category='${productCategory}', product_cost='${productCost}' where product_model='${productModel}' </updateSingleRecord>
+		<selectRecordIdentifier>select product_id from product_dim where product_model='${productModel}' </selectRecordIdentifier>
+		<preCacheRecords>select product_id, product_name, product_model, product_category, product_cost from product_dim</preCacheRecords>				
+	</sqlStatements>
+</dimension>
+
+<!--
+MSSQL product_dim configuration for T1:
+-->
+<dimension name="product_dim" type="T1" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">
+    <localCacheMaxSize>10000</localCacheMaxSize>
+    <mappedColumns>
+        <mappedColumn name="productName" naturalKey="false" />
+		<mappedColumn name="productModel" naturalKey="true" />
+		<mappedColumn name="productCategory" naturalKey="false" />
+        <mappedColumn name="productCost" naturalKey="false" />    
+	</mappedColumns>
+	<sqlStatements>
+		<insertSingleRecord>insert into product_dim(product_name, product_model, product_category, product_cost) values ('${productName}', '${productModel}', '${productCategory}','${productCost}')</insertSingleRecord>
+		<updateSingleRecord>update product_dim set product_name='${productName}', product_category='${productCategory}', product_cost='${productCost}' where product_model='${productModel}' </updateSingleRecord>
+		<selectRecordIdentifier>select product_id from product_dim where product_model='${productModel}' </selectRecordIdentifier>
+		<preCacheRecords>select product_id, product_name, product_model, product_category, product_cost from product_dim</preCacheRecords>				
+	</sqlStatements>
+</dimension>	
+	

@@ -52,6 +52,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		this.findAllNonNaturalKeys();
 		dbAccessUpdateCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database updates executed");
 		this.initializeLocks();
+		this.initializeNonNaturalkeyMapping();
 	}
 
 	private void initializeLocks() {
@@ -285,9 +286,15 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		return surrogateKey;
 	}
 
+	private synchronized void initializeNonNaturalkeyMapping() {
+		if (naturalKeyToNonNaturalKeyMapping == null) {
+			naturalKeyToNonNaturalKeyMapping = new ConcurrentHashMap<>();
+		}
+	}
+
 	@Override
 	protected void processReturnedPreCacheValues(final List<DimensionKeysPair> retrievedValues) {
-		naturalKeyToNonNaturalKeyMapping = new ConcurrentHashMap<>();
+		this.initializeNonNaturalkeyMapping();
 		for (final DimensionKeysPair dkp : retrievedValues) {
 			naturalKeyToNonNaturalKeyMapping.put(dkp.naturalKeyOnly, dkp.nonNaturalKeyOnly);
 		}

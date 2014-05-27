@@ -98,6 +98,13 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<directory>src/main/resources/demo_sales/examples/</directory>
+			<outputDirectory>demo_sales/examples</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>src/main/resources/demo_sales/mysql/</directory>
 			<outputDirectory>demo_sales/mysql</outputDirectory>
 			<includes>
@@ -105,15 +112,29 @@
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/resources/demo_sales/oracle/jdbc_deploy/</directory>
-			<outputDirectory>demo_sales/oracle/jdbc_deploy</outputDirectory>
+			<directory>src/main/resources/demo_sales/mssql/</directory>
+			<outputDirectory>demo_sales/mssql</outputDirectory>
 			<includes>
 				<include>*.*</include>
 			</includes>
 		</fileSet>
 		<fileSet>
-			<directory>src/main/resources/demo_sales/oracle/ext_table_deploy/</directory>
-			<outputDirectory>demo_sales/oracle/ext_table_deploy</outputDirectory>
+			<directory>src/main/resources/demo_sales/oracle/jdbc-deploy/</directory>
+			<outputDirectory>demo_sales/oracle/jdbc-deploy</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/demo_sales/oracle/ext-table-deploy/</directory>
+			<outputDirectory>demo_sales/oracle/ext-table-deploy</outputDirectory>
+			<includes>
+				<include>*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/demo_sales/oracle/pipe-deploy/</directory>
+			<outputDirectory>demo_sales/oracle/pipe-deploy</outputDirectory>
 			<includes>
 				<include>*.*</include>
 			</includes>

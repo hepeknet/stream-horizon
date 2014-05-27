@@ -100,7 +100,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 			log.warn("Did not find any defined natural keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
 		} else {
 			noNaturalKeyColumnsDefined = false;
-			log.debug("Caching for {} is enabled", dimension.getName());
+			log.debug("Caching for dimension {} is enabled", dimension.getName());
 		}
 		dimensionLastLineSKAttributeName = dimension.getName() + DIMENSION_SK_SUFFIX;
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),

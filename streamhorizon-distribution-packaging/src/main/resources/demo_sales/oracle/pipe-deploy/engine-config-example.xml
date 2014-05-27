@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
 	<connectionProperties>
-		<jdbcUrl><!--SET ME! jdbc:oracle:thin:@serverName:1522:orcl--></jdbcUrl>
-		<jdbcUserName><!--SET ME! yourUser --></jdbcUserName>
-		<jdbcPassword><!--SET ME! yourPassword --></jdbcPassword>
-		<jdbcPoolSize>100</jdbcPoolSize>
+		<jdbcUrl>jdbc:oracle:thin:@localhost:1522:orcl</jdbcUrl>
+		<jdbcUserName>sh</jdbcUserName>
+		<jdbcPassword>sh</jdbcPassword>
+		<jdbcPoolSize>60</jdbcPoolSize>
 	</connectionProperties>
 	<factFeeds>
 		<factFeed name="dataFeed" type="full">
-		
+			<onStartupCommands>
+				<command type="sql">truncate table sales_fact</command>		
+				<command type="sql">truncate table sh_metrics</command>
+			</onStartupCommands>
 			<source type="file">
 				<properties>
-					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
+					<property name="directoryPath">/app/data/source</property>
 					<property name="fileNameMask">.*csv</property>
 				</properties>
 			</source>
-			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
-			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
-			<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
-		
-			<onStartupCommands>
-				<command type="sql">truncate table sales_fact</command>				
-				<command type="sql">truncate table sh_metrics</command>
-			</onStartupCommands>	
+			<archiveDirectory>/app/data/archive</archiveDirectory>
+			<errorDirectory>/app/data/error</errorDirectory>
+			<bulkOutputDirectory>/app/data/bulk</bulkOutputDirectory>					
 			<threadPoolSettings>
-				<etlProcessingThreadCount>24</etlProcessingThreadCount>
+				<etlProcessingThreadCount>10</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
 			</threadPoolSettings>				
 			<delimiterString>,</delimiterString>
@@ -58,16 +56,13 @@
 					<attribute name="supplierName" />
 				</attributes>
 			</data>
-			<bulkLoadDefinition outputType="jdbc">
+			<bulkLoadDefinition outputType="pipe">
 				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
-				<bulkLoadInsert>
-					<!-- load using JDBC -->
-					<command type="sql">
-						insert  /*+ append_values */ into sales_fact subpartition (P_${bookingDate}_SP_${feedProcessingThreadID})     
-						(product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, sub)
-						values (?,?,?,?,?,?,${bookingDate},?,?,?,?,?, ${feedProcessingThreadID})
-					</command>
+				<bulkLoadInsert>					
+					<command type="shell">
+						/home/streamHorizon/bin/sqlldr/pipe_invoke.sh  ${feedProcessingThreadID} ${bulkNamedPipePath}
+					</command>		
 				</bulkLoadInsert>	
 				<bulkLoadFormatDefinition>
 					<attributes>
@@ -77,20 +72,22 @@
 						<attribute name="dimension.supplier_dim" type="int" />
 						<attribute name="dimension.sales_channel_dim" type="int" />
 						<attribute name="dimension.promotion_dim" type="int" />
-						<!--attribute name="bookingDate"  type="int" /--> <!-- not required as booking date will be supplied by substitution of ${bookingDate} in insert statement-->
+						<!--fact table attribute bookingDate is not suppy here, it is hardcoded in /bin/sqlldr/t*ctl file(s) -->
 						<attribute name="feed.salesDate"  type="int" />
 						<attribute name="feed.deliveryDate"  type="int" />
 						<attribute name="feed.priceBeforeDiscount" type="float" />
 						<attribute name="feed.priceAfterDiscount" type="float" />
 						<attribute name="feed.saleCosts" type="float" />
+						<!--fact table attribute sub is not suppy here, it is hardcoded in /bin/sqlldr/t*ctl file(s) -->							
+						<!--fact table attribute fileID is not suppy here, it is hardcoded in /bin/sqlldr/t*ctl file(s) -->												
 					</attributes>
-				</bulkLoadFormatDefinition>
-			</bulkLoadDefinition>
+				</bulkLoadFormatDefinition>					
+			</bulkLoadDefinition>				
 			<afterFeedProcessingCompletion>		
 				<command type="sql">
 					CALL log_sh_metrics('server_1',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}') 
 					</command>						
-			</afterFeedProcessingCompletion>			
+			</afterFeedProcessingCompletion>
 		</factFeed>
 	</factFeeds>
 	<dimensions>
@@ -177,7 +174,5 @@
 	</dimensions>
 	<properties>
 		<property name="output.processing.statistics">true</property>
-		<property name="bulk.delete.files.after.load">true</property>
-		<property name="throughput.testing.mode">false</property>
 	</properties>
 </config>

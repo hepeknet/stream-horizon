@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+	<connectionProperties>
+		<jdbcUrl>jdbc:oracle:thin:@localhost:1522:orcl</jdbcUrl>
+		<jdbcUserName>sh</jdbcUserName>
+		<jdbcPassword>sh</jdbcPassword>
+		<jdbcPoolSize>100</jdbcPoolSize>
+	</connectionProperties>	
+	<factFeeds>
+		<factFeed name="dataFeed" type="full">
+			<onStartupCommands>
+				<command type="sql">truncate table sales_fact</command>				
+				<command type="sql">truncate table sh_metrics</command>
+			</onStartupCommands>
+			<source type="file">
+				<properties>
+					<property name="directoryPath">/app/data/source</property>
+					<property name="fileNameMask">.*csv</property>
+				</properties>
+			</source>
+			<archiveDirectory>/app/data/archive</archiveDirectory>
+			<errorDirectory>/app/data/error</errorDirectory>
+			<bulkOutputDirectory>/app/data/bulk</bulkOutputDirectory>					
+			<threadPoolSettings>
+				<etlProcessingThreadCount>24</etlProcessingThreadCount>
+				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
+			</threadPoolSettings>				
+			<delimiterString>,</delimiterString>
+			<header process="normal">
+				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+				<attributes>
+					<attribute name="bookingDate" />
+				</attributes>
+			</header>
+			<data process="no_validation">
+				<attributes>
+					<attribute name="productName" />
+					<attribute name="productModel" />
+					<attribute name="productCategory" />
+					<attribute name="productCost" />
+					<attribute name="customerName" />
+					<attribute name="customerAddress" />
+					<attribute name="customerCountry" />
+					<attribute name="customerPhone" />
+					<attribute name="employeeNumber" />
+					<attribute name="employeeName" />
+					<attribute name="salesChannelName" />
+					<attribute name="promotionName" />
+					<attribute name="discountPCT" />
+					<attribute name="shipmentDate" />
+					<attribute name="salesDate" />
+					<attribute name="deliveryDate" />
+					<attribute name="priceBeforeDiscount" />
+					<attribute name="priceAfterDiscount" />
+					<attribute name="saleCosts" />
+					<attribute name="supplierName" />
+				</attributes>
+			</data>
+			<!-- change outputType="file" when using LOAD DATA INFILE -->
+			<bulkLoadDefinition outputType="jdbc">
+				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
+				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
+				<bulkLoadInsert>					
+					<command type="sql">
+						insert  /*+ append_values */ into sales_fact subpartition (P_${bookingDate}_SP_${feedProcessingThreadID})     
+						(product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, sub, file_id)
+						values (?,?,?,?,?,?,${bookingDate},?,?,?,?,?, ${feedProcessingThreadID},-1)
+					</command>				
+				</bulkLoadInsert>	
+				<bulkLoadFormatDefinition>
+					<attributes>
+						<attribute name="dimension.product_dim" type="int" />						
+						<attribute name="dimension.customer_dim" type="int" />
+						<attribute name="dimension.employee_dim" type="int" />
+						<attribute name="dimension.supplier_dim" type="int" />
+						<attribute name="dimension.sales_channel_dim" type="int" />
+						<attribute name="dimension.promotion_dim" type="int" />
+						<!--fact table attribute bookingDate is supplied (and substituted) in insert statement above as ${bookingDate} -->
+						<attribute name="feed.salesDate"  type="int" />
+						<attribute name="feed.deliveryDate"  type="int" />
+						<attribute name="feed.priceBeforeDiscount" type="float" />
+						<attribute name="feed.priceAfterDiscount" type="float" />
+						<attribute name="feed.saleCosts" type="float" />
+						<!--fact table attribute sub is supplied (and substituted) in insert statement above as ${feedProcessingThreadID} -->
+						<!--fact table attribute fileID is supplied (and substituted) in insert statement above as hardcoded value of -1 -->							
+					</attributes>
+				</bulkLoadFormatDefinition>							
+			</bulkLoadDefinition>				
+			<afterFeedProcessingCompletion>		
+				<command type="sql">
+					CALL log_sh_metrics('server_1',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}') 
+					</command>						
+			</afterFeedProcessingCompletion>
+		</factFeed>
+	</factFeeds>
+	<dimensions>
+		<dimension name="employee_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="employeeName" naturalKey="true" />
+				<mappedColumn name="employeeNumber" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into employee_dim(employee_id, employee_name, employee_number) values (employee_dim_seq.nextval, '${employeeName}', ${employeeNumber})
+				</insertSingleRecord>
+				<selectRecordIdentifier>select employee_id from employee_dim where employee_name='${employeeName}' and employee_number=${employeeNumber}</selectRecordIdentifier>
+				<preCacheRecords>select employee_id, employee_name, employee_number from employee_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+		<dimension name="customer_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="customerName" naturalKey="true" />
+				<mappedColumn name="customerAddress" naturalKey="true" />
+				<mappedColumn name="customerCountry" naturalKey="true" />
+				<mappedColumn name="customerPhone" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into customer_dim(customer_id, customer_name, customer_address, customer_country, customer_phone) values (customer_dim_seq.nextval, '${customerName}','${customerAddress}','${customerCountry}','${customerPhone}')
+				</insertSingleRecord>
+				<selectRecordIdentifier>select customer_id from customer_dim where customer_name='${customerName}' and customer_address='${customerAddress}' and customer_country='${customerCountry}' and customer_phone='${customerPhone}'</selectRecordIdentifier>
+				<preCacheRecords>select customer_id, customer_name, customer_address, customer_country, customer_phone from customer_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+		<dimension name="product_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="productName" naturalKey="true" />
+				<mappedColumn name="productModel" naturalKey="true" />
+				<mappedColumn name="productCategory" naturalKey="true" />
+				<mappedColumn name="productCost" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into product_dim(product_id, product_name, product_model, product_category, product_cost) values (product_dim_seq.nextval, '${productName}', '${productModel}', '${productCategory}', '${productCost}')
+				</insertSingleRecord>
+				<selectRecordIdentifier>select product_id from product_dim where product_name='${productName}' and product_model='${productModel}' and product_category='${productCategory}' and product_cost='${productCost}'</selectRecordIdentifier>
+				<preCacheRecords>select product_id, product_name, product_model, product_category, product_cost from product_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+		<dimension name="supplier_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="supplierName" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into supplier_dim(supplier_id, supplier_name) values (supplier_dim_seq.nextval, '${supplierName}')
+				</insertSingleRecord>
+				<selectRecordIdentifier>select supplier_id from supplier_dim where supplier_name='${supplierName}'</selectRecordIdentifier>
+				<preCacheRecords>select supplier_id, supplier_name from supplier_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+		<dimension name="sales_channel_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="salesChannelName" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into sales_channel_dim(sales_channel_id, sales_channel_name) values (sales_channel_dim_seq.nextval, '${salesChannelName}')
+				</insertSingleRecord>
+				<selectRecordIdentifier>select sales_channel_id from sales_channel_dim where sales_channel_name='${salesChannelName}'</selectRecordIdentifier>
+				<preCacheRecords>select sales_channel_id, sales_channel_name from sales_channel_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+		<dimension name="promotion_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="promotionName" naturalKey="true" />
+				<mappedColumn name="discountPCT" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into promotion_dim(promotion_id, promotion_name, discount_pct) values (promotion_dim_seq.nextval, '${promotionName}', ${discountPCT})
+				</insertSingleRecord>
+				<selectRecordIdentifier>select promotion_id from promotion_dim where promotion_name='${promotionName}' and discount_pct=${discountPCT}</selectRecordIdentifier>
+				<preCacheRecords>select promotion_id, promotion_name, discount_pct from promotion_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+	</dimensions>
+	<properties>
+		<property name="jdbc.bulk.loading.batch.size">10000</property>
+		<property name="output.processing.statistics">true</property>
+	</properties>
+</config>

@@ -39,10 +39,9 @@ ORGANIZATION EXTERNAL
    TYPE ORACLE_LOADER
     DEFAULT DIRECTORY EXT_LOADER_DATA
     ACCESS PARAMETERS
-      (RECORDS DELIMITED BY NEWLINE        
+      (RECORDS DELIMITED BY NEWLINE  
       READSIZE = 1048576    
       DISABLE_DIRECTORY_LINK_CHECK
-       IO_OPTIONS (DIRECTIO)
        LOGFILE LOG:''''streamHorizon_$MOD_ID$.log''''
        BADFILE LOG:''''streamHorizon_$MOD_ID$.bad''''
        DISCARDFILE LOG:''''streamHorizon_$MOD_ID$.dsc''''
@@ -82,7 +81,7 @@ wrapBlockStart varchar2(4000) := 'declare
 wrapBlockEnd varchar2(20) :=' ; end;';
 delimiter varchar2(10):=','; line varchar2(300);iteration integer; cmd varchar2(4000); 
 begin     
-     for i in 0..parallelism loop  --create ext table...
+     for i in 0..(parallelism-1) loop 
          cmd :=wrapBlockStart||''''||createTable||''''||wrapBlockEnd;         
          cmd :=REPLACE(cmd,'$MOD_ID$',i);         
          execute immediate cmd;
@@ -94,17 +93,33 @@ end;
 
 
 CREATE OR REPLACE procedure p_sh_external_table_load
-  (businessDate in integer,dbthreadID in integer, fileName varchar2)
+  (businessDate in integer,dbthreadID in integer, fileName varchar2, aggregate integer)
 is
-    cmd varchar2(4000):=null;  factPartitions integer :=50;
+    cmd varchar2(4000):=null;  factPartitions integer :=50; fileId integer := null; targetSubPartition varchar2(20):=null;
 begin
-         cmd := 'alter table sh_load_'||dbthreadID||' location ('''||fileName||''')';
-         execute immediate cmd;         
-         cmd:=' insert  /*+ append_values  */ into sales_fact subpartition (P_'||to_char(businessDate)||'_SP_'|| mod(dbthreadID,factPartitions)  ||')   
-                             (product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, sub) 
-                    select  product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, '||dbthreadID||' 
-                    from sh_load_'||dbthreadID;     
-        execute immediate cmd;
+         fileId := sales_fact_seq.nextval;
+         targetSubPartition:='P_'||to_char(businessDate)||'_SP_'|| mod(dbthreadID,factPartitions);
+         
+             cmd := 'alter table sh_load_'||dbthreadID||' location ('''||fileName||''')';
+             execute immediate cmd;         
+         
+             cmd:=' insert  /*+ append  */ into sales_fact subpartition ('|| targetSubPartition ||')   
+                                 (product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, sub, file_id) 
+                        select  product_id, customer_id, employee_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, '||dbthreadID||','||fileId ||
+                        ' from sh_load_'||dbthreadID;     
+            execute immediate cmd;
+            commit;
+        
+        if aggregate != 0 then
+             cmd:=' insert  /*+ append  */ into sales_fact_agg subpartition ('|| targetSubPartition ||')   
+                                 (product_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, priceBeforeDiscount, priceAfterDiscount, saleCosts, sub, file_id, recordsAggregated) 
+                        select /*+  index(f fact_file_id)*/ product_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, sum(priceBeforeDiscount), sum(priceAfterDiscount), sum(saleCosts), sub, file_id, count(*)  
+                        from sales_fact subpartition ('|| targetSubPartition ||') f where file_id = '|| fileId ||
+                        ' group by product_id, supplier_id, sales_channel_id, promotion_id, booking_date_id, sales_date_id, delivery_date_id, sub, file_Id';
+            execute immediate cmd;
+            commit;            
+       end if;
+       
 end p_sh_external_table_load;
 /
 

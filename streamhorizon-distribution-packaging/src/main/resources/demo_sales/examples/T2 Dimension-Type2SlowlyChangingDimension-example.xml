@@ -1,0 +1,58 @@
+<!--
+Assuming that your current deployment has INSERT_ONLY type dimeension (as given in Sales Demo) you can simply test 
+T2 dimension by making following changes:
+
+Process for creating T2 dimension from INSERT_ONLY dimension:
+
+1) Truncate table product_dim
+2) Drop index nk_product
+3) T2 dimension doesn't allow index to be created on underlying dimension, hence we do not create unique natural key index nk_product as we do for T1 and INSERT_ONLY
+4) Run StreamHorizon
+
+NOTES:
+Above changes simply re-define natural key of product_dim. Natural key in this example is only productModel attribute.
+In previous example (INSERT_ONLY dimension type natural key was made of three attributes  "productName + productModel + productCategory".
+
+You can run test data which comes with Sales Demo as a test of T2 functinality, hoewever this test isn't realilstic. Reason being is that
+Sales Demo loads same file over and over again. In every file natural key will be changed thousands of times. This is never the case in real
+life scenario. 
+
+If you wish to realistically test T2 functionality with Sales Demo change manually one file from your source directory, run StreamHorizon and you
+will see the results. If you pick any natural key (productModel) and for that record in a given file change for example productCategory 
+(and/or productName attribute), you will notice that after you run StreamHorizon T2 dimension will contain more than one record for a given natural
+key (for a value of productModel whose attributes (productCategory or any other) values have been manually changed by yourself.
+
+This example is suitable for you to use as a quide how you can implement T2 type dimension for your own data model.
+
+Note that pre caching statement <preCacheRecords> must have attributes in select clause listed in following order:
+1)Surrogate Key attribute (product_id) 
+2)Natural Key attribute(s) (attributes with naturalKey="true")
+3)Non-Natural Key attribute(s) (attributes where  naturalKey="false")
+
+-->	
+
+
+<!--
+Oracle product_dim configuration for T1:
+-->		
+		<dimension name="product_dim" type="T2" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">
+                <localCacheMaxSize>10000</localCacheMaxSize>
+                <mappedColumns>
+                    <mappedColumn name="productName" naturalKey="false" />
+					<mappedColumn name="productModel" naturalKey="true" />
+					<mappedColumn name="productCategory" naturalKey="false" />
+                    <mappedColumn name="productCost" naturalKey="false" />    
+				</mappedColumns>
+            <sqlStatements>
+				<insertSingleRecord>insert into product_dim(product_id, product_name, product_model, product_category, product_cost,startts, valid) values (product_dim_seq.nextval, '${productName}', '${productModel}', '${productCategory}','${productCost}',systimestamp,'Y')</insertSingleRecord>
+				<retireSingleRecord>update product_dim set valid='N', endts = systimestamp where product_model='${productModel}' and valid='Y' </retireSingleRecord>
+				<selectRecordIdentifier>select product_id from product_dim where product_model='${productModel}' and valid='Y' </selectRecordIdentifier>
+				<preCacheRecords>select product_id, product_name, product_model, product_category, product_cost from product_dim where valid = 'Y' </preCacheRecords>				
+			</sqlStatements>
+		</dimension>
+		
+		
+		
+		
+	
+	
