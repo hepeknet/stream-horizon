@@ -228,7 +228,9 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			throw new RuntimeException(e);
 		} finally {
 			try {
-				preparedStatement.clearBatch();
+				if (preparedStatement != null && !preparedStatement.isClosed()) {
+					preparedStatement.clearBatch();
+				}
 			} catch (final SQLException e) {
 				log.error("Exception while clearing batch", e);
 			}
