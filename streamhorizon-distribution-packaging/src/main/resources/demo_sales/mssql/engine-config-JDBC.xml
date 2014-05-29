@@ -2,6 +2,7 @@
 <config>
 	<connectionProperties>
 		<jdbcUrl><!--SET ME! please change server name (instead of localhost) and port if required, final connection string look like be: jdbc:sqlserver://localhost:1433;user=sh;password=StreamHorizon369;databaseName=sh;PacketSize=-1;protocol=ncalrpc;TransactionMode=implicit;applicationName=StreamHorizon;--></jdbcUrl>
+		<!-- FOR JTDS driver (packaged with StreamHorizon) use URL format jdbc:jtds:sqlserver://localhost;user=sh;password=StreamHorizon369;databaseName=sh;serverName=localhost;PacketSize=-1; -->
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
 	<factFeeds>
