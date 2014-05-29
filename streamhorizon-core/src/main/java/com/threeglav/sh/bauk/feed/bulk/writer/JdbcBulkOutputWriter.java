@@ -35,6 +35,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final int warningThreshold;
 	private final int batchSize;
 	private int rowCounter = 0;
+	private int perFeedRowCounter = 0;
 	private final boolean outputProcessingStatistics;
 	private String currentStatementWithReplacedValues;
 	private final DataSource dataSource;
@@ -134,6 +135,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	@Override
 	public void startWriting(final Map<String, String> globalAttributes) {
 		rowCounter = 0;
+		perFeedRowCounter = 0;
 		batchCommitCounter = 0;
 		this.initializePreparedStatement(globalAttributes);
 	}
@@ -142,8 +144,9 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	public void doWriteOutput(final Object[] resolvedData, final Map<String, String> globalAttributes) {
 		try {
 			rowCounter++;
+			perFeedRowCounter++;
 			if (isDebugEnabled) {
-				log.debug("Populating jdbc statement - row {}", rowCounter);
+				log.debug("Populating jdbc statement - row {} - row in feed {}", rowCounter, perFeedRowCounter);
 			}
 			for (int i = 0; i < resolvedData.length; i++) {
 				preparedStatement.setObject(i + 1, resolvedData[i], sqlTypes[i]);
@@ -153,7 +156,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			preparedStatement.addBatch();
 			if (rowCounter == batchSize) {
 				if (isDebugEnabled) {
-					log.debug("Executing jdbc batch of size {}", batchSize);
+					log.debug("Executing jdbc batch of size {} - row in feed {}", batchSize, perFeedRowCounter);
 				}
 				this.doExecuteJdbcBatch(globalAttributes);
 			}
@@ -215,14 +218,16 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			rowCounter = 0;
 		} catch (final Exception e) {
 			try {
-				connection.rollback();
+				if (connection != null && !connection.isClosed()) {
+					connection.rollback();
+				}
 			} catch (final Exception exc) {
 				log.error("Exception while performing rollback for batch loading", exc);
 			}
 			log.error("Exception while inserting bulk values using jdbc", e);
 			log.error(
-					"Exception caught while trying to commit and close all resources. Prepared statement was {}. Current row counter is {}. All available global attributes are {}",
-					currentStatementWithReplacedValues, rowCounter, globalAttributes);
+					"Exception caught while trying to commit and close all resources. Prepared statement was {}. Current row counter is {} - per feed row counter is {}. All available global attributes are {}",
+					currentStatementWithReplacedValues, rowCounter, perFeedRowCounter, globalAttributes);
 			DataSourceProvider.close(preparedStatement);
 			DataSourceProvider.closeOnly(connection);
 			throw new RuntimeException(e);
