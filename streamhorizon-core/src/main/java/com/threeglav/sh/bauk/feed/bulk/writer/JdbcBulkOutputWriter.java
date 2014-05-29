@@ -164,7 +164,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				log.debug("Successfully populated jdbc statement. Current row number {}", rowCounter);
 			}
 		} catch (final Exception e) {
-			log.error("Exception populating jdbc statement", e);
+			log.error("Exception writing jdbc output", e);
 			log.error("Prepared statement was {}", currentStatementWithReplacedValues);
 			throw new RuntimeException("Problem while populating batch in JDBC statement", e);
 		}
@@ -179,13 +179,15 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			log.debug("Closing feed, inserting remaining batched data. Attributes are {}", globalAttributes);
 		}
 		try {
-			this.doExecuteJdbcBatch(globalAttributes);
-			EngineRegistry.registerSuccessfulBulkFileLoad();
-			globalAttributes
-					.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_FINISHED_PROCESSING_TIMESTAMP, String.valueOf(System.currentTimeMillis()));
-			if (outputProcessingStatistics) {
-				final String message = this.getCurrentThreadName() + " - Finished bulk loading data using JDBC";
-				BaukUtil.logBulkLoadEngineMessage(message);
+			final boolean batchExecuted = this.doExecuteJdbcBatch(globalAttributes);
+			if (batchExecuted) {
+				EngineRegistry.registerSuccessfulBulkFileLoad();
+				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_FINISHED_PROCESSING_TIMESTAMP,
+						String.valueOf(System.currentTimeMillis()));
+				if (outputProcessingStatistics) {
+					final String message = this.getCurrentThreadName() + " - Finished bulk loading data using JDBC";
+					BaukUtil.logBulkLoadEngineMessage(message);
+				}
 			}
 		} finally {
 			DataSourceProvider.close(preparedStatement);
@@ -193,13 +195,16 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		}
 	}
 
-	private void doExecuteJdbcBatch(final Map<String, String> globalAttributes) {
+	private boolean doExecuteJdbcBatch(final Map<String, String> globalAttributes) {
 		try {
 			final long start = System.currentTimeMillis();
 			if (batchCommitCounter == 0) {
 				// we start counting jdbc insert at the first execute to database (per feed)
 				globalAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_JDBC_STARTED_PROCESSING_TIMESTAMP,
 						String.valueOf(System.currentTimeMillis()));
+			}
+			if (connection == null || connection.isClosed() || preparedStatement == null || preparedStatement.isClosed()) {
+				return false;
 			}
 			final int[] values = preparedStatement.executeBatch();
 			connection.commit();
@@ -216,6 +221,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				log.warn("It took more than {} to execute jdbc insert for bulk data. Statement is {}", warningThreshold, insertStatement);
 			}
 			rowCounter = 0;
+			return true;
 		} catch (final Exception e) {
 			try {
 				if (connection != null && !connection.isClosed()) {
