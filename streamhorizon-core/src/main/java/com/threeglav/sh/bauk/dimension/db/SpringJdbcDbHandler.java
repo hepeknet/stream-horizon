@@ -118,7 +118,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 			}
 			final KeyHolder holder = new GeneratedKeyHolder();
 			final long start = System.currentTimeMillis();
-			jdbcTemplate.update(new PreparedStatementCreator() {
+			final int numAffected = jdbcTemplate.update(new PreparedStatementCreator() {
 
 				@Override
 				public PreparedStatement createPreparedStatement(final Connection connection) throws SQLException {
@@ -126,13 +126,16 @@ public final class SpringJdbcDbHandler implements DbHandler {
 				}
 
 			}, holder);
+			if (numAffected < 1) {
+				log.warn("Statement [{}] affected {} rows in total after update", statement, numAffected);
+			}
 			final Number num = holder.getKey();
 			final long total = System.currentTimeMillis() - start;
 			if (total > warningThreshold) {
 				log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, statement, warningThreshold);
 			}
 			if (isDebugEnabled) {
-				log.debug("Returned key after insertion is {}", num);
+				log.debug("Returned key after insertion is {}. Total affected rows {}", num, numAffected);
 			}
 			if (num == null) {
 				return null;
