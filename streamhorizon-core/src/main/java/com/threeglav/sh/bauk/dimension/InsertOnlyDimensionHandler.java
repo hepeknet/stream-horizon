@@ -2,6 +2,7 @@ package com.threeglav.sh.bauk.dimension;
 
 import gnu.trove.map.hash.THashMap;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -459,8 +460,8 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 				sb.append(parsedLine[key]);
 			} catch (final ArrayIndexOutOfBoundsException aioobe) {
 				log.error(
-						"Tried to get data from input feed, position {} but looks like there is not enough data values in this row. Did you configure footer correctly? Do all rows in input feed have same length?",
-						key);
+						"Tried to get data from input feed, position {} but looks like there are only {} values available in this row. Did you configure footer correctly? Do all rows in input feed have same length? Problematic row is [{}]",
+						key, parsedLine.length, Arrays.toString(parsedLine));
 				throw aioobe;
 			}
 		}
