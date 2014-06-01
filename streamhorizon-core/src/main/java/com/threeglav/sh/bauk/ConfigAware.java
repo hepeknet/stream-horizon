@@ -17,6 +17,7 @@ public abstract class ConfigAware {
 	private DbHandler dbHandler;
 	protected final boolean isDebugEnabled;
 	protected final boolean isTraceEnabled;
+	protected final boolean isInfoEnabled;
 
 	public ConfigAware(final FactFeed factFeed, final BaukConfiguration config) {
 		if (factFeed == null) {
@@ -30,6 +31,7 @@ public abstract class ConfigAware {
 		// help JIT remove dead code
 		isDebugEnabled = log.isDebugEnabled();
 		isTraceEnabled = log.isTraceEnabled();
+		isInfoEnabled = log.isInfoEnabled();
 	}
 
 	protected FactFeed getFactFeed() {

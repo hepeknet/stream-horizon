@@ -1,10 +1,13 @@
 package com.threeglav.sh.bauk.feed.bulk.writer;
 
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -41,6 +44,9 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	private final DataSource dataSource;
 	private final StatefulAttributeReplacer statefulReplacer;
 	private int batchCommitCounter;
+
+	// used only for dumping batch update exception data, INFO level must be on
+	private List<List<Object>> preparedStatementDebugData;
 
 	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -138,6 +144,9 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		perFeedRowCounter = 0;
 		batchCommitCounter = 0;
 		this.initializePreparedStatement(globalAttributes);
+		if (isInfoEnabled) {
+			preparedStatementDebugData = new ArrayList<>();
+		}
 	}
 
 	@Override
@@ -148,10 +157,21 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			if (isDebugEnabled) {
 				log.debug("Populating jdbc statement - row {} - row in feed {}", rowCounter, perFeedRowCounter);
 			}
+			List<Object> debugData = null;
+			if (isInfoEnabled) {
+				debugData = new LinkedList<Object>();
+			}
 			for (int i = 0; i < resolvedData.length; i++) {
-				preparedStatement.setObject(i + 1, resolvedData[i], sqlTypes[i]);
+				final int position = i + 1;
+				preparedStatement.setObject(position, resolvedData[i], sqlTypes[i]);
+				if (isInfoEnabled) {
+					debugData.add(resolvedData[i]);
+				}
 				// help GC
 				resolvedData[i] = null;
+			}
+			if (isInfoEnabled) {
+				preparedStatementDebugData.add(debugData);
 			}
 			preparedStatement.addBatch();
 			if (rowCounter == batchSize) {
@@ -206,15 +226,20 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 			if (connection == null || connection.isClosed() || preparedStatement == null || preparedStatement.isClosed()) {
 				return false;
 			}
-			final int[] values = preparedStatement.executeBatch();
-			connection.commit();
-			batchCommitCounter++;
-			if (isDebugEnabled) {
-				int count = 0;
-				for (int i = 0; i < values.length; i++) {
-					count += values[i];
+			try {
+				final int[] values = preparedStatement.executeBatch();
+				connection.commit();
+				batchCommitCounter++;
+				if (isDebugEnabled) {
+					int count = 0;
+					for (int i = 0; i < values.length; i++) {
+						count += values[i];
+					}
+					log.debug("Result of batch insert of bulk values was {} for total of {} rows", count, values.length);
 				}
-				log.debug("Result of batch insert of bulk values was {} for total of {} rows", count, values.length);
+			} catch (final BatchUpdateException bue) {
+				this.dumpBulkOutputExceptionData(bue);
+				throw bue;
 			}
 			final long total = System.currentTimeMillis() - start;
 			if (total > warningThreshold) {
@@ -244,6 +269,27 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 				}
 			} catch (final SQLException e) {
 				log.error("Exception while clearing batch", e);
+			}
+		}
+	}
+
+	protected void dumpBulkOutputExceptionData(final BatchUpdateException bue) {
+		final int[] updateCounts = bue.getUpdateCounts();
+		log.error("Dumping result set for failed batch update");
+		for (int i = 0; i < updateCounts.length; i++) {
+			final int val = updateCounts[i];
+			if (val == PreparedStatement.SUCCESS_NO_INFO) {
+				log.error("Batch position {} - result of execution was successful. Number of updated rows was not provided by driver", i);
+			} else if (val == PreparedStatement.EXECUTE_FAILED) {
+				log.error("Batch position {} - result of execution failed", i);
+				if (preparedStatementDebugData != null) {
+					final List<Object> debugDataForRow = preparedStatementDebugData.get(i);
+					if (debugDataForRow != null) {
+						log.error("For batch position {} prepared statement data is {}", i, debugDataForRow.toString());
+					}
+				}
+			} else {
+				log.error("Batch position {} - result of execution was successful and in total {} rows were affected in the database", i, val);
 			}
 		}
 	}

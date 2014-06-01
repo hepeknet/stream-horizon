@@ -368,9 +368,9 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 					dexc.getMessage(), preparedInsertStatement);
 		} catch (final Exception exc) {
 			log.error(
-					"Failed inserting record into database. This should not happen! Check database connection! Will try to select value from database!",
+					"Failed inserting record into database. This should not happen! Check database connection! After this will also try to select SK value from database!",
 					exc);
-			log.error("Insert statement was {}", preparedInsertStatement);
+			log.error("Failed insert statement was {}", preparedInsertStatement);
 		}
 		return null;
 	}

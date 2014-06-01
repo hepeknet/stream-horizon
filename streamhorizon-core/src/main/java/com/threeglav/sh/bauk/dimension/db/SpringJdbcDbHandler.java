@@ -140,7 +140,13 @@ public final class SpringJdbcDbHandler implements DbHandler {
 			if (num == null) {
 				return null;
 			}
-			return num.longValue();
+			final long val = num.longValue();
+			if (val <= 0) {
+				log.warn(
+						"Primary key should not be non-positive integer. Statement {} generated primary key of value {}. Please check how you configured your tables!",
+						statement, val);
+			}
+			return val;
 		} catch (final DuplicateKeyException dke) {
 			throw dke;
 		} catch (final Exception exc) {

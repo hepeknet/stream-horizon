@@ -9,13 +9,13 @@ import com.threeglav.sh.bauk.model.Dimension;
 
 public final class DimensionCacheTroveImpl extends AbstractDimensionCache {
 
-	private static final int NO_ENTRY_INT_VALUE = Integer.MIN_VALUE;
+	private static final int NO_ENTRY_INT_VALUE = Integer.valueOf(0);
 
 	private final TObjectIntHashMap<String> localCache;
 
 	public DimensionCacheTroveImpl(final CacheInstance cacheInstance, final Dimension dimension) {
 		super(cacheInstance, dimension);
-		System.setProperty("gnu.trove.no_entry.int", "MIN_VALUE");
+		// System.setProperty("gnu.trove.no_entry.int", "MIN_VALUE");
 		localCache = new TObjectIntHashMap<>(maxElementsInLocalCache);
 	}
 
