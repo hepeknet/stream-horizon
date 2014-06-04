@@ -45,7 +45,14 @@
 			<outputDirectory></outputDirectory>
 			<includes>
 				<include>LICENCE.TXT</include>
-				<include>streamhorizon_test_demo_deployment_guide.pdf</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>src/main/resources/</directory>
+			<outputDirectory>guides</outputDirectory>
+			<includes>
+				<include>*.pdf</include>
+				<include>*.doc</include>
 			</includes>
 		</fileSet>
 		<fileSet>

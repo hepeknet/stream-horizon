@@ -1,22 +1,53 @@
 <!--
 Insert only dimension example is given in Sales Demo engine-config.xml. All dimensions by default are of type INSERT_ONLY
 -->
-<dimension name="product_dim" type="INSERT_ONLY">		
-	<mappedColumns>
-		<mappedColumn name="productName" naturalKey="true" />
-		<mappedColumn name="productModel" naturalKey="true" />
-		<mappedColumn name="productCategory" naturalKey="true" />
-		<mappedColumn name="productCost" naturalKey="true" />
-	</mappedColumns>
-	<sqlStatements>
-		<insertSingleRecord>insert into product_dim(product_id, product_name, product_model, product_category, product_cost) values (product_dim_seq.nextval, '${productName}', '${productModel}', '${productCategory}', '${productCost}')</insertSingleRecord>
-		<selectRecordIdentifier>select product_id from product_dim where product_name='${productName}' and product_model='${productModel}' and product_category='${productCategory}' and product_cost='${productCost}'</selectRecordIdentifier>
-		<preCacheRecords>select product_id, product_name, product_model, product_category, product_cost from product_dim</preCacheRecords>
-	</sqlStatements>
-</dimension>
-		
+
+
+
+
+<!--
+---------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------- Oracle T1 configuration for proudct_dimconfiguration ----------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+-->
+		<dimension name="product_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="productName" naturalKey="true" />
+				<mappedColumn name="productModel" naturalKey="true" />
+				<mappedColumn name="productCategory" naturalKey="true" />
+				<mappedColumn name="productCost" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>insert into product_dim(product_id, product_name, product_model, product_category, product_cost) values (product_dim_seq.nextval, '${productName}', '${productModel}', '${productCategory}', '${productCost}')</insertSingleRecord>
+				<selectRecordIdentifier>select product_id from product_dim where product_name='${productName}' and product_model='${productModel}' and product_category='${productCategory}' and product_cost='${productCost}'</selectRecordIdentifier>
+				<preCacheRecords>select product_id, product_name, product_model, product_category, product_cost from product_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+				
 		
 		
 		
 	
-	
+<!--
+---------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------- MSSQL T1 configuration for proudct_dimconfiguration -----------------------------
+---------------------------------------------------------------------------------------------------------------------------------
+-->
+
+		<dimension name="product_dim" type="INSERT_ONLY">		
+			<mappedColumns>
+				<mappedColumn name="productName" naturalKey="true" />
+				<mappedColumn name="productModel" naturalKey="true" />
+				<mappedColumn name="productCategory" naturalKey="true" />
+				<mappedColumn name="productCost" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into product_dim(product_name, product_model, product_category, product_cost) values ('${productName}', '${productModel}', '${productCategory}', '${productCost}')
+				</insertSingleRecord>
+				<selectRecordIdentifier>select product_id from product_dim where product_name='${productName}' and product_model='${productModel}' and product_category='${productCategory}' and product_cost='${productCost}'</selectRecordIdentifier>
+				<preCacheRecords>select product_id, product_name, product_model, product_category, product_cost from product_dim</preCacheRecords>
+			</sqlStatements>
+		</dimension>	
+		
+		

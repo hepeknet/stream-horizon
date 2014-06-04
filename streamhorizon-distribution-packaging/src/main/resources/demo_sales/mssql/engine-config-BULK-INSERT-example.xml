@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <config>
 	<connectionProperties>
-		<jdbcUrl>jdbc:sqlserver://localhost:1433;user=sh;password=StremHorizon369;databaseName=sh;PacketSize=-1;protocol=ncalrpc;TransactionMode=implicit;applicationName=StremHorizon;</jdbcUrl>	
+		<!--sample connection string using JTDS JDBC drivers-->
+		<jdbcUrl>jdbc:jtds:sqlserver://localhost:1433;instance=MyDBInstance;serverName=localhost;user=sh;password=StremHorizon369</jdbcUrl>	
+		<!--sample connection string using Microsoft JDBC drivers-->
+		<!--jdbcUrl>jdbc:sqlserver://localhost:1433;user=sh;password=StremHorizon369;databaseName=sh;PacketSize=-1;protocol=ncalrpc;TransactionMode=implicit;applicationName=StremHorizon;</jdbcUrl-->	
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
 	<factFeeds>

@@ -2,39 +2,53 @@
 Assuming that your current deployment has INSERT_ONLY type dimeension (as given in Sales Demo) you can simply test 
 T2 dimension by making following changes:
 
-Process for creating T2 dimension from INSERT_ONLY dimension:
+Process for creating T2 dimension from INSERT_ONLY dimension (as it is given in Sales Demo):
 
-1) Truncate table product_dim
-2) Drop index nk_product
-3) T2 dimension doesn't allow index to be created on underlying dimension, hence we do not create unique natural key index nk_product as we do for T1 and INSERT_ONLY
+1) If you have altered data model from how it was shipped with Sales Demo please re-run database scipt as it is given in Sales Demo (alternatively just undo changes you have made).
+2) Execute database script as given below (note, two versions are available, Oracle and MSSQL). 
+3) Change engine-config.xml for pdoduct_dim as given below (note, two versions are available, Oracle and MSSQL)
 4) Run StreamHorizon
 
+
 NOTES:
-Above changes simply re-define natural key of product_dim. Natural key in this example is only productModel attribute.
-In previous example (INSERT_ONLY dimension type natural key was made of three attributes  "productName + productModel + productCategory".
 
-You can run test data which comes with Sales Demo as a test of T2 functinality, hoewever this test isn't realilstic. Reason being is that
+1)
+You can run test data which comes with Sales Demo as a test of T2 functionality, however this test isn't realistic. Reason being is that
 Sales Demo loads same file over and over again. In every file natural key will be changed thousands of times. This is never the case in real
-life scenario. 
+life scenario. As a consequence, if you test with Sales Demo StreamHorizon sample data throughput will be unrealistically small due to enormous number of update & insert statements.
 
-If you wish to realistically test T2 functionality with Sales Demo change manually one file from your source directory, run StreamHorizon and you
-will see the results. If you pick any natural key (productModel) and for that record in a given file change for example productCategory 
-(and/or productName attribute), you will notice that after you run StreamHorizon T2 dimension will contain more than one record for a given natural
-key (for a value of productModel whose attributes (productCategory or any other) values have been manually changed by yourself.
+2)
+Above changes simply re-define natural key of product_dim. Natural key in this example is only the "productModel" attribute.
+In previous example (INSERT_ONLY dimension type natural key was made of three attributes  "productName + productModel + productCategory").
 
-This example is suitable for you to use as a quide how you can implement T2 type dimension for your own data model.
-
-Note that pre caching statement <preCacheRecords> must have attributes in select clause listed in following order:
-1)Surrogate Key attribute (product_id) 
-2)Natural Key attribute(s) (attributes with naturalKey="true")
-3)Non-Natural Key attribute(s) (attributes where  naturalKey="false")
-
+3)
+Pre-caching for T2 dimension (<preCacheRecords> tag) is not supported. If supplied, it will be ignored.
 -->	
 
 
+
+
+
 <!--
-Oracle product_dim configuration for T1:
+--------------------------------------------------------------------------------------------------------
+----------------------------------------- Oracle scripts -----------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+Oracle product_dim database script for T2:
+
+TRUNCATE TABLE sales_fact;
+TRUNCATE TABLE product_dim;
+DROP INDEX nk_product;
+ALTER TABLE product_dim ADD startts TIMESTAMP NULL;
+ALTER TABLE product_dim ADD endts TIMESTAMP NULL;
+ALTER TABLE product_dim ADD valid CHAR(1) NULL;
+
+
+
+
+Oracle product_dim configuration for T2:
 -->		
+
 		<dimension name="product_dim" type="T2" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">
                 <localCacheMaxSize>10000</localCacheMaxSize>
                 <mappedColumns>
@@ -51,6 +65,50 @@ Oracle product_dim configuration for T1:
 			</sqlStatements>
 		</dimension>
 		
+		
+		
+		
+<!--
+--------------------------------------------------------------------------------------------------------
+------------------------------------------ MSSQL scripts -----------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+MSSQL product_dim database script for T2:
+
+USE sh;
+GO
+ALTER TABLE dbo.sales_fact DROP CONSTRAINT product_fk;
+ALTER TABLE dbo.product_dim DROP CONSTRAINT nk_product;
+GO
+TRUNCATE TABLE dbo.sales_fact;
+TRUNCATE TABLE dbo.product_dim;
+GO
+ALTER TABLE dbo.product_dim ADD startts DATETIME NULL; 
+ALTER TABLE dbo.product_dim ADD endts DATETIME NULL; 
+ALTER TABLE dbo.product_dim ADD valid CHAR(1) NULL; 
+GO
+
+
+
+
+MSSQL product_dim configuration for T2:
+-->		
+
+		<dimension name="product_dim" type="T2" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">
+                <localCacheMaxSize>10000</localCacheMaxSize>
+                <mappedColumns>
+                    <mappedColumn name="productName" naturalKey="false" />
+					<mappedColumn name="productModel" naturalKey="true" />
+					<mappedColumn name="productCategory" naturalKey="false" />
+                    <mappedColumn name="productCost" naturalKey="false" />    
+				</mappedColumns>
+            <sqlStatements>
+				<insertSingleRecord>insert into product_dim (product_name, product_model, product_category, product_cost,startts, valid) values ('${productName}', '${productModel}', '${productCategory}','${productCost}',GETDATE(),'Y')</insertSingleRecord>
+				<retireSingleRecord>update product_dim set valid='N', endts = GETDATE() where product_model='${productModel}' and valid='Y' </retireSingleRecord>
+				<selectRecordIdentifier>select product_id from product_dim where product_model='${productModel}' and valid='Y' </selectRecordIdentifier>
+			</sqlStatements>
+		</dimension>
+
 		
 		
 		
