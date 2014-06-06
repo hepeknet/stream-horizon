@@ -15,6 +15,9 @@ public class RPCBaukFile extends BaukFile {
 		if (feed == null) {
 			throw new IllegalArgumentException("Feed must not be null");
 		}
+		if (feed.getData() == null || feed.getData().isEmpty()) {
+			throw new IllegalArgumentException("Feed data must not be null or empty");
+		}
 		this.feed = feed;
 		this.setSize(feed.getSizeBytes());
 		this.setFileNameOnly(feed.getFeedName());

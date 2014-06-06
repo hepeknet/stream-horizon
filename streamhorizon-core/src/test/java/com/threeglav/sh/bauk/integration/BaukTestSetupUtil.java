@@ -133,11 +133,10 @@ public class BaukTestSetupUtil {
 	}
 
 	private InputFeed createFeed(final String[] lines) {
-		if (lines == null) {
-			throw new IllegalArgumentException("Feed lines must be populated");
-		}
 		final InputFeed feed = new InputFeed();
-		feed.setData(Arrays.asList(lines));
+		if (lines != null) {
+			feed.setData(Arrays.asList(lines));
+		}
 		return feed;
 	}
 
@@ -194,7 +193,7 @@ public class BaukTestSetupUtil {
 		final List<Map<String, String>> results = new LinkedList<>();
 		final Connection conn = getConnection();
 		final Statement stat = conn.createStatement();
-		stat.execute("select f1, f2, f3, f4 from TEST_FACT order by f1");
+		stat.execute("select f1, f2, f3, f4 from TEST_FACT order by f1, f2");
 		final ResultSet rs = stat.getResultSet();
 		while (rs.next()) {
 			final Map<String, String> row = new HashMap<String, String>();

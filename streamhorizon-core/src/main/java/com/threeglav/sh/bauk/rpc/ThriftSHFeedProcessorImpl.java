@@ -26,7 +26,7 @@ public class ThriftSHFeedProcessorImpl implements SHFeedProcessor.Iface {
 		try {
 			bf = new RPCBaukFile(feedToProcess);
 		} catch (final Exception exc) {
-			log.error("Unable to understand provided feed", exc);
+			log.error("Unable to understand feed provided via RPC", exc);
 			return ProcessingResult.INVALID_FEED;
 		}
 		try {
