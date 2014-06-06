@@ -25,7 +25,7 @@ public class ThriftFeedHandler extends AbstractFeedHandler {
 		super(factFeed, config);
 		final ArrayList<BaukProperty> properties = factFeed.getSource().getProperties();
 		final String configuredPortNumber = BaukPropertyUtil.getRequiredUniqueProperty(properties,
-				FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME).getName();
+				FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME).getValue();
 		portNumber = Integer.valueOf(configuredPortNumber);
 		this.initializeServer();
 	}

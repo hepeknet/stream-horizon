@@ -168,7 +168,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		// if testing throughput no need to move or delete file
 		if (!throughputTestingMode) {
 			try {
-				if (moveToArchiveFileProcessor != null) {
+				if (moveToArchiveFileProcessor != null && file.getPath() != null) {
 					moveToArchiveFileProcessor.handleError(file.getPath(), null);
 				} else {
 					file.delete();

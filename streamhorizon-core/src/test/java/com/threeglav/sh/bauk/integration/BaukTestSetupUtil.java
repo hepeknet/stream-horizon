@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,9 +18,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
 
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.main.StreamHorizonEngine;
+import com.threeglav.sh.bauk.rpc.InputFeed;
+import com.threeglav.sh.bauk.rpc.ProcessingResult;
+import com.threeglav.sh.bauk.rpc.SHFeedProcessor;
 
 public class BaukTestSetupUtil {
 
@@ -101,6 +112,33 @@ public class BaukTestSetupUtil {
 		inputFile.deleteOnExit();
 		FileUtils.writeLines(inputFile, linesColl);
 		return inputFile;
+	}
+
+	public ProcessingResult sendInputDataOverRPC(final String[] lines, final int port) {
+		TTransport transport;
+		try {
+			transport = new TFramedTransport(new TSocket("localhost", port));
+			final TProtocol protocol = new TBinaryProtocol(transport);
+			final SHFeedProcessor.Client client = new SHFeedProcessor.Client(protocol);
+			transport.open();
+			final ProcessingResult pr = client.processFeed(this.createFeed(lines));
+			transport.close();
+			return pr;
+		} catch (final TTransportException e) {
+			e.printStackTrace();
+		} catch (final TException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private InputFeed createFeed(final String[] lines) {
+		if (lines == null) {
+			throw new IllegalArgumentException("Feed lines must be populated");
+		}
+		final InputFeed feed = new InputFeed();
+		feed.setData(Arrays.asList(lines));
+		return feed;
 	}
 
 	public void stopBaukInstance() throws Exception {

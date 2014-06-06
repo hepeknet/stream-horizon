@@ -113,7 +113,7 @@ class ConfigurationValidator {
 		} else if (FeedSource.RPC_FEED_SOURCE.equalsIgnoreCase(sourceType)) {
 			final ArrayList<BaukProperty> properties = ff.getSource().getProperties();
 			final String configuredPortNumber = BaukPropertyUtil.getRequiredUniqueProperty(properties,
-					FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME).getName();
+					FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME).getValue();
 			if (StringUtil.isEmpty(configuredPortNumber)) {
 				throw new IllegalStateException("When using " + FeedSource.RPC_FEED_SOURCE + " feed source you must specify "
 						+ FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME + " property!");
@@ -124,7 +124,7 @@ class ConfigurationValidator {
 				log.info("Feed source is {} and will use server port {}", FeedSource.RPC_FEED_SOURCE, portNum);
 
 			} catch (final Exception exc) {
-				throw new IllegalStateException("Exception while converting " + configuredPortNumber + " to integer value!");
+				throw new IllegalStateException("Exception while converting port value [" + configuredPortNumber + "] to integer value!");
 			}
 		}
 		return null;
