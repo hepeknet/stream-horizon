@@ -66,7 +66,7 @@ public class BaukFile {
 		return path;
 	}
 
-	public File asFile() {
+	protected File asFile() {
 		return new File(fullFilePath);
 	}
 

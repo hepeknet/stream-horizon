@@ -1,7 +1,6 @@
 package com.threeglav.sh.bauk.files;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -53,11 +52,6 @@ public class CachedBaukFile extends BaukFile {
 	@Override
 	public Path getPath() {
 		return originalFile.getPath();
-	}
-
-	@Override
-	public File asFile() {
-		return originalFile.asFile();
 	}
 
 	@Override

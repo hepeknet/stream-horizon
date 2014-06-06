@@ -19,6 +19,7 @@ import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 public class ThriftFeedHandler extends AbstractFeedHandler {
 
 	private final int portNumber;
+	private TServer server;
 
 	public ThriftFeedHandler(final FactFeed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
@@ -26,14 +27,15 @@ public class ThriftFeedHandler extends AbstractFeedHandler {
 		final String configuredPortNumber = BaukPropertyUtil.getRequiredUniqueProperty(properties,
 				FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME).getName();
 		portNumber = Integer.valueOf(configuredPortNumber);
+		this.initializeServer();
 	}
 
-	@Override
-	public void init() {
+	private void initializeServer() {
 		try {
 			log.info("Starting non-blocking thrift server on port {}", portNumber);
 			final TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(portNumber);
-			final SHFeedProcessor.Processor processor = new SHFeedProcessor.Processor(new ThriftSHFeedProcessorImpl());
+			final FeedFileProcessor ffp = new FeedFileProcessor(factFeed, config, "rpc-feed");
+			final SHFeedProcessor.Processor processor = new SHFeedProcessor.Processor(new ThriftSHFeedProcessorImpl(ffp));
 			final TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(processor));
 			server.serve();
 			log.debug("Successfully started thrift server on port {}", portNumber);
@@ -41,6 +43,24 @@ public class ThriftFeedHandler extends AbstractFeedHandler {
 			log.error("Error while starting thrift server on port {}. Details {}", portNumber, e.getMessage());
 			log.error("Exception ", e);
 			System.exit(-1);
+		}
+	}
+
+	@Override
+	public void init() {
+
+	}
+
+	@Override
+	public int start() {
+		return 1;
+	}
+
+	@Override
+	public void stop() {
+		if (server != null) {
+			server.stop();
+			log.info("Stopped thrift server listening on port {}", portNumber);
 		}
 	}
 

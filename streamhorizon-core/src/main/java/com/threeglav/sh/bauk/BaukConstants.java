@@ -2,6 +2,8 @@ package com.threeglav.sh.bauk;
 
 public interface BaukConstants {
 
+	public static final String NEWLINE_STRING = System.getProperty("line.separator");
+
 	public static final int LOW_CARDINALITY_DIMENSION_PRE_CACHE_KEYS_THRESHOLD = 5000;
 
 	public static final int WAIT_FOR_THREADS_TO_DIE_ON_SHUTDOWN_SECONDS = 10;
