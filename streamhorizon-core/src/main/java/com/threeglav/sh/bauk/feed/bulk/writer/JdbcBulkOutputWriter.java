@@ -92,7 +92,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		log.info("Will use {} batch size for loading bulk data using JDBC", batchSize);
 		outputProcessingStatistics = ConfigurationProperties.getSystemProperty(
 				BaukEngineConfigurationConstants.PRINT_PROCESSING_STATISTICS_PARAM_NAME, false);
-		dataSource = DataSourceProvider.getDataSource(this.getConfig());
+		dataSource = DataSourceProvider.getBulkJdbcDataSource(this.getConfig());
 		statefulReplacer = new StatefulAttributeReplacer(insertStatement, this.getConfig().getDatabaseStringLiteral(), this.getConfig()
 				.getDatabaseStringEscapeLiteral());
 	}

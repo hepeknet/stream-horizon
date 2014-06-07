@@ -27,6 +27,7 @@ import com.threeglav.sh.bauk.files.bulk.BulkFilesHandler;
 import com.threeglav.sh.bauk.files.feed.FeedFilesHandler;
 import com.threeglav.sh.bauk.files.feed.FeedHandler;
 import com.threeglav.sh.bauk.files.feed.ThriftFeedHandler;
+import com.threeglav.sh.bauk.files.feed.jdbc.JdbcFeedHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.FactFeed;
 import com.threeglav.sh.bauk.model.FeedSource;
@@ -134,6 +135,8 @@ public class StreamHorizonEngine {
 					feedHandler = new FeedFilesHandler(feed, config);
 				} else if (FeedSource.RPC_FEED_SOURCE.equalsIgnoreCase(feedSourceType)) {
 					feedHandler = new ThriftFeedHandler(feed, config);
+				} else if (FeedSource.JDBC_FEED_SOURCE.equalsIgnoreCase(feedSourceType)) {
+					feedHandler = new JdbcFeedHandler(feed, config);
 				} else {
 					throw new IllegalArgumentException("Unsupported feed source type " + feedSourceType);
 				}

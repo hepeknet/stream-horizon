@@ -38,7 +38,7 @@ public class ThriftFeedHandler extends AbstractFeedHandler {
 			final SHFeedProcessor.Processor processor = new SHFeedProcessor.Processor(new ThriftSHFeedProcessorImpl(ffp));
 			final TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).processor(processor));
 			server.serve();
-			log.debug("Successfully started thrift server on port {}", portNumber);
+			log.info("Successfully started StreamHorizon thrift server listening on port {}", portNumber);
 		} catch (final TTransportException e) {
 			log.error("Error while starting thrift server on port {}. Details {}", portNumber, e.getMessage());
 			log.error("Exception ", e);

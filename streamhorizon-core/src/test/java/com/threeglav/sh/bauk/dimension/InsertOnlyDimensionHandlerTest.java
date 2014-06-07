@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sql.DataSource;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -347,12 +349,17 @@ public class InsertOnlyDimensionHandlerTest {
 			}
 
 			@Override
-			public Map<String, String> executeSelectStatement(final String statement, final String description) {
+			public Map<String, String> executeSingleRowSelectStatement(final String statement, final String description) {
 				return null;
 			}
 
 			@Override
 			public TransactionTemplate getTransactionTemplate() {
+				return null;
+			}
+
+			@Override
+			public List<List<String>> selectAllRowsAsStrings(final String sqlStatement, final DataSource dataSource) {
 				return null;
 			}
 		};

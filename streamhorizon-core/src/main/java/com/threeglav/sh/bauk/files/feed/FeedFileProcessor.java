@@ -144,7 +144,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 							BaukEngineConfigurationConstants.JDBC_THREADS_PARTITION_COUNT, jdbcThreadPartitionCount);
 				}
 			} else {
-				log.info("Will not turn on jdbc partitioning because {} is set to {} - must be positive integer",
+				log.info("Will not turn on jdbc partitioning because {} is set to {}. Must be positive integer in order to turn partitioning on.",
 						BaukEngineConfigurationConstants.JDBC_THREADS_PARTITION_COUNT, jdbcThreadPartitionCount);
 			}
 		}

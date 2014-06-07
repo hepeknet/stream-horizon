@@ -290,6 +290,19 @@ public class BaukTestSetupUtil {
 		stat.execute("delete from TEST_FACT");
 		stat.execute("delete from FEED_REC");
 		stat.execute("delete from BULK_LOAD_REC");
+		stat.execute("delete from FEED_SOURCE");
+		stat.close();
+		conn.close();
+	}
+
+	public static void populateFeedSourceTable() throws Exception {
+		final Connection conn = getConnection();
+		final Statement stat = conn.createStatement();
+		stat.execute("ALTER TABLE FEED_SOURCE ALTER COLUMN id RESTART WITH 1");
+		stat.execute("insert into FEED_SOURCE (id,c1,c2,c3,c4) values (1,'10','100','a1','b1')");
+		stat.execute("insert into FEED_SOURCE (id,c1,c2,c3,c4) values (2,'20','200','a1','b1')");
+		stat.execute("insert into FEED_SOURCE (id,c1,c2,c3,c4) values (3,'30','300','a1','b1')");
+		conn.commit();
 		stat.close();
 		conn.close();
 	}
@@ -301,6 +314,7 @@ public class BaukTestSetupUtil {
 			stat.execute("drop table TEST_DIM");
 			stat.execute("drop table BIG_TEST_DIM");
 			stat.execute("drop table T2_TEST_DIM");
+			stat.execute("drop table FEED_SOURCE");
 		} catch (final Exception ignored) {
 		}
 		try {
@@ -313,6 +327,7 @@ public class BaukTestSetupUtil {
 		stat.execute("create table TEST_FACT (f1 INTEGER,f2 INTEGER,f3 INTEGER, f4 VARCHAR(100))");
 		stat.execute("create table FEED_REC(cnt INTEGER, flag VARCHAR(10))");
 		stat.execute("create table BULK_LOAD_REC(cnt INTEGER, filepath VARCHAR(200))");
+		stat.execute("create table FEED_SOURCE(id INTEGER NOT NULL AUTO_INCREMENT, c1 VARCHAR(20), c2 VARCHAR(20), c3 VARCHAR(20), c4 VARCHAR(20))");
 		stat.close();
 		conn.close();
 	}

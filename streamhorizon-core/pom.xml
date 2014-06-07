@@ -130,6 +130,11 @@
 			<artifactId>commons-lang</artifactId>
 			<version>${version.commons.lang}</version>
 		</dependency>
+		<dependency>
+    		<groupId>org.quartz-scheduler</groupId>
+    		<artifactId>quartz</artifactId>
+    		<version>${version.quartz}</version>
+		</dependency>
 	</dependencies>
 
 </project>

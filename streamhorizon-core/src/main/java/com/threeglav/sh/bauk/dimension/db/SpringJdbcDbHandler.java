@@ -3,8 +3,10 @@ package com.threeglav.sh.bauk.dimension.db;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +46,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 		if (config == null) {
 			throw new IllegalArgumentException("Config must not be null");
 		}
-		final DataSource ds = DataSourceProvider.getDataSource(config);
+		final DataSource ds = DataSourceProvider.getBulkJdbcDataSource(config);
 		jdbcTemplate = new JdbcTemplate(ds);
 		final DataSourceTransactionManager dstm = new DataSourceTransactionManager(ds);
 		txTemplate = new TransactionTemplate(dstm);
@@ -222,7 +224,7 @@ public final class SpringJdbcDbHandler implements DbHandler {
 	}
 
 	@Override
-	public Map<String, String> executeSelectStatement(final String statement, final String description) {
+	public Map<String, String> executeSingleRowSelectStatement(final String statement, final String description) {
 		if (StringUtil.isEmpty(statement)) {
 			throw new IllegalArgumentException("Statement must not be null or empty!");
 		}
@@ -274,6 +276,55 @@ public final class SpringJdbcDbHandler implements DbHandler {
 	@Override
 	public TransactionTemplate getTransactionTemplate() {
 		return txTemplate;
+	}
+
+	@Override
+	public List<List<String>> selectAllRowsAsStrings(final String sqlStatement, final DataSource dataSource) {
+		if (StringUtil.isEmpty(sqlStatement)) {
+			throw new IllegalArgumentException("Statement must not be null or empty!");
+		}
+		if (dataSource == null) {
+			throw new IllegalArgumentException("Data source must not be null");
+		}
+		try {
+			final JdbcTemplate jdTemp = new JdbcTemplate(dataSource);
+			if (isDebugEnabled) {
+				log.debug("About to execute query statement [{}], Will return all results as string values", sqlStatement);
+			}
+			final long start = System.currentTimeMillis();
+			final List<List<String>> queryResults = jdTemp.query(sqlStatement, new RowMapper<List<String>>() {
+
+				private int numberOfColumns = -1;
+
+				@Override
+				public List<String> mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+					if (numberOfColumns < 0) {
+						final ResultSetMetaData rsmd = rs.getMetaData();
+						numberOfColumns = rsmd.getColumnCount();
+					}
+					final List<String> values = new ArrayList<String>();
+					for (int i = 1; i <= numberOfColumns; i++) {
+						final String val = rs.getString(i);
+						values.add(val);
+					}
+					return values;
+				}
+
+			});
+			log.debug("In total found {} rows as result of execution of {}", queryResults.size(), sqlStatement);
+			final long total = System.currentTimeMillis() - start;
+			if (total > warningThreshold) {
+				log.warn("Took {}ms to execute {}. More than configured threshold {}ms", total, sqlStatement, warningThreshold);
+			}
+			if (isDebugEnabled) {
+				log.debug("Successfully executed {}. Results {}", sqlStatement, queryResults);
+			}
+			return queryResults;
+		} catch (final Exception exc) {
+			final String message = "Exception while executing select statement " + sqlStatement + ".";
+			log.error(message, exc);
+			throw new RuntimeException(message, exc);
+		}
 	}
 
 }

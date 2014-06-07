@@ -25,6 +25,14 @@ public class FeedSource {
 
 	public static final String RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME = "port";
 
+	public static final String JDBC_FEED_SOURCE = "jdbc";
+
+	public static final String JDBC_FEED_SOURCE_SQL_STATEMENT_PROPERTY_NAME = "sqlStatement";
+
+	public static final String JDBC_FEED_SOURCE_SCHEDULE_PROPERTY_NAME = "schedule";
+
+	public static final String JDBC_FEED_SOURCE_JDBC_URL_PROPERTY_NAME = "jdbcUrl";
+
 	@XmlAttribute(required = true)
 	private String type;
 

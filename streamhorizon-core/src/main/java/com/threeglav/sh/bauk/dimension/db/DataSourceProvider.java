@@ -26,7 +26,9 @@ public class DataSourceProvider {
 
 	private HikariDataSource warehouseDataSource;
 
-	private HikariDataSource inMemoryDataSource;
+	private HikariDataSource bulkSubmissionDataSource;
+
+	private HikariDataSource jdbcFeedSourceDataSource;
 
 	private DataSourceProvider() {
 
@@ -84,9 +86,16 @@ public class DataSourceProvider {
 				// ignore
 			}
 		}
-		if (INSTANCE.inMemoryDataSource != null) {
+		if (INSTANCE.bulkSubmissionDataSource != null) {
 			try {
-				INSTANCE.inMemoryDataSource.shutdown();
+				INSTANCE.bulkSubmissionDataSource.shutdown();
+			} catch (final Exception ignored) {
+				// ignore
+			}
+		}
+		if (INSTANCE.jdbcFeedSourceDataSource != null) {
+			try {
+				INSTANCE.jdbcFeedSourceDataSource.shutdown();
 			} catch (final Exception ignored) {
 				// ignore
 			}
@@ -119,15 +128,15 @@ public class DataSourceProvider {
 		}
 	}
 
-	public static synchronized DataSource getDataSource(final BaukConfiguration config) {
+	public static synchronized DataSource getBulkJdbcDataSource(final BaukConfiguration config) {
 		if (INSTANCE.warehouseDataSource == null) {
 			INSTANCE.warehouseDataSource = INSTANCE.createWhDataSource(config);
 		}
 		return INSTANCE.warehouseDataSource;
 	}
 
-	public static synchronized DataSource getSimpleDataSource(final String jdbcUrl) {
-		if (INSTANCE.inMemoryDataSource == null) {
+	public static synchronized DataSource getBulkSubmissionDataSource(final String jdbcUrl) {
+		if (INSTANCE.bulkSubmissionDataSource == null) {
 			if (StringUtil.isEmpty(jdbcUrl)) {
 				throw new IllegalArgumentException("JDBC url must not be null or empty");
 			}
@@ -137,9 +146,25 @@ public class DataSourceProvider {
 			config.setRegisterMbeans(false);
 			setDataSourceProperties(jdbcUrl, config);
 			final HikariDataSource ds = new HikariDataSource(config);
-			INSTANCE.inMemoryDataSource = ds;
+			INSTANCE.bulkSubmissionDataSource = ds;
 		}
-		return INSTANCE.inMemoryDataSource;
+		return INSTANCE.bulkSubmissionDataSource;
+	}
+
+	public static synchronized DataSource getJdbcFeedSourceDataSource(final String jdbcUrl) {
+		if (INSTANCE.jdbcFeedSourceDataSource == null) {
+			if (StringUtil.isEmpty(jdbcUrl)) {
+				throw new IllegalArgumentException("JDBC url must not be null or empty");
+			}
+			final HikariConfig config = new HikariConfig();
+			// TODO: check if this needs to be configurable
+			config.setMaximumPoolSize(10);
+			config.setRegisterMbeans(false);
+			setDataSourceProperties(jdbcUrl, config);
+			final HikariDataSource ds = new HikariDataSource(config);
+			INSTANCE.jdbcFeedSourceDataSource = ds;
+		}
+		return INSTANCE.jdbcFeedSourceDataSource;
 	}
 
 	public static void close(final Connection connection) {

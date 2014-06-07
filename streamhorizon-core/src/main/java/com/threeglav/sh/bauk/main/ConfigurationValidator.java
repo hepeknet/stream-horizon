@@ -95,11 +95,13 @@ class ConfigurationValidator {
 		if (StringUtil.isEmpty(sourceType)) {
 			throw new IllegalStateException("Feed source type can not be null or empty!");
 		}
+		final ArrayList<BaukProperty> properties = ff.getSource().getProperties();
 		if (FeedSource.FILE_FEED_SOURCE.equalsIgnoreCase(sourceType)) {
-			final ArrayList<BaukProperty> properties = ff.getSource().getProperties();
 			final String configuredSourceDirectory = BaukPropertyUtil.getRequiredUniqueProperty(properties,
-					FeedSource.FILE_FEED_SOURCE_DIRECTORY_PATH_PROPERTY_NAME).getName();
-			if (StringUtil.isEmpty(configuredSourceDirectory)) {
+					FeedSource.FILE_FEED_SOURCE_DIRECTORY_PATH_PROPERTY_NAME).getValue();
+			final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
+					configuredSourceDirectory);
+			if (StringUtil.isEmpty(sourceDirectory)) {
 				throw new IllegalStateException("For file feed source " + FeedSource.FILE_FEED_SOURCE_DIRECTORY_PATH_PROPERTY_NAME
 						+ " must be defined!");
 			}
@@ -111,7 +113,6 @@ class ConfigurationValidator {
 			}
 			return configuredSourceDirectory;
 		} else if (FeedSource.RPC_FEED_SOURCE.equalsIgnoreCase(sourceType)) {
-			final ArrayList<BaukProperty> properties = ff.getSource().getProperties();
 			final String configuredPortNumber = BaukPropertyUtil.getRequiredUniqueProperty(properties,
 					FeedSource.RPC_FEED_SOURCE_SERVER_PORT_PROPERTY_NAME).getValue();
 			if (StringUtil.isEmpty(configuredPortNumber)) {
@@ -125,6 +126,25 @@ class ConfigurationValidator {
 
 			} catch (final Exception exc) {
 				throw new IllegalStateException("Exception while converting port value [" + configuredPortNumber + "] to integer value!");
+			}
+		} else if (FeedSource.JDBC_FEED_SOURCE.equalsIgnoreCase(sourceType)) {
+			final String configuredSql = BaukPropertyUtil.getRequiredUniqueProperty(properties,
+					FeedSource.JDBC_FEED_SOURCE_SQL_STATEMENT_PROPERTY_NAME).getValue();
+			if (StringUtil.isEmpty(configuredSql)) {
+				throw new IllegalStateException("For jdbc feed source " + FeedSource.JDBC_FEED_SOURCE_SQL_STATEMENT_PROPERTY_NAME
+						+ " must not be null or empty string!");
+			}
+			final String configuredSchedule = BaukPropertyUtil.getRequiredUniqueProperty(properties,
+					FeedSource.JDBC_FEED_SOURCE_SCHEDULE_PROPERTY_NAME).getValue();
+			if (StringUtil.isEmpty(configuredSchedule)) {
+				throw new IllegalStateException("For jdbc feed source " + FeedSource.JDBC_FEED_SOURCE_SCHEDULE_PROPERTY_NAME
+						+ " must not be null or empty string!");
+			}
+			final String jdbcUrl = BaukPropertyUtil.getRequiredUniqueProperty(properties, FeedSource.JDBC_FEED_SOURCE_JDBC_URL_PROPERTY_NAME)
+					.getValue();
+			if (StringUtil.isEmpty(jdbcUrl)) {
+				throw new IllegalStateException("For jdbc feed source " + FeedSource.JDBC_FEED_SOURCE_JDBC_URL_PROPERTY_NAME
+						+ " must not be null or empty string!");
 			}
 		}
 		return null;

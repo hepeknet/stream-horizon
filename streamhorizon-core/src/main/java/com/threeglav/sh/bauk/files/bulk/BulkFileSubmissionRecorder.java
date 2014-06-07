@@ -27,7 +27,7 @@ public class BulkFileSubmissionRecorder {
 
 	public BulkFileSubmissionRecorder() {
 		final String url = InMemoryDbUtil.getJdbcUrl(SUBMISSION_DB_NAME);
-		dataSource = DataSourceProvider.getSimpleDataSource(url);
+		dataSource = DataSourceProvider.getBulkSubmissionDataSource(url);
 		isDebugEnabled = log.isDebugEnabled();
 		this.tryCreatingTables();
 	}
