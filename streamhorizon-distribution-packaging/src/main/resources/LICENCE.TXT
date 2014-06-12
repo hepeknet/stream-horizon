@@ -1,3 +1,9 @@
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE 
+INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY 
+SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, 
+DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF 
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
 Trial License Agreement
 
 This Trial License is intended for evaluation purposes of the program material ONLY. The evaluation period is limited to 180 days.
@@ -6,11 +12,11 @@ License Agreement
 
 PLEASE READ THIS AGREEMENT CAREFULLY BEFORE USING ANY PARTS OF STREAMHORIZON PLATFORM (“THE PROGRAM”).
  
-StreamHorizon Group WILL ONLY LICENSE THE PROGRAM TO YOU IF YOU FIRST ACCEPT THE TERMS OF THIS AGREEMENT. 
-The Program is owned by StreamHorizon Group, and is copyrighted and licensed, not sold. 
+Threeglav WILL ONLY LICENSE THE PROGRAM TO YOU IF YOU FIRST ACCEPT THE TERMS OF THIS AGREEMENT. 
+The Program is owned by Threeglav, and is copyrighted and licensed, not sold. 
 
 The term “Program” means the original program and all whole or partial copies of it, including portions merged into other programs. 
-StreamHorizon Group grants you a nonexclusive license for the Program as specified herein. 
+Threeglav grants you a nonexclusive license for the Program as specified herein. 
 You agree to ensure that anyone who uses the Program (accessed either locally or remotely) does so only for your authorized use and complies with the terms of this Agreement. 
 
 License
@@ -31,9 +37,9 @@ THE ENTIRE RISK ARISING OUT OF USE OR PERFORMANCE OF THE PROGRAM AND ANY DOCUMEN
 
 Limitation of Liability
 
-StreamHorizon Group WILL NOT BE LIABLE FOR ANY SPECIAL, INCIDENTAL, OR INDIRECT DAMAGES OR FOR ANY ECONOMIC CONSEQUENTIAL DAMAGES (INCLUDING LOST PROFITS OR SAVINGS).
+Threeglav WILL NOT BE LIABLE FOR ANY SPECIAL, INCIDENTAL, OR INDIRECT DAMAGES OR FOR ANY ECONOMIC CONSEQUENTIAL DAMAGES (INCLUDING LOST PROFITS OR SAVINGS).
 
-StreamHorizon Group will not be liable for 
+Threeglav will not be liable for 
 
 1) loss of, or damage to, your records or data or 
 2) any damages claimed by you based on any third party claim
@@ -42,5 +48,5 @@ General
 
 You may terminate your license at any time. 
 If you do so, all your license rights to the Program are terminated. You may keep a copy of the Program in your archives. 
-StreamHorizon Group may terminate your license if you fail to comply with the terms of this Agreement. 
-If StreamHorizon Group does so, all your license rights to the Program are terminated and you must destroy all your copies of it. You agree to comply with all applicable laws and regulations.
+Threeglav may terminate your license if you fail to comply with the terms of this Agreement. 
+If Threeglav does so, all your license rights to the Program are terminated and you must destroy all your copies of it. You agree to comply with all applicable laws and regulations.

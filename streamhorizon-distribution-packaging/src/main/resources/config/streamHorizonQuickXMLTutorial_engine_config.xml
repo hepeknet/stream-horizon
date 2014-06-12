@@ -23,7 +23,7 @@
 			
 			<!-- if they do not exist directories will be created by engine -->
 			
-			<!-- type of source can be file -->
+			<!-- type of source can be file, rpc, jdbc -->
 			<source type="file">
 				<properties>
 					<!-- source directory is the directory from which file feeds will be processed -->
@@ -32,6 +32,35 @@
 					<property name="fileNameMask">.*FEED.*done</property>
 				</properties>
 			</source>
+			
+			<!--
+			
+			When using JDBC as feed source.
+			
+			<source type="jdbc">
+				<properties>
+					// statement to use to select feed data
+					<property name="sqlStatement">select c1, c2, c3, c4 from FEED_SOURCE order by id</property>
+					// how often to run previous statement? any CRON expression supported by quartz is applicable
+					<property name="schedule">0/2 * * * * ?</property>
+					// JDBC connection string
+					<property name="jdbcUrl">jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</property>
+				</properties>
+			</source>
+			-->
+			
+			<!-- 
+			
+			When using RPC (Thrift) as feed source. Thrift file is available in streamhorizon-api.jar
+			
+			<source type="rpc">
+				<properties>
+					// port on which Thrift server should listen to
+					<property name="port">7890</property>
+				</properties>
+			</source>
+			 -->
+			
 			<!-- archive directory is directory into which successfully processed feeds will be moved-->
 			<archiveDirectory>/tmp/stream_horizon/archive</archiveDirectory>
 			<!-- error directory will contain feeds from source folder which if processing fails for any reason. for error & logging information please look at $ENGINE_HOME/log/engine*log -->
