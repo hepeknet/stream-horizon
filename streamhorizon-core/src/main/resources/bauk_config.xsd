@@ -25,6 +25,8 @@
 
   <xs:element name="feedSource" type="feedSource"/>
 
+  <xs:element name="feedTarget" type="feedTarget"/>
+
   <xs:element name="footer" type="footer"/>
 
   <xs:element name="header" type="header"/>
@@ -76,6 +78,7 @@
   <xs:complexType name="feed">
     <xs:all>
       <xs:element name="source" type="feedSource"/>
+      <xs:element name="target" type="feedTarget"/>
       <xs:element name="archiveDirectory" type="xs:string"/>
       <xs:element name="bulkOutputDirectory" type="xs:string"/>
       <xs:element name="errorDirectory" type="xs:string"/>
@@ -113,6 +116,19 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
       </xs:extension>
     </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="feedTarget">
+    <xs:sequence>
+      <xs:element name="properties" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="property" type="baukProperty" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="type" type="xs:string" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="header">
@@ -204,7 +220,6 @@
       </xs:element>
       <xs:element name="output-file-name-pattern" type="xs:string" minOccurs="0"/>
     </xs:all>
-    <xs:attribute name="outputType" type="xs:string"/>
   </xs:complexType>
 
   <xs:complexType name="bulkLoadFormatDefinition">

@@ -127,7 +127,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		boolean isJdbcLoadingOn = false;
 		final BulkLoadDefinition bulkLoadDefinition = factFeed.getBulkLoadDefinition();
 		if (bulkLoadDefinition != null) {
-			isJdbcLoadingOn = BulkLoadDefinitionOutputType.JDBC.toString().equalsIgnoreCase(bulkLoadDefinition.getOutputType());
+			isJdbcLoadingOn = BulkLoadDefinitionOutputType.JDBC.toString().equalsIgnoreCase(factFeed.getTarget().getType());
 		}
 		if (isJdbcLoadingOn) {
 			log.debug("Checking whether to turn on jdbc thread partitioning");
@@ -230,10 +230,11 @@ public class FeedFileProcessor implements InputFeedProcessor {
 			}
 		}
 		final boolean isEmptyExtension = StringUtil.isEmpty(fileExtension);
+		final String outputType = factFeed.getTarget().getType();
 		if (isEmptyExtension
-				&& (bulkDefinition.getOutputType().equalsIgnoreCase(BulkLoadDefinitionOutputType.FILE.toString())
-						|| bulkDefinition.getOutputType().equalsIgnoreCase(BulkLoadDefinitionOutputType.ZIP.toString()) || bulkDefinition
-						.getOutputType().equalsIgnoreCase(BulkLoadDefinitionOutputType.GZ.toString()))) {
+				&& (outputType.equalsIgnoreCase(BulkLoadDefinitionOutputType.FILE.toString())
+						|| outputType.equalsIgnoreCase(BulkLoadDefinitionOutputType.ZIP.toString()) || outputType
+							.equalsIgnoreCase(BulkLoadDefinitionOutputType.GZ.toString()))) {
 			throw new IllegalStateException(
 					"Extension for recognizing bulk output files is required to be specified in configuration file because file output will be generated. Problematic feed is ["
 							+ factFeed.getName() + "]!");

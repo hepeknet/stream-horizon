@@ -82,7 +82,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 
 	private void validate() {
 		final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
-		if (this.getFactFeed().getBulkLoadDefinition().getOutputType() == BulkLoadDefinitionOutputType.NONE.toString()
+		if (this.getFactFeed().getTarget() != null && this.getFactFeed().getTarget().getType().equals(BulkLoadDefinitionOutputType.NONE.toString())
 				&& !StringUtil.isEmpty(outputFileNamePattern)) {
 			throw new IllegalStateException("Fact feed " + this.getFactFeed().getName() + " can not have output none and rename pattern!");
 		}

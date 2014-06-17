@@ -16,6 +16,8 @@
 					<property name="fileNameMask">.*bauk_test</property>
 				</properties>
 			</source>
+			<target type="file">
+			</target>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
 			<bulkOutputDirectory></bulkOutputDirectory>
@@ -40,7 +42,7 @@
 			<footer process="strict">
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 			</footer>
-			<bulkLoadDefinition outputType="file">
+			<bulkLoadDefinition>
 				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<bulkLoadInsert>
 					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4,f5) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>

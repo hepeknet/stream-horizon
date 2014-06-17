@@ -21,6 +21,9 @@ public class Feed {
 	private FeedSource source;
 
 	@XmlElement(required = true)
+	private FeedTarget target;
+
+	@XmlElement(required = true)
 	private String archiveDirectory;
 
 	@XmlElement(required = true)
@@ -190,6 +193,14 @@ public class Feed {
 		this.errorDirectory = errorDirectory;
 	}
 
+	public FeedTarget getTarget() {
+		return target;
+	}
+
+	public void setTarget(final FeedTarget target) {
+		this.target = target;
+	}
+
 	/**
 	 * Not represented in xml. Only ETL threads should be running if this is true.
 	 * 
@@ -197,8 +208,8 @@ public class Feed {
 	 */
 	public boolean isEtlOnlyFactFeed() {
 		if (this.getBulkLoadDefinition() != null) {
-			final BulkLoadDefinition bld = this.getBulkLoadDefinition();
-			final String outputType = bld.getOutputType();
+			this.getBulkLoadDefinition();
+			final String outputType = this.getTarget().getType();
 			if (!StringUtil.isEmpty(outputType)) {
 				final String outputTypeLower = outputType.toLowerCase();
 				return outputTypeLower.equalsIgnoreCase(BulkLoadDefinitionOutputType.JDBC.toString())

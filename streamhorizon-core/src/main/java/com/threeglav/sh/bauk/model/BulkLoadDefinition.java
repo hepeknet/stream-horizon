@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -42,9 +41,6 @@ public class BulkLoadDefinition {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> bulkLoadInsert;
 
-	@XmlAttribute(required = false)
-	private String outputType = BulkLoadDefinitionOutputType.FILE.toString();
-
 	@XmlElement(name = "output-file-name-pattern", required = false)
 	private String outputFileNamePattern;
 
@@ -62,14 +58,6 @@ public class BulkLoadDefinition {
 
 	public void setBulkLoadOutputExtension(final String bulkLoadOutputExtension) {
 		this.bulkLoadOutputExtension = bulkLoadOutputExtension;
-	}
-
-	public String getOutputType() {
-		return outputType;
-	}
-
-	public void setOutputType(final String outputType) {
-		this.outputType = outputType;
 	}
 
 	public String getOutputFileNamePattern() {

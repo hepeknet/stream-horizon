@@ -156,6 +156,12 @@ class ConfigurationValidator {
 		}
 	}
 
+	private void validateFeedTarget(final Feed ff) {
+		if (ff.getTarget() == null) {
+			throw new IllegalArgumentException("Feed target must not be null for " + ff.getName());
+		}
+	}
+
 	private void validateFactFeed(final Feed ff) throws Exception {
 		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
 				this.validateFeedSource(ff));
@@ -166,6 +172,7 @@ class ConfigurationValidator {
 						+ "! Aborting!");
 			}
 		}
+		this.validateFeedTarget(ff);
 		final String archiveDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ARCHIVE_DIRECTORY_PARAM_NAME,
 				ff.getArchiveDirectory());
 		final boolean archiveOk = this.getOrCreateDirectory(archiveDirectory, true);
