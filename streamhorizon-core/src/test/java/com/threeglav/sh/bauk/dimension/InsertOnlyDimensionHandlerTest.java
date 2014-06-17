@@ -25,7 +25,7 @@ import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Data;
 import com.threeglav.sh.bauk.model.Dimension;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.model.SqlStatements;
 
@@ -419,8 +419,8 @@ public class InsertOnlyDimensionHandlerTest {
 		return this.createDimension(5, exposeLastLine);
 	}
 
-	private FactFeed createFactFeed() {
-		final FactFeed ff = new FactFeed();
+	private Feed createFactFeed() {
+		final Feed ff = new Feed();
 		ff.setName("ff1");
 		final Data data = new Data();
 		final ArrayList<BaukAttribute> attributes = new ArrayList<BaukAttribute>();

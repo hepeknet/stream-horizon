@@ -13,7 +13,7 @@ import com.threeglav.sh.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.sh.bauk.dimension.DimensionHandler;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.ArrayUtil;
 
 public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesResolver {
@@ -29,7 +29,7 @@ public class LowCardinalityBulkOutputValuesResolver extends BulkOutputValuesReso
 	private final boolean shouldTryCombinedLookups;
 	private boolean[] isPositionUsedInCombinedLookup;
 
-	public LowCardinalityBulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config,
+	public LowCardinalityBulkOutputValuesResolver(final Feed factFeed, final BaukConfiguration config,
 			final CacheInstanceManager cacheInstanceManager) {
 		super(factFeed, config, cacheInstanceManager);
 		this.prepareAllGoodDimensions();

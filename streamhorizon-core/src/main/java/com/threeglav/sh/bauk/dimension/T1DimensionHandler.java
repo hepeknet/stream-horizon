@@ -13,7 +13,7 @@ import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.DimensionType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
@@ -31,7 +31,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 	protected Map<String, String> naturalKeyToNonNaturalKeyMapping;
 	private final int totalNumberOfLocks;
 
-	public T1DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
+	public T1DimensionHandler(final Dimension dimension, final Feed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
 		super(dimension, factFeed, cacheInstance, naturalKeyPositionOffset, config);
 		if (dimension.getSqlStatements() != null && !StringUtil.isEmpty(dimension.getSqlStatements().getUpdateSingleRecord())) {

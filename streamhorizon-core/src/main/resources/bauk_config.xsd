@@ -19,7 +19,9 @@
 
   <xs:element name="dimension" type="dimension"/>
 
-  <xs:element name="factFeed" type="factFeed"/>
+  <xs:element name="feed" type="feed"/>
+
+  <xs:element name="feedEvents" type="feedEvents"/>
 
   <xs:element name="feedSource" type="feedSource"/>
 
@@ -38,10 +40,10 @@
       <xs:element ref="connectionProperties"/>
       <xs:element name="databaseStringLiteral" type="xs:string" default="'" minOccurs="0"/>
       <xs:element name="databaseStringEscapeLiteral" type="xs:string" default="''" minOccurs="0"/>
-      <xs:element name="factFeeds">
+      <xs:element name="feeds">
         <xs:complexType>
           <xs:sequence>
-            <xs:element ref="factFeed" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="feed" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -71,7 +73,7 @@
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="factFeed">
+  <xs:complexType name="feed">
     <xs:all>
       <xs:element name="source" type="feedSource"/>
       <xs:element name="archiveDirectory" type="xs:string"/>
@@ -85,38 +87,11 @@
       <xs:element ref="data" minOccurs="0"/>
       <xs:element ref="footer" minOccurs="0"/>
       <xs:element ref="bulkLoadDefinition" minOccurs="0"/>
-      <xs:element name="beforeFeedProcessing" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
       <xs:element ref="threadPoolSettings" minOccurs="0"/>
-      <xs:element name="onStartupCommands" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="afterFeedProcessingCompletion" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="onFeedProcessingFailure" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
+      <xs:element name="events" type="feedEvents" minOccurs="0"/>
     </xs:all>
     <xs:attribute name="name" type="xs:string" use="required"/>
-    <xs:attribute name="type" type="factFeedType" use="required"/>
+    <xs:attribute name="type" type="feedType" use="required"/>
   </xs:complexType>
 
   <xs:complexType name="feedSource">
@@ -259,6 +234,39 @@
     </xs:all>
   </xs:complexType>
 
+  <xs:complexType name="feedEvents">
+    <xs:all>
+      <xs:element name="beforeFeedProcessing" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="onStartupCommands" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="afterFeedProcessingCompletion" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="onFeedProcessingFailure" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:complexType>
+
   <xs:complexType name="dimension">
     <xs:all>
       <xs:element name="mappedColumns" minOccurs="0">
@@ -295,7 +303,7 @@
     </xs:all>
   </xs:complexType>
 
-  <xs:simpleType name="factFeedType">
+  <xs:simpleType name="feedType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="full"/>
       <xs:enumeration value="repetitive"/>

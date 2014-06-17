@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.threeglav.sh.bauk.model.BaukProperty;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -181,7 +181,7 @@ public abstract class ConfigurationProperties {
 		return fullFolderPath;
 	}
 
-	public static int calculateMultiInstanceFeedProcessorId(final int localFeedProcessorId, final FactFeed feed) {
+	public static int calculateMultiInstanceFeedProcessorId(final int localFeedProcessorId, final Feed feed) {
 		if (feed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}
@@ -197,7 +197,7 @@ public abstract class ConfigurationProperties {
 		return currentInstanceId * etlThreadNum + localFeedProcessorId;
 	}
 
-	public static int calculateMultiInstanceBulkProcessorId(final int localBulkProcessorId, final FactFeed feed) {
+	public static int calculateMultiInstanceBulkProcessorId(final int localBulkProcessorId, final Feed feed) {
 		if (feed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}

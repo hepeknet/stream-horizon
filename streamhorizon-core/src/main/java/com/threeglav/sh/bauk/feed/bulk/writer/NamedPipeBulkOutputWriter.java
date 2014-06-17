@@ -15,7 +15,7 @@ import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.CommandType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.sh.bauk.util.StringUtil;
@@ -31,7 +31,7 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 	private Process bulkLoadingProcess;
 	private final StatefulAttributeReplacer bulkReadCommandReplacer;
 
-	public NamedPipeBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public NamedPipeBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.validate();
 		bulkReadCommand = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert().get(0).getCommand();

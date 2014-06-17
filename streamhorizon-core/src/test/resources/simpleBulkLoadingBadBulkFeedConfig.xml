@@ -8,8 +8,8 @@
 		<jdbcUrl>jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</jdbcUrl>
 		<jdbcPoolSize>20</jdbcPoolSize>
 	</connectionProperties>
-	<factFeeds>
-		<factFeed name="TEST_bulk_Feed" type="full">
+	<feeds>
+		<feed name="TEST_bulk_Feed" type="full">
 			<source type="file">
 				<properties>
 					<property name="directoryPath"></property>
@@ -64,18 +64,20 @@
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(4444, 'ggg_${bulkFilePath}')</command>
 				</onBulkLoadCompletion>
 			</bulkLoadDefinition>
-			<onFeedProcessingFailure>
-				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(-1, '${feedCompletionProcessingSuccessFailureFlag}')</command>
-			</onFeedProcessingFailure>
-			<afterFeedProcessingCompletion>
-				<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
-			</afterFeedProcessingCompletion>
+			<events>
+				<onFeedProcessingFailure>
+					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(-1, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+				</onFeedProcessingFailure>
+				<afterFeedProcessingCompletion>
+					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+				</afterFeedProcessingCompletion>
+			</events>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>1</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>
 			</threadPoolSettings>
-		</factFeed>
-	</factFeeds>
+		</feed>
+	</feeds>
 	<dimensions>
 		<dimension name="TEST_DIM" type="INSERT_ONLY">
 			<localCacheMaxSize>50000</localCacheMaxSize>

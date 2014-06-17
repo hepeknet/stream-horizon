@@ -12,14 +12,14 @@
 	<databaseStringLiteral>'</databaseStringLiteral>
 	<!-- Character used to escape databaseStringLiteral (see above). Usually this is double quote. Check your database manual-->
 	<databaseStringEscapeLiteral>''</databaseStringEscapeLiteral>
-	<factFeeds>
+	<feeds>
 		<!-- setup one <factFeed> element for every file format engine needs to process and insert into data mart <factFeed> name must be unique within xml definition. please use 'full' type of feed as a default unless your feed meets specific delta, repetitive or control criteria-->
 	
 		<!-- feed can be of type full, repetitive, delta and control -->
 		<!-- control feed can not have header and footer and it can have only one line, which will be exposed as context attributes -->
 		<!-- feed can be full, delta or repetitive -->
 		<!-- for delta feed it is mandatory to set nullString value, see below -->
-		<factFeed name="dataFeed" type="full">
+		<feed name="dataFeed" type="full">
 			
 			<!-- if they do not exist directories will be created by engine -->
 			
@@ -68,13 +68,6 @@
 			<!-- bulk direcory is directory where bulk files will be created. bulk files usually have format of fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT for MSSQL-->
 			<bulkOutputDirectory>/tmp/stream_horizon/bulkOutput</bulkOutputDirectory>
 			
-			<!-- at startup, prior to starting any processing engine will execute (in defined order) sql or script (shell) commands. please reference all recovery and startup related scripts in this section -->
-			<onStartupCommands>
-				<!-- all context attributes will be replaced in both sql and shell commands, use normal ${contextAttributeName} notation-->
-				<command type="shell">d:/${someAttribute1}.bat</command>
-				<command type="sql">update fact_table set key=${someAttribute} where key=-100</command>
-				<command type="shell">d:/second.bat</command>
-			</onStartupCommands>
 			<!--engine has two threadpools:
 				1) etl threads (members of etl threadpool) <etlProcessingThreadCount> either:
 					a) process feeds from source directory into bulk directory (bulk files are later on picked up by db threads from db threadpool)
@@ -277,34 +270,43 @@
 					<command type="shell">d:/first.bat</command>
 				</onBulkLoadCompletion>
 			</bulkLoadDefinition>
-			<!-- executed by etl (feed processing thread) in the order specified, before processing every incoming feed -->
-			<beforeFeedProcessing>
-				<command type="sql">update something in database</command>
-				<command type="shell">/opt/prepare.sh</command>                                          
-			</beforeFeedProcessing>
-			<!-- following is executed by etl (feed processing) thread in the order specified, only if feed processing has failed, think of this as catch{} block in Java -->
-			<onFeedProcessingFailure>
-				<!-- by default files are moved to error folder on processing failure -->
-				<command type="shell">d:/rollback.bat</command>
-				<!-- it is possible to use any context attributes here -->
-				<command type="sql">UPDATE some table for rollback</command>
-				<command type="shell">d:/second_rollback.bat</command>
-			</onFeedProcessingFailure>
 			
-			<!-- <afterFeedProcessingCompletion> is executed by etl threads (feed processing threads) in order specified. This is executed irrespective of sucess/failure of etl thread processing (think of this as finally{} block equivalent in Java) -->
-			<afterFeedProcessingCompletion>
-				<command type="shell">d:/first.bat</command>
-				<!-- any context attributes may be used & substituted -->
-					<command type="sql">CALL schema.function('${dataAttributeName_1}', 
-															 trunc(to_date('${dataAttributeName_3}','DD/MM/YYYY')), 
-															 'hardcodedString',
-															 ${dimension1.sk}, /* example of use of surrogateKey value from dimensional cache */
-															 to_timestamp('${feedInputfileReceivedDateTime}', 'DD/MM/YYYY HH24:MI:SS.FF3'))
-					</command>
-				<command type="shell">d:/second.bat</command>
-			</afterFeedProcessingCompletion>
-		</factFeed>
-	</factFeeds>
+			<events>
+				<!-- at startup, prior to starting any processing engine will execute (in defined order) sql or script (shell) commands. please reference all recovery and startup related scripts in this section -->
+				<onStartupCommands>
+					<!-- all context attributes will be replaced in both sql and shell commands, use normal ${contextAttributeName} notation-->
+					<command type="shell">d:/${someAttribute1}.bat</command>
+					<command type="sql">update fact_table set key=${someAttribute} where key=-100</command>
+					<command type="shell">d:/second.bat</command>
+				</onStartupCommands>
+				<!-- executed by etl (feed processing thread) in the order specified, before processing every incoming feed -->
+				<beforeFeedProcessing>
+					<command type="sql">update something in database</command>
+					<command type="shell">/opt/prepare.sh</command>                                          
+				</beforeFeedProcessing>
+				<!-- following is executed by etl (feed processing) thread in the order specified, only if feed processing has failed, think of this as catch{} block in Java -->
+				<onFeedProcessingFailure>
+					<!-- by default files are moved to error folder on processing failure -->
+					<command type="shell">d:/rollback.bat</command>
+					<!-- it is possible to use any context attributes here -->
+					<command type="sql">UPDATE some table for rollback</command>
+					<command type="shell">d:/second_rollback.bat</command>
+				</onFeedProcessingFailure>
+				<!-- <afterFeedProcessingCompletion> is executed by etl threads (feed processing threads) in order specified. This is executed irrespective of sucess/failure of etl thread processing (think of this as finally{} block equivalent in Java) -->
+				<afterFeedProcessingCompletion>
+					<command type="shell">d:/first.bat</command>
+					<!-- any context attributes may be used & substituted -->
+						<command type="sql">CALL schema.function('${dataAttributeName_1}', 
+																 trunc(to_date('${dataAttributeName_3}','DD/MM/YYYY')), 
+																 'hardcodedString',
+																 ${dimension1.sk}, /* example of use of surrogateKey value from dimensional cache */
+																 to_timestamp('${feedInputfileReceivedDateTime}', 'DD/MM/YYYY HH24:MI:SS.FF3'))
+						</command>
+					<command type="shell">d:/second.bat</command>
+				</afterFeedProcessingCompletion>
+			</events>
+		</feed>
+	</feeds>
 	<dimensions>
 		<!--Dimension definition enables caches (global cache (Infinispan) and local etl thrad caches to derive surrogate keys of dimensions which will be required duiring the insert of data into fact table.
 			

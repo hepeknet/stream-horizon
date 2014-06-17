@@ -24,7 +24,7 @@ import com.threeglav.sh.bauk.model.BaukAttributeType;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.CommandType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.sh.bauk.util.StringUtil;
@@ -48,7 +48,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 	// used only for dumping batch update exception data, INFO level must be on
 	private List<List<Object>> preparedStatementDebugData;
 
-	public JdbcBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public JdbcBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		final ArrayList<BaukCommand> bulkInsertCommands = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert();
 		if (bulkInsertCommands == null || bulkInsertCommands.isEmpty()) {

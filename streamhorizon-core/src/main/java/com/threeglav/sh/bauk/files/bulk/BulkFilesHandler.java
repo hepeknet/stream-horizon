@@ -17,14 +17,14 @@ import com.threeglav.sh.bauk.files.FileFindingHandler;
 import com.threeglav.sh.bauk.files.FileProcessingErrorHandler;
 import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.ThreadPoolSettings;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 
 public class BulkFilesHandler {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final FactFeed factFeed;
+	private final Feed factFeed;
 	private final BaukConfiguration config;
 	private int bulkProcessingThreads = ThreadPoolSettings.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
@@ -34,7 +34,7 @@ public class BulkFilesHandler {
 
 	private final List<Runnable> runnables = new LinkedList<>();
 
-	public BulkFilesHandler(final FactFeed factFeed, final BaukConfiguration config) {
+	public BulkFilesHandler(final Feed factFeed, final BaukConfiguration config) {
 		this.factFeed = factFeed;
 		this.config = config;
 		if (factFeed.getThreadPoolSettings() != null) {

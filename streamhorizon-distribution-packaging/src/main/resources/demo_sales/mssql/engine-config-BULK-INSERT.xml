@@ -4,12 +4,8 @@
 		<jdbcUrl><!--SET ME! please change server name (instead of localhost) and port if required, final connection string look like be: jdbc:sqlserver://localhost:1433;user=sh;password=StreamHorizon369;databaseName=sh;PacketSize=-1;protocol=ncalrpc;TransactionMode=implicit;applicationName=StreamHorizon;--></jdbcUrl>	
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
-	<factFeeds>
-		<factFeed name="dataFeed" type="full">
-			 <onStartupCommands>
-				<command type="sql">truncate table sh_metrics</command>
-				<command type="sql">truncate table sales_fact</command>                                          				
-			</onStartupCommands>
+	<feeds>
+		<feed name="dataFeed" type="full">
 			<source type="file">
 				<properties>
 					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
@@ -83,14 +79,20 @@
 						EXEC log_sh_metrics_bulk 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'onBulkLoadCompletion','${bulkFileName}' ,${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp}, '${bulkCompletionProcessingSuccessFailureFlag}', '${bulkCompletionProcessingErrorDescription}',${bulkProcessingThreadID}, '${bulkFilePath}'
 					</command>
 				</onBulkLoadCompletion>				
-			</bulkLoadDefinition>				
+			</bulkLoadDefinition>
+			<events>
+				 <onStartupCommands>
+					<command type="sql">truncate table sh_metrics</command>
+					<command type="sql">truncate table sales_fact</command>                                          				
+				</onStartupCommands>				
 				<afterFeedProcessingCompletion>	
 					<command type="sql">
 						EXEC log_sh_metrics 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}'
 					</command>						
-			</afterFeedProcessingCompletion>
-		</factFeed>
-	</factFeeds>
+				</afterFeedProcessingCompletion>
+			</events>
+		</feed>
+	</feeds>
 	<dimensions>
 		<dimension name="employee_dim" type="INSERT_ONLY">		
 			<mappedColumns>

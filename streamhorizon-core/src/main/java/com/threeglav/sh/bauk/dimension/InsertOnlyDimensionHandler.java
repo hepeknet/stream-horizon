@@ -22,7 +22,7 @@ import com.threeglav.sh.bauk.dimension.db.T1DimensionKeysRowMapper;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.DimensionType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
@@ -70,7 +70,7 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	private final StatefulAttributeReplacer selectStatementReplacer;
 	private final boolean hasOnlyOneNaturalKeyDefinedForLookup;
 
-	public InsertOnlyDimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
+	public InsertOnlyDimensionHandler(final Dimension dimension, final Feed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
 		super(factFeed, config);
 		if (dimension == null) {

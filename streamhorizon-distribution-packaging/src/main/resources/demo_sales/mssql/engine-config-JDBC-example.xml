@@ -7,12 +7,8 @@
 		<!--jdbcUrl>jdbc:sqlserver://localhost:1433;user=sh;password=StremHorizon369;databaseName=sh;PacketSize=-1;protocol=ncalrpc;TransactionMode=implicit;applicationName=StremHorizon;</jdbcUrl-->	
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
-	<factFeeds>
-		<factFeed name="dataFeed" type="full">
-			 <onStartupCommands>
-				<command type="sql">truncate table sh_metrics</command>
-				<command type="sql">truncate table sales_fact</command>                                          				
-			</onStartupCommands>
+	<feeds>
+		<feed name="dataFeed" type="full">
 			<source type="file">
 				<properties>
 					<property name="directoryPath">G:/Data/source</property>
@@ -86,14 +82,20 @@
 						<!--attribute fileID is supplied (and substituted) in insert statement above as hardcoded value of -1 -->						
 					</attributes>
 				</bulkLoadFormatDefinition>							
-			</bulkLoadDefinition>				
-			<afterFeedProcessingCompletion>		
-				<command type="sql">
-					EXEC log_sh_metrics 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}', null ,${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}'
-					</command>						
-			</afterFeedProcessingCompletion>
-		</factFeed>
-	</factFeeds>
+			</bulkLoadDefinition>
+			<events>
+				<onStartupCommands>
+					<command type="sql">truncate table sh_metrics</command>
+					<command type="sql">truncate table sales_fact</command>                                          				
+				</onStartupCommands>				
+				<afterFeedProcessingCompletion>		
+					<command type="sql">
+						EXEC log_sh_metrics 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}', null ,${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}'
+						</command>						
+				</afterFeedProcessingCompletion>
+			</events>
+		</feed>
+	</feeds>
 	<dimensions>
 		<dimension name="employee_dim" type="INSERT_ONLY">		
 			<mappedColumns>

@@ -5,12 +5,8 @@
 		<!-- FOR JTDS driver (packaged with StreamHorizon) use URL format jdbc:jtds:sqlserver://localhost;user=sh;password=StreamHorizon369;databaseName=sh;serverName=localhost;PacketSize=-1; -->
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
-	<factFeeds>
-		<factFeed name="dataFeed" type="full">
-			 <onStartupCommands>
-				<command type="sql">truncate table sh_metrics</command>
-				<command type="sql">truncate table sales_fact</command>                                          				
-			</onStartupCommands>
+	<feeds>
+		<feed name="dataFeed" type="full">
 			<source type="file">
 				<properties>
 					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
@@ -83,14 +79,20 @@
 						<!--attribute fileID is supplied (and substituted) in insert statement above as hardcoded value of -1 -->						
 					</attributes>
 				</bulkLoadFormatDefinition>							
-			</bulkLoadDefinition>				
-			<afterFeedProcessingCompletion>		
-				<command type="sql">
-					EXEC log_sh_metrics 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}', null ,${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}'
-					</command>						
-			</afterFeedProcessingCompletion>
-		</factFeed>
-	</factFeeds>
+			</bulkLoadDefinition>
+			<events>
+				<onStartupCommands>
+					<command type="sql">truncate table sh_metrics</command>
+					<command type="sql">truncate table sales_fact</command>                                          				
+				</onStartupCommands>				
+				<afterFeedProcessingCompletion>		
+					<command type="sql">
+						EXEC log_sh_metrics 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}', null ,${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}'
+						</command>						
+				</afterFeedProcessingCompletion>
+			</events>
+		</feed>
+	</feeds>
 	<dimensions>
 		<dimension name="employee_dim" type="INSERT_ONLY">		
 			<mappedColumns>

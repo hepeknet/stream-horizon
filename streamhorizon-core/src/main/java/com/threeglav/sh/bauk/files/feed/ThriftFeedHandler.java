@@ -10,7 +10,7 @@ import org.apache.thrift.transport.TTransportException;
 
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BaukProperty;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.FeedSource;
 import com.threeglav.sh.bauk.rpc.SHFeedProcessor;
 import com.threeglav.sh.bauk.rpc.ThriftSHFeedProcessorImpl;
@@ -21,7 +21,7 @@ public class ThriftFeedHandler extends AbstractFeedHandler {
 	private final int portNumber;
 	private TServer server;
 
-	public ThriftFeedHandler(final FactFeed factFeed, final BaukConfiguration config) {
+	public ThriftFeedHandler(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		final ArrayList<BaukProperty> properties = factFeed.getSource().getProperties();
 		final String configuredPortNumber = BaukPropertyUtil.getRequiredUniqueProperty(properties,

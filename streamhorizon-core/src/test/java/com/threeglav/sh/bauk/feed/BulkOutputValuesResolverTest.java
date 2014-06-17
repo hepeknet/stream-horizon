@@ -20,7 +20,7 @@ import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.DimensionType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.MappedColumn;
 import com.threeglav.sh.bauk.model.SqlStatements;
 
@@ -35,13 +35,13 @@ public class BulkOutputValuesResolverTest {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), null, Mockito.mock(CacheInstanceManager.class));
+			new BulkOutputValuesResolver(Mockito.mock(Feed.class), null, Mockito.mock(CacheInstanceManager.class));
 			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
 		}
 		try {
-			new BulkOutputValuesResolver(Mockito.mock(FactFeed.class), Mockito.mock(BaukConfiguration.class), null);
+			new BulkOutputValuesResolver(Mockito.mock(Feed.class), Mockito.mock(BaukConfiguration.class), null);
 			Assert.fail("nok");
 		} catch (final IllegalArgumentException ok) {
 			Assert.assertTrue(true);
@@ -52,7 +52,7 @@ public class BulkOutputValuesResolverTest {
 	public void testSimple() {
 		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
 		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
-		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(5));
 		when(ff.getDelimiterString()).thenReturn(",");
@@ -90,7 +90,7 @@ public class BulkOutputValuesResolverTest {
 	public void testSmallerFeed() {
 		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
 		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
-		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
 		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(4));
 		when(ff.getDelimiterString()).thenReturn(",");

@@ -7,8 +7,8 @@
 		<jdbcUrl>jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</jdbcUrl>
 		<jdbcPoolSize>20</jdbcPoolSize>
 	</connectionProperties>
-	<factFeeds>
-		<factFeed name="TEST_jdbc_Feed" type="full">
+	<feeds>
+		<feed name="TEST_jdbc_Feed" type="full">
 			<source type="rpc">
 				<properties>
 					<property name="port">7890</property>
@@ -45,8 +45,8 @@
 				<etlProcessingThreadCount>1</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>
 			</threadPoolSettings>
-		</factFeed>
-	</factFeeds>
+		</feed>
+	</feeds>
 	<dimensions>
 		<dimension name="TEST_DIM" type="INSERT_ONLY">
 			<localCacheMaxSize>50000</localCacheMaxSize>

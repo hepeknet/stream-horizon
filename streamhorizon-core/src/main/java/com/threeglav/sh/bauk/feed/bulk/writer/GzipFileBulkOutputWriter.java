@@ -11,7 +11,7 @@ import java.util.zip.GZIPOutputStream;
 import org.apache.commons.io.IOUtils;
 
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
@@ -20,7 +20,7 @@ public class GzipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private GZIPOutputStream gzipOutStream;
 
-	public GzipFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public GzipFileBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 	}
 

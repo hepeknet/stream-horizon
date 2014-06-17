@@ -12,7 +12,7 @@ import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.MetricsUtil;
 import com.threeglav.sh.bauk.util.StatefulAttributeReplacer;
 import com.threeglav.sh.bauk.util.StringUtil;
@@ -22,7 +22,7 @@ public class T2DimensionHandler extends T1DimensionHandler {
 	private final Counter dbAccessRetireCounter;
 	private final StatefulAttributeReplacer retireRecordReplacer;
 
-	public T2DimensionHandler(final Dimension dimension, final FactFeed factFeed, final CacheInstance cacheInstance,
+	public T2DimensionHandler(final Dimension dimension, final Feed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
 		super(dimension, factFeed, cacheInstance, naturalKeyPositionOffset, config);
 		if (dimension.getSqlStatements() != null && !StringUtil.isEmpty(dimension.getSqlStatements().getRetireSingleRecord())) {

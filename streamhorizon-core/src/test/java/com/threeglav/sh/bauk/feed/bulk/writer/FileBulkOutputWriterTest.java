@@ -13,7 +13,7 @@ import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BaukProperty;
 import com.threeglav.sh.bauk.model.BulkLoadDefinition;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 
 public class FileBulkOutputWriterTest {
 
@@ -22,7 +22,7 @@ public class FileBulkOutputWriterTest {
 	@Test
 	public void testConcatenationNothingSet() {
 		ConfigurationProperties.setBaukProperties(null);
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final Feed ff = Mockito.mock(Feed.class);
 		when(ff.getName()).thenReturn("testff1");
 		final BulkLoadDefinition bld = Mockito.mock(BulkLoadDefinition.class);
 		when(bld.getBulkLoadFileDelimiter()).thenReturn(",");
@@ -35,7 +35,7 @@ public class FileBulkOutputWriterTest {
 
 	@Test
 	public void testConcatenationSetNullValue() {
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final Feed ff = Mockito.mock(Feed.class);
 		when(ff.getName()).thenReturn("testff1");
 		final BulkLoadDefinition bld = Mockito.mock(BulkLoadDefinition.class);
 		when(bld.getBulkLoadFileDelimiter()).thenReturn(",");

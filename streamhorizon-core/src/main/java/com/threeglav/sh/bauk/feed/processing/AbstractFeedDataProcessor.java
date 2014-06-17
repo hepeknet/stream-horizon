@@ -19,7 +19,7 @@ import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.Dimension;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.CacheUtil;
 
@@ -29,7 +29,7 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 	protected final BulkOutputValuesResolver bulkoutputResolver;
 	protected final FeedParserComponent feedParserComponent;
 
-	public AbstractFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config) {
+	public AbstractFeedDataProcessor(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		final BulkLoadDefinition bld = factFeed.getBulkLoadDefinition();
 		if (bld == null) {

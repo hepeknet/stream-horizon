@@ -19,7 +19,7 @@ import org.mockito.Mockito;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.CommandType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 
 public class BaukCommandsExecutorTest {
@@ -27,7 +27,7 @@ public class BaukCommandsExecutorTest {
 	@Test
 	public void testWindowsNoReplacement() throws Exception {
 		final boolean isWindows = BaukUtil.isWindowsPlatform();
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final Feed ff = Mockito.mock(Feed.class);
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		when(config.getDatabaseStringLiteral()).thenReturn("'");
 		when(config.getDatabaseStringEscapeLiteral()).thenReturn("''");
@@ -55,7 +55,7 @@ public class BaukCommandsExecutorTest {
 	@Test
 	public void testWindowsReplacement() throws Exception {
 		final boolean isWindows = BaukUtil.isWindowsPlatform();
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final Feed ff = Mockito.mock(Feed.class);
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
 		when(config.getDatabaseStringLiteral()).thenReturn("'");
 		when(config.getDatabaseStringEscapeLiteral()).thenReturn("''");

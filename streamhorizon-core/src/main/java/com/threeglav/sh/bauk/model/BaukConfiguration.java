@@ -30,8 +30,8 @@ public class BaukConfiguration {
 	private String databaseStringEscapeLiteral = DEFAULT_DATABASE_STRING_ESCAPE_LITERAL;
 
 	@XmlElementWrapper(required = true)
-	@XmlElement(name = "factFeed")
-	private ArrayList<FactFeed> factFeeds;
+	@XmlElement(name = "feed")
+	private ArrayList<Feed> feeds;
 
 	@XmlElementWrapper(required = true)
 	@XmlElement(name = "dimension")
@@ -45,12 +45,12 @@ public class BaukConfiguration {
 	@XmlTransient
 	private Map<String, Dimension> dimensionMap;
 
-	public ArrayList<FactFeed> getFactFeeds() {
-		return factFeeds;
+	public ArrayList<Feed> getFeeds() {
+		return feeds;
 	}
 
-	public void setFactFeeds(final ArrayList<FactFeed> factFeeds) {
-		this.factFeeds = factFeeds;
+	public void setFeeds(final ArrayList<Feed> factFeeds) {
+		this.feeds = factFeeds;
 	}
 
 	public ArrayList<Dimension> getDimensions() {

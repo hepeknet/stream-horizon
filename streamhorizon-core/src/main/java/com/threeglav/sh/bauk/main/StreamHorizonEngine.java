@@ -29,7 +29,7 @@ import com.threeglav.sh.bauk.files.feed.FeedHandler;
 import com.threeglav.sh.bauk.files.feed.ThriftFeedHandler;
 import com.threeglav.sh.bauk.files.feed.jdbc.JdbcFeedHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.FeedSource;
 import com.threeglav.sh.bauk.remoting.RemotingServer;
 import com.threeglav.sh.bauk.util.BaukUtil;
@@ -125,7 +125,7 @@ public class StreamHorizonEngine {
 
 	private static void createProcessingRoutes(final BaukConfiguration config) throws Exception {
 		LOG.debug("Starting processing routes...");
-		for (final FactFeed feed : config.getFactFeeds()) {
+		for (final Feed feed : config.getFeeds()) {
 			executeOnStartupCommands(feed, config);
 			LOG.trace("Creating processing routes for feed [{}]", feed.getName());
 			try {
@@ -155,11 +155,11 @@ public class StreamHorizonEngine {
 		}
 	}
 
-	private static void executeOnStartupCommands(final FactFeed feed, final BaukConfiguration config) {
-		if (feed.getOnStartup() != null) {
+	private static void executeOnStartupCommands(final Feed feed, final BaukConfiguration config) {
+		if (feed.getEvents() != null && feed.getEvents().getOnStartup() != null) {
 			try {
 				LOG.debug("Executing on-startup commands for feed {}", feed.getName());
-				final BaukCommandsExecutor bce = new BaukCommandsExecutor(feed, config, feed.getOnStartup());
+				final BaukCommandsExecutor bce = new BaukCommandsExecutor(feed, config, feed.getEvents().getOnStartup());
 				bce.executeBaukCommandSequence(null, "On startup commands for feed [" + feed.getName() + "]");
 				LOG.debug("Finished executing on startup commands for {}", feed.getName());
 			} catch (final Exception exc) {

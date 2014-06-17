@@ -7,7 +7,7 @@ import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.command.BaukCommandsExecutor;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 public final class FeedProcessor extends ConfigAware {
@@ -15,7 +15,7 @@ public final class FeedProcessor extends ConfigAware {
 	private final String statementDescription;
 	private BaukCommandsExecutor commandExecutor;
 
-	public FeedProcessor(final FactFeed factFeed, final BaukConfiguration config, final String description, final ArrayList<BaukCommand> commands) {
+	public FeedProcessor(final Feed factFeed, final BaukConfiguration config, final String description, final ArrayList<BaukCommand> commands) {
 		super(factFeed, config);
 		if (StringUtil.isEmpty(description)) {
 			throw new IllegalArgumentException("Description must not be null or empty");

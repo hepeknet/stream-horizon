@@ -11,7 +11,7 @@ import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.io.BulkOutputWriter;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.FileUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -31,7 +31,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	private String currentThreadName;
 	private final StringBuilder reusedForPerformance = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
 
-	public AbstractBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public AbstractBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		isDebugEnabled = log.isDebugEnabled();
 		this.validate();

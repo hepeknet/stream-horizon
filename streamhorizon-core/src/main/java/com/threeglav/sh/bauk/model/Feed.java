@@ -1,12 +1,9 @@
 package com.threeglav.sh.bauk.model;
 
-import java.util.ArrayList;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
@@ -15,7 +12,7 @@ import com.threeglav.sh.bauk.util.StringUtil;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(propOrder = {})
-public class FactFeed {
+public class Feed {
 
 	@XmlAttribute(required = true)
 	private String name;
@@ -36,7 +33,7 @@ public class FactFeed {
 	private String fileNameProcessorClassName;
 
 	@XmlAttribute(required = true)
-	private FactFeedType type;
+	private FeedType type;
 
 	@XmlElement(required = false, defaultValue = "-1")
 	private Integer repetitionCount = -1;
@@ -59,24 +56,11 @@ public class FactFeed {
 	@XmlElement
 	private BulkLoadDefinition bulkLoadDefinition;
 
-	@XmlElementWrapper(name = "beforeFeedProcessing")
-	@XmlElement(name = "command")
-	private ArrayList<BaukCommand> beforeFeedProcessing;
-
 	@XmlElement
 	private ThreadPoolSettings threadPoolSettings;
 
-	@XmlElementWrapper(name = "onStartupCommands")
-	@XmlElement(name = "command")
-	private ArrayList<BaukCommand> onStartup;
-
-	@XmlElementWrapper(name = "afterFeedProcessingCompletion")
-	@XmlElement(name = "command")
-	private ArrayList<BaukCommand> afterFeedProcessingCompletion;
-
-	@XmlElementWrapper(name = "onFeedProcessingFailure")
-	@XmlElement(name = "command")
-	private ArrayList<BaukCommand> onFeedProcessingFailure;
+	@XmlElement
+	private FeedEvents events;
 
 	public String getName() {
 		return name;
@@ -86,11 +70,11 @@ public class FactFeed {
 		this.name = name;
 	}
 
-	public FactFeedType getType() {
+	public FeedType getType() {
 		return type;
 	}
 
-	public void setType(final FactFeedType type) {
+	public void setType(final FeedType type) {
 		this.type = type;
 	}
 
@@ -158,44 +142,12 @@ public class FactFeed {
 		threadPoolSettings = threadPoolSizes;
 	}
 
-	public ArrayList<BaukCommand> getBeforeFeedProcessing() {
-		return beforeFeedProcessing;
-	}
-
-	public void setBeforeFeedProcessing(final ArrayList<BaukCommand> beforeFeedProcessing) {
-		this.beforeFeedProcessing = beforeFeedProcessing;
-	}
-
 	public String getFileNameProcessorClassName() {
 		return fileNameProcessorClassName;
 	}
 
 	public void setFileNameProcessorClassName(final String fileNameProcessorClassName) {
 		this.fileNameProcessorClassName = fileNameProcessorClassName;
-	}
-
-	public ArrayList<BaukCommand> getOnStartup() {
-		return onStartup;
-	}
-
-	public void setOnStartup(final ArrayList<BaukCommand> onStartup) {
-		this.onStartup = onStartup;
-	}
-
-	public ArrayList<BaukCommand> getAfterFeedProcessingCompletion() {
-		return afterFeedProcessingCompletion;
-	}
-
-	public void setAfterFeedProcessingCompletion(final ArrayList<BaukCommand> afterFeedProcessingCompletion) {
-		this.afterFeedProcessingCompletion = afterFeedProcessingCompletion;
-	}
-
-	public ArrayList<BaukCommand> getOnFeedProcessingFailure() {
-		return onFeedProcessingFailure;
-	}
-
-	public void setOnFeedProcessingFailure(final ArrayList<BaukCommand> onFeedProcessingFailure) {
-		this.onFeedProcessingFailure = onFeedProcessingFailure;
 	}
 
 	public FeedSource getSource() {
@@ -220,6 +172,14 @@ public class FactFeed {
 
 	public void setBulkOutputDirectory(final String bulkOutputDirectory) {
 		this.bulkOutputDirectory = bulkOutputDirectory;
+	}
+
+	public FeedEvents getEvents() {
+		return events;
+	}
+
+	public void setEvents(final FeedEvents events) {
+		this.events = events;
 	}
 
 	public String getErrorDirectory() {

@@ -36,7 +36,7 @@ import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
@@ -53,7 +53,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 
 	private final Map<String, String> implicitAttributes = new THashMap<String, String>(30);
 
-	private final FactFeed factFeed;
+	private final Feed factFeed;
 	private final BaukConfiguration config;
 	private final Meter inputFeedsProcessed;
 	private final Histogram inputFeedProcessingTime;
@@ -72,7 +72,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 	private final boolean throughputTestingMode;
 	private final String bulkOutDirectory;
 
-	public FeedFileProcessor(final FactFeed factFeed, final BaukConfiguration config, final String fileMask) {
+	public FeedFileProcessor(final Feed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}
@@ -110,10 +110,11 @@ public class FeedFileProcessor implements InputFeedProcessor {
 			moveToArchiveFileProcessor = new MoveFileErrorHandler(archiveFolderPath);
 			log.info("Will move all successfully processed files to {}", archiveFolderPath);
 		}
-		executeRollbackSequence = factFeed.getOnFeedProcessingFailure() != null && !factFeed.getOnFeedProcessingFailure().isEmpty();
+		executeRollbackSequence = factFeed.getEvents() != null && factFeed.getEvents().getOnFeedProcessingFailure() != null
+				&& !factFeed.getEvents().getOnFeedProcessingFailure().isEmpty();
 		log.info("Will execute rollback commands for feed {} = {}", factFeed.getName(), executeRollbackSequence);
 		if (executeRollbackSequence) {
-			feedProcessingFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getOnFeedProcessingFailure());
+			feedProcessingFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getEvents().getOnFeedProcessingFailure());
 		}
 		throughputTestingMode = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 		bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
@@ -182,9 +183,10 @@ public class FeedFileProcessor implements InputFeedProcessor {
 
 	private FeedProcessor createBeforeFeedProcessingProcessor() {
 		FeedProcessor processor = null;
-		if (factFeed.getBeforeFeedProcessing() != null && !factFeed.getBeforeFeedProcessing().isEmpty()) {
+		if (factFeed.getEvents() != null && factFeed.getEvents().getBeforeFeedProcessing() != null
+				&& !factFeed.getEvents().getBeforeFeedProcessing().isEmpty()) {
 			log.debug("Will perform before feed processing for {}", factFeed.getName());
-			processor = new FeedProcessor(factFeed, config, "BeforeFeedProcessor", factFeed.getBeforeFeedProcessing());
+			processor = new FeedProcessor(factFeed, config, "BeforeFeedProcessor", factFeed.getEvents().getBeforeFeedProcessing());
 		} else {
 			log.debug("Will not perform any before feed processing for {}", factFeed.getName());
 		}
@@ -240,9 +242,11 @@ public class FeedFileProcessor implements InputFeedProcessor {
 
 	private FeedProcessor createFeedCompletionProcessor() {
 		final FeedProcessor processor = null;
-		if (factFeed.getAfterFeedProcessingCompletion() != null && !factFeed.getAfterFeedProcessingCompletion().isEmpty()) {
-			log.debug("Found {} to be executed on feed completion for {}", factFeed.getAfterFeedProcessingCompletion(), factFeed.getName());
-			return new FeedProcessor(factFeed, config, "FeedCompletionProcessor", factFeed.getAfterFeedProcessingCompletion());
+		if (factFeed.getEvents() != null && factFeed.getEvents().getAfterFeedProcessingCompletion() != null
+				&& !factFeed.getEvents().getAfterFeedProcessingCompletion().isEmpty()) {
+			log.debug("Found {} to be executed on feed completion for {}", factFeed.getEvents().getAfterFeedProcessingCompletion(),
+					factFeed.getName());
+			return new FeedProcessor(factFeed, config, "FeedCompletionProcessor", factFeed.getEvents().getAfterFeedProcessingCompletion());
 		} else {
 			log.debug("Did not find anything to execute on feed completion for feed {}", factFeed.getName());
 		}

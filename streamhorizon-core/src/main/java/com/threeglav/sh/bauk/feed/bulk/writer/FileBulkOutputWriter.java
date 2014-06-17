@@ -7,14 +7,14 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 public class FileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private BufferedWriter writer;
 
-	public FileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public FileBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 	}
 

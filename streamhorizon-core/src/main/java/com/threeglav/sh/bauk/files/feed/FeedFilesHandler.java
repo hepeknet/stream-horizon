@@ -12,7 +12,7 @@ import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.files.ThroughputTestingFileFindingHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BaukProperty;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.FeedSource;
 import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
@@ -27,7 +27,7 @@ public final class FeedFilesHandler extends AbstractFeedHandler {
 	private static final boolean throughputTestingMode = ConfigurationProperties.getSystemProperty(
 			BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 
-	public FeedFilesHandler(final FactFeed factFeed, final BaukConfiguration config) {
+	public FeedFilesHandler(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.validate();
 		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,

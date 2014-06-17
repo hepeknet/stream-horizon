@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlType
 @XmlEnum
-public enum FactFeedType {
+public enum FeedType {
 
 	@XmlEnumValue("full")
 	FULL,

@@ -20,8 +20,8 @@ import com.threeglav.sh.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Data;
-import com.threeglav.sh.bauk.model.FactFeed;
-import com.threeglav.sh.bauk.model.FactFeedType;
+import com.threeglav.sh.bauk.model.Feed;
+import com.threeglav.sh.bauk.model.FeedType;
 import com.threeglav.sh.bauk.model.Footer;
 import com.threeglav.sh.bauk.model.FooterProcessingType;
 import com.threeglav.sh.bauk.model.Header;
@@ -211,9 +211,9 @@ public class TextFileReaderComponentTest {
 		return bc;
 	}
 
-	private FactFeed createFactFeed(final HeaderProcessingType hType, final FooterProcessingType fType, final boolean isControl,
+	private Feed createFactFeed(final HeaderProcessingType hType, final FooterProcessingType fType, final boolean isControl,
 			final int footerAttributePosition) {
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final Feed ff = Mockito.mock(Feed.class);
 		when(ff.getDelimiterString()).thenReturn(",");
 		final Header h = Mockito.mock(Header.class);
 		when(h.getProcess()).thenReturn(hType);
@@ -227,9 +227,9 @@ public class TextFileReaderComponentTest {
 		when(ff.getFooter()).thenReturn(footer);
 		when(footer.getEachLineStartsWithCharacter()).thenReturn("9");
 		if (isControl) {
-			when(ff.getType()).thenReturn(FactFeedType.CONTROL);
+			when(ff.getType()).thenReturn(FeedType.CONTROL);
 		} else {
-			when(ff.getType()).thenReturn(FactFeedType.FULL);
+			when(ff.getType()).thenReturn(FeedType.FULL);
 		}
 		final Data data = Mockito.mock(Data.class);
 		when(ff.getData()).thenReturn(data);

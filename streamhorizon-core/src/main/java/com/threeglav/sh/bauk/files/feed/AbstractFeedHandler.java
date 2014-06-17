@@ -13,7 +13,7 @@ import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.ThreadPoolSettings;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 
@@ -22,11 +22,11 @@ public abstract class AbstractFeedHandler implements FeedHandler {
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	protected final List<Runnable> runnables = new LinkedList<>();
 	private final ExecutorService EXEC_SERVICE;
-	protected final FactFeed factFeed;
+	protected final Feed factFeed;
 	protected final BaukConfiguration config;
 	protected int feedProcessingThreads = ThreadPoolSettings.THREAD_POOL_DEFAULT_SIZE;
 
-	public AbstractFeedHandler(final FactFeed factFeed, final BaukConfiguration config) {
+	public AbstractFeedHandler(final Feed factFeed, final BaukConfiguration config) {
 		if (factFeed == null || config == null) {
 			throw new IllegalArgumentException("Feed and config must not be null");
 		}

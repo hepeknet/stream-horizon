@@ -10,7 +10,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
@@ -19,7 +19,7 @@ public class ZipFileBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	private ZipOutputStream zipOutStream;
 
-	public ZipFileBulkOutputWriter(final FactFeed factFeed, final BaukConfiguration config) {
+	public ZipFileBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 	}
 

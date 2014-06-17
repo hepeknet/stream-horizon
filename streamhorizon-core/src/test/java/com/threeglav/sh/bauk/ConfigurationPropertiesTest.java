@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.ThreadPoolSettings;
 
 public class ConfigurationPropertiesTest {
@@ -54,7 +54,7 @@ public class ConfigurationPropertiesTest {
 
 	@Test
 	public void testCalculateMultiInstanceIdentifiers() {
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final Feed ff = Mockito.mock(Feed.class);
 		final ThreadPoolSettings tps = Mockito.mock(ThreadPoolSettings.class);
 		when(tps.getEtlProcessingThreadCount()).thenReturn(5);
 		when(tps.getDatabaseProcessingThreadCount()).thenReturn(6);

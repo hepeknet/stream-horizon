@@ -26,7 +26,7 @@ import com.threeglav.sh.bauk.files.BaukFile;
 import com.threeglav.sh.bauk.files.InputFeedProcessor;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -55,9 +55,9 @@ public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor
 	private BaukCommandsExecutor bulkLoadSuccessCommandsExecutor;
 	private BaukCommandsExecutor bulkLoadFailureCommandsExecutor;
 	private BaukCommandsExecutor bulkLoadCompletionCommandsExecutor;
-	private final FactFeed factFeed;
+	private final Feed factFeed;
 
-	public BulkFileProcessor(final FactFeed factFeed, final BaukConfiguration config) {
+	public BulkFileProcessor(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.factFeed = factFeed;
 		final int currentCounterValue = COUNTER.getAndIncrement();

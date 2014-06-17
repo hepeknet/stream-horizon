@@ -11,8 +11,8 @@ import org.mockito.Mockito;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.DataProcessingType;
-import com.threeglav.sh.bauk.model.FactFeed;
-import com.threeglav.sh.bauk.model.FactFeedType;
+import com.threeglav.sh.bauk.model.Feed;
+import com.threeglav.sh.bauk.model.FeedType;
 
 public class FeedParserComponentTest {
 
@@ -24,14 +24,14 @@ public class FeedParserComponentTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testNullDelimiter() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
-		final FactFeed ff = Mockito.mock(FactFeed.class);
+		final Feed ff = Mockito.mock(Feed.class);
 		new FeedParserComponent(ff, config);
 	}
 
 	@Test(expected = IllegalStateException.class)
 	public void testNullFeedType() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
-		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
 		when(ff.getDelimiterString()).thenReturn(",");
 		new FeedParserComponent(ff, config);
@@ -40,10 +40,10 @@ public class FeedParserComponentTest {
 	@Test
 	public void testFirstValueNoCheck() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
-		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
-		when(ff.getType()).thenReturn(FactFeedType.FULL);
+		when(ff.getType()).thenReturn(FeedType.FULL);
 		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertEquals("9", fp.getFirstStringInEveryLine());
 		Assert.assertFalse(fp.isCheckEveryLineValidity());
@@ -53,7 +53,7 @@ public class FeedParserComponentTest {
 	@Test
 	public void testFirstValueCheck() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
-		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(DataProcessingType.NORMAL);
 		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
@@ -64,7 +64,7 @@ public class FeedParserComponentTest {
 		}
 		when(ff.getData().getAttributes()).thenReturn(attrs);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn("9");
-		when(ff.getType()).thenReturn(FactFeedType.FULL);
+		when(ff.getType()).thenReturn(FeedType.FULL);
 		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertEquals("9", fp.getFirstStringInEveryLine());
 		Assert.assertTrue(fp.isCheckEveryLineValidity());
@@ -74,7 +74,7 @@ public class FeedParserComponentTest {
 	@Test(expected = IllegalStateException.class)
 	public void testFirstValueNotSetButStrictRequired() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
-		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(DataProcessingType.NORMAL);
 		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
@@ -85,7 +85,7 @@ public class FeedParserComponentTest {
 		}
 		when(ff.getData().getAttributes()).thenReturn(attrs);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn(null);
-		when(ff.getType()).thenReturn(FactFeedType.FULL);
+		when(ff.getType()).thenReturn(FeedType.FULL);
 		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertEquals("9", fp.getFirstStringInEveryLine());
 		Assert.assertTrue(fp.isCheckEveryLineValidity());
@@ -95,7 +95,7 @@ public class FeedParserComponentTest {
 	@Test
 	public void testFirstValueNotSet() {
 		final BaukConfiguration config = Mockito.mock(BaukConfiguration.class);
-		final FactFeed ff = Mockito.mock(FactFeed.class, Mockito.RETURNS_DEEP_STUBS);
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
 		when(ff.getDelimiterString()).thenReturn(",");
 		when(ff.getData().getProcess()).thenReturn(DataProcessingType.NO_VALIDATION);
 		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
@@ -106,7 +106,7 @@ public class FeedParserComponentTest {
 		}
 		when(ff.getData().getAttributes()).thenReturn(attrs);
 		when(ff.getData().getEachLineStartsWithCharacter()).thenReturn(null);
-		when(ff.getType()).thenReturn(FactFeedType.FULL);
+		when(ff.getType()).thenReturn(FeedType.FULL);
 		final FeedParserComponent fp = new FeedParserComponent(ff, config);
 		Assert.assertNull(fp.getFirstStringInEveryLine());
 		Assert.assertFalse(fp.isCheckEveryLineValidity());

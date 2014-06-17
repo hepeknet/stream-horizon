@@ -3,11 +3,11 @@ package com.threeglav.sh.bauk.feed.processing;
 import java.util.Map;
 
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 
 public final class SingleThreadedFeedDataProcessor extends AbstractFeedDataProcessor {
 
-	public SingleThreadedFeedDataProcessor(final FactFeed factFeed, final BaukConfiguration config) {
+	public SingleThreadedFeedDataProcessor(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 	}
 

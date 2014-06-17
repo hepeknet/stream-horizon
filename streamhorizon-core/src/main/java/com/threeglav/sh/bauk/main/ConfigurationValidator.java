@@ -18,9 +18,9 @@ import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BaukProperty;
 import com.threeglav.sh.bauk.model.Dimension;
-import com.threeglav.sh.bauk.model.FactFeed;
-import com.threeglav.sh.bauk.model.FactFeedType;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.FeedSource;
+import com.threeglav.sh.bauk.model.FeedType;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
@@ -43,7 +43,7 @@ class ConfigurationValidator {
 		if (StringUtil.isEmpty(config.getDatabaseStringEscapeLiteral())) {
 			throw new IllegalStateException("Unable to find non-null, non-empty database string escape literal!");
 		}
-		for (final FactFeed ff : config.getFactFeeds()) {
+		for (final Feed ff : config.getFeeds()) {
 			this.validateFactFeed(ff);
 		}
 		this.checkValidityOfAttributes();
@@ -76,7 +76,7 @@ class ConfigurationValidator {
 		int minRequired = 0;
 		final int safetyNet = 10;
 		minRequired += safetyNet;
-		for (final FactFeed ff : config.getFactFeeds()) {
+		for (final Feed ff : config.getFeeds()) {
 			final int minRequiredPerFeed = ff.getMinimumRequiredJdbcConnections();
 			minRequired += minRequiredPerFeed;
 		}
@@ -87,7 +87,7 @@ class ConfigurationValidator {
 		}
 	}
 
-	private String validateFeedSource(final FactFeed ff) {
+	private String validateFeedSource(final Feed ff) {
 		if (ff.getSource() == null) {
 			throw new IllegalStateException("Feed source is not properly configured!");
 		}
@@ -156,7 +156,7 @@ class ConfigurationValidator {
 		}
 	}
 
-	private void validateFactFeed(final FactFeed ff) throws Exception {
+	private void validateFactFeed(final Feed ff) throws Exception {
 		final String sourceDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.SOURCE_DIRECTORY_PARAM_NAME,
 				this.validateFeedSource(ff));
 		if (sourceDirectory != null) { // only if specified, otherwise no need for input directory
@@ -189,8 +189,8 @@ class ConfigurationValidator {
 					"Configuration for feed {} requires every data line to start with [{}]. This is mandatory for correct data interpretation of input feeds!",
 					ff.getName(), ff.getData().getEachLineStartsWithCharacter());
 		}
-		if (ff.getType() == FactFeedType.REPETITIVE && ff.getRepetitionCount() <= 0) {
-			throw new IllegalStateException("Feed " + ff.getName() + " is marked as " + FactFeedType.REPETITIVE
+		if (ff.getType() == FeedType.REPETITIVE && ff.getRepetitionCount() <= 0) {
+			throw new IllegalStateException("Feed " + ff.getName() + " is marked as " + FeedType.REPETITIVE
 					+ " but repetition count is not positive integer value!");
 		}
 	}
@@ -229,8 +229,8 @@ class ConfigurationValidator {
 				attrs.addAll(this.getUsedDimensionAttributes(dim));
 			}
 		}
-		if (config.getFactFeeds() != null) {
-			for (final FactFeed ff : config.getFactFeeds()) {
+		if (config.getFeeds() != null) {
+			for (final Feed ff : config.getFeeds()) {
 				attrs.addAll(this.getUsedFeedAttributes(ff));
 			}
 		}
@@ -240,8 +240,8 @@ class ConfigurationValidator {
 
 	private Set<String> getAllDeclaredAttributes() {
 		final Set<String> attrs = new HashSet<>();
-		if (config.getFactFeeds() != null) {
-			for (final FactFeed ff : config.getFactFeeds()) {
+		if (config.getFeeds() != null) {
+			for (final Feed ff : config.getFeeds()) {
 				final List<String> feedAttrs = this.getDeclaredFeedAttributes(ff);
 				if (!feedAttrs.isEmpty()) {
 					log.debug("For feed [{}] found declared attributes {}", ff.getName(), feedAttrs);
@@ -268,10 +268,10 @@ class ConfigurationValidator {
 		return attrs;
 	}
 
-	private Set<String> getUsedFeedAttributes(final FactFeed ff) {
+	private Set<String> getUsedFeedAttributes(final Feed ff) {
 		final Set<String> attrs = new HashSet<>();
-		if (ff.getBeforeFeedProcessing() != null) {
-			for (final BaukCommand mrss : ff.getBeforeFeedProcessing()) {
+		if (ff.getEvents() != null && ff.getEvents().getBeforeFeedProcessing() != null) {
+			for (final BaukCommand mrss : ff.getEvents().getBeforeFeedProcessing()) {
 				final String stat = mrss.getCommand();
 				if (!StringUtil.isEmpty(stat)) {
 					final Set<String> used = StringUtil.collectAllAttributesFromString(stat);
@@ -281,8 +281,8 @@ class ConfigurationValidator {
 				}
 			}
 		}
-		if (ff.getAfterFeedProcessingCompletion() != null) {
-			for (final BaukCommand bc : ff.getAfterFeedProcessingCompletion()) {
+		if (ff.getEvents() != null && ff.getEvents().getAfterFeedProcessingCompletion() != null) {
+			for (final BaukCommand bc : ff.getEvents().getAfterFeedProcessingCompletion()) {
 				if (!StringUtil.isEmpty(bc.getCommand())) {
 					final Set<String> used = StringUtil.collectAllAttributesFromString(bc.getCommand());
 					if (used != null) {
@@ -341,7 +341,7 @@ class ConfigurationValidator {
 		return attrs;
 	}
 
-	private List<String> getDeclaredFeedAttributes(final FactFeed ff) {
+	private List<String> getDeclaredFeedAttributes(final Feed ff) {
 		final List<String> attrs = new LinkedList<>();
 		if (ff.getHeader() != null && ff.getHeader().getAttributes() != null) {
 			final String[] attrNames = AttributeParsingUtil.getAttributeNames(ff.getHeader().getAttributes());

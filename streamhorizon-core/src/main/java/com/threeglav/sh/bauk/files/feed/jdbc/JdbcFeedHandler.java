@@ -16,7 +16,7 @@ import com.threeglav.sh.bauk.files.feed.AbstractFeedHandler;
 import com.threeglav.sh.bauk.files.feed.FeedFileProcessor;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BaukProperty;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.FeedSource;
 import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 
@@ -29,7 +29,7 @@ public class JdbcFeedHandler extends AbstractFeedHandler {
 	private Scheduler scheduler;
 	private final String delimiterString;
 
-	public JdbcFeedHandler(final FactFeed factFeed, final BaukConfiguration config) {
+	public JdbcFeedHandler(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		ffp = new FeedFileProcessor(factFeed, config, "jdbc-feed");
 		final ArrayList<BaukProperty> properties = factFeed.getSource().getProperties();

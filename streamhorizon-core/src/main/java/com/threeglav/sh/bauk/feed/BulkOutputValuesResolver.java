@@ -33,7 +33,7 @@ import com.threeglav.sh.bauk.model.BulkLoadFormatDefinition;
 import com.threeglav.sh.bauk.model.Data;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.DimensionType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 import com.threeglav.sh.bauk.util.StringUtil;
@@ -71,7 +71,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 
 	static final Set<String> alreadyStartedCreatingDimensionNames = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-	public BulkOutputValuesResolver(final FactFeed factFeed, final BaukConfiguration config, final CacheInstanceManager cacheInstanceManager) {
+	public BulkOutputValuesResolver(final Feed factFeed, final BaukConfiguration config, final CacheInstanceManager cacheInstanceManager) {
 		super(factFeed, config);
 		if (config.getDimensions() == null || config.getDimensions().isEmpty()) {
 			throw new IllegalArgumentException("Did not find any dimensions defined! Check your configuration file");

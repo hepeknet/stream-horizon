@@ -6,20 +6,20 @@ import org.slf4j.LoggerFactory;
 import com.threeglav.sh.bauk.dimension.db.DbHandler;
 import com.threeglav.sh.bauk.dimension.db.SpringJdbcDbHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 
 public abstract class ConfigAware {
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-	private final FactFeed factFeed;
+	private final Feed factFeed;
 	private final BaukConfiguration config;
 	private DbHandler dbHandler;
 	protected final boolean isDebugEnabled;
 	protected final boolean isTraceEnabled;
 	protected final boolean isInfoEnabled;
 
-	public ConfigAware(final FactFeed factFeed, final BaukConfiguration config) {
+	public ConfigAware(final Feed factFeed, final BaukConfiguration config) {
 		if (factFeed == null) {
 			throw new IllegalArgumentException("Fact feed must not be null");
 		}
@@ -34,7 +34,7 @@ public abstract class ConfigAware {
 		isInfoEnabled = log.isInfoEnabled();
 	}
 
-	protected FactFeed getFactFeed() {
+	protected Feed getFactFeed() {
 		return factFeed;
 	}
 

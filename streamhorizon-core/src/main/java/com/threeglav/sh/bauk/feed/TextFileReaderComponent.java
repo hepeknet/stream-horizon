@@ -20,8 +20,8 @@ import com.threeglav.sh.bauk.header.DefaultHeaderParser;
 import com.threeglav.sh.bauk.header.HeaderParser;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.FactFeed;
-import com.threeglav.sh.bauk.model.FactFeedType;
+import com.threeglav.sh.bauk.model.Feed;
+import com.threeglav.sh.bauk.model.FeedType;
 import com.threeglav.sh.bauk.model.FooterProcessingType;
 import com.threeglav.sh.bauk.model.Header;
 import com.threeglav.sh.bauk.model.HeaderProcessingType;
@@ -48,7 +48,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	private final int footerRecordCountPosition;
 	private String currentThreadName;
 
-	public TextFileReaderComponent(final FactFeed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
+	public TextFileReaderComponent(final Feed factFeed, final BaukConfiguration config, final FeedDataProcessor feedDataProcessor,
 			final String routeIdentifier) {
 		super(factFeed, config);
 		this.validate();
@@ -83,7 +83,7 @@ public class TextFileReaderComponent extends ConfigAware {
 			throw new IllegalArgumentException("Read buffer size must not be <= 0");
 		}
 		log.info("Read buffer size is {} bytes", bufferSize);
-		isControlFeed = this.getFactFeed().getType() == FactFeedType.CONTROL;
+		isControlFeed = this.getFactFeed().getType() == FeedType.CONTROL;
 		headerShouldExist = headerProcessingType != HeaderProcessingType.NO_HEADER;
 		if (isControlFeed && headerShouldExist) {
 			throw new IllegalStateException("Control feed " + factFeed.getName() + " must not have header!");
@@ -357,6 +357,10 @@ public class TextFileReaderComponent extends ConfigAware {
 					feedLinesNumber, footerLine);
 		}
 		final String[] footerParsedValues = footerLineParser.parse(footerLine);
+		if (footerParsedValues == null) {
+			throw new IllegalStateException("Did not find any values in footer. But footer record count position is set to be found at position "
+					+ footerRecordCountPosition);
+		}
 		if (footerParsedValues.length < footerRecordCountPosition) {
 			throw new IllegalStateException("Found " + footerParsedValues.length
 					+ " values in footer. But footer record count position is set to be found at position " + footerRecordCountPosition);

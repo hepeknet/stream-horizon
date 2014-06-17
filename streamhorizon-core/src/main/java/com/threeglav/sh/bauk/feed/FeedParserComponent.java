@@ -9,8 +9,8 @@ import com.threeglav.sh.bauk.dynamic.CustomProcessorResolver;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.DataProcessingType;
-import com.threeglav.sh.bauk.model.FactFeed;
-import com.threeglav.sh.bauk.model.FactFeedType;
+import com.threeglav.sh.bauk.model.Feed;
+import com.threeglav.sh.bauk.model.FeedType;
 import com.threeglav.sh.bauk.parser.AbstractFeedParser;
 import com.threeglav.sh.bauk.parser.DeltaFeedParser;
 import com.threeglav.sh.bauk.parser.FullFeedParser;
@@ -25,21 +25,21 @@ public final class FeedParserComponent extends ConfigAware {
 	private final int expectedTokensInEveryDataLine;
 	private final FeedDataLineProcessor feedDataLineProcessor;
 
-	public FeedParserComponent(final FactFeed ff, final BaukConfiguration config) {
+	public FeedParserComponent(final Feed ff, final BaukConfiguration config) {
 		super(ff, config);
-		final FactFeedType fft = ff.getType();
+		final FeedType fft = ff.getType();
 		final String delimiter = ff.getDelimiterString();
 		if (StringUtil.isEmpty(delimiter)) {
 			throw new IllegalArgumentException("Delimiter must not be null or empty string");
 		}
 		expectedTokensInEveryDataLine = this.getExpectedAttributesNumber(ff);
-		if (fft == FactFeedType.DELTA) {
+		if (fft == FeedType.DELTA) {
 			feedParser = new DeltaFeedParser(delimiter, expectedTokensInEveryDataLine);
 			feedParser.setNullString(ff.getNullString());
 			log.debug("Will use delta feed parser for feed {}. Null string is set to [{}]", ff.getName(), ff.getNullString());
-		} else if (fft == FactFeedType.FULL || fft == FactFeedType.CONTROL) {
+		} else if (fft == FeedType.FULL || fft == FeedType.CONTROL) {
 			feedParser = new FullFeedParser(delimiter, expectedTokensInEveryDataLine);
-		} else if (fft == FactFeedType.REPETITIVE) {
+		} else if (fft == FeedType.REPETITIVE) {
 			feedParser = new RepetitiveFeedParser(delimiter, 0, expectedTokensInEveryDataLine);
 			log.debug("Will use repetitive feed parser for feed {}", ff.getName());
 		} else {
@@ -92,7 +92,7 @@ public final class FeedParserComponent extends ConfigAware {
 		}
 	}
 
-	private int getExpectedAttributesNumber(final FactFeed ff) {
+	private int getExpectedAttributesNumber(final Feed ff) {
 		final boolean expectFirstAttribute = !StringUtil.isEmpty(ff.getData().getEachLineStartsWithCharacter());
 		int expectedTokens;
 		final ArrayList<BaukAttribute> attributes = ff.getData().getAttributes();

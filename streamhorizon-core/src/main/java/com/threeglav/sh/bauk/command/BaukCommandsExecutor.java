@@ -10,7 +10,7 @@ import com.threeglav.sh.bauk.dimension.db.DbHandler;
 import com.threeglav.sh.bauk.model.BaukCommand;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.CommandType;
-import com.threeglav.sh.bauk.model.FactFeed;
+import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.StatefulAttributeReplacer;
 
 public final class BaukCommandsExecutor extends ConfigAware {
@@ -20,7 +20,7 @@ public final class BaukCommandsExecutor extends ConfigAware {
 	private final ArrayList<BaukCommand> commands;
 	private boolean hasSqlStatementsToExecute;
 
-	public BaukCommandsExecutor(final FactFeed factFeed, final BaukConfiguration config, final ArrayList<BaukCommand> commands) {
+	public BaukCommandsExecutor(final Feed factFeed, final BaukConfiguration config, final ArrayList<BaukCommand> commands) {
 		super(factFeed, config);
 		if (commands == null) {
 			throw new IllegalArgumentException("Commands must not be null");
