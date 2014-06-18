@@ -24,8 +24,9 @@ public class FileFindingHandler implements Runnable {
 
 	protected final Logger log = LoggerFactory.getLogger(this.getClass());
 	protected final String pathTofolder;
-	protected final int pollingDelayMillis = ConfigurationProperties.getSystemProperty(
-			BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_PARAM_NAME, BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_DEFAULT);
+	protected final int pollingDelayMillis = ConfigurationProperties
+			.getSystemProperty(BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_PARAM_NAME,
+					BaukEngineConfigurationConstants.FILE_POLLING_DELAY_MILLIS_DEFAULT);
 	protected final InputFeedProcessor fileProcessor;
 	private final DirectoryStream.Filter<Path> fileFilter;
 	protected final FileProcessingErrorHandler errorHandler;

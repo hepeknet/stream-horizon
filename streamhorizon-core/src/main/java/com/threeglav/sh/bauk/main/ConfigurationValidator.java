@@ -24,6 +24,7 @@ import com.threeglav.sh.bauk.model.FeedType;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
+import com.threeglav.sh.bauk.util.FeedUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
 class ConfigurationValidator {
@@ -185,8 +186,7 @@ class ConfigurationValidator {
 		if (!errorOk) {
 			throw new IllegalStateException("Was not able to find folder for storing corrupted/invalid data for feed " + ff.getName() + "! Aborting!");
 		}
-		final String bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
-				ff.getBulkOutputDirectory());
+		final String bulkOutDirectory = FeedUtil.getConfiguredBulkOutputDirectory(ff);
 		final boolean bulkOutOk = this.getOrCreateDirectory(bulkOutDirectory, true);
 		if (!bulkOutOk) {
 			throw new IllegalStateException("Was not able to find folder for storing bulk output data for feed " + ff.getName() + "! Aborting!");

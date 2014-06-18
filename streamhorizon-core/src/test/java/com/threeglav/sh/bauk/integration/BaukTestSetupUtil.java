@@ -28,6 +28,7 @@ import org.apache.thrift.transport.TTransportException;
 
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.main.StreamHorizonEngine;
+import com.threeglav.sh.bauk.model.FeedTarget;
 import com.threeglav.sh.bauk.rpc.InputFeed;
 import com.threeglav.sh.bauk.rpc.ProcessingResult;
 import com.threeglav.sh.bauk.rpc.SHFeedProcessor;
@@ -57,7 +58,7 @@ public class BaukTestSetupUtil {
 			final Path tempOutDirP = Files.createTempDirectory("bauk_test_out");
 			tempOutDir = tempOutDirP.toFile();
 			tempOutDir.deleteOnExit();
-			System.setProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME, tempOutDir.getAbsolutePath());
+			System.setProperty(FeedTarget.FILE_TARGET_DIRECTORY_PROP_NAME, tempOutDir.getAbsolutePath());
 
 			final Path tempArchiveDir = Files.createTempDirectory("bauk_test_archive");
 			archiveDir = tempArchiveDir.toFile();

@@ -52,7 +52,7 @@ public class RPCSmokeTest {
 		Assert.assertEquals("1", firstRow.get("f1"));
 		Assert.assertEquals("111", firstRow.get("f2"));
 		Assert.assertEquals("222", firstRow.get("f3"));
-		Assert.assertTrue(firstRow.get("f4").contains("TEST_jdbc_Feed"));
+		Assert.assertTrue(firstRow.get("f4").contains("N/A"));
 		Assert.assertEquals(result, ProcessingResult.SUCCESS);
 	}
 
@@ -103,7 +103,7 @@ public class RPCSmokeTest {
 				// Assert.assertEquals(i, firstRow.get("f1"));
 				Assert.assertEquals(String.valueOf(i), firstRow.get("f2"));
 				Assert.assertEquals(String.valueOf(2 * i), firstRow.get("f3"));
-				Assert.assertTrue(firstRow.get("f4").contains("TEST_jdbc_Feed"));
+				Assert.assertTrue(firstRow.get("f4").contains("N/A"));
 			}
 		}
 	}

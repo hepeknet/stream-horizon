@@ -16,9 +16,6 @@ public class BulkLoadDefinition {
 
 	public static final String DEFAULT_BULK_OUTPUT_VALUE_DELIMITER = ",";
 
-	@XmlElement(required = false)
-	private String bulkLoadOutputExtension;
-
 	@XmlElement(required = false, defaultValue = DEFAULT_BULK_OUTPUT_VALUE_DELIMITER)
 	private String bulkLoadFileDelimiter = DEFAULT_BULK_OUTPUT_VALUE_DELIMITER;
 
@@ -50,14 +47,6 @@ public class BulkLoadDefinition {
 
 	public void setBulkLoadFormatDefinition(final BulkLoadFormatDefinition bulkLoadFormatDefinition) {
 		this.bulkLoadFormatDefinition = bulkLoadFormatDefinition;
-	}
-
-	public String getBulkLoadOutputExtension() {
-		return bulkLoadOutputExtension;
-	}
-
-	public void setBulkLoadOutputExtension(final String bulkLoadOutputExtension) {
-		this.bulkLoadOutputExtension = bulkLoadOutputExtension;
 	}
 
 	public String getOutputFileNamePattern() {

@@ -15,6 +15,9 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {})
 public class FeedTarget {
 
+	public static final String FILE_TARGET_EXTENSION_PROP_NAME = "bulkLoadOutputExtension";
+	public static final String FILE_TARGET_DIRECTORY_PROP_NAME = "bulkOutputDirectory";
+
 	@XmlAttribute(required = true)
 	private String type = BulkLoadDefinitionOutputType.FILE.toString();
 

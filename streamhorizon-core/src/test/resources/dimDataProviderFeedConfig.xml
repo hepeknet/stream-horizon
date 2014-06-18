@@ -19,7 +19,6 @@
 			</target>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
-			<bulkOutputDirectory></bulkOutputDirectory>
 			<delimiterString>,</delimiterString>
 			<header process="no_header" />
 			<data process="no_validation">

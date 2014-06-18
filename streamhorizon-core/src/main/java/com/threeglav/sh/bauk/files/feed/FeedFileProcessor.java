@@ -38,6 +38,7 @@ import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
+import com.threeglav.sh.bauk.util.FeedUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -62,7 +63,6 @@ public class FeedFileProcessor implements InputFeedProcessor {
 	private final FeedProcessor feedCompletionProcessor;
 	private final FeedProcessor beforeFeedProcessingProcessor;
 	private FeedFileNameProcessor feedFileNameProcessor;
-	private String fileExtension;
 	private final boolean isDebugEnabled;
 	private final String processorId;
 	private final String multiInstanceProcessorId;
@@ -70,7 +70,6 @@ public class FeedFileProcessor implements InputFeedProcessor {
 	private final boolean executeRollbackSequence;
 	private BaukCommandsExecutor feedProcessingFailureCommandsExecutor;
 	private final boolean throughputTestingMode;
-	private final String bulkOutDirectory;
 
 	public FeedFileProcessor(final Feed factFeed, final BaukConfiguration config, final String fileMask) {
 		if (factFeed == null) {
@@ -117,9 +116,6 @@ public class FeedFileProcessor implements InputFeedProcessor {
 			feedProcessingFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getEvents().getOnFeedProcessingFailure());
 		}
 		throughputTestingMode = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
-		bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
-				factFeed.getBulkOutputDirectory());
-		this.validate();
 	}
 
 	private int calculateCurrentThreadId() {
@@ -216,31 +212,6 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		}
 	}
 
-	private void validate() {
-		if (StringUtil.isEmpty(bulkOutDirectory)) {
-			throw new IllegalStateException("Bulk output directory must not be null or empty!");
-		}
-		fileExtension = null;
-		final BulkLoadDefinition bulkDefinition = factFeed.getBulkLoadDefinition();
-		if (bulkDefinition != null) {
-			fileExtension = bulkDefinition.getBulkLoadOutputExtension();
-			if (fileExtension != null && !fileExtension.matches("[A-Za-z0-9]+")) {
-				throw new IllegalStateException("Bulk file extension must contain only alpha-numerical characters. Currently it is set to ["
-						+ fileExtension + "]");
-			}
-		}
-		final boolean isEmptyExtension = StringUtil.isEmpty(fileExtension);
-		final String outputType = factFeed.getTarget().getType();
-		if (isEmptyExtension
-				&& (outputType.equalsIgnoreCase(BulkLoadDefinitionOutputType.FILE.toString())
-						|| outputType.equalsIgnoreCase(BulkLoadDefinitionOutputType.ZIP.toString()) || outputType
-							.equalsIgnoreCase(BulkLoadDefinitionOutputType.GZ.toString()))) {
-			throw new IllegalStateException(
-					"Extension for recognizing bulk output files is required to be specified in configuration file because file output will be generated. Problematic feed is ["
-							+ factFeed.getName() + "]!");
-		}
-	}
-
 	private FeedProcessor createFeedCompletionProcessor() {
 		final FeedProcessor processor = null;
 		if (factFeed.getEvents() != null && factFeed.getEvents().getAfterFeedProcessingCompletion() != null
@@ -310,10 +281,6 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		}
 	}
 
-	private String getBulkOutputFileName(final String inputFeedFileName) {
-		return factFeed.getName() + "_" + StringUtil.getFileNameWithoutExtension(inputFeedFileName) + "." + fileExtension;
-	}
-
 	private void clearImplicitAttributes() {
 		implicitAttributes.clear();
 		implicitAttributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FEED_PROCESSOR_ID, processorId);
@@ -349,10 +316,15 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		final DateTime now = new DateTime(DEFAULT_CHRONOLOGY);
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_TIMESTAMP, "" + now.getMillis());
 		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_FILE_INPUT_FEED_PROCESSING_STARTED_DATE_TIME, DATE_FORMATTER.print(now));
-		final String bulkOutputFileNameOnly = this.getBulkOutputFileName(fileNameOnly);
-		final String bulkOutputFileFullPath = bulkOutDirectory + "/" + bulkOutputFileNameOnly;
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, bulkOutputFileNameOnly);
-		attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, bulkOutputFileFullPath);
+		if (factFeed.getTarget().getType().equalsIgnoreCase(BulkLoadDefinitionOutputType.FILE.toString())) {
+			final String bulkOutputFileNameOnly = FeedUtil.getBulkOutputFileNameOnly(factFeed, fileNameOnly);
+			final String bulkOutputFileFullPath = FeedUtil.getBulkOutputFileFullPath(factFeed, fileNameOnly);
+			attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, bulkOutputFileNameOnly);
+			attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, bulkOutputFileFullPath);
+		} else {
+			attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_FILE_FILE_NAME, "N/A");
+			attributes.put(BaukConstants.IMPLICIT_ATTRIBUTE_BULK_LOAD_OUTPUT_FILE_PATH, "N/A");
+		}
 		if (isDebugEnabled) {
 			log.debug("Created global attributes {}", attributes);
 		}

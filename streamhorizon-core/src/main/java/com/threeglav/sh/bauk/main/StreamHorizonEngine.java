@@ -142,9 +142,14 @@ public class StreamHorizonEngine {
 				}
 				feedHandler.init();
 				feedHandlers.add(feedHandler);
-				final BulkFilesHandler bulkFilesHandler = new BulkFilesHandler(feed, config);
-				bulkFilesHandler.createFileHandlers();
-				bulkFileHandlers.add(bulkFilesHandler);
+				if (feed.isFileTarget()) {
+					final BulkFilesHandler bulkFilesHandler = new BulkFilesHandler(feed, config);
+					bulkFilesHandler.createFileHandlers();
+					bulkFileHandlers.add(bulkFilesHandler);
+					LOG.debug("Feed {} is outputing files. Will start bulk file handlers", feed.getName());
+				} else {
+					LOG.info("Feed {} is not outputing files", feed.getName());
+				}
 				LOG.debug("Successfully added routes for feed [{}]", feed.getName());
 			} catch (final Exception exc) {
 				BaukUtil.logEngineMessage(exc.getMessage());

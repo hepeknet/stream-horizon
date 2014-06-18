@@ -17,9 +17,14 @@ import com.threeglav.sh.bauk.files.FileFindingHandler;
 import com.threeglav.sh.bauk.files.FileProcessingErrorHandler;
 import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
+import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.Feed;
+import com.threeglav.sh.bauk.model.FeedTarget;
 import com.threeglav.sh.bauk.model.ThreadPoolSettings;
+import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
+import com.threeglav.sh.bauk.util.FeedUtil;
+import com.threeglav.sh.bauk.util.StringUtil;
 
 public class BulkFilesHandler {
 
@@ -29,6 +34,8 @@ public class BulkFilesHandler {
 	private int bulkProcessingThreads = ThreadPoolSettings.THREAD_POOL_DEFAULT_SIZE;
 	private final FileProcessingErrorHandler moveToErrorFileProcessor;
 	private final int bulkFileAcceptanceTimeoutMillis;
+	private final String bulkOutDirectory;
+	private final String fileExtension;
 
 	private final ExecutorService EXEC_SERVICE;
 
@@ -53,6 +60,9 @@ public class BulkFilesHandler {
 				bulkProcessingThreads = -1;
 			}
 		}
+		bulkOutDirectory = FeedUtil.getConfiguredBulkOutputDirectory(factFeed);
+		fileExtension = BaukPropertyUtil.getRequiredUniqueProperty(factFeed.getTarget().getProperties(), FeedTarget.FILE_TARGET_EXTENSION_PROP_NAME)
+				.getValue();
 		this.validate();
 		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
 				factFeed.getErrorDirectory());
@@ -72,6 +82,23 @@ public class BulkFilesHandler {
 			throw new IllegalStateException(
 					"Was not able to find bulk definition in configuration file but bulk processing threads set to positive value!");
 		}
+		if (StringUtil.isEmpty(bulkOutDirectory)) {
+			throw new IllegalStateException("Bulk output directory must not be null or empty!");
+		}
+		if (fileExtension != null && !fileExtension.matches("[A-Za-z0-9]+")) {
+			throw new IllegalStateException("Bulk file extension must contain only alpha-numerical characters. Currently it is set to ["
+					+ fileExtension + "]");
+		}
+		final boolean isEmptyExtension = StringUtil.isEmpty(fileExtension);
+		final String outputType = factFeed.getTarget().getType();
+		if (isEmptyExtension
+				&& (outputType.equalsIgnoreCase(BulkLoadDefinitionOutputType.FILE.toString())
+						|| outputType.equalsIgnoreCase(BulkLoadDefinitionOutputType.ZIP.toString()) || outputType
+							.equalsIgnoreCase(BulkLoadDefinitionOutputType.GZ.toString()))) {
+			throw new IllegalStateException(
+					"Extension for recognizing bulk output files is required to be specified in configuration file because file output will be generated. Problematic feed is ["
+							+ factFeed.getName() + "]!");
+		}
 	}
 
 	public void createFileHandlers() {
@@ -80,7 +107,8 @@ public class BulkFilesHandler {
 			for (int i = 0; i < bulkProcessingThreads; i++) {
 				this.createSingleFileHandler(i);
 			}
-			log.debug("Created in total {} bulk processing threads", bulkProcessingThreads);
+			log.debug("Created in total {} bulk processing threads. Will watch folder [{}] for files with extension [{}]", bulkProcessingThreads,
+					bulkOutDirectory, fileExtension);
 		}
 	}
 
@@ -113,11 +141,9 @@ public class BulkFilesHandler {
 
 	private void createSingleFileHandler(final int routeId) {
 		final BulkFileProcessor bfp = new BulkFileProcessor(factFeed, config);
-		final String fullFileMask = ".*" + factFeed.getBulkLoadDefinition().getBulkLoadOutputExtension();
+		final String fullFileMask = ".*" + fileExtension;
 		final FileAttributesHashedNameFilter fileFilter = new FileAttributesHashedNameFilter(fullFileMask, routeId, bulkProcessingThreads,
 				bulkFileAcceptanceTimeoutMillis);
-		final String bulkOutDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.OUTPUT_DIRECTORY_PARAM_NAME,
-				factFeed.getBulkOutputDirectory());
 		final FileFindingHandler ffh = new FileFindingHandler(bulkOutDirectory, bfp, fileFilter, moveToErrorFileProcessor);
 		runnables.add(ffh);
 	}

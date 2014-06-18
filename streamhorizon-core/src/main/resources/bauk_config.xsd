@@ -80,7 +80,6 @@
       <xs:element name="source" type="feedSource"/>
       <xs:element name="target" type="feedTarget"/>
       <xs:element name="archiveDirectory" type="xs:string"/>
-      <xs:element name="bulkOutputDirectory" type="xs:string"/>
       <xs:element name="errorDirectory" type="xs:string"/>
       <xs:element name="fileNameProcessorClassName" type="xs:string" minOccurs="0"/>
       <xs:element name="repetitionCount" type="xs:int" default="-1" minOccurs="0"/>
@@ -187,7 +186,6 @@
 
   <xs:complexType name="bulkLoadDefinition">
     <xs:all>
-      <xs:element name="bulkLoadOutputExtension" type="xs:string" minOccurs="0"/>
       <xs:element name="bulkLoadFileDelimiter" type="xs:string" default="," minOccurs="0"/>
       <xs:element ref="bulkLoadFormatDefinition" minOccurs="0"/>
       <xs:element name="afterBulkLoadSuccess" minOccurs="0">

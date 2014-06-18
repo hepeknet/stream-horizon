@@ -4,6 +4,7 @@ import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlEnumValue;
 import javax.xml.bind.annotation.XmlType;
 
+// TODO: move from model to constants
 @XmlType
 @XmlEnum
 public enum BulkLoadDefinitionOutputType {

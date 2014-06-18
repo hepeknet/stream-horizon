@@ -51,27 +51,27 @@ public class T2JdbcSmokeTest {
 		Assert.assertEquals("1", firstRow.get("f1"));
 		Assert.assertEquals("100", firstRow.get("f2"));
 		Assert.assertEquals("200", firstRow.get("f3"));
-		Assert.assertTrue(firstRow.get("f4").contains("TEST_jdbc_Feed"));
+		Assert.assertTrue(firstRow.get("f4").contains("N/A"));
 		final Map<String, String> secondRow = iterator.next();
 		Assert.assertEquals(4, secondRow.size());
 		Assert.assertEquals("3", secondRow.get("f1"));
 		Assert.assertEquals("1000", secondRow.get("f2"));
 		Assert.assertEquals("2000", secondRow.get("f3"));
-		Assert.assertTrue(secondRow.get("f4").contains("TEST_jdbc_Feed"));
+		Assert.assertTrue(secondRow.get("f4").contains("N/A"));
 
 		final Map<String, String> thirdRow = iterator.next();
 		Assert.assertEquals(4, thirdRow.size());
 		Assert.assertEquals("4", thirdRow.get("f1"));
 		Assert.assertEquals("10000", thirdRow.get("f2"));
 		Assert.assertEquals("20000", thirdRow.get("f3"));
-		Assert.assertTrue(thirdRow.get("f4").contains("TEST_jdbc_Feed"));
+		Assert.assertTrue(thirdRow.get("f4").contains("N/A"));
 
 		final Map<String, String> fourthRow = iterator.next();
 		Assert.assertEquals(4, fourthRow.size());
 		Assert.assertEquals("4", fourthRow.get("f1"));
 		Assert.assertEquals("100000", fourthRow.get("f2"));
 		Assert.assertEquals("200000", fourthRow.get("f3"));
-		Assert.assertTrue(fourthRow.get("f4").contains("TEST_jdbc_Feed"));
+		Assert.assertTrue(fourthRow.get("f4").contains("N/A"));
 
 		final Collection<Map<String, String>> dimData1 = testSetup.getDataFromT2Dimension();
 		Assert.assertEquals(4, dimData1.size());

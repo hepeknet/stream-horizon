@@ -68,6 +68,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		final File finalFile = new File(finalBulkOutputFilePath);
 		final Path destinationPath = finalFile.toPath();
 		FileUtil.moveFile(originalPath, destinationPath);
+		log.debug("Renamed temporary file [{}] to [{}]", temporaryBulkOutputFilePath, finalBulkOutputFilePath);
 	}
 
 	protected void deleteTemporaryBulkOutputFile() {

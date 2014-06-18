@@ -17,10 +17,13 @@
 				</properties>
 			</source>
 			<target type="file">
+				<properties>
+					<property name="bulkOutputDirectory"></property>
+					<property name="bulkLoadOutputExtension">data</property>
+				</properties>
 			</target>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
-			<bulkOutputDirectory></bulkOutputDirectory>
 			<delimiterString>,</delimiterString>
 			<header process="normal">
 				<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
@@ -43,7 +46,6 @@
 				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 			</footer>
 			<bulkLoadDefinition>
-				<bulkLoadOutputExtension>data</bulkLoadOutputExtension>
 				<bulkLoadInsert>
 					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4,f5) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
 				</bulkLoadInsert>

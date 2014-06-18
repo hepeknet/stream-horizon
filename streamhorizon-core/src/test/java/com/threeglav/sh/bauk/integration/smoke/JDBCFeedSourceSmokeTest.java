@@ -56,7 +56,7 @@ public class JDBCFeedSourceSmokeTest {
 			Assert.assertEquals("1", firstRow.get("f1"));
 			Assert.assertEquals(String.valueOf(multiply), firstRow.get("f2"));
 			Assert.assertEquals(String.valueOf(multiply * 10), firstRow.get("f3"));
-			Assert.assertTrue(firstRow.get("f4").contains("TEST_jdbc_Feed"));
+			Assert.assertTrue(firstRow.get("f4").contains("N/A"));
 			rowCounter++;
 		}
 	}

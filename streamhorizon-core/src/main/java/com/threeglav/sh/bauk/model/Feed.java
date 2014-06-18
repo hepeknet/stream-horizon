@@ -27,9 +27,6 @@ public class Feed {
 	private String archiveDirectory;
 
 	@XmlElement(required = true)
-	private String bulkOutputDirectory;
-
-	@XmlElement(required = true)
 	private String errorDirectory;
 
 	@XmlElement(required = false)
@@ -169,14 +166,6 @@ public class Feed {
 		this.archiveDirectory = archiveDirectory;
 	}
 
-	public String getBulkOutputDirectory() {
-		return bulkOutputDirectory;
-	}
-
-	public void setBulkOutputDirectory(final String bulkOutputDirectory) {
-		this.bulkOutputDirectory = bulkOutputDirectory;
-	}
-
 	public FeedEvents getEvents() {
 		return events;
 	}
@@ -231,6 +220,10 @@ public class Feed {
 			minCount += this.getThreadPoolSettings().getEtlProcessingThreadCount();
 		}
 		return minCount;
+	}
+
+	public boolean isFileTarget() {
+		return this.getTarget() != null && BulkLoadDefinitionOutputType.FILE.toString().equalsIgnoreCase(this.getTarget().getType());
 	}
 
 }
