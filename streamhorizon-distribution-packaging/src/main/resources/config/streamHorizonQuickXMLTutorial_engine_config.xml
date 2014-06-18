@@ -60,13 +60,26 @@
 				</properties>
 			</source>
 			 -->
+			 
+			 <target type="file">
+			 	<properties>
+			 		<!-- bulk directory is directory where bulk files will be created. bulk files usually have format of fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT for MSSQL-->
+					<property name="bulkOutputDirectory">/tmp/stream_horizon/bulkOutput</property>
+					<!-- this section is executed by db loading threads <bulkLoadProcessingThreads> -->
+					<!-- <bulkLoadOutputExtension> defines the extension of bulk output file. db threads will consider only files with given extension for loading into database . for example, if you expect 'zip' files to be loaded change this extension to zip (there is no need to add dot character for example '.zip'). if property is left as null or empty, extension will not be used as part of matching files in the bulk load folder -->
+					<property name="bulkLoadOutputExtension">data</property>
+				</properties>
+			 </target>
+			 
+			 <!-- 
+			 <target type="jdbc">
+			 </target>
+			  -->
 			
 			<!-- archive directory is directory into which successfully processed feeds will be moved-->
 			<archiveDirectory>/tmp/stream_horizon/archive</archiveDirectory>
 			<!-- error directory will contain feeds from source folder which if processing fails for any reason. for error & logging information please look at $ENGINE_HOME/log/engine*log -->
 			<errorDirectory>/tmp/stream_horizon/error</errorDirectory>
-			<!-- bulk direcory is directory where bulk files will be created. bulk files usually have format of fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT for MSSQL-->
-			<bulkOutputDirectory>/tmp/stream_horizon/bulkOutput</bulkOutputDirectory>
 			
 			<!--engine has two threadpools:
 				1) etl threads (members of etl threadpool) <etlProcessingThreadCount> either:
@@ -151,9 +164,6 @@
 			<!-- when set to 'jdbc' you must specify types for all attributes in <bulkLoadFormatDefinition> tag and bulk records will be inserted using JDBC -->
 			<!-- when set to 'pipe' uses named pipes to transfer data. Have to follow same guidelins as 'file' -->
 			<bulkLoadDefinition outputType="file">
-				<!-- this section is executed by db loading threads <bulkLoadProcessingThreads> -->
-				<!-- <bulkLoadOutputExtension> defines the extension of bulk output file. db threads will consider only files with given extension for loading into database . for example, if you expect 'zip' files to be loaded change this extension to zip (there is no need to add dot character for example '.zip'). if property is left as null or empty, extension will not be used as part of matching files in the bulk load folder -->
-				<bulkLoadOutputExtension></bulkLoadOutputExtension>
 				<!-- specifies delimiter to be used when creating bulk output file. Whenever possible use single character delimiter -->
 				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
 				<!-- sql statement for loading bulk output file. Can be any sql statement, function call or stored procedure invocation -->
