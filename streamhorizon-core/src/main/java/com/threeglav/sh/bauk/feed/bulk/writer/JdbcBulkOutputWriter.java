@@ -67,7 +67,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (StringUtil.isEmpty(insertStatement)) {
 			throw new IllegalArgumentException("Unable to use jdbc bulk loader when insert statement is not specified");
 		}
-		final ArrayList<BaukAttribute> attributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes();
+		final ArrayList<BaukAttribute> attributes = this.getFactFeed().getBulkLoadDefinition().getTargetFormatDefinition().getAttributes();
 		if (attributes == null || attributes.isEmpty()) {
 			throw new IllegalArgumentException("Attributes must not be null or empty");
 		}

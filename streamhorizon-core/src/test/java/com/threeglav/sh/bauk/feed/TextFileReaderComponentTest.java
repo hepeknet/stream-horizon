@@ -15,7 +15,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.threeglav.sh.bauk.BaukConstants;
-import com.threeglav.sh.bauk.feed.TextFileReaderComponent;
 import com.threeglav.sh.bauk.feed.processing.FeedDataProcessor;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
@@ -213,18 +212,18 @@ public class TextFileReaderComponentTest {
 
 	private Feed createFactFeed(final HeaderProcessingType hType, final FooterProcessingType fType, final boolean isControl,
 			final int footerAttributePosition) {
-		final Feed ff = Mockito.mock(Feed.class);
-		when(ff.getDelimiterString()).thenReturn(",");
+		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
+		when(ff.getSourceFormatDefinition().getDelimiterString()).thenReturn(",");
 		final Header h = Mockito.mock(Header.class);
 		when(h.getProcess()).thenReturn(hType);
 		when(h.getEachLineStartsWithCharacter()).thenReturn("0");
-		when(ff.getHeader()).thenReturn(h);
+		when(ff.getSourceFormatDefinition().getHeader()).thenReturn(h);
 		when(ff.getName()).thenReturn("testFeed1");
 
 		final Footer footer = Mockito.mock(Footer.class);
 		when(footer.getProcess()).thenReturn(fType);
 		when(footer.getRecordCountAttributePosition()).thenReturn(footerAttributePosition);
-		when(ff.getFooter()).thenReturn(footer);
+		when(ff.getSourceFormatDefinition().getFooter()).thenReturn(footer);
 		when(footer.getEachLineStartsWithCharacter()).thenReturn("9");
 		if (isControl) {
 			when(ff.getType()).thenReturn(FeedType.CONTROL);
@@ -232,7 +231,7 @@ public class TextFileReaderComponentTest {
 			when(ff.getType()).thenReturn(FeedType.FULL);
 		}
 		final Data data = Mockito.mock(Data.class);
-		when(ff.getData()).thenReturn(data);
+		when(ff.getSourceFormatDefinition().getData()).thenReturn(data);
 		final ArrayList<BaukAttribute> attrs = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
 			final BaukAttribute attr = new BaukAttribute();

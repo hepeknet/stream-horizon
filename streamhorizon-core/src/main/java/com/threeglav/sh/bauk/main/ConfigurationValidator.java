@@ -191,14 +191,17 @@ class ConfigurationValidator {
 		if (!bulkOutOk) {
 			throw new IllegalStateException("Was not able to find folder for storing bulk output data for feed " + ff.getName() + "! Aborting!");
 		}
-		if (!StringUtil.isEmpty(ff.getData().getEachLineStartsWithCharacter())) {
+		if (!StringUtil.isEmpty(ff.getSourceFormatDefinition().getData().getEachLineStartsWithCharacter())) {
 			log.warn(
 					"Configuration for feed {} requires every data line to start with [{}]. This is mandatory for correct data interpretation of input feeds!",
-					ff.getName(), ff.getData().getEachLineStartsWithCharacter());
+					ff.getName(), ff.getSourceFormatDefinition().getData().getEachLineStartsWithCharacter());
 		}
 		if (ff.getType() == FeedType.REPETITIVE && ff.getRepetitionCount() <= 0) {
 			throw new IllegalStateException("Feed " + ff.getName() + " is marked as " + FeedType.REPETITIVE
 					+ " but repetition count is not positive integer value!");
+		}
+		if (ff.getSourceFormatDefinition() == null) {
+			throw new IllegalStateException("Feed " + ff.getName() + " does not declare source format definition");
 		}
 	}
 
@@ -350,16 +353,16 @@ class ConfigurationValidator {
 
 	private List<String> getDeclaredFeedAttributes(final Feed ff) {
 		final List<String> attrs = new LinkedList<>();
-		if (ff.getHeader() != null && ff.getHeader().getAttributes() != null) {
-			final String[] attrNames = AttributeParsingUtil.getAttributeNames(ff.getHeader().getAttributes());
+		if (ff.getSourceFormatDefinition().getHeader() != null && ff.getSourceFormatDefinition().getHeader().getAttributes() != null) {
+			final String[] attrNames = AttributeParsingUtil.getAttributeNames(ff.getSourceFormatDefinition().getHeader().getAttributes());
 			if (attrNames != null) {
 				for (int i = 0; i < attrNames.length; i++) {
 					attrs.add(attrNames[i]);
 				}
 			}
 		}
-		if (ff.getData() != null && ff.getData().getAttributes() != null) {
-			final String[] attrNames = AttributeParsingUtil.getAttributeNames(ff.getData().getAttributes());
+		if (ff.getSourceFormatDefinition().getData() != null && ff.getSourceFormatDefinition().getData().getAttributes() != null) {
+			final String[] attrNames = AttributeParsingUtil.getAttributeNames(ff.getSourceFormatDefinition().getData().getAttributes());
 			if (attrNames != null) {
 				for (int i = 0; i < attrNames.length; i++) {
 					attrs.add(attrNames[i]);

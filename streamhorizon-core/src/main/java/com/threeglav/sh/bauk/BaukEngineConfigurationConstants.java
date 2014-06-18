@@ -136,4 +136,10 @@ public interface BaukEngineConfigurationConstants {
 
 	public static final String ERROR_DIRECTORY_PARAM_NAME = "errorDirectory";
 
+	public static final String OUTPUT_FILE_RENAME_PATTERN_PROP_NAME = "outputFileRenamePattern";
+
+	public static final String DEFAULT_BULK_OUTPUT_VALUE_DELIMITER = ",";
+
+	public static final String BULK_OUTPUT_FILE_DELIMITER_PROP_NAME = "bulkLoadFileDelimiter";
+
 }

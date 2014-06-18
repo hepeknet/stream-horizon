@@ -144,17 +144,18 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " did not define any sql statements! Check your configuration file!");
 		}
-		if (this.getFactFeed().getData() == null) {
+		if (this.getFactFeed().getSourceFormatDefinition().getData() == null) {
 			throw new IllegalArgumentException("Was not able to find definition of data for feed " + this.getFactFeed().getName());
 		}
-		if (this.getFactFeed().getData().getAttributes() == null || this.getFactFeed().getData().getAttributes().isEmpty()) {
+		if (this.getFactFeed().getSourceFormatDefinition().getData().getAttributes() == null
+				|| this.getFactFeed().getSourceFormatDefinition().getData().getAttributes().isEmpty()) {
 			throw new IllegalArgumentException("Was not able to find any attributes defined in feed " + this.getFactFeed().getName());
 		}
 		if (dimension.getLocalCacheMaxSize() != null && dimension.getLocalCacheMaxSize() < 0) {
 			throw new IllegalArgumentException("Local cache size for dimension must not be negative integer!");
 		}
 		final int numberOfNaturalKeys = dimension.getNumberOfNaturalKeys();
-		if (numberOfNaturalKeys > this.getFactFeed().getData().getAttributes().size()) {
+		if (numberOfNaturalKeys > this.getFactFeed().getSourceFormatDefinition().getData().getAttributes().size()) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " has more defined natural keys than there are attributes in feed " + this.getFactFeed().getName());
 		}
@@ -170,8 +171,8 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		naturalKeyPositionsInFeed = new int[numberOfNaturalKeys];
 		log.debug("Calculating natural keys position values. Will use offset {}", mappedColumnsPositionOffset);
 		int i = 0;
-		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed().getData()
-				.getAttributes());
+		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed()
+				.getSourceFormatDefinition().getData().getAttributes());
 		for (final MappedColumn nk : dimension.getMappedColumns()) {
 			if (!nk.isNaturalKey()) {
 				continue;
@@ -204,8 +205,8 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		mappedColumnsPositionsInFeed = new int[numberOfMappedColumns];
 		log.debug("Calculating mapped columns position values. Will use offset {}", mappedColumnsPositionOffset);
 		int i = 0;
-		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed().getData()
-				.getAttributes());
+		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed()
+				.getSourceFormatDefinition().getData().getAttributes());
 		for (final MappedColumn mc : dimension.getMappedColumns()) {
 			final String mappedColumnName = mc.getName();
 			int mappedColumnPositionValue;

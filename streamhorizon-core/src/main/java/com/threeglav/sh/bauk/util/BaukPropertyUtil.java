@@ -31,6 +31,25 @@ public abstract class BaukPropertyUtil {
 		return found;
 	}
 
+	public static BaukProperty getUniquePropertyIfExists(final ArrayList<BaukProperty> properties, final String propName) {
+		if (properties == null || properties.isEmpty()) {
+			throw new IllegalArgumentException("Properties must not be null");
+		}
+		if (StringUtil.isEmpty(propName)) {
+			throw new IllegalArgumentException("Property name must not be null");
+		}
+		BaukProperty found = null;
+		for (final BaukProperty bp : properties) {
+			if (bp.getName().equalsIgnoreCase(propName)) {
+				if (found != null) {
+					throw new IllegalStateException("Found more than one property named [" + propName + "]. At most one is allowed!");
+				}
+				found = bp;
+			}
+		}
+		return found;
+	}
+
 	public static Collection<String> getAllPropertyValuesByName(final ArrayList<BaukProperty> properties, final String propName) {
 		if (properties == null || properties.isEmpty()) {
 			throw new IllegalArgumentException("Properties must not be null");

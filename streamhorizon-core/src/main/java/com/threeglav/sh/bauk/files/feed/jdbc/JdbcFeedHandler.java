@@ -36,7 +36,7 @@ public class JdbcFeedHandler extends AbstractFeedHandler {
 		sqlStatement = BaukPropertyUtil.getRequiredUniqueProperty(properties, FeedSource.JDBC_FEED_SOURCE_SQL_STATEMENT_PROPERTY_NAME).getValue();
 		scheduleExpression = BaukPropertyUtil.getRequiredUniqueProperty(properties, FeedSource.JDBC_FEED_SOURCE_SCHEDULE_PROPERTY_NAME).getValue();
 		jdbcUrl = BaukPropertyUtil.getRequiredUniqueProperty(properties, FeedSource.JDBC_FEED_SOURCE_JDBC_URL_PROPERTY_NAME).getValue();
-		delimiterString = factFeed.getDelimiterString();
+		delimiterString = factFeed.getSourceFormatDefinition().getDelimiterString();
 	}
 
 	@Override

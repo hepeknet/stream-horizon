@@ -29,11 +29,11 @@ import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinition;
-import com.threeglav.sh.bauk.model.BulkLoadFormatDefinition;
 import com.threeglav.sh.bauk.model.Data;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.DimensionType;
 import com.threeglav.sh.bauk.model.Feed;
+import com.threeglav.sh.bauk.model.TargetFormatDefinition;
 import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 import com.threeglav.sh.bauk.util.StringUtil;
@@ -81,13 +81,14 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 		this.validate();
 		this.cacheInstanceManager = cacheInstanceManager;
-		if (factFeed.getBulkLoadDefinition().getBulkLoadFormatDefinition() != null) {
-			bulkOutputFileNumberOfValues = factFeed.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes().size();
+		if (factFeed.getBulkLoadDefinition().getTargetFormatDefinition() != null) {
+			bulkOutputFileNumberOfValues = factFeed.getBulkLoadDefinition().getTargetFormatDefinition().getAttributes().size();
 		} else {
 			bulkOutputFileNumberOfValues = 0;
 		}
 		outputValueHandlers = new BulkLoadOutputValueHandler[bulkOutputFileNumberOfValues];
-		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getDelimiterString());
+		log.info("Bulk output file will have {} values delimited by {}", bulkOutputFileNumberOfValues, factFeed.getSourceFormatDefinition()
+				.getDelimiterString());
 		this.createOutputValueHandlers();
 		final List<Integer> closeFeedValueHandlers = new ArrayList<>();
 		for (int i = 0; i < outputValueHandlers.length; i++) {
@@ -115,13 +116,13 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		if (bulkDefinition == null) {
 			throw new IllegalArgumentException("Bulk definition not found in configuration for feed " + this.getFactFeed().getName());
 		}
-		final BulkLoadFormatDefinition bulkLoadFormatDefinition = bulkDefinition.getBulkLoadFormatDefinition();
+		final TargetFormatDefinition bulkLoadFormatDefinition = bulkDefinition.getTargetFormatDefinition();
 		if (bulkLoadFormatDefinition != null) {
 			if (bulkLoadFormatDefinition.getAttributes() == null || bulkLoadFormatDefinition.getAttributes().isEmpty()) {
 				throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
 			}
 		}
-		if (this.getFactFeed().getData() == null) {
+		if (this.getFactFeed().getSourceFormatDefinition().getData() == null) {
 			throw new IllegalArgumentException("Did not find any data definition for feed " + this.getFactFeed().getName());
 		}
 	}
@@ -132,13 +133,12 @@ public class BulkOutputValuesResolver extends ConfigAware {
 					.getName());
 			return;
 		}
-		final ArrayList<BaukAttribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFormatDefinition()
-				.getAttributes();
+		final ArrayList<BaukAttribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getTargetFormatDefinition().getAttributes();
 		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(bulkOutputAttributes);
 		if (log.isDebugEnabled()) {
 			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));
 		}
-		final Data feedData = this.getFactFeed().getData();
+		final Data feedData = this.getFactFeed().getSourceFormatDefinition().getData();
 		final String firstStringInEveryLine = feedData.getEachLineStartsWithCharacter();
 		int feedDataLineOffset = 0;
 		if (!StringUtil.isEmpty(firstStringInEveryLine)) {

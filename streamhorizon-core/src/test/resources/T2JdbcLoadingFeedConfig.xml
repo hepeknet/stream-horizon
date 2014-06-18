@@ -19,31 +19,33 @@
 			</target>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
-			<delimiterString>,</delimiterString>
-			<header process="no_header" />
-			<data process="no_validation">
-				<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
-				<attributes>
-					<attribute name="attr1" />
-					<attribute name="attr2" />
-					<attribute name="a_in" />
-					<attribute name="b_in" />
-					<attribute name="c_in" />
-					<attribute name="d_in" />
-				</attributes>
-			</data>
-			<footer process="skip" />
+			<sourceFormatDefinition>
+				<delimiterString>,</delimiterString>
+				<header process="no_header" />
+				<data process="no_validation">
+					<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
+					<attributes>
+						<attribute name="attr1" />
+						<attribute name="attr2" />
+						<attribute name="a_in" />
+						<attribute name="b_in" />
+						<attribute name="c_in" />
+						<attribute name="d_in" />
+					</attributes>
+				</data>
+				<footer process="skip" />
+			</sourceFormatDefinition>
 			<bulkLoadDefinition>
 				<bulkLoadInsert>
 					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) values(?,?,?,'${bulkFileName}')</command>
 				</bulkLoadInsert>
-				<bulkLoadFormatDefinition>
+				<targetFormatDefinition>
 					<attributes>
 						<attribute name="dimension.T2_TEST_DIM" type="int" />
 						<attribute name="feed.attr1" type="int" />
 						<attribute name="feed.attr2" type="int" />
 					</attributes>
-				</bulkLoadFormatDefinition>
+				</targetFormatDefinition>
 			</bulkLoadDefinition>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>1</etlProcessingThreadCount>

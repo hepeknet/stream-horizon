@@ -24,39 +24,41 @@
 			</target>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
-			<delimiterString>,</delimiterString>
-			<header process="normal">
-				<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
-				<attributes>
-					<attribute name="h1" />
-					<attribute name="h2" />
-					<attribute name="h3" />
-				</attributes>
-			</header>
-			<data process="normal">
-				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
-				<attributes>
-					<attribute name="attr1" />
-					<attribute name="attr2" />
-					<attribute name="a_in" />
-					<attribute name="b_in" />
-				</attributes>
-			</data>
-			<footer process="strict">
-				<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
-			</footer>
+			<sourceFormatDefinition>
+				<delimiterString>,</delimiterString>
+				<header process="normal">
+					<eachLineStartsWithCharacter>0</eachLineStartsWithCharacter>
+					<attributes>
+						<attribute name="h1" />
+						<attribute name="h2" />
+						<attribute name="h3" />
+					</attributes>
+				</header>
+				<data process="normal">
+					<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+					<attributes>
+						<attribute name="attr1" />
+						<attribute name="attr2" />
+						<attribute name="a_in" />
+						<attribute name="b_in" />
+					</attributes>
+				</data>
+				<footer process="strict">
+					<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
+				</footer>
+			</sourceFormatDefinition>
 			<bulkLoadDefinition>
 				<bulkLoadInsert>
 					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4,f5) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
 				</bulkLoadInsert>
-				<bulkLoadFormatDefinition>
+				<targetFormatDefinition>
 					<attributes>
 						<attribute name="dimension.TEST_DIM" type="int" />
 						<attribute name="feed.attr1" type="int" />
 						<attribute name="feed.attr2" type="int" />
 						<attribute name="h1" type="string" />
 					</attributes>
-				</bulkLoadFormatDefinition>
+				</targetFormatDefinition>
 				<afterBulkLoadSuccess>
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(111, '${bulkFilePath}')</command>
 				</afterBulkLoadSuccess>

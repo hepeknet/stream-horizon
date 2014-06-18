@@ -25,7 +25,6 @@ public class FileBulkOutputWriterTest {
 		final Feed ff = Mockito.mock(Feed.class);
 		when(ff.getName()).thenReturn("testff1");
 		final BulkLoadDefinition bld = Mockito.mock(BulkLoadDefinition.class);
-		when(bld.getBulkLoadFileDelimiter()).thenReturn(",");
 		when(ff.getBulkLoadDefinition()).thenReturn(bld);
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		final FileBulkOutputWriter fbowt = new FileBulkOutputWriter(ff, conf);
@@ -38,7 +37,6 @@ public class FileBulkOutputWriterTest {
 		final Feed ff = Mockito.mock(Feed.class);
 		when(ff.getName()).thenReturn("testff1");
 		final BulkLoadDefinition bld = Mockito.mock(BulkLoadDefinition.class);
-		when(bld.getBulkLoadFileDelimiter()).thenReturn(",");
 		when(ff.getBulkLoadDefinition()).thenReturn(bld);
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		final ArrayList<BaukProperty> props = new ArrayList<>();

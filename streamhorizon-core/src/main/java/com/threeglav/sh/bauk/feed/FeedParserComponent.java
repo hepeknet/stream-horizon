@@ -28,15 +28,19 @@ public final class FeedParserComponent extends ConfigAware {
 	public FeedParserComponent(final Feed ff, final BaukConfiguration config) {
 		super(ff, config);
 		final FeedType fft = ff.getType();
-		final String delimiter = ff.getDelimiterString();
+		if (ff.getSourceFormatDefinition() == null) {
+			throw new IllegalArgumentException("Unable to find delimiter");
+		}
+		final String delimiter = ff.getSourceFormatDefinition().getDelimiterString();
 		if (StringUtil.isEmpty(delimiter)) {
 			throw new IllegalArgumentException("Delimiter must not be null or empty string");
 		}
 		expectedTokensInEveryDataLine = this.getExpectedAttributesNumber(ff);
 		if (fft == FeedType.DELTA) {
 			feedParser = new DeltaFeedParser(delimiter, expectedTokensInEveryDataLine);
-			feedParser.setNullString(ff.getNullString());
-			log.debug("Will use delta feed parser for feed {}. Null string is set to [{}]", ff.getName(), ff.getNullString());
+			feedParser.setNullString(ff.getSourceFormatDefinition().getNullString());
+			log.debug("Will use delta feed parser for feed {}. Null string is set to [{}]", ff.getName(), ff.getSourceFormatDefinition()
+					.getNullString());
 		} else if (fft == FeedType.FULL || fft == FeedType.CONTROL) {
 			feedParser = new FullFeedParser(delimiter, expectedTokensInEveryDataLine);
 		} else if (fft == FeedType.REPETITIVE) {
@@ -46,14 +50,14 @@ public final class FeedParserComponent extends ConfigAware {
 			throw new IllegalStateException("Unknown fact feed type " + fft);
 		}
 		if (log.isDebugEnabled()) {
-			log.debug("For feed {} expect to find {} attributes in every data line, delimiter {}", ff.getName(), expectedTokensInEveryDataLine,
-					ff.getDelimiterString());
+			log.debug("For feed {} expect to find {} attributes in every data line, delimiter {}", ff.getName(), expectedTokensInEveryDataLine, ff
+					.getSourceFormatDefinition().getDelimiterString());
 		}
-		firstStringInEveryLine = this.getFactFeed().getData().getEachLineStartsWithCharacter();
+		firstStringInEveryLine = this.getFactFeed().getSourceFormatDefinition().getData().getEachLineStartsWithCharacter();
 		/*
 		 * should we check every data line for validity or not?
 		 */
-		final boolean isStrictCheckingRequired = this.getFactFeed().getData().getProcess() == DataProcessingType.NORMAL;
+		final boolean isStrictCheckingRequired = this.getFactFeed().getSourceFormatDefinition().getData().getProcess() == DataProcessingType.NORMAL;
 		this.validate(isStrictCheckingRequired);
 		checkEveryLineValidity = isStrictCheckingRequired && !StringUtil.isEmpty(firstStringInEveryLine);
 		if (checkEveryLineValidity) {
@@ -71,7 +75,7 @@ public final class FeedParserComponent extends ConfigAware {
 	}
 
 	private FeedDataLineProcessor resolveFeedProcessor() {
-		final String dataMappingClassName = this.getFactFeed().getData().getFeedDataProcessorClassName();
+		final String dataMappingClassName = this.getFactFeed().getSourceFormatDefinition().getData().getFeedDataProcessorClassName();
 		if (!StringUtil.isEmpty(dataMappingClassName)) {
 			log.info("Will try to resolve feed data processor class [{}]", dataMappingClassName);
 			final CustomProcessorResolver<FeedDataLineProcessor> dataMapperInstanceResolver = new CustomProcessorResolver<>(dataMappingClassName,
@@ -93,16 +97,17 @@ public final class FeedParserComponent extends ConfigAware {
 	}
 
 	private int getExpectedAttributesNumber(final Feed ff) {
-		final boolean expectFirstAttribute = !StringUtil.isEmpty(ff.getData().getEachLineStartsWithCharacter());
+		final boolean expectFirstAttribute = !StringUtil.isEmpty(ff.getSourceFormatDefinition().getData().getEachLineStartsWithCharacter());
 		int expectedTokens;
-		final ArrayList<BaukAttribute> attributes = ff.getData().getAttributes();
+		final ArrayList<BaukAttribute> attributes = ff.getSourceFormatDefinition().getData().getAttributes();
 		if (expectFirstAttribute) {
 			expectedTokens = attributes.size() + 1;
 		} else {
 			expectedTokens = attributes.size();
 		}
 		if (expectFirstAttribute) {
-			log.info("Will expect that every data line in feed starts with {}", ff.getData().getEachLineStartsWithCharacter());
+			log.info("Will expect that every data line in feed starts with {}", ff.getSourceFormatDefinition().getData()
+					.getEachLineStartsWithCharacter());
 		}
 		log.info("Regardless of how many fields are in feed files, only {} fields have been declared in configuration and will be used",
 				expectedTokens);

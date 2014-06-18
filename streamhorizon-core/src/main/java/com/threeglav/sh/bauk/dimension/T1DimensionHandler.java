@@ -31,8 +31,8 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 	protected Map<String, String> naturalKeyToNonNaturalKeyMapping;
 	private final int totalNumberOfLocks;
 
-	public T1DimensionHandler(final Dimension dimension, final Feed factFeed, final CacheInstance cacheInstance,
-			final int naturalKeyPositionOffset, final BaukConfiguration config) {
+	public T1DimensionHandler(final Dimension dimension, final Feed factFeed, final CacheInstance cacheInstance, final int naturalKeyPositionOffset,
+			final BaukConfiguration config) {
 		super(dimension, factFeed, cacheInstance, naturalKeyPositionOffset, config);
 		if (dimension.getSqlStatements() != null && !StringUtil.isEmpty(dimension.getSqlStatements().getUpdateSingleRecord())) {
 			updateStatementReplacer = new StatefulAttributeReplacer(dimension.getSqlStatements().getUpdateSingleRecord(), dbStringLiteral,
@@ -90,8 +90,8 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 		nonNaturalKeyPositionsInFeed = new int[numberOfNonNaturalKeys];
 		log.debug("Calculating non-natural keys position values. Will use offset {}", mappedColumnsPositionOffset);
 		int i = 0;
-		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed().getData()
-				.getAttributes());
+		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed()
+				.getSourceFormatDefinition().getData().getAttributes());
 		for (final MappedColumn nk : dimension.getMappedColumns()) {
 			if (nk.isNaturalKey()) {
 				continue;

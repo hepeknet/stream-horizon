@@ -10,8 +10,10 @@ import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.io.BulkOutputWriter;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
+import com.threeglav.sh.bauk.model.BaukProperty;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.Feed;
+import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.FileUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
@@ -35,9 +37,9 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		super(factFeed, config);
 		isDebugEnabled = log.isDebugEnabled();
 		this.validate();
-		bulkOutputFileDelimiter = this.getFactFeed().getBulkLoadDefinition().getBulkLoadFileDelimiter();
+		bulkOutputFileDelimiter = this.getOutputFileDelimiter();
 		log.debug("For feed {} will use [{}] as delimiter for bulk output file", this.getFactFeed().getName(), bulkOutputFileDelimiter);
-		final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
+		final String outputFileNamePattern = this.getOutputFileRenamePattern();
 		if (StringUtil.isEmpty(outputFileNamePattern)) {
 			performFileRenameOperation = false;
 		} else {
@@ -62,6 +64,30 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 		log.info("Newline string will be {}", BaukConstants.NEWLINE_STRING);
 	}
 
+	private String getOutputFileDelimiter() {
+		String delimiter = BaukEngineConfigurationConstants.DEFAULT_BULK_OUTPUT_VALUE_DELIMITER;
+		if (this.getFactFeed().isFileTarget()) {
+			final BaukProperty bp = BaukPropertyUtil.getUniquePropertyIfExists(this.getFactFeed().getTarget().getProperties(),
+					BaukEngineConfigurationConstants.BULK_OUTPUT_FILE_DELIMITER_PROP_NAME);
+			if (bp != null) {
+				delimiter = bp.getValue();
+			}
+		}
+		return delimiter;
+	}
+
+	private String getOutputFileRenamePattern() {
+		String renamePattern = null;
+		if (this.getFactFeed().isFileTarget()) {
+			final BaukProperty bp = BaukPropertyUtil.getUniquePropertyIfExists(this.getFactFeed().getTarget().getProperties(),
+					BaukEngineConfigurationConstants.OUTPUT_FILE_RENAME_PATTERN_PROP_NAME);
+			if (bp != null) {
+				renamePattern = bp.getValue();
+			}
+		}
+		return renamePattern;
+	}
+
 	protected void renameTemporaryBulkOutputFile() {
 		final File temp = new File(temporaryBulkOutputFilePath);
 		final Path originalPath = temp.toPath();
@@ -82,12 +108,12 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 	}
 
 	private void validate() {
-		final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
+		final String outputFileNamePattern = this.getOutputFileRenamePattern();
 		if (this.getFactFeed().getTarget() != null && this.getFactFeed().getTarget().getType().equals(BulkLoadDefinitionOutputType.NONE.toString())
 				&& !StringUtil.isEmpty(outputFileNamePattern)) {
 			throw new IllegalStateException("Fact feed " + this.getFactFeed().getName() + " can not have output none and rename pattern!");
 		}
-		if (StringUtil.isEmpty(this.getFactFeed().getBulkLoadDefinition().getBulkLoadFileDelimiter())) {
+		if (StringUtil.isEmpty(this.getOutputFileDelimiter())) {
 			throw new IllegalStateException("Could not find bulk load file value delimiter string for feed " + this.getFactFeed().getName() + "!");
 		}
 		if (isDebugEnabled) {
@@ -101,7 +127,7 @@ public abstract class AbstractBulkOutputWriter extends ConfigAware implements Bu
 			if (StringUtil.isEmpty(originalFileName)) {
 				throw new IllegalArgumentException("Original file must not be null or empty");
 			}
-			final String outputFileNamePattern = this.getFactFeed().getBulkLoadDefinition().getOutputFileNamePattern();
+			final String outputFileNamePattern = this.getOutputFileRenamePattern();
 			final File originalFile = new File(originalFileName);
 			if (isDebugEnabled) {
 				log.debug("Renaming file {} according to pattern {} using attributes {}", originalFile.getAbsolutePath(), outputFileNamePattern,

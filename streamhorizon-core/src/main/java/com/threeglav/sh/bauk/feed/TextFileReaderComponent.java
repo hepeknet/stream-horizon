@@ -53,26 +53,29 @@ public class TextFileReaderComponent extends ConfigAware {
 		super(factFeed, config);
 		this.validate();
 		this.feedDataProcessor = feedDataProcessor;
-		processAndValidateFooter = factFeed.getFooter() != null && factFeed.getFooter().getProcess() == FooterProcessingType.STRICT;
+		processAndValidateFooter = factFeed.getSourceFormatDefinition().getFooter() != null
+				&& factFeed.getSourceFormatDefinition().getFooter().getProcess() == FooterProcessingType.STRICT;
 		if (processAndValidateFooter) {
-			footerLineParser = new FullFeedParser(this.getFactFeed().getDelimiterString(), 10);
-			footerFirstString = this.getFactFeed().getFooter().getEachLineStartsWithCharacter();
-			footerRecordCountPosition = this.getFactFeed().getFooter().getRecordCountAttributePosition();
+			footerLineParser = new FullFeedParser(this.getFactFeed().getSourceFormatDefinition().getDelimiterString(), 10);
+			footerFirstString = this.getFactFeed().getSourceFormatDefinition().getFooter().getEachLineStartsWithCharacter();
+			footerRecordCountPosition = this.getFactFeed().getSourceFormatDefinition().getFooter().getRecordCountAttributePosition();
 			if (footerRecordCountPosition <= 0) {
 				throw new IllegalStateException("Footer record count attribute position must be > 0. Provided value is " + footerRecordCountPosition);
 			}
 			log.info("Footer record count position is {}", footerRecordCountPosition);
-			log.debug("For feed {} footer processing is {}", this.getFactFeed().getName(), factFeed.getFooter().getProcess());
+			log.debug("For feed {} footer processing is {}", this.getFactFeed().getName(), factFeed.getSourceFormatDefinition().getFooter()
+					.getProcess());
 		} else {
 			footerLineParser = null;
 			footerFirstString = null;
 			footerRecordCountPosition = -1;
 		}
-		headerProcessingType = this.getFactFeed().getHeader().getProcess();
+		headerProcessingType = this.getFactFeed().getSourceFormatDefinition().getHeader().getProcess();
 		final boolean shouldProcessHeader = this.checkProcessHeader();
 		if (shouldProcessHeader) {
 			log.debug("Extracting header attributes for {}", factFeed.getName());
-			declaredHeaderAttributes = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getHeader().getAttributes());
+			declaredHeaderAttributes = AttributeParsingUtil.getAttributeNames(this.getFactFeed().getSourceFormatDefinition().getHeader()
+					.getAttributes());
 			this.initializeHeaderProcessor();
 		} else {
 			declaredHeaderAttributes = null;
@@ -103,7 +106,7 @@ public class TextFileReaderComponent extends ConfigAware {
 	}
 
 	private boolean checkProcessHeader() {
-		final Header header = this.getFactFeed().getHeader();
+		final Header header = this.getFactFeed().getSourceFormatDefinition().getHeader();
 		final HeaderProcessingType headerProcessingType = header.getProcess();
 		final String feedName = this.getFactFeed().getName();
 		log.debug("For feed {} header processing set to {}", feedName, headerProcessingType);
@@ -117,7 +120,7 @@ public class TextFileReaderComponent extends ConfigAware {
 
 	private void initializeHeaderProcessor() {
 		String headerParserClassName = DefaultHeaderParser.class.getName();
-		final String configuredHeaderParserClass = this.getFactFeed().getHeader().getHeaderParserClassName();
+		final String configuredHeaderParserClass = this.getFactFeed().getSourceFormatDefinition().getHeader().getHeaderParserClassName();
 		if (!StringUtil.isEmpty(configuredHeaderParserClass)) {
 			headerParserClassName = configuredHeaderParserClass;
 			log.debug("Will try to use custom header parser class {}", configuredHeaderParserClass);
@@ -130,20 +133,20 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (headerParser == null) {
 			throw new IllegalStateException("Problem while loading header parser class! Possibly problems with compilation!");
 		}
-		final Header header = this.getFactFeed().getHeader();
+		final Header header = this.getFactFeed().getSourceFormatDefinition().getHeader();
 		final String startsWithString = header.getEachLineStartsWithCharacter();
-		final String delimiterString = this.getFactFeed().getDelimiterString();
+		final String delimiterString = this.getFactFeed().getSourceFormatDefinition().getDelimiterString();
 		headerParser.init(startsWithString, delimiterString, ConfigurationProperties.getEngineConfigurationProperties());
 	}
 
 	private void validate() {
-		if (this.getFactFeed().getHeader() == null) {
+		if (this.getFactFeed().getSourceFormatDefinition().getHeader() == null) {
 			throw new IllegalArgumentException("Header configuration must not be null. Check your configuration file!");
 		}
-		if (this.getFactFeed().getFooter() != null) {
-			final FooterProcessingType footerProcessing = this.getFactFeed().getFooter().getProcess();
+		if (this.getFactFeed().getSourceFormatDefinition().getFooter() != null) {
+			final FooterProcessingType footerProcessing = this.getFactFeed().getSourceFormatDefinition().getFooter().getProcess();
 			if (footerProcessing == FooterProcessingType.STRICT
-					&& StringUtil.isEmpty(this.getFactFeed().getFooter().getEachLineStartsWithCharacter())) {
+					&& StringUtil.isEmpty(this.getFactFeed().getSourceFormatDefinition().getFooter().getEachLineStartsWithCharacter())) {
 				throw new IllegalStateException(
 						"Footer is set to strict processing but can not find first character in configuration! Check your configuration file!");
 			}
@@ -333,8 +336,8 @@ public class TextFileReaderComponent extends ConfigAware {
 		if (isDebugEnabled) {
 			log.debug("Exposing last line {} as global attributes for control feed {}", feedDataLine, ffName);
 		}
-		final ArrayList<BaukAttribute> ffDataAttrs = this.getFactFeed().getData().getAttributes();
-		final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getDelimiterString(), ffDataAttrs.size());
+		final ArrayList<BaukAttribute> ffDataAttrs = this.getFactFeed().getSourceFormatDefinition().getData().getAttributes();
+		final FeedParser feedParser = new FullFeedParser(this.getFactFeed().getSourceFormatDefinition().getDelimiterString(), ffDataAttrs.size());
 		final String[] splitLine = feedParser.parse(feedDataLine);
 		if (splitLine.length != ffDataAttrs.size()) {
 			log.error("Control feed " + ffName + " declared " + ffDataAttrs.size() + " data attributes but last line only has " + splitLine.length

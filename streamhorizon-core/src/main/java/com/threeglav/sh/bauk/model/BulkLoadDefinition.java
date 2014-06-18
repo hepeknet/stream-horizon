@@ -14,13 +14,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {})
 public class BulkLoadDefinition {
 
-	public static final String DEFAULT_BULK_OUTPUT_VALUE_DELIMITER = ",";
-
-	@XmlElement(required = false, defaultValue = DEFAULT_BULK_OUTPUT_VALUE_DELIMITER)
-	private String bulkLoadFileDelimiter = DEFAULT_BULK_OUTPUT_VALUE_DELIMITER;
-
 	@XmlElement(required = false)
-	private BulkLoadFormatDefinition bulkLoadFormatDefinition;
+	private TargetFormatDefinition targetFormatDefinition;
 
 	@XmlElementWrapper(name = "afterBulkLoadSuccess")
 	@XmlElement(name = "command")
@@ -38,31 +33,12 @@ public class BulkLoadDefinition {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> bulkLoadInsert;
 
-	@XmlElement(name = "output-file-name-pattern", required = false)
-	private String outputFileNamePattern;
-
-	public BulkLoadFormatDefinition getBulkLoadFormatDefinition() {
-		return bulkLoadFormatDefinition;
+	public TargetFormatDefinition getTargetFormatDefinition() {
+		return targetFormatDefinition;
 	}
 
-	public void setBulkLoadFormatDefinition(final BulkLoadFormatDefinition bulkLoadFormatDefinition) {
-		this.bulkLoadFormatDefinition = bulkLoadFormatDefinition;
-	}
-
-	public String getOutputFileNamePattern() {
-		return outputFileNamePattern;
-	}
-
-	public void setOutputFileNamePattern(final String outputFileNamePattern) {
-		this.outputFileNamePattern = outputFileNamePattern;
-	}
-
-	public String getBulkLoadFileDelimiter() {
-		return bulkLoadFileDelimiter;
-	}
-
-	public void setBulkLoadFileDelimiter(final String bulkLoadFileDelimiter) {
-		this.bulkLoadFileDelimiter = bulkLoadFileDelimiter;
+	public void setTargetFormatDefinition(final TargetFormatDefinition bulkLoadFormatDefinition) {
+		targetFormatDefinition = bulkLoadFormatDefinition;
 	}
 
 	public ArrayList<BaukCommand> getAfterBulkLoadSuccess() {

@@ -53,9 +53,9 @@ public class BulkOutputValuesResolverTest {
 		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
 		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
 		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
-		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
-		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(5));
-		when(ff.getDelimiterString()).thenReturn(",");
+		when(ff.getBulkLoadDefinition().getTargetFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
+		when(ff.getSourceFormatDefinition().getData().getAttributes()).thenReturn(this.createFactFeedAttributes(5));
+		when(ff.getSourceFormatDefinition().getDelimiterString()).thenReturn(",");
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(5));
 		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(5));
@@ -91,9 +91,9 @@ public class BulkOutputValuesResolverTest {
 		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
 		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
 		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
-		when(ff.getBulkLoadDefinition().getBulkLoadFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
-		when(ff.getData().getAttributes()).thenReturn(this.createFactFeedAttributes(4));
-		when(ff.getDelimiterString()).thenReturn(",");
+		when(ff.getBulkLoadDefinition().getTargetFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
+		when(ff.getSourceFormatDefinition().getData().getAttributes()).thenReturn(this.createFactFeedAttributes(4));
+		when(ff.getSourceFormatDefinition().getDelimiterString()).thenReturn(",");
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		when(conf.getDimensions()).thenReturn(this.createDimensions(4));
 		when(conf.getDimensionMap()).thenReturn(this.createDimensionMap(4));

@@ -9,8 +9,6 @@
 
   <xs:element name="bulkLoadDefinition" type="bulkLoadDefinition"/>
 
-  <xs:element name="bulkLoadFormatDefinition" type="bulkLoadFormatDefinition"/>
-
   <xs:element name="config" type="baukConfiguration"/>
 
   <xs:element name="connectionProperties" type="connectionProperties"/>
@@ -33,7 +31,11 @@
 
   <xs:element name="mappedColumn" type="mappedColumn"/>
 
+  <xs:element name="sourceFormatDefinition" type="sourceFormatDefinition"/>
+
   <xs:element name="sqlStatements" type="sqlStatements"/>
+
+  <xs:element name="targetFormatDefinition" type="targetFormatDefinition"/>
 
   <xs:element name="threadPoolSettings" type="threadPoolSettings"/>
 
@@ -83,14 +85,10 @@
       <xs:element name="errorDirectory" type="xs:string"/>
       <xs:element name="fileNameProcessorClassName" type="xs:string" minOccurs="0"/>
       <xs:element name="repetitionCount" type="xs:int" default="-1" minOccurs="0"/>
-      <xs:element name="nullString" type="xs:string" minOccurs="0"/>
-      <xs:element name="delimiterString" type="xs:string" minOccurs="0"/>
-      <xs:element ref="header" minOccurs="0"/>
-      <xs:element ref="data" minOccurs="0"/>
-      <xs:element ref="footer" minOccurs="0"/>
       <xs:element ref="bulkLoadDefinition" minOccurs="0"/>
       <xs:element ref="threadPoolSettings" minOccurs="0"/>
       <xs:element name="events" type="feedEvents" minOccurs="0"/>
+      <xs:element ref="sourceFormatDefinition" minOccurs="0"/>
     </xs:all>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="type" type="feedType" use="required"/>
@@ -130,64 +128,9 @@
     <xs:attribute name="type" type="xs:string" use="required"/>
   </xs:complexType>
 
-  <xs:complexType name="header">
-    <xs:all>
-      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
-      <xs:element name="headerParserClassName" type="xs:string" minOccurs="0"/>
-      <xs:element name="attributes" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-    </xs:all>
-    <xs:attribute name="process" type="headerProcessingType"/>
-  </xs:complexType>
-
-  <xs:complexType name="baukAttribute">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="name" type="xs:string"/>
-        <xs:attribute name="type" type="baukAttributeType"/>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-
-  <xs:complexType name="data">
-    <xs:all>
-      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
-      <xs:element name="feedDataProcessorClassName" type="xs:string" minOccurs="0"/>
-      <xs:element name="attributes" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-    </xs:all>
-    <xs:attribute name="process" type="dataProcessingType"/>
-  </xs:complexType>
-
-  <xs:complexType name="footer">
-    <xs:all>
-      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
-      <xs:element name="recordCountAttributePosition" type="xs:int" default="1" minOccurs="0"/>
-      <xs:element name="attributes" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-    </xs:all>
-    <xs:attribute name="process" type="footerProcessingType"/>
-  </xs:complexType>
-
   <xs:complexType name="bulkLoadDefinition">
     <xs:all>
-      <xs:element name="bulkLoadFileDelimiter" type="xs:string" default="," minOccurs="0"/>
-      <xs:element ref="bulkLoadFormatDefinition" minOccurs="0"/>
+      <xs:element ref="targetFormatDefinition" minOccurs="0"/>
       <xs:element name="afterBulkLoadSuccess" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
@@ -216,11 +159,10 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="output-file-name-pattern" type="xs:string" minOccurs="0"/>
     </xs:all>
   </xs:complexType>
 
-  <xs:complexType name="bulkLoadFormatDefinition">
+  <xs:complexType name="targetFormatDefinition">
     <xs:sequence>
       <xs:element name="attributes" minOccurs="0">
         <xs:complexType>
@@ -230,6 +172,15 @@
         </xs:complexType>
       </xs:element>
     </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="baukAttribute">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute name="type" type="baukAttributeType"/>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
   <xs:complexType name="baukCommand">
@@ -280,6 +231,61 @@
     </xs:all>
   </xs:complexType>
 
+  <xs:complexType name="sourceFormatDefinition">
+    <xs:all>
+      <xs:element name="nullString" type="xs:string" minOccurs="0"/>
+      <xs:element name="delimiterString" type="xs:string" minOccurs="0"/>
+      <xs:element ref="header" minOccurs="0"/>
+      <xs:element ref="data" minOccurs="0"/>
+      <xs:element ref="footer" minOccurs="0"/>
+    </xs:all>
+  </xs:complexType>
+
+  <xs:complexType name="header">
+    <xs:all>
+      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
+      <xs:element name="headerParserClassName" type="xs:string" minOccurs="0"/>
+      <xs:element name="attributes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="process" type="headerProcessingType"/>
+  </xs:complexType>
+
+  <xs:complexType name="data">
+    <xs:all>
+      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
+      <xs:element name="feedDataProcessorClassName" type="xs:string" minOccurs="0"/>
+      <xs:element name="attributes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="process" type="dataProcessingType"/>
+  </xs:complexType>
+
+  <xs:complexType name="footer">
+    <xs:all>
+      <xs:element name="eachLineStartsWithCharacter" type="xs:string" minOccurs="0"/>
+      <xs:element name="recordCountAttributePosition" type="xs:int" default="1" minOccurs="0"/>
+      <xs:element name="attributes" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="attribute" type="baukAttribute" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="process" type="footerProcessingType"/>
+  </xs:complexType>
+
   <xs:complexType name="dimension">
     <xs:all>
       <xs:element name="mappedColumns" minOccurs="0">
@@ -325,19 +331,26 @@
     </xs:restriction>
   </xs:simpleType>
 
-  <xs:simpleType name="headerProcessingType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="normal"/>
-      <xs:enumeration value="no_header"/>
-      <xs:enumeration value="skip"/>
-    </xs:restriction>
-  </xs:simpleType>
-
   <xs:simpleType name="baukAttributeType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="int"/>
       <xs:enumeration value="float"/>
       <xs:enumeration value="string"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="commandType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sql"/>
+      <xs:enumeration value="shell"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="headerProcessingType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="normal"/>
+      <xs:enumeration value="no_header"/>
+      <xs:enumeration value="skip"/>
     </xs:restriction>
   </xs:simpleType>
 
@@ -353,13 +366,6 @@
       <xs:enumeration value="strict"/>
       <xs:enumeration value="no_footer"/>
       <xs:enumeration value="skip"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="commandType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="sql"/>
-      <xs:enumeration value="shell"/>
     </xs:restriction>
   </xs:simpleType>
 

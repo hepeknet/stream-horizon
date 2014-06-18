@@ -27,6 +27,7 @@ import com.threeglav.sh.bauk.model.Data;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.model.MappedColumn;
+import com.threeglav.sh.bauk.model.SourceFormatDefinition;
 import com.threeglav.sh.bauk.model.SqlStatements;
 
 public class InsertOnlyDimensionHandlerTest {
@@ -466,7 +467,8 @@ public class InsertOnlyDimensionHandlerTest {
 		attributes.add(mapped2);
 
 		data.setAttributes(attributes);
-		ff.setData(data);
+		ff.setSourceFormatDefinition(new SourceFormatDefinition());
+		ff.getSourceFormatDefinition().setData(data);
 		return ff;
 	}
 

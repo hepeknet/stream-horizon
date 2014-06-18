@@ -39,21 +39,6 @@ public class Feed {
 	private Integer repetitionCount = -1;
 
 	@XmlElement
-	private String nullString;
-
-	@XmlElement
-	private String delimiterString;
-
-	@XmlElement
-	private Header header;
-
-	@XmlElement
-	private Data data;
-
-	@XmlElement
-	private Footer footer;
-
-	@XmlElement
 	private BulkLoadDefinition bulkLoadDefinition;
 
 	@XmlElement
@@ -61,6 +46,9 @@ public class Feed {
 
 	@XmlElement
 	private FeedEvents events;
+
+	@XmlElement
+	private SourceFormatDefinition sourceFormatDefinition;
 
 	public String getName() {
 		return name;
@@ -76,46 +64,6 @@ public class Feed {
 
 	public void setType(final FeedType type) {
 		this.type = type;
-	}
-
-	public String getNullString() {
-		return nullString;
-	}
-
-	public void setNullString(final String nullString) {
-		this.nullString = nullString;
-	}
-
-	public String getDelimiterString() {
-		return delimiterString;
-	}
-
-	public void setDelimiterString(final String delimiterString) {
-		this.delimiterString = delimiterString;
-	}
-
-	public Header getHeader() {
-		return header;
-	}
-
-	public void setHeader(final Header header) {
-		this.header = header;
-	}
-
-	public Footer getFooter() {
-		return footer;
-	}
-
-	public void setFooter(final Footer footer) {
-		this.footer = footer;
-	}
-
-	public Data getData() {
-		return data;
-	}
-
-	public void setData(final Data data) {
-		this.data = data;
 	}
 
 	public Integer getRepetitionCount() {
@@ -188,6 +136,14 @@ public class Feed {
 
 	public void setTarget(final FeedTarget target) {
 		this.target = target;
+	}
+
+	public SourceFormatDefinition getSourceFormatDefinition() {
+		return sourceFormatDefinition;
+	}
+
+	public void setSourceFormatDefinition(final SourceFormatDefinition sourceFormatDefinition) {
+		this.sourceFormatDefinition = sourceFormatDefinition;
 	}
 
 	/**
