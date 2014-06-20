@@ -34,7 +34,7 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 	public NamedPipeBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
 		this.validate();
-		bulkReadCommand = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert().get(0).getCommand();
+		bulkReadCommand = this.getFactFeed().getTarget().getBulkLoadInsert().get(0).getCommand();
 		if (StringUtil.isEmpty(bulkReadCommand)) {
 			throw new IllegalArgumentException("Bulk insert command must not be null or empty string");
 		}
@@ -52,11 +52,10 @@ public final class NamedPipeBulkOutputWriter extends AbstractBulkOutputWriter {
 	}
 
 	private void validate() {
-		if (this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert() == null
-				|| this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert().size() != 1) {
+		if (this.getFactFeed().getTarget().getBulkLoadInsert() == null || this.getFactFeed().getTarget().getBulkLoadInsert().size() != 1) {
 			throw new IllegalStateException("Exactly one bulk insert statement must be specified when using named pipe output");
 		}
-		final BaukCommand cmd = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert().get(0);
+		final BaukCommand cmd = this.getFactFeed().getTarget().getBulkLoadInsert().get(0);
 		if (cmd.getType() != CommandType.SHELL) {
 			throw new IllegalArgumentException("When using named pipe output bulk insert command must be of type " + CommandType.SHELL);
 		}

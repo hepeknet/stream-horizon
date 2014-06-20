@@ -50,7 +50,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 
 	public JdbcBulkOutputWriter(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		final ArrayList<BaukCommand> bulkInsertCommands = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert();
+		final ArrayList<BaukCommand> bulkInsertCommands = this.getFactFeed().getTarget().getBulkLoadInsert();
 		if (bulkInsertCommands == null || bulkInsertCommands.isEmpty()) {
 			throw new IllegalStateException("Could not find any bulk load insert statements for bulk loading files - for feed "
 					+ this.getFactFeed().getName() + "!");
@@ -67,7 +67,7 @@ public final class JdbcBulkOutputWriter extends AbstractBulkOutputWriter {
 		if (StringUtil.isEmpty(insertStatement)) {
 			throw new IllegalArgumentException("Unable to use jdbc bulk loader when insert statement is not specified");
 		}
-		final ArrayList<BaukAttribute> attributes = this.getFactFeed().getBulkLoadDefinition().getTargetFormatDefinition().getAttributes();
+		final ArrayList<BaukAttribute> attributes = this.getFactFeed().getTargetFormatDefinition().getAttributes();
 		if (attributes == null || attributes.isEmpty()) {
 			throw new IllegalArgumentException("Attributes must not be null or empty");
 		}

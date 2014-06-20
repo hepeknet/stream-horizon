@@ -7,8 +7,6 @@
 
   <xs:element name="baukProperty" type="baukProperty"/>
 
-  <xs:element name="bulkLoadDefinition" type="bulkLoadDefinition"/>
-
   <xs:element name="config" type="baukConfiguration"/>
 
   <xs:element name="connectionProperties" type="connectionProperties"/>
@@ -85,7 +83,7 @@
       <xs:element name="errorDirectory" type="xs:string"/>
       <xs:element name="fileNameProcessorClassName" type="xs:string" minOccurs="0"/>
       <xs:element name="repetitionCount" type="xs:int" default="-1" minOccurs="0"/>
-      <xs:element ref="bulkLoadDefinition" minOccurs="0"/>
+      <xs:element ref="targetFormatDefinition" minOccurs="0"/>
       <xs:element ref="threadPoolSettings" minOccurs="0"/>
       <xs:element name="events" type="feedEvents" minOccurs="0"/>
       <xs:element ref="sourceFormatDefinition" minOccurs="0"/>
@@ -116,39 +114,11 @@
   </xs:complexType>
 
   <xs:complexType name="feedTarget">
-    <xs:sequence>
+    <xs:all>
       <xs:element name="properties" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="property" type="baukProperty" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-    </xs:sequence>
-    <xs:attribute name="type" type="xs:string" use="required"/>
-  </xs:complexType>
-
-  <xs:complexType name="bulkLoadDefinition">
-    <xs:all>
-      <xs:element ref="targetFormatDefinition" minOccurs="0"/>
-      <xs:element name="afterBulkLoadSuccess" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="onBulkLoadFailure" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="onBulkLoadCompletion" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -160,6 +130,15 @@
         </xs:complexType>
       </xs:element>
     </xs:all>
+    <xs:attribute name="type" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="baukCommand">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="commandType" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
   </xs:complexType>
 
   <xs:complexType name="targetFormatDefinition">
@@ -179,14 +158,6 @@
       <xs:extension base="xs:string">
         <xs:attribute name="name" type="xs:string"/>
         <xs:attribute name="type" type="baukAttributeType"/>
-      </xs:extension>
-    </xs:simpleContent>
-  </xs:complexType>
-
-  <xs:complexType name="baukCommand">
-    <xs:simpleContent>
-      <xs:extension base="xs:string">
-        <xs:attribute name="type" type="commandType" use="required"/>
       </xs:extension>
     </xs:simpleContent>
   </xs:complexType>
@@ -222,6 +193,27 @@
         </xs:complexType>
       </xs:element>
       <xs:element name="onFeedProcessingFailure" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="afterBulkLoadSuccess" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="onBulkLoadFailure" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="onBulkLoadCompletion" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
@@ -322,6 +314,13 @@
     </xs:all>
   </xs:complexType>
 
+  <xs:simpleType name="commandType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sql"/>
+      <xs:enumeration value="shell"/>
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="feedType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="full"/>
@@ -336,13 +335,6 @@
       <xs:enumeration value="int"/>
       <xs:enumeration value="float"/>
       <xs:enumeration value="string"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="commandType">
-    <xs:restriction base="xs:string">
-      <xs:enumeration value="sql"/>
-      <xs:enumeration value="shell"/>
     </xs:restriction>
   </xs:simpleType>
 

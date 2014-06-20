@@ -28,7 +28,6 @@ import com.threeglav.sh.bauk.dimension.T2DimensionHandler;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.Data;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.DimensionType;
@@ -81,8 +80,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 		this.validate();
 		this.cacheInstanceManager = cacheInstanceManager;
-		if (factFeed.getBulkLoadDefinition().getTargetFormatDefinition() != null) {
-			bulkOutputFileNumberOfValues = factFeed.getBulkLoadDefinition().getTargetFormatDefinition().getAttributes().size();
+		if (factFeed.getTargetFormatDefinition() != null) {
+			bulkOutputFileNumberOfValues = factFeed.getTargetFormatDefinition().getAttributes().size();
 		} else {
 			bulkOutputFileNumberOfValues = 0;
 		}
@@ -112,11 +111,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	}
 
 	private void validate() {
-		final BulkLoadDefinition bulkDefinition = this.getFactFeed().getBulkLoadDefinition();
-		if (bulkDefinition == null) {
-			throw new IllegalArgumentException("Bulk definition not found in configuration for feed " + this.getFactFeed().getName());
-		}
-		final TargetFormatDefinition bulkLoadFormatDefinition = bulkDefinition.getTargetFormatDefinition();
+		final TargetFormatDefinition bulkLoadFormatDefinition = this.getFactFeed().getTargetFormatDefinition();
 		if (bulkLoadFormatDefinition != null) {
 			if (bulkLoadFormatDefinition.getAttributes() == null || bulkLoadFormatDefinition.getAttributes().isEmpty()) {
 				throw new IllegalArgumentException("Was not able to find any defined bulk output attributes");
@@ -133,7 +128,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 					.getName());
 			return;
 		}
-		final ArrayList<BaukAttribute> bulkOutputAttributes = this.getFactFeed().getBulkLoadDefinition().getTargetFormatDefinition().getAttributes();
+		final ArrayList<BaukAttribute> bulkOutputAttributes = this.getFactFeed().getTargetFormatDefinition().getAttributes();
 		final String[] bulkOutputAttributeNames = AttributeParsingUtil.getAttributeNames(bulkOutputAttributes);
 		if (log.isDebugEnabled()) {
 			log.debug("Bulk output attributes are {}", Arrays.toString(bulkOutputAttributeNames));

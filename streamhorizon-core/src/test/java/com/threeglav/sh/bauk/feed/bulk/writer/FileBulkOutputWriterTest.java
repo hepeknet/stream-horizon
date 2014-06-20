@@ -12,20 +12,17 @@ import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BaukProperty;
-import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.Feed;
 
 public class FileBulkOutputWriterTest {
 
-	static final String NEWLINE_STRING = System.getProperty("line.separator");
+	private static final String NEWLINE_STRING = System.getProperty("line.separator");
 
 	@Test
 	public void testConcatenationNothingSet() {
 		ConfigurationProperties.setBaukProperties(null);
 		final Feed ff = Mockito.mock(Feed.class);
 		when(ff.getName()).thenReturn("testff1");
-		final BulkLoadDefinition bld = Mockito.mock(BulkLoadDefinition.class);
-		when(ff.getBulkLoadDefinition()).thenReturn(bld);
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		final FileBulkOutputWriter fbowt = new FileBulkOutputWriter(ff, conf);
 		final String sb = fbowt.concatenateAllValues(new Object[] { "1", null, "2", null, "3" });
@@ -36,8 +33,6 @@ public class FileBulkOutputWriterTest {
 	public void testConcatenationSetNullValue() {
 		final Feed ff = Mockito.mock(Feed.class);
 		when(ff.getName()).thenReturn("testff1");
-		final BulkLoadDefinition bld = Mockito.mock(BulkLoadDefinition.class);
-		when(ff.getBulkLoadDefinition()).thenReturn(bld);
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
 		final ArrayList<BaukProperty> props = new ArrayList<>();
 		BaukProperty bp = new BaukProperty();

@@ -34,7 +34,6 @@ import com.threeglav.sh.bauk.files.FileProcessingErrorHandler;
 import com.threeglav.sh.bauk.files.InputFeedProcessor;
 import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.Feed;
 import com.threeglav.sh.bauk.util.BaukUtil;
@@ -121,8 +120,7 @@ public class FeedFileProcessor implements InputFeedProcessor {
 	private int calculateCurrentThreadId() {
 		int currentCounter = COUNTER.getAndIncrement();
 		boolean isJdbcLoadingOn = false;
-		final BulkLoadDefinition bulkLoadDefinition = factFeed.getBulkLoadDefinition();
-		if (bulkLoadDefinition != null) {
+		if (factFeed.getTarget() != null) {
 			isJdbcLoadingOn = BulkLoadDefinitionOutputType.JDBC.toString().equalsIgnoreCase(factFeed.getTarget().getType());
 		}
 		if (isJdbcLoadingOn) {

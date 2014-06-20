@@ -16,7 +16,6 @@ import com.threeglav.sh.bauk.feed.bulk.writer.NullBulkOutputWriter;
 import com.threeglav.sh.bauk.feed.bulk.writer.ZipFileBulkOutputWriter;
 import com.threeglav.sh.bauk.io.BulkOutputWriter;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
-import com.threeglav.sh.bauk.model.BulkLoadDefinition;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.Feed;
@@ -31,10 +30,6 @@ public abstract class AbstractFeedDataProcessor extends ConfigAware implements F
 
 	public AbstractFeedDataProcessor(final Feed factFeed, final BaukConfiguration config) {
 		super(factFeed, config);
-		final BulkLoadDefinition bld = factFeed.getBulkLoadDefinition();
-		if (bld == null) {
-			throw new IllegalArgumentException("Was not able to find bulk load definition for feed " + factFeed.getName());
-		}
 		final String outputType = this.getFactFeed().getTarget().getType();
 		if (BulkLoadDefinitionOutputType.FILE.toString().equalsIgnoreCase(outputType)) {
 			log.info("Will output bulk output results for feed {} to file", factFeed.getName());

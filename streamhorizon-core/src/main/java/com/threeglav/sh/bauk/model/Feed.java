@@ -38,8 +38,8 @@ public class Feed {
 	@XmlElement(required = false, defaultValue = "-1")
 	private Integer repetitionCount = -1;
 
-	@XmlElement
-	private BulkLoadDefinition bulkLoadDefinition;
+	@XmlElement(required = false)
+	private TargetFormatDefinition targetFormatDefinition;
 
 	@XmlElement
 	private ThreadPoolSettings threadPoolSettings;
@@ -74,12 +74,12 @@ public class Feed {
 		this.repetitionCount = repetitionCount;
 	}
 
-	public BulkLoadDefinition getBulkLoadDefinition() {
-		return bulkLoadDefinition;
+	public TargetFormatDefinition getTargetFormatDefinition() {
+		return targetFormatDefinition;
 	}
 
-	public void setBulkLoadDefinition(final BulkLoadDefinition bulkLoadDefinition) {
-		this.bulkLoadDefinition = bulkLoadDefinition;
+	public void setTargetFormatDefinition(final TargetFormatDefinition bulkLoadFormatDefinition) {
+		targetFormatDefinition = bulkLoadFormatDefinition;
 	}
 
 	public ThreadPoolSettings getThreadPoolSettings() {
@@ -152,8 +152,7 @@ public class Feed {
 	 * @return
 	 */
 	public boolean isEtlOnlyFactFeed() {
-		if (this.getBulkLoadDefinition() != null) {
-			this.getBulkLoadDefinition();
+		if (this.getTarget() != null) {
 			final String outputType = this.getTarget().getType();
 			if (!StringUtil.isEmpty(outputType)) {
 				final String outputTypeLower = outputType.toLowerCase();

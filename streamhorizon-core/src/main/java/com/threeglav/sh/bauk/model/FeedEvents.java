@@ -30,6 +30,18 @@ public class FeedEvents {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> onFeedProcessingFailure;
 
+	@XmlElementWrapper(name = "afterBulkLoadSuccess")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> afterBulkLoadSuccess;
+
+	@XmlElementWrapper(name = "onBulkLoadFailure")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> onBulkLoadFailure;
+
+	@XmlElementWrapper(name = "onBulkLoadCompletion")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> onBulkLoadCompletion;
+
 	public ArrayList<BaukCommand> getOnStartup() {
 		return onStartup;
 	}
@@ -60,6 +72,30 @@ public class FeedEvents {
 
 	public void setBeforeFeedProcessing(final ArrayList<BaukCommand> beforeFeedProcessing) {
 		this.beforeFeedProcessing = beforeFeedProcessing;
+	}
+
+	public ArrayList<BaukCommand> getAfterBulkLoadSuccess() {
+		return afterBulkLoadSuccess;
+	}
+
+	public void setAfterBulkLoadSuccess(final ArrayList<BaukCommand> afterBulkLoadSuccess) {
+		this.afterBulkLoadSuccess = afterBulkLoadSuccess;
+	}
+
+	public ArrayList<BaukCommand> getOnBulkLoadFailure() {
+		return onBulkLoadFailure;
+	}
+
+	public void setOnBulkLoadFailure(final ArrayList<BaukCommand> onBulkLoadFailure) {
+		this.onBulkLoadFailure = onBulkLoadFailure;
+	}
+
+	public ArrayList<BaukCommand> getOnBulkLoadCompletion() {
+		return onBulkLoadCompletion;
+	}
+
+	public void setOnBulkLoadCompletion(final ArrayList<BaukCommand> onBulkLoadCompletion) {
+		this.onBulkLoadCompletion = onBulkLoadCompletion;
 	}
 
 }

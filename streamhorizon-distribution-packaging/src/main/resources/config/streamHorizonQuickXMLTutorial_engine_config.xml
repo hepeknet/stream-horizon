@@ -81,6 +81,65 @@
 					<!-- specifies delimiter to be used when creating bulk output file. Whenever possible use single character delimiter -->
 					<property name="bulkLoadFileDelimiter">,</property>
 				</properties>
+				
+				<!-- sql statement for loading bulk output file. Can be any sql statement, function call or stored procedure invocation -->
+				<!-- in case of jdbc loading this statement must be prepared statement listing all attributes that are defined in bulkLoadFormatDefinition section -->	
+
+				<!--EXAMPLES:-->				
+					<!-- EXAMPLE 1) function call example:
+						 this example shows how function can be called via jdbc. note that imlicitly defined engine context parameter 'bulkProcessingThreadID' is used in order to loadbalance subpartitions of target fact table and avoid locking. also note that another implicit engine context parameter 'bulkFileName' is used as function internaly need to alter table and repoint external table to data file which need be loaded. 
+						 
+						 prefixing context attributes with ${contextAttributeName} will ensure that engine engine replaces them before issuing the call against RDBMS
+						 
+						 This is most performant way to insert data into the fact table. note that best results have been acheived when bulk files aren't zipped or gz'ed and when paralelism is high (db threads load into 30-50 subpartitions. no logging mode will usually increase performance by 50%.
+					-->
+					<bulkLoadInsert>
+						<command type="sql">
+						CALL schema.functionName(mod(${bulkProcessingThreadID},50),${bulkProcessingThreadID}, '${bulkFileName}' )  
+						</command>
+					</bulkLoadInsert>	
+					<!--EXAMPLE 2) direct jdbc insert example
+						for performance reasons 'customized.formattedHeaderDate' customised attribute is used to deliver value which will denote table partition name P_${customized.formattedHeaderDate}. to test you may supply hardcoded value to start with P_200110101
+						
+						in similar fashion, in order to target right subpartition and enable paralel load of subpartitions, another context custom defined attribute customized.feedProcessingThreadID.modulo is used SP_${customized.feedProcessingThreadID.modulo}
+					
+						note that insert statement below has 7 question marks and 9 fact table attributes. Engine will replace all context attributes prior to issuing statament against the database. as context attributes ${*} will be replaced with concrete values <bulkLoadFormatDefinition> tag will require definition for only 7 <attributes> tags for fact table. 7 defined attributes will be assigned in listed order to placeholder vaues (replaced with ? sign of sql query).
+					-->					
+					<!--bulkLoadInsert>
+					<command type="sql">
+						insert /*+ append_values */ into schema.factTableName 
+						subpartition (P_${customized.formattedHeaderDate}_SP_${customized.feedProcessingThreadID.modulo}) 
+						( tableAttribute1,  tableAttribute2, tableAttribute3,  tableAttribute4,  tableAttribute5, tableAttribute6,  tableAttribute7,tableAttribute8,  tableAttribute9)
+						VALUES (?,?, ${customized.formattedHeaderDate} , ${customized.feedProcessingThreadID.modulo} ,?,?,?,?,?)
+						</command>
+					</bulkLoadInsert-->	
+
+					<!--EXAMPLE 3) calling  MySQL external script or command line to bulk load the file:
+					
+					note taht implicit Engine context attributes bulkFilePath and bulkProcessingThreadID are embeded & swapped to the command prior to its execution
+					
+					note that type of command is 'shell' rather than 'sql'
+					-->
+				<!--bulkLoadInsert>
+				<command type="shell">
+					LOAD DATA INFILE '${bulkFilePath}', ${bulkProcessingThreadID} INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY '\n'
+					</command>
+				</bulkLoadInsert-->	
+				
+					<!--EXAMPLE 4) calling  MSSQL external script or command line to bulk load a bulk file:
+					
+					note taht implicit Engine context attributes bulkFileName is embeded & swapped to the command prior to its execution
+					
+					note that type of command is 'shell' rather than 'sql'
+					
+					bulkLoadScript.bat should (after variable substitution) execute command similar to:
+					CALL SQLCMD -S server\instance -q "BULK INSERT user.[dbo].[factTableName]   FROM 'pathAndFileNameToBeLoaded' WITH (FIELDTERMINATOR =',',ROWTERMINATOR ='0x0a',TABLOCK)"
+
+					-->
+				<!--bulkLoadInsert>
+					<command type="shell">g:/bulkLoadScript.bat</command>
+				</bulkLoadInsert-->					
+				
 			 </target>
 			 
 			 <!-- 
@@ -170,71 +229,7 @@
 				<recordCountAttributePosition>2</recordCountAttributePosition>
 			</footer>
 			</sourceFormatDefinition>
-			<!-- outputType can be one of following file/none/zip/gz/jdbc -->
-			<!-- when set to 'none' if you want to test performance of processing without actually writing bulk file to bulk directory. 'none' value tests performance by eliminating write I/O -->
-			<!-- when set to 'zip' then .zip output file will be zip compressed and will have .zip extension added -->
-			<!-- when set to 'gz' then .gz output file will be gzip compressed and will have .gz extension added -->
-			<!-- when set to 'jdbc' you must specify types for all attributes in <bulkLoadFormatDefinition> tag and bulk records will be inserted using JDBC -->
-			<!-- when set to 'pipe' uses named pipes to transfer data. Have to follow same guidelins as 'file' -->
-			<bulkLoadDefinition outputType="file">
-				<!-- sql statement for loading bulk output file. Can be any sql statement, function call or stored procedure invocation -->
-				<!-- in case of jdbc loading this statement must be prepared statement listing all attributes that are defined in bulkLoadFormatDefinition section -->	
-
-				<!--EXAMPLES:-->				
-					<!-- EXAMPLE 1) function call example:
-						 this example shows how function can be called via jdbc. note that imlicitly defined engine context parameter 'bulkProcessingThreadID' is used in order to loadbalance subpartitions of target fact table and avoid locking. also note that another implicit engine context parameter 'bulkFileName' is used as function internaly need to alter table and repoint external table to data file which need be loaded. 
-						 
-						 prefixing context attributes with ${contextAttributeName} will ensure that engine engine replaces them before issuing the call against RDBMS
-						 
-						 This is most performant way to insert data into the fact table. note that best results have been acheived when bulk files aren't zipped or gz'ed and when paralelism is high (db threads load into 30-50 subpartitions. no logging mode will usually increase performance by 50%.
-					-->
-					<bulkLoadInsert>
-						<command type="sql">
-						CALL schema.functionName(mod(${bulkProcessingThreadID},50),${bulkProcessingThreadID}, '${bulkFileName}' )  
-						</command>
-					</bulkLoadInsert>	
-					<!--EXAMPLE 2) direct jdbc insert example
-						for performance reasons 'customized.formattedHeaderDate' customised attribute is used to deliver value which will denote table partition name P_${customized.formattedHeaderDate}. to test you may supply hardcoded value to start with P_200110101
-						
-						in similar fashion, in order to target right subpartition and enable paralel load of subpartitions, another context custom defined attribute customized.feedProcessingThreadID.modulo is used SP_${customized.feedProcessingThreadID.modulo}
-					
-						note that insert statement below has 7 question marks and 9 fact table attributes. Engine will replace all context attributes prior to issuing statament against the database. as context attributes ${*} will be replaced with concrete values <bulkLoadFormatDefinition> tag will require definition for only 7 <attributes> tags for fact table. 7 defined attributes will be assigned in listed order to placeholder vaues (replaced with ? sign of sql query).
-					-->					
-					<!--bulkLoadInsert>
-					<command type="sql">
-						insert /*+ append_values */ into schema.factTableName 
-						subpartition (P_${customized.formattedHeaderDate}_SP_${customized.feedProcessingThreadID.modulo}) 
-						( tableAttribute1,  tableAttribute2, tableAttribute3,  tableAttribute4,  tableAttribute5, tableAttribute6,  tableAttribute7,tableAttribute8,  tableAttribute9)
-						VALUES (?,?, ${customized.formattedHeaderDate} , ${customized.feedProcessingThreadID.modulo} ,?,?,?,?,?)
-						</command>
-					</bulkLoadInsert-->	
-
-					<!--EXAMPLE 3) calling  MySQL external script or command line to bulk load the file:
-					
-					note taht implicit Engine context attributes bulkFilePath and bulkProcessingThreadID are embeded & swapped to the command prior to its execution
-					
-					note that type of command is 'shell' rather than 'sql'
-					-->
-				<!--bulkLoadInsert>
-				<command type="shell">
-					LOAD DATA INFILE '${bulkFilePath}', ${bulkProcessingThreadID} INTO TABLE test_fact FIELDS TERMINATED BY '@@' LINES TERMINATED BY '\n'
-					</command>
-				</bulkLoadInsert-->	
-				
-					<!--EXAMPLE 4) calling  MSSQL external script or command line to bulk load a bulk file:
-					
-					note taht implicit Engine context attributes bulkFileName is embeded & swapped to the command prior to its execution
-					
-					note that type of command is 'shell' rather than 'sql'
-					
-					bulkLoadScript.bat should (after variable substitution) execute command similar to:
-					CALL SQLCMD -S server\instance -q "BULK INSERT user.[dbo].[factTableName]   FROM 'pathAndFileNameToBeLoaded' WITH (FIELDTERMINATOR =',',ROWTERMINATOR ='0x0a',TABLOCK)"
-
-					-->
-				<!--bulkLoadInsert>
-					<command type="shell">g:/bulkLoadScript.bat</command>
-				</bulkLoadInsert-->					
-				
+			
 				<targetFormatDefinition>
 					<attributes>
 						<!-- 
@@ -261,28 +256,6 @@
 						<attribute name="customized.attribute.from.context" type="int" />
 					</attributes>
 				</targetFormatDefinition>
-				<!-- executed by db threads -->
-				<afterBulkLoadSuccess>
-					<!-- statements to be invoked after bulkLoadInsertStatement is successfully invoked. db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of engine context parameters. Any context attribute will be replaced with its value -->
-					<command type="shell">d:/first.bat ${someCtxAttributePassedAsParameter}</command>
-					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
-					<command type="sql">CALL simpleproc2('${firstCtxAttr}',${secondCtxAttr})</command>
-					<command type="shell">d:/second.bat</command>
-				</afterBulkLoadSuccess>
-				<onBulkLoadFailure>
-					<!-- by default files are moved to error folder on processing failure -->
-					<!-- statements to be invoked after loading of bulk data file has failed (if it fails). db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of engine context parameters -->
-					<command type="shell">d:/first.bat</command>
-					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
-					<command type="sql">CALL simpleproc2('${firstCtxAttr}',${secondCtxAttr})</command>
-					<command type="shell">d:/second.bat</command>
-				</onBulkLoadFailure>
-				<!-- <onBulkLoadCompletion> is executed by db threads in order specified. This is executed irrespective of sucess/failure of db thread processing (think of this as finally{} block equivalent in Java) -->
-				<onBulkLoadCompletion>
-					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(555, '${bulkFilePath}')</command>
-					<command type="shell">d:/first.bat</command>
-				</onBulkLoadCompletion>
-			</bulkLoadDefinition>
 			
 			<events>
 				<!-- at startup, prior to starting any processing engine will execute (in defined order) sql or script (shell) commands. please reference all recovery and startup related scripts in this section -->
@@ -317,6 +290,28 @@
 						</command>
 					<command type="shell">d:/second.bat</command>
 				</afterFeedProcessingCompletion>
+				
+				<!-- executed by db threads -->
+				<afterBulkLoadSuccess>
+					<!-- statements to be invoked after bulkLoadInsertStatement is successfully invoked. db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of engine context parameters. Any context attribute will be replaced with its value -->
+					<command type="shell">d:/first.bat ${someCtxAttributePassedAsParameter}</command>
+					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
+					<command type="sql">CALL simpleproc2('${firstCtxAttr}',${secondCtxAttr})</command>
+					<command type="shell">d:/second.bat</command>
+				</afterBulkLoadSuccess>
+				<onBulkLoadFailure>
+					<!-- by default files are moved to error folder on processing failure -->
+					<!-- statements to be invoked after loading of bulk data file has failed (if it fails). db thread which does bulk loading executes given commands (if any)! commands are executed in given order and can receive any of engine context parameters -->
+					<command type="shell">d:/first.bat</command>
+					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
+					<command type="sql">CALL simpleproc2('${firstCtxAttr}',${secondCtxAttr})</command>
+					<command type="shell">d:/second.bat</command>
+				</onBulkLoadFailure>
+				<!-- <onBulkLoadCompletion> is executed by db threads in order specified. This is executed irrespective of sucess/failure of db thread processing (think of this as finally{} block equivalent in Java) -->
+				<onBulkLoadCompletion>
+					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(555, '${bulkFilePath}')</command>
+					<command type="shell">d:/first.bat</command>
+				</onBulkLoadCompletion>
 			</events>
 		</feed>
 	</feeds>

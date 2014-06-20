@@ -15,6 +15,9 @@
 				</properties>
 			</source>
 			<target type="jdbc">
+				<bulkLoadInsert>
+					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) values(?,?,?,'${bulkFileName}')</command>
+				</bulkLoadInsert>
 			</target>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
@@ -31,19 +34,14 @@
 					</attributes>
 				</data>
 				<footer process="skip" />
-			</sourceFormatDefinition>
-			<bulkLoadDefinition>
-				<bulkLoadInsert>
-					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) values(?,?,?,'${bulkFileName}')</command>
-				</bulkLoadInsert>
-				<targetFormatDefinition>
-					<attributes>
-						<attribute name="dimension.TEST_DIM" type="int" />
-						<attribute name="feed.attr1" type="int" />
-						<attribute name="feed.attr2" type="int" />
-					</attributes>
-				</targetFormatDefinition>
-			</bulkLoadDefinition>
+			</sourceFormatDefinition>	
+			<targetFormatDefinition>
+				<attributes>
+					<attribute name="dimension.TEST_DIM" type="int" />
+					<attribute name="feed.attr1" type="int" />
+					<attribute name="feed.attr2" type="int" />
+				</attributes>
+			</targetFormatDefinition>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>1</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>

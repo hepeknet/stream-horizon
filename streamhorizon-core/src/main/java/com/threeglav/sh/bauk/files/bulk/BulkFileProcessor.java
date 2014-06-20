@@ -80,23 +80,23 @@ public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor
 		} else {
 			multiInstanceProcessorId = "-1";
 		}
-		bulkInsertCommands = this.getFactFeed().getBulkLoadDefinition().getBulkLoadInsert();
+		bulkInsertCommands = this.getFactFeed().getTarget().getBulkLoadInsert();
 		if (bulkInsertCommands == null || bulkInsertCommands.isEmpty()) {
 			throw new IllegalStateException("Could not find any bulk load insert statements for bulk loading files - for feed "
 					+ this.getFactFeed().getName() + "!");
 		}
 		bulkInsertCommandsExecutor = new BaukCommandsExecutor(factFeed, config, bulkInsertCommands);
-		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getBulkLoadDefinition().getAfterBulkLoadSuccess();
+		final ArrayList<BaukCommand> onBulkLoadSuccess = this.getFactFeed().getEvents().getAfterBulkLoadSuccess();
 		shouldExecuteOnBulkLoadSuccess = onBulkLoadSuccess != null && !onBulkLoadSuccess.isEmpty();
 		if (shouldExecuteOnBulkLoadSuccess) {
 			bulkLoadSuccessCommandsExecutor = new BaukCommandsExecutor(factFeed, config, onBulkLoadSuccess);
 		}
-		final ArrayList<BaukCommand> onBulkLoadFail = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadFailure();
+		final ArrayList<BaukCommand> onBulkLoadFail = this.getFactFeed().getEvents().getOnBulkLoadFailure();
 		shouldExecuteOnBulkLoadFailure = onBulkLoadFail != null && !onBulkLoadFail.isEmpty();
 		if (shouldExecuteOnBulkLoadFailure) {
 			bulkLoadFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, onBulkLoadFail);
 		}
-		final ArrayList<BaukCommand> onBulkLoadCompletion = this.getFactFeed().getBulkLoadDefinition().getOnBulkLoadCompletion();
+		final ArrayList<BaukCommand> onBulkLoadCompletion = this.getFactFeed().getEvents().getOnBulkLoadCompletion();
 		shouldExecuteOnBulkLoadCompletion = onBulkLoadCompletion != null && !onBulkLoadCompletion.isEmpty();
 		if (shouldExecuteOnBulkLoadCompletion) {
 			bulkLoadCompletionCommandsExecutor = new BaukCommandsExecutor(factFeed, config, onBulkLoadCompletion);

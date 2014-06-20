@@ -25,6 +25,10 @@ public class FeedTarget {
 	@XmlElement(name = "property")
 	private ArrayList<BaukProperty> properties;
 
+	@XmlElementWrapper(name = "bulkLoadInsert")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> bulkLoadInsert;
+
 	public String getType() {
 		return type;
 	}
@@ -39,6 +43,14 @@ public class FeedTarget {
 
 	public void setProperties(final ArrayList<BaukProperty> properties) {
 		this.properties = properties;
+	}
+
+	public ArrayList<BaukCommand> getBulkLoadInsert() {
+		return bulkLoadInsert;
+	}
+
+	public void setBulkLoadInsert(final ArrayList<BaukCommand> bulkLoadInsert) {
+		this.bulkLoadInsert = bulkLoadInsert;
 	}
 
 }

@@ -53,7 +53,7 @@ public class BulkOutputValuesResolverTest {
 		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
 		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
 		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
-		when(ff.getBulkLoadDefinition().getTargetFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
+		when(ff.getTargetFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(4));
 		when(ff.getSourceFormatDefinition().getData().getAttributes()).thenReturn(this.createFactFeedAttributes(5));
 		when(ff.getSourceFormatDefinition().getDelimiterString()).thenReturn(",");
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);
@@ -91,7 +91,7 @@ public class BulkOutputValuesResolverTest {
 		BulkOutputValuesResolver.cachedDimensionHandlers.clear();
 		BulkOutputValuesResolver.alreadyStartedCreatingDimensionNames.clear();
 		final Feed ff = Mockito.mock(Feed.class, Mockito.RETURNS_DEEP_STUBS);
-		when(ff.getBulkLoadDefinition().getTargetFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
+		when(ff.getTargetFormatDefinition().getAttributes()).thenReturn(this.createBulkOutputAttributes(1));
 		when(ff.getSourceFormatDefinition().getData().getAttributes()).thenReturn(this.createFactFeedAttributes(4));
 		when(ff.getSourceFormatDefinition().getDelimiterString()).thenReturn(",");
 		final BaukConfiguration conf = Mockito.mock(BaukConfiguration.class);

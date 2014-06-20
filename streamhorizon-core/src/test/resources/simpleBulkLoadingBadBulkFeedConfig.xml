@@ -21,6 +21,9 @@
 					<property name="bulkOutputDirectory"></property>
 					<property name="bulkLoadOutputExtension">data</property>
 				</properties>
+				<bulkLoadInsert>
+					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4,f5) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
+				</bulkLoadInsert>
 			</target>
 			<archiveDirectory></archiveDirectory>
 			<errorDirectory></errorDirectory>
@@ -47,18 +50,21 @@
 					<eachLineStartsWithCharacter>9</eachLineStartsWithCharacter>
 				</footer>
 			</sourceFormatDefinition>
-			<bulkLoadDefinition>
-				<bulkLoadInsert>
-					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4,f5) (SELECT * FROM CSVREAD('${bulkFilePath}','f1,f2,f3,f4'))</command>
-				</bulkLoadInsert>
-				<targetFormatDefinition>
-					<attributes>
-						<attribute name="dimension.TEST_DIM" type="int" />
-						<attribute name="feed.attr1" type="int" />
-						<attribute name="feed.attr2" type="int" />
-						<attribute name="h1" type="string" />
-					</attributes>
-				</targetFormatDefinition>
+			<targetFormatDefinition>
+				<attributes>
+					<attribute name="dimension.TEST_DIM" type="int" />
+					<attribute name="feed.attr1" type="int" />
+					<attribute name="feed.attr2" type="int" />
+					<attribute name="h1" type="string" />
+				</attributes>
+			</targetFormatDefinition>
+			<events>
+				<onFeedProcessingFailure>
+					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(-1, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+				</onFeedProcessingFailure>
+				<afterFeedProcessingCompletion>
+					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
+				</afterFeedProcessingCompletion>
 				<afterBulkLoadSuccess>
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(111, '${bulkFilePath}')</command>
 				</afterBulkLoadSuccess>
@@ -69,14 +75,6 @@
 				<onBulkLoadCompletion>
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(4444, 'ggg_${bulkFilePath}')</command>
 				</onBulkLoadCompletion>
-			</bulkLoadDefinition>
-			<events>
-				<onFeedProcessingFailure>
-					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(-1, '${feedCompletionProcessingSuccessFailureFlag}')</command>
-				</onFeedProcessingFailure>
-				<afterFeedProcessingCompletion>
-					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
-				</afterFeedProcessingCompletion>
 			</events>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>1</etlProcessingThreadCount>

@@ -78,7 +78,7 @@ public class BulkFilesHandler {
 	}
 
 	private void validate() {
-		if (factFeed.getBulkLoadDefinition() == null && bulkProcessingThreads > 0) {
+		if (factFeed.getTargetFormatDefinition() == null && bulkProcessingThreads > 0) {
 			throw new IllegalStateException(
 					"Was not able to find bulk definition in configuration file but bulk processing threads set to positive value!");
 		}

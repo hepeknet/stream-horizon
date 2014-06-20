@@ -301,8 +301,8 @@ class ConfigurationValidator {
 				}
 			}
 		}
-		if (ff.getBulkLoadDefinition() != null && ff.getBulkLoadDefinition().getBulkLoadInsert() != null) {
-			for (final BaukCommand bc : ff.getBulkLoadDefinition().getBulkLoadInsert()) {
+		if (ff.getTarget() != null && ff.getTarget().getBulkLoadInsert() != null) {
+			for (final BaukCommand bc : ff.getTarget().getBulkLoadInsert()) {
 				if (!StringUtil.isEmpty(bc.getCommand())) {
 					final Set<String> used = StringUtil.collectAllAttributesFromString(bc.getCommand());
 					if (used != null) {
@@ -310,13 +310,13 @@ class ConfigurationValidator {
 					}
 				}
 			}
-			if (ff.getBulkLoadDefinition().getAfterBulkLoadSuccess() != null) {
-				for (final BaukCommand bc : ff.getBulkLoadDefinition().getAfterBulkLoadSuccess()) {
-					if (!StringUtil.isEmpty(bc.getCommand())) {
-						final Set<String> used = StringUtil.collectAllAttributesFromString(bc.getCommand());
-						if (used != null) {
-							attrs.addAll(used);
-						}
+		}
+		if (ff.getEvents() != null && ff.getEvents().getAfterBulkLoadSuccess() != null) {
+			for (final BaukCommand bc : ff.getEvents().getAfterBulkLoadSuccess()) {
+				if (!StringUtil.isEmpty(bc.getCommand())) {
+					final Set<String> used = StringUtil.collectAllAttributesFromString(bc.getCommand());
+					if (used != null) {
+						attrs.addAll(used);
 					}
 				}
 			}
