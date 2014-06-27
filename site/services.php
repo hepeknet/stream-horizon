@@ -121,7 +121,7 @@
     </article>
 	<article id="troubleshoot" class="detail">
       <h2>Development & Troubleshooting Assistance</h2>
-	  <p>StreamHorizon is one of simplest and most intuitive Data Processing (ETL) platforms available.</p>
+	  <p>StreamHorizon is one of the simplest and most intuitive Data Processing (ETL) platforms available.</p>
 	  <p>If you still prefer us to provide you with  step by step guidance in installation, setup and configuration of StreamHorizon we will be happy to assist you.</p>
 	  <p class="fright"><a href="contact.php" class="more arrow">Contact Us</a></p>
     </article>
