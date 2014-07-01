@@ -14,10 +14,17 @@
 if (!isset($_POST["email"])){
   ?>
     <h2>Get the latest version (<?php echo SH_LATEST_VERSION ?>) of StreamHorizon platform</h2>
-	<p>Trial version of StreamHorizon binary can be downloaded <a href="./trial_download.php" target="_blank">here</a></p>
-    <p class="more">Even better, fill in the form below and we will provide you with one free hour of consultation how to use StreamHorizon in your particular case!</p>
+	<p>Direct download of trial version of StreamHorizon binary will be available soon!</p>
+	<br />
+    <p class="more">Fill in the form below and StreamHorizon will award you with one free consultation. This is convenient step toward ensuring that your design and architecture utilize StreamHorizon platform in most effective way.</p>
     <form id="contact_form" class="contact_form" action="request_download.php" method="post" name="contact_form">
       <ul class="contact_ie9">
+		<li>
+			<br />
+			<div class="small">
+			Your details will not be used for Sales & Marketing purposes and will not be passed to affiliates and partners of StreamHorizon Group
+			</div>
+		</li>
 	    <li>
           <label for="username">Full name:</label>
           <input type="text" name="username" id="username" required class="required">
@@ -49,12 +56,6 @@ if (!isset($_POST["email"])){
         <li>
           <button type="submit" id="submit" class="button fleft">Get Me The Link!</button>
         </li>
-		<li>
-			<br /><br /><br /><br />
-			<div class="small">
-			Your details will not be used for Sales & Marketing purposes and will not be passed to affiliates and partners of StreamHorizon Group
-			</div>
-		</li>
       </ul>
     </form>
  <?php 

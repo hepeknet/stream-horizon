@@ -29,7 +29,8 @@ public interface FeedDataLineProcessor {
 	 *            parsed data row read from file
 	 * @param globalAttributes
 	 *            global attributes available at the moment when row is being parsed. It is possible to modify these
-	 *            attributes in this method.
+	 *            attributes in this method and modified or newly created attributes will be available further down the
+	 *            processing chain.
 	 * @return modified data. Must be the same length as passed array
 	 */
 	String[] preProcessDataLine(String[] parsedDataLine, Map<String, String> globalAttributes);

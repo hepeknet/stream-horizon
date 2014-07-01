@@ -8,21 +8,9 @@
     <p class="fleft"></p>
 	<p class="fright"><a href="contact.php" class="more arrow">Become a partner</a></p>
   </header>
-  <!--
-  <aside class="column4 mright">
-    <p class="mbottom"></p>
-    <menu>
-    <ul>
-      <li><a href="#navteam" class="arrow more">Our clients</a></li>
-      <li><a href="#navphilo" class="arrow more">Our partners</a></li>
-    </ul>
-    </menu> 
-	
-  </aside>
-  -->
+  <h2>Our clients and partners</h2>
   <section class="content">
-    <article id="navteam" class="detail">
-      <h2>Our clients and partners</h2>
+    <article id="navteam0" class="detail">
 	  <br />
 	  <p>
 		<br />
@@ -30,7 +18,22 @@
 		<img src="img/gen_research_logo.png" />
 		<br/>
 	  </p>
-    </article>
+	</article>
+	<article id="navteam1" class="detail">
+		<p>
+		London based Tier 1 Retail Bank approves StreamHorizon for use as ETL Data Processing framework.
+		</p>
+	</article>
+	<article id="navteam2" class="detail">
+		<p>
+		London based Tier 1 Global Investment Bank evaluates StreamHorizon as Hadoop based ETL Data Processing solution for Market Risk Data Store.
+		</p>
+	</article>
+	<article id="navteam3" class="detail">
+		<p>
+		London based Tier 1 Retail Bank evaluates StreamHorizon as strategic ETL Data Processing solution.
+		</p>
+	</article>
   </section>
 </div>
 <?php include 'footer.php' ?>
