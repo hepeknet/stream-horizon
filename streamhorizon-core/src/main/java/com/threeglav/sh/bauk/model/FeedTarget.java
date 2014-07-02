@@ -16,6 +16,8 @@ import javax.xml.bind.annotation.XmlType;
 public class FeedTarget {
 
 	public static final String FILE_TARGET_EXTENSION_PROP_NAME = "bulkLoadOutputExtension";
+	public static final String FILE_TARGET_EXTENSION_DEFAULT_VALUE = "data";
+
 	public static final String FILE_TARGET_DIRECTORY_PROP_NAME = "bulkOutputDirectory";
 
 	@XmlAttribute(required = true)

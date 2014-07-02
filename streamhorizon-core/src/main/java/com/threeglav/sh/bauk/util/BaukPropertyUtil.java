@@ -31,6 +31,14 @@ public abstract class BaukPropertyUtil {
 		return found;
 	}
 
+	public static String getUniquePropertyIfExistsOrDefault(final ArrayList<BaukProperty> properties, final String propName, final String defaultValue) {
+		final BaukProperty bp = getUniquePropertyIfExists(properties, propName);
+		if (bp != null) {
+			return bp.getValue();
+		}
+		return defaultValue;
+	}
+
 	public static BaukProperty getUniquePropertyIfExists(final ArrayList<BaukProperty> properties, final String propName) {
 		if (properties == null || properties.isEmpty()) {
 			throw new IllegalArgumentException("Properties must not be null");

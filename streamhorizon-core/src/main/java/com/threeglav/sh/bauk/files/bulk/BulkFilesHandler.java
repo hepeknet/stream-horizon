@@ -19,9 +19,7 @@ import com.threeglav.sh.bauk.files.MoveFileErrorHandler;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.BulkLoadDefinitionOutputType;
 import com.threeglav.sh.bauk.model.Feed;
-import com.threeglav.sh.bauk.model.FeedTarget;
 import com.threeglav.sh.bauk.model.ThreadPoolSettings;
-import com.threeglav.sh.bauk.util.BaukPropertyUtil;
 import com.threeglav.sh.bauk.util.BaukThreadFactory;
 import com.threeglav.sh.bauk.util.FeedUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
@@ -61,8 +59,7 @@ public class BulkFilesHandler {
 			}
 		}
 		bulkOutDirectory = FeedUtil.getConfiguredBulkOutputDirectory(factFeed);
-		fileExtension = BaukPropertyUtil.getRequiredUniqueProperty(factFeed.getTarget().getProperties(), FeedTarget.FILE_TARGET_EXTENSION_PROP_NAME)
-				.getValue();
+		fileExtension = FeedUtil.getBulkOutputFileExtension(factFeed);
 		this.validate();
 		final String errorDirectory = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.ERROR_DIRECTORY_PARAM_NAME,
 				factFeed.getErrorDirectory());

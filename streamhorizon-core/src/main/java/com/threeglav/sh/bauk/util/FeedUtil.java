@@ -15,13 +15,21 @@ public abstract class FeedUtil {
 		}
 		String bulkOutFileName = null;
 		if (f.isFileTarget()) {
-			final String targetExtension = BaukPropertyUtil.getRequiredUniqueProperty(f.getTarget().getProperties(),
-					FeedTarget.FILE_TARGET_EXTENSION_PROP_NAME).getValue();
+			final String targetExtension = getBulkOutputFileExtension(f);
 			if (!StringUtil.isEmpty(targetExtension)) {
 				bulkOutFileName = f.getName() + "_" + StringUtil.getFileNameWithoutExtension(inputFeedFileName) + "." + targetExtension;
 			}
 		}
 		return bulkOutFileName;
+	}
+
+	public static final String getBulkOutputFileExtension(final Feed f) {
+		if (f.isFileTarget()) {
+			final String targetExtension = BaukPropertyUtil.getUniquePropertyIfExistsOrDefault(f.getTarget().getProperties(),
+					FeedTarget.FILE_TARGET_EXTENSION_PROP_NAME, FeedTarget.FILE_TARGET_EXTENSION_DEFAULT_VALUE);
+			return targetExtension;
+		}
+		return null;
 	}
 
 	public static final String getBulkOutputFileFullPath(final Feed f, final String inputFeedFileName) {

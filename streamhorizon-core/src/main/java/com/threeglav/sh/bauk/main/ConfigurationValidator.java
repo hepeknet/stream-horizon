@@ -186,10 +186,12 @@ class ConfigurationValidator {
 		if (!errorOk) {
 			throw new IllegalStateException("Was not able to find folder for storing corrupted/invalid data for feed " + ff.getName() + "! Aborting!");
 		}
-		final String bulkOutDirectory = FeedUtil.getConfiguredBulkOutputDirectory(ff);
-		final boolean bulkOutOk = this.getOrCreateDirectory(bulkOutDirectory, true);
-		if (!bulkOutOk) {
-			throw new IllegalStateException("Was not able to find folder for storing bulk output data for feed " + ff.getName() + "! Aborting!");
+		if (ff.isFileTarget()) {
+			final String bulkOutDirectory = FeedUtil.getConfiguredBulkOutputDirectory(ff);
+			final boolean bulkOutOk = this.getOrCreateDirectory(bulkOutDirectory, true);
+			if (!bulkOutOk) {
+				throw new IllegalStateException("Was not able to find folder for storing bulk output data for feed " + ff.getName() + "! Aborting!");
+			}
 		}
 		if (!StringUtil.isEmpty(ff.getSourceFormatDefinition().getData().getEachLineStartsWithCharacter())) {
 			log.warn(
