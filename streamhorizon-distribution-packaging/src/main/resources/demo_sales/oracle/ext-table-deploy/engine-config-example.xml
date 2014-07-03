@@ -1,67 +1,71 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<config>
+<config>	
 	<connectionProperties>	
 		<jdbcUrl>jdbc:oracle:thin:@localhost:1522:orcl</jdbcUrl>
 		<jdbcUserName>sh</jdbcUserName>
 		<jdbcPassword>sh</jdbcPassword>
 		<jdbcPoolSize>100</jdbcPoolSize>
-	</connectionProperties>
-	<feeds>
-		<feed name="dataFeed" type="full">
+	</connectionProperties>	
+	<feeds>	
+		<feed name="myDataFeed1" type="full"> 		
 			<source type="file">
 				<properties>
-					<property name="directoryPath">/app/data/source</property>
+					<property name="directoryPath">/sh/data/source</property>
 					<property name="fileNameMask">.*csv</property>
 				</properties>
 			</source>
-			<archiveDirectory>/app/data/archive</archiveDirectory>
-			<errorDirectory>/app/data/error</errorDirectory>
-			<bulkOutputDirectory>/app/data/bulk</bulkOutputDirectory>					
+			<archiveDirectory>/sh/data/archive</archiveDirectory>
+			<errorDirectory>/sh/data/error</errorDirectory>			
 			<threadPoolSettings>
 				<etlProcessingThreadCount>24</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>50</databaseProcessingThreadCount>
-			</threadPoolSettings>				
-			<delimiterString>,</delimiterString>
-			<header process="normal">
-				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
-				<attributes>
-					<attribute name="bookingDate" />
-				</attributes>
-			</header>
-			<data process="no_validation">
-				<attributes>
-					<attribute name="productName" />
-					<attribute name="productModel" />
-					<attribute name="productCategory" />
-					<attribute name="productCost" />
-					<attribute name="customerName" />
-					<attribute name="customerAddress" />
-					<attribute name="customerCountry" />
-					<attribute name="customerPhone" />
-					<attribute name="employeeNumber" />
-					<attribute name="employeeName" />
-					<attribute name="salesChannelName" />
-					<attribute name="promotionName" />
-					<attribute name="discountPCT" />
-					<attribute name="shipmentDate" />
-					<attribute name="salesDate" />
-					<attribute name="deliveryDate" />
-					<attribute name="priceBeforeDiscount" />
-					<attribute name="priceAfterDiscount" />
-					<attribute name="saleCosts" />
-					<attribute name="supplierName" />
-				</attributes>
-			</data>
-			<bulkLoadDefinition outputType="file">
-				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
-				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
+			</threadPoolSettings>					
+			<sourceFormatDefinition>
+				<delimiterString>,</delimiterString>
+				<header process="normal">
+					<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+					<attributes>
+						<attribute name="bookingDate" />
+					</attributes>
+				</header>
+				<data process="no_validation">
+					<attributes>
+						<attribute name="productName" />
+						<attribute name="productModel" />
+						<attribute name="productCategory" />
+						<attribute name="productCost" />
+						<attribute name="customerName" />
+						<attribute name="customerAddress" />
+						<attribute name="customerCountry" />
+						<attribute name="customerPhone" />
+						<attribute name="employeeNumber" />
+						<attribute name="employeeName" />
+						<attribute name="salesChannelName" />
+						<attribute name="promotionName" />
+						<attribute name="discountPCT" />
+						<attribute name="shipmentDate" />
+						<attribute name="salesDate" />
+						<attribute name="deliveryDate" />
+						<attribute name="priceBeforeDiscount" />
+						<attribute name="priceAfterDiscount" />
+						<attribute name="saleCosts" />
+						<attribute name="supplierName" />
+					</attributes>
+				</data>
+			</sourceFormatDefinition>
+			<target type="file">
+				<properties>  
+					<property name="bulkOutputDirectory">/sh/data/bulk</property>
+					<property name="bulkLoadOutputExtension">data</property>
+				</properties>							
 				<bulkLoadInsert>					
 					<command type="sql">
 						CALL p_sh_external_table_load(${ffn[2]}, ${bulkProcessingThreadID},'${bulkFileName}', 0 )  
-					</command>			
+					</command>
 				</bulkLoadInsert>	
-				<bulkLoadFormatDefinition>
-					<attributes>
+			</target>		
+			<targetFormatDefinition>
+				<attributes>
 						<attribute name="dimension.employee_dim" type="int" />
 						<attribute name="dimension.customer_dim" type="int" />
 						<attribute name="dimension.product_dim" type="int" />
@@ -75,27 +79,26 @@
 						<attribute name="feed.priceAfterDiscount" type="float" />
 						<attribute name="feed.saleCosts" type="float" />
 						<!--fact table attribute sub is not suppy here, it is derived by stored procedure p_sh_external_table_load -->							
-						<!--fact table attribute fileID is not suppy here, it is derived by stored procedure p_sh_external_table_load -->							
-					</attributes>
-				</bulkLoadFormatDefinition>		
+						<!--fact table attribute fileID is not suppy here, it is derived by stored procedure p_sh_external_table_load -->
+				</attributes>
+			</targetFormatDefinition>				
+			<events>					
+			  	<onStartupCommands>
+					<command type="sql">truncate table sales_fact</command>
+					<command type="sql">truncate table sales_fact_agg</command>					
+					<command type="sql">truncate table sh_metrics</command>
+				</onStartupCommands> 
 				<onBulkLoadCompletion>
 					<command type="sql">
 						CALL log_sh_metrics_bulk('server_1',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'onBulkLoadCompletion','${bulkFileName}' ,${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp}, '${bulkCompletionProcessingSuccessFailureFlag}', '${bulkCompletionProcessingErrorDescription}', ${bulkProcessingThreadID})
 					</command>		
-				</onBulkLoadCompletion>				
-			</bulkLoadDefinition>
-			<events>
-				<onStartupCommands>
-					<command type="sql">truncate table sales_fact</command>		
-					<command type="sql">truncate table sales_fact_agg</command>	
-					<command type="sql">truncate table sh_metrics</command>
-				</onStartupCommands>				
+				</onBulkLoadCompletion>		
 				<afterFeedProcessingCompletion>		
 					<command type="sql">
 						CALL log_sh_metrics('server_1',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}') 
 					</command>							
-				</afterFeedProcessingCompletion>
-			</events>
+				</afterFeedProcessingCompletion>			
+			</events>				
 		</feed>
 	</feeds>
 	<dimensions>
@@ -180,8 +183,8 @@
 			</sqlStatements>
 		</dimension>
 	</dimensions>
-		<properties>
+	<properties>	
 		<property name="output.processing.statistics">true</property>
 		<property name="bulk.file.acceptance.timeout.millis">0</property>
-	</properties>
+	</properties>	
 </config>
