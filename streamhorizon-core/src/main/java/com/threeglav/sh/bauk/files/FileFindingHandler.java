@@ -1,6 +1,7 @@
 package com.threeglav.sh.bauk.files;
 
 import java.io.File;
+import java.nio.file.DirectoryIteratorException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -119,6 +120,9 @@ public class FileFindingHandler implements Runnable {
 			if (isDebugEnabled) {
 				log.debug("Queued in total {} files", queuedFiles.size());
 			}
+		} catch (final DirectoryIteratorException die) {
+			log.warn("Problem while iterating through files. Probably other thread already processed one of the existing files. Details: {}",
+					die.getMessage());
 		} catch (final Exception e) {
 			log.error("Problem while traversing folder looking for matching files", e);
 		}
