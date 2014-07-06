@@ -15,46 +15,47 @@
 			</source>
 			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
 			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
-			<bulkOutputDirectory><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></bulkOutputDirectory>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>21</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>21</databaseProcessingThreadCount>
-			</threadPoolSettings>				
-			<delimiterString>,</delimiterString>
-			<header process="normal">
-				<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
-				<attributes>
-					<attribute name="bookingDate" />
-				</attributes>
-			</header>
-			<data process="no_validation">
-				<attributes>
-					<attribute name="productName" />
-					<attribute name="productModel" />
-					<attribute name="productCategory" />
-					<attribute name="productCost" />
-					<attribute name="customerName" />
-					<attribute name="customerAddress" />
-					<attribute name="customerCountry" />
-					<attribute name="customerPhone" />
-					<attribute name="employeeNumber" />
-					<attribute name="employeeName" />
-					<attribute name="salesChannelName" />
-					<attribute name="promotionName" />
-					<attribute name="discountPCT" />
-					<attribute name="shipmentDate" />
-					<attribute name="salesDate" />
-					<attribute name="deliveryDate" />
-					<attribute name="priceBeforeDiscount" />
-					<attribute name="priceAfterDiscount" />
-					<attribute name="saleCosts" />
-					<attribute name="supplierName" />
-				</attributes>
-			</data>
-			<!-- change outputType="file" when using LOAD DATA INFILE -->
-			<bulkLoadDefinition outputType="jdbc">
-				<bulkLoadOutputExtension>bulk</bulkLoadOutputExtension>
-				<bulkLoadFileDelimiter>,</bulkLoadFileDelimiter>
+			</threadPoolSettings>
+			<sourceFormatDefinition>				
+				<delimiterString>,</delimiterString>
+				<header process="normal">
+					<eachLineStartsWithCharacter>1</eachLineStartsWithCharacter>
+					<attributes>
+						<attribute name="bookingDate" />
+					</attributes>
+				</header>
+				<data process="no_validation">
+					<attributes>
+						<attribute name="productName" />
+						<attribute name="productModel" />
+						<attribute name="productCategory" />
+						<attribute name="productCost" />
+						<attribute name="customerName" />
+						<attribute name="customerAddress" />
+						<attribute name="customerCountry" />
+						<attribute name="customerPhone" />
+						<attribute name="employeeNumber" />
+						<attribute name="employeeName" />
+						<attribute name="salesChannelName" />
+						<attribute name="promotionName" />
+						<attribute name="discountPCT" />
+						<attribute name="shipmentDate" />
+						<attribute name="salesDate" />
+						<attribute name="deliveryDate" />
+						<attribute name="priceBeforeDiscount" />
+						<attribute name="priceAfterDiscount" />
+						<attribute name="saleCosts" />
+						<attribute name="supplierName" />
+					</attributes>
+				</data>
+			</sourceFormatDefinition>
+			<target type="jdbc">
+				<properties>  
+					<property name="bulkOutputDirectory"><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
+				</properties>							
 				<bulkLoadInsert>
 					<!-- uncomment this section to load from bulk file (bulk file segment need be commented out first)-->
 					<!-- also change outputType to 'file' and set databaseProcessingThreadCount to non-zero value so that DB threads are started -->
@@ -74,23 +75,23 @@
 					</command>
 					
 				</bulkLoadInsert>	
-				<bulkLoadFormatDefinition>
-					<attributes>
-						<attribute name="dimension.product_dim" type="int" />						
-						<attribute name="dimension.customer_dim" type="int" />
-						<attribute name="dimension.employee_dim" type="int" />
-						<attribute name="dimension.supplier_dim" type="int" />
-						<attribute name="dimension.sales_channel_dim" type="int" />
-						<attribute name="dimension.promotion_dim" type="int" />
-						<attribute name="feed.shipmentDate"  type="int" />
-						<attribute name="feed.salesDate"  type="int" />
-						<attribute name="feed.deliveryDate"  type="int" />
-						<attribute name="feed.priceBeforeDiscount" type="float" />
-						<attribute name="feed.priceAfterDiscount" type="float" />
-						<attribute name="feed.saleCosts" type="float" />
-					</attributes>
-				</bulkLoadFormatDefinition>
-			</bulkLoadDefinition>
+			</target>		
+			<targetFormatDefinition>
+				<attributes>
+					<attribute name="dimension.product_dim" type="int" />						
+					<attribute name="dimension.customer_dim" type="int" />
+					<attribute name="dimension.employee_dim" type="int" />
+					<attribute name="dimension.supplier_dim" type="int" />
+					<attribute name="dimension.sales_channel_dim" type="int" />
+					<attribute name="dimension.promotion_dim" type="int" />
+					<attribute name="feed.shipmentDate"  type="int" />
+					<attribute name="feed.salesDate"  type="int" />
+					<attribute name="feed.deliveryDate"  type="int" />
+					<attribute name="feed.priceBeforeDiscount" type="float" />
+					<attribute name="feed.priceAfterDiscount" type="float" />
+					<attribute name="feed.saleCosts" type="float" />
+				</attributes>
+			</targetFormatDefinition>
 			<events>
 				<onStartupCommands>
 					<command type="sql">truncate table sales_fact</command>                                          
@@ -101,7 +102,7 @@
 					values('StreamHorizonServer_1',${engineInstanceIdentifier}, ${engineInstanceStartTimestamp},'FEED_PROCESSING',
 					'${feedInputFileReceivedTimestamp}',${feedProcessingThreadID},'${feedInputFileName}','${feedInputFileProcessingStartedTimestamp}','${feedInputFileProcessingFinishedTimestamp}','${feedInputFileJdbcInsertStartedTimestamp}',
 					'${feedInputFileJdbcInsertFinishedTimestamp}','${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},
-					'${bulkFileReceivedForProcessing}','${bulkFileProcessingStartedTimestamp}','${bulkFileProcessingFinishedTimestamp}','${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}')</command>
+					'${bulkFileReceivedForProcessingTimestamp}','${bulkFileProcessingStartedTimestamp}','${bulkFileProcessingFinishedTimestamp}','${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}')</command>
 				</afterFeedProcessingCompletion>
 			</events>
 		</feed>

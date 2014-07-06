@@ -3,6 +3,8 @@ package com.threeglav.sh.bauk.dimension.db;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -24,11 +26,11 @@ public class DataSourceProvider {
 
 	private static final DataSourceProvider INSTANCE = new DataSourceProvider();
 
+	private static final Map<String, HikariDataSource> JDBC_FEED_SOURCES = new HashMap<String, HikariDataSource>();
+
 	private HikariDataSource warehouseDataSource;
 
 	private HikariDataSource bulkSubmissionDataSource;
-
-	private HikariDataSource jdbcFeedSourceDataSource;
 
 	private DataSourceProvider() {
 
@@ -93,11 +95,13 @@ public class DataSourceProvider {
 				// ignore
 			}
 		}
-		if (INSTANCE.jdbcFeedSourceDataSource != null) {
-			try {
-				INSTANCE.jdbcFeedSourceDataSource.shutdown();
-			} catch (final Exception ignored) {
-				// ignore
+		if (!JDBC_FEED_SOURCES.isEmpty()) {
+			for (final HikariDataSource hds : JDBC_FEED_SOURCES.values()) {
+				try {
+					hds.shutdown();
+				} catch (final Exception ignored) {
+					// ignore
+				}
 			}
 		}
 	}
@@ -152,7 +156,8 @@ public class DataSourceProvider {
 	}
 
 	public static synchronized DataSource getJdbcFeedSourceDataSource(final String jdbcUrl) {
-		if (INSTANCE.jdbcFeedSourceDataSource == null) {
+		HikariDataSource hds = JDBC_FEED_SOURCES.get(jdbcUrl);
+		if (hds == null) {
 			if (StringUtil.isEmpty(jdbcUrl)) {
 				throw new IllegalArgumentException("JDBC url must not be null or empty");
 			}
@@ -161,10 +166,10 @@ public class DataSourceProvider {
 			config.setMaximumPoolSize(10);
 			config.setRegisterMbeans(false);
 			setDataSourceProperties(jdbcUrl, config);
-			final HikariDataSource ds = new HikariDataSource(config);
-			INSTANCE.jdbcFeedSourceDataSource = ds;
+			hds = new HikariDataSource(config);
+			JDBC_FEED_SOURCES.put(jdbcUrl, hds);
 		}
-		return INSTANCE.jdbcFeedSourceDataSource;
+		return hds;
 	}
 
 	public static void close(final Connection connection) {
