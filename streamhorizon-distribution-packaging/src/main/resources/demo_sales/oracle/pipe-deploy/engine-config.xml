@@ -53,11 +53,7 @@
 					</attributes>
 				</data>
 			</sourceFormatDefinition>
-			<target type="pipe">
-				<properties>  
-					<property name="bulkOutputDirectory"><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
-					<property name="bulkLoadOutputExtension">data</property>
-				</properties>							
+			<target type="pipe">							
 				<bulkLoadInsert>					
 					<command type="shell">
 						<!--SET ME! set full file path to youre pipe_invoke.sh script followed by two parameters as shown here: $ENGINE_HOME/bin/sqlldr/pipe_invoke.sh  ${feedProcessingThreadID} ${bulkNamedPipePath} -->

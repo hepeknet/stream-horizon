@@ -53,11 +53,7 @@
 					</attributes>
 				</data>
 			</sourceFormatDefinition>
-			<target type="pipe">
-				<properties>  
-					<property name="bulkOutputDirectory">/sh/data/bulk</property>
-					<property name="bulkLoadOutputExtension">data</property>
-				</properties>							
+			<target type="pipe">							
 				<bulkLoadInsert>					
 					<command type="shell">
 						/sh/bin/sqlldr/pipe_invoke.sh  ${feedProcessingThreadID} ${bulkNamedPipePath}

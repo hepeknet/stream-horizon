@@ -53,7 +53,7 @@
 			</sourceFormatDefinition>
 			<target type="file">
 				<properties>  
-					<property name="bulkOutputDirectory"><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
+					<property name="bulkOutputDirectory"><!--SET ME! your bulk directory comes here(default location is $ENGINE_HOME/demo_sales/mssql/bulk_loader.bat), use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
 					<property name="bulkLoadOutputExtension">data</property>
 				</properties>							
 				<bulkLoadInsert>
