@@ -9,7 +9,7 @@
 	<p class="fright"><a href="contact.php" class="more arrow">Contact Us</a></p>
   </header>
   <aside class="column4 mright">
-    <p class="mbottom">StreamHorizon is highly performant, configurable and tunable Data Processing Platform</p>
+    <p class="mbottom"></p>
     <menu>
     <ul>
       <li><a href="#fcs" class="arrow more">Full Commercial Support</a></li>
@@ -39,7 +39,7 @@
 			<tr>
 				<th>Call Response Latency</th>
 				<td>24 Hours</td>
-				<td>2 Hours</td>
+				<td>8 Hours</td>
 				<td>1 Hour</td>
 			</tr>
 			<tr>
@@ -62,9 +62,9 @@
 			</tr>
 			<tr>
 				<th>Named Contacts</th>
+				<td>0</td>
 				<td>1</td>
-				<td>2</td>
-				<td>2</td>
+				<td>1</td>
 			</tr>
 			<tr>
 				<th>Phone Conferences & Online Meetings</th>

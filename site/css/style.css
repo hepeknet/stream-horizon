@@ -1,14 +1,4 @@
-/*
-Site Name: DESIGNA studio
-Version: 1.1 (Update: more semantic code)
-Site URI: http://sylvainlafitte.com/dvlptest/designa/home.html
-Description: A clean and simple HTML5/CSS3 template
-Author: Sylvain Lafitte
-Author URI: http://sylvainlafitte.com
-*/
 
-/* --- CUSTOM RESET --- */
-/* using h5bp.com/css by HTML5 Boilerplate and Normalize.css by Nicolas Gallagher and Jonathan Neal */
 article, aside, details, figcaption, figure, 
 footer, header, hgroup, menu, nav, section {display: block; overflow:hidden;}
 audio, canvas, video { display: inline-block; *display: inline; *zoom: 1; }
@@ -39,6 +29,7 @@ address{font-style: normal;}
 /* LIST */
 dd { margin: 0 0 0 40px; }
 ul, ol, menu { list-style: circle; list-style-image: none; margin: 0; padding: 0; }
+.readable {line-height:200%;}
 /* EMBEDDED CONTENT */
 img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; }
 svg:not(:root) { overflow: hidden; }
@@ -62,10 +53,6 @@ table { border-collapse: collapse; border-spacing: 0; border: 1px solid green;}
 td , th{ vertical-align: top; text-align: center; border: 1px solid green;}
 /* --- END NORMALIZE --- */
 
-/* ----
-STYLES
-Author: Sylvain Lafitte / www.sylvainlafitte.com
----- */
 h1, h2, h3, h4, h5, h6 { margin: 0 0 1em }
 h1 { font-size: 50px; letter-spacing: -0.075em; text-transform: uppercase; line-height: 0.9; color: #555; margin: 0 0 30px; font-weight: normal; }
 h2 { font-size: 30px; margin: 0 0 20px; letter-spacing: -0.05em; color: #555; line-height: 1; }
@@ -74,6 +61,8 @@ h4 { font-size: 18px }
 h5 { font-size: 14px; text-transform: uppercase; margin: 0; color: #555; }
 h6 { font-size: 12px; margin-bottom: 2px; }
 body { width: 100%; min-width: 988px; overflow: hidden; }
+.noBorders {border: 0px solid white;}
+.centeredTable {margin: 0 auto;}
 .center { margin-left: auto; margin-right: auto; display: block; clear: both; overflow: hidden; padding: 0 5px; width: 978px; }
 .column4 { width: 22.6993865%; overflow: hidden; float: left; display: block; height: 100%; }
 .column3 { width: 31.2883436%; overflow: hidden; float: left; display: block; height: 100%; }

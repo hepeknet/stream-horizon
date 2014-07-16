@@ -6,7 +6,7 @@
 <div class="about center part clearfix">
   <header class="title">
     <p class="fleft"></p>
-	<p class="fright"><a href="contact.php" class="more arrow">Contact Us</a></p>
+	<p class="fright"><a href="faq.php" class="more arrow">StreamHorizon FAQ</a></p>
   </header>
   <section class="columnthird content">
 

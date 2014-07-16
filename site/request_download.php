@@ -14,7 +14,7 @@
 if (!isset($_POST["email"])){
   ?>
     <h2>Get the latest version (<?php echo SH_LATEST_VERSION ?>) of StreamHorizon platform</h2>
-	<p>Direct download of trial version of StreamHorizon binary will be available soon!</p>
+	<p>Direct download of trial version of StreamHorizon binary can be downloaded <a href="./trial_download.php" target="_blank">here</a>!</p>
 	<br />
     <p class="more">Fill in the form below and StreamHorizon will award you with one free consultation. This is convenient step toward ensuring that your design and architecture utilize StreamHorizon platform in most effective way.</p>
     <form id="contact_form" class="contact_form" action="request_download.php" method="post" name="contact_form">

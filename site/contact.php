@@ -9,7 +9,7 @@
 	<p class="fright"><a href="resources.php" class="more arrow">Try StreamHorizon now</a></p>
   </header>
   <aside class="column4 mright">
-    <p class="mbottom">We would love to talk to you and answer all of your questions</p>
+    <p class="mbottom">We would be happy to talk to you and answer questions you may have...</p>
     <p class="mbottom"> 
 	  <a href="mailto:info@stream-horizon.com">info@stream-horizon.com</a><br >
       <a href="mailto:support@stream-horizon.com">support@stream-horizon.com</a><br >

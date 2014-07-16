@@ -27,16 +27,16 @@
     </article>
     <article id="navphilo" class="detail">
       <h2>The Problem</h2>
-	  <p>- Data Integration can typically be characterised as a set of large (in numbers), interdependent and usually trivial units of ETL transformations/code. This translates as 'high complexity' for the majority of Data Integration, Business Intelligence and Data Processing projects.</p>
+	  <p>- Data Integration can typically be characterized as a set of large (in numbers), highly coupled and moderately complex units of ETL transformations/code. This translates as 'high complexity' for the majority of Data Integration, Business Intelligence and Data Processing projects.</p>
 	  <p>- Data Processing commonly faces performance issues, long load times, SLA breaks and long processing windows as a consequence of batch oriented rather than real time (low latency) design paradigms & thinking.</p>
 	  <p>- Business Intelligence users often require much smaller query latencies from the ones delivered.</p>
     </article>
     <article id="navplace" class="detail">
       <h2>Our Response</h2>
-      <p>- We have created generic platform which is simple to setup and deliver. Time to market of project delivery is being measured in day(s) rather than months. Skills required for delivery are reduced almost to the one of common sense and truly basic 101 IT knowledge.</p>
+      <p>- We have created generic platform which is simple to setup and deliver. Time to market of project delivery is being measured in days rather than months. Skills required for delivery are reduced to the basics of IT knowledge.</p>
 	  <p>- We have delivered an ETL platform, which eliminates performance issues even for volumes typical only of Financial Exchanges, Time Series Analysis & Real Time Risk Valuations. Desktop computers running our platform have more processing bandwidth than server hardware with state of the art (read complex and expensive) ETL tools running on dozens of CPU’s.</p>
-	  <p>- The performance of our platform (throughput measured in millions of records per second) allows database experts to index their Data Mart to an extent previously unimaginable (5+ indexes per single fact table) while still having real time ETL processing in place.</p>
-	  <p>This ability further simplifies the Business Intelligence stack by eliminating the need to have MOLAP or other alternatives acting as query accelerators behind their relational databases (aggregate tables or equivalents). The reduction in complexity results in reduced implementation and hardware costs whilst delivery a highly maintainable and supportable system</p>
+	  <p>- The performance of our platform (throughput measured in millions of records per second) allows database experts to index their Data Mart to an extent previously unimaginable (4+ indexes per single fact table) while still having real time ETL processing in place.</p>
+	  <p>Ability to rapidly load data into database further simplifies the Business Intelligence stack by eliminating the need to have MOLAP or other alternatives acting as query accelerators behind their relational databases (aggregate tables or equivalents). The reduction in complexity results in reduced implementation and hardware costs whilst delivery a highly maintainable and supportable system</p>
       <p>By bringing together simplicity of implementation (by reducing development to simple customisation) and processing performance we aim to make impact in Data Processing & Data Integration IT Industry.</p>
     </article>
   </section>

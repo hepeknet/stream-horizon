@@ -64,7 +64,6 @@
       <h5>Planned Platform Extensions</h5>
       <div class="sepmini"></div>
       <ul>
-		<li>- StreamHorizon In-Memory Data Store designed to overcome limitations of existing market leading OLAP and In-memory data stores</li>
 		<li>- Feed streaming  to support massive compute grids and eliminate data feed (file) persistence and thereby I/O within Data Processing Lifecycle</li>
 		<li>- StreamHorizon streaming is based on highly efficient communication protocol (analog to ProtoBuffer by Google)</li>
 	  </ul>
@@ -78,6 +77,7 @@
       <ul>
 		<li>- Pluggable Architecture - extend and customise StreamHorizon platform without recompilation</li>
 		<li>- Integrates with RDBMS vendors via JDBC (Oracle, MSSQL, MySQL, SybaseIQ, Sybase, Teradata, kdb+ and others)</li>
+		<li>- Pluggable <a href="https://thrift.apache.org/">Thrift</a> based connectors enable StreamHorizon to be seamlessly integrated with platforms written in Java, C#, C++, Python, PHP, Perl, Haskell, Smalltalk, JavaScript, OCamel, Delphi, Node.js and other languages</li>
 		<li>- Seamless integration with major programming and script languages (Java, SQL, Shell, Python, Scala, Windows Batch etc.)</li>
 		<li>- Uses state-of-the art technologies like In-memory data grid solutions (Infinispan and Hazelcast)</li>
 		<li>- Utilises leading industry standard software development practices (GIT, Maven, TDD, IMDG…)</li>

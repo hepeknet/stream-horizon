@@ -32,11 +32,11 @@
 	  </p>
 	  <p>
 	  <a href="./downloads/StreamHorizon_and_BigData_Overview.pdf">StreamHorizon and big data overview (PDF)</a><br>
-	  Overview of abilities of StreamHorizon Platform within Big Data domain (Hadoop, HDFS and other). <br>
-	  Document presents Big Data specific deployment strategies, integration patterns and design approach, thinking & topologies.
+	  Overview of abilities of StreamHorizon Platform within Big Data domain (Hadoop Ecosystem, HDFS and other).<br>
+	  Document presents Big Data specific deployment strategies, integration patterns and design approach, thinking and topologies.
 	  </p>
 	  <p>
-	  <a href="./downloads/streamhorizon_test_demo_deployment_guide.pdf">Test demo deployment guide (PDF)</a><br>
+	  <a href="./downloads/StreamHorizon Test Demo Deployment Guide.pdf">Test demo deployment guide (PDF)</a><br>
 	  Offers detailed insight into detailed steps required to setup and test-run StreamHorizon demo data warehouse
 	  </p>
     </article>

@@ -8,7 +8,7 @@
   <section class="part clearfix">
     <header class="title clearfix">
       <p class="fleft"><h2>Data Processing & Data Integration Platform</h2></p>
-      <a href="streamhorizon.php" class="arrow more fright">Find out more about StreamHorizon</a> 
+      <a href="faq.php" class="arrow more fright">Find out more about StreamHorizon</a> 
 	</header>
     <div class="column2 mright">
       <p>
@@ -20,6 +20,7 @@
 		<ul>
 			<li>- Fully <b>Configurable</b> via XML – making a project <b>ideal outsourcing candidate</b></li>
 			<li>- <b>Utilizes skills of your IT staff</b> - requires no ETL platform specific knowledge</li>
+			<li>- Read more in <a href="faq.php">FAQ section</a></li>
 		</ul>
 		<br>
 		<ul>
@@ -77,7 +78,8 @@
       <h5>Complexity</h5>
       <div class="sepmini"></div>
       <p>
-	   Data Integration = set of large (in numbers), interdependent & usually trivial units of ETL transformations</p>
+	   Data Integration can typically be characterized as a set of large (in numbers), highly coupled and moderately complex units of ETL transformations/code.
+	  </p>
     </article>
     <article class="column3 mright services">
       
@@ -98,7 +100,7 @@
       <div class="sepmini"></div>
       <p>
 	  <ul>
-		<li>- Longer than expected query response times</li>
+		<li>- Longer than desired query response times</li>
 		<li>- Inadequate Ad-Hoc query capability</li>
 		</ul>
 	  </p>
@@ -111,41 +113,52 @@
 	</header>
 	<p><h4>Data Throughput of StreamHorizon platform enables:</h4></p>
     <article class="services">
-      <p>Indexing of Data Warehouses to extent previously unimaginable (4+ indexes per single fact table)</p>
-	  <p>Extensively indexed database delivers load throughput of 0.8 – 1.3 million records/second (intentional sacrifice of load latency for query performance)</p>
-	  <p>No need to utilize OLAP cubes or equivalents acting as 'query accelerators'</p>
-	  <p>No dependency on OLAP (MOLAP) and other In-Memory software which stops working when memory runs out (limited data volumes)</p>
+      <p>- Indexing of Data Warehouses to extent previously unimaginable (4+ indexes per single fact table)</p>
+	  <p>- Extensively indexed database delivers load throughput of 50-80% compared to model without indexes, however, it reduces query latency (intentional sacrifice of load latency for query performance)</p>
+	  <p>- No need to utilize OLAP cubes or equivalents (In-Memory solutions) acting as <b>query accelerators</b>. Such solution are dependent on available memory and thereby impose limit to data volumes system can handle.
+StreamHorizon fully supports OLAP integration (please refer to <a href="faq.php">FAQ page</a>). OLAP delivers slice & dice and drill-down/data pivoting capability via Excel or any other user front end tool.
+</p>
     </article>
 	<br>
 	<article class="services">
-      <p>Horizontal scaling of In-Memory software comes with a price (increased latency) as queried data is collated from multiple servers into single resultset</p>
-	  <p>No need to purchase exotic or specialist hardware appliances</p>
-	  <p>No need to purchase In-Memory/OLAP hardware & licence</p>
+      <p>- Horizontal scaling of In-Memory software comes with a price (increased latency) as queried data is collated from multiple servers into single resultset</p>
+	  <p>- No need to purchase exotic or specialist hardware appliances</p>
+	  <p>- No need to purchase In-Memory/OLAP hardware & licence</p>
 	</article>
 	<br>
 	<article class="services">
-	  <p>
-		Simple software stack:
-		<br><br>
-		<b>StreamHorizon + Vanilla Database</b>
-		<br>
-		vs 
-		<br>
-		<b>ETL Tool + Database (usually exotic) + OLAP/In-Memory solution (usually clustered)</b>
+	  <p class="center">
+		<table class="centeredTable noBorders">
+			<caption>Run simplified software stack: <br /><br /></caption>
+			<thead>
+				<tr class="noBorders">
+					<th class="noBorders">StreamHorizon + Vanilla Database</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr class="noBorders">
+					<th class="noBorders">vs</th>
+				</tr>
+				<tr>
+					<th class="noBorders">ETL Tool + Database (usually exotic) + OLAP/In-Memory solution (usually clustered)</th>
+				</tr>
+			</tbody>
+		</table>
 	  </p>
+	  <br /><br />
     </article>
 	<br>
 	<article class="services">
-      <p>Time to market of project delivery - measured in days rather than months.</p>
-	  <p>IT Skills required for development are reduced to basic IT knowledge.</p>
-	  <p>Manage data volumes typical only for Financial Exchanges, Telecom blue chips and ISP’s.</p>
-	  <p>Desktops running with StreamHorizon platform have more data processing bandwidth than commodity servers with state of the art (read complex and expensive) ETL tools and dozen of CPU’s.</p>
+      <p>- Time to market of project delivery - measured in days rather than months.</p>
+	  <p>- IT Skills required for development are reduced to basic IT knowledge.</p>
+	  <p>- Manage data volumes typical only for Financial Exchanges, Telecom blue chips and ISP’s.</p>
+	  <p>- Desktops running with StreamHorizon platform have more data processing bandwidth than commodity servers with state of the art (read complex and expensive) ETL tools and dozen of CPU’s.</p>
     </article>
 	<br>
 	<article class="services">
-      <p>Generic & Adaptable ETL platform</p>
-	  <p>Simple to setup (XML configuration)</p>
-	  <p>Platform geared to deliver projects of high complexity (low latency or batch oriented fashion)</p>
+      <p>- Generic & Adaptable ETL platform</p>
+	  <p>- Simple to setup (XML configuration)</p>
+	  <p>- Platform geared to deliver projects of high complexity (low latency or batch oriented fashion)</p>
     </article>
   </section>
 </div>

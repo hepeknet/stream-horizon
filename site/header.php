@@ -12,6 +12,7 @@
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
   ga('create', 'UA-903338-4', 'stream-horizon.com');
+  ga('require', 'displayfeatures');
   ga('send', 'pageview');
 
 </script>
@@ -29,11 +30,15 @@
     </ul>
     <ul>
       <li><a href="streamhorizon.php">StreamHorizon</a></li>
-      <li><a href="about.php">About Us</a></li>
+      <li><a href="resources.php">Resources & Downloads</a></li>
+    </ul>
+	 <ul>
+      <li><a href="faq.php">Product FAQ</a></li>
+      <li><a href="tech_faq.php">Technical FAQ</a></li>
     </ul>
     <ul>
-      <li><a href="resources.php">Resources & Downloads</a></li>
-      <li><a href="contact.php">Contact</a></li>
+	  <li><a href="about.php">About Us</a></li>
+      <li><a href="contact.php">Contact Us</a></li>
     </ul>
   </nav>
 </header>

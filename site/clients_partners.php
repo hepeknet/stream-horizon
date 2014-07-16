@@ -14,24 +14,24 @@
 	  <br />
 	  <p>
 		<br />
-		<a href="http://www.genesisrg.com/">Genesis Research</a>, New York based international healthcare consultancy, utilizes StreamHorizon platform to maximize return of their R&D by delivering Data Processing & Data Analytics solution
+		<h3><a href="http://www.genesisrg.com/">Genesis Research</a></h3> New York based international healthcare consultancy, utilizes StreamHorizon platform to maximize return of their R&D by delivering Data Processing & Data Analytics solution
 		<img src="img/gen_research_logo.png" />
 		<br/>
 	  </p>
 	</article>
 	<article id="navteam1" class="detail">
 		<p>
-		London based Tier 1 Retail Bank approves StreamHorizon for use as ETL Data Processing framework.
+		<h3>London based Tier 1 Retail Bank</h3> approves StreamHorizon for use as ETL Data Processing framework.
 		</p>
 	</article>
 	<article id="navteam2" class="detail">
 		<p>
-		London based Tier 1 Global Investment Bank evaluates StreamHorizon as Hadoop based ETL Data Processing solution for Market Risk Data Store.
+		<h3>London based Tier 1 Global Investment Bank</h3> evaluates StreamHorizon as Hadoop based ETL Data Processing solution for Market Risk Data Store.
 		</p>
 	</article>
 	<article id="navteam3" class="detail">
 		<p>
-		London based Tier 1 Retail Bank evaluates StreamHorizon as strategic ETL Data Processing solution.
+		<h3>London based Tier 1 Retail Bank</h3> evaluates StreamHorizon as strategic ETL Data Processing solution.
 		</p>
 	</article>
   </section>

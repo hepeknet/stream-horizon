@@ -9,7 +9,7 @@
 	<p class="fright"><a href="services.php" class="more arrow">Get Support</a></p>
   </header>
   <aside class="column4 mright">
-    <p class="mbottom">Crunch your data at rate of 1 million records per second on commodity hardware</p>
+    <p class="mbottom">Process your data at rate of 1 million records per second on commodity hardware</p>
     <menu>
     <ul>
       <li><a href="#navbutton" class="arrow more">Finance</a></li>
@@ -20,6 +20,19 @@
     </ul>
     </menu> </aside>
   <section class="columnthird content">
+	<article class="detail">
+      <h2>Platform applicable for any industry</h2>
+      <p>Generic ETL platforms like StreamHorizon (and other market leading ETL
+platforms) are designed and built for generic Data Processing & Data
+Integration purposes irrespective of industry. List below presents
+industries where StreamHorizon has already been adopted.</p>
+	  <p>Data modelling and type of datastores (OLTP , Data Warehouses, Operation
+Data Stores etc.) determine complexity, nature, required performance
+and structure of ETL processes. Generic, well designed ETL tools have
+ability to perform all types of ETL tasks that any given business
+scenario may require.
+</p>
+    </article>
     <article id="navbutton" class="detail">
       <h2>Finance <p class="fright"><img src="img/banka.png" width="60" /></p></h2>
       <ul class="toggle-view column1in mright">
