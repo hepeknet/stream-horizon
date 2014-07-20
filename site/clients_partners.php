@@ -21,17 +21,17 @@
 	</article>
 	<article id="navteam1" class="detail">
 		<p>
-		<h3>London based Tier 1 Retail Bank</h3> approves StreamHorizon for use as ETL Data Processing framework.
+		<h3>London based Tier 1 Retail Bank</h3> Approves StreamHorizon for use as ETL Data Processing framework.
 		</p>
 	</article>
 	<article id="navteam2" class="detail">
 		<p>
-		<h3>London based Tier 1 Global Investment Bank</h3> evaluates StreamHorizon as Hadoop based ETL Data Processing solution for Market Risk Data Store.
+		<h3>London based Tier 1 Global Investment Bank</h3> Evaluates StreamHorizon as Hadoop based ETL Data Processing solution for Market Risk Data Store.
 		</p>
 	</article>
 	<article id="navteam3" class="detail">
 		<p>
-		<h3>London based Tier 1 Retail Bank</h3> evaluates StreamHorizon as strategic ETL Data Processing solution.
+		<h3>London based Tier 1 Retail Bank</h3> Evaluates StreamHorizon as strategic ETL Data Processing solution.
 		</p>
 	</article>
   </section>

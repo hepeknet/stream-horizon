@@ -18,16 +18,16 @@
     </menu> </aside>
   <section class="columnthird content">
 	<article id="doc" class="detail">
-      <h2>StreamHorizon Documentation</h2>
+      <h3>StreamHorizon Documentation</h3>
 	  <p>
       <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview (PDF)</a>
 	  <br>
 		Detailed Overview of StreamHorizon platform. Document covers:
 		<ul>
-			<li>- Defines Target Project Profiles for StreamHrizon Platform</li>
-			<li>- Offers detailed Cost Effectiveness Analysis</li>
-			<li>- Gives High level Architecture insight</li>
-			<li>- Lists most commonly used Deployment Topologies</li>
+			<li>Defines Target Project Profiles for StreamHrizon Platform</li>
+			<li>Offers detailed Cost Effectiveness Analysis</li>
+			<li>Gives High level Architecture insight</li>
+			<li>Lists most commonly used Deployment Topologies</li>
 		</ul>
 	  </p>
 	  <p>
@@ -41,7 +41,7 @@
 	  </p>
     </article>
     <article id="down" class="detail">
-      <h2>StreamHorizon Downloads</h2>
+      <h3>StreamHorizon Downloads</h3>
       <a href="request_download.php">Try out</a> the latest version of StreamHorizon Data Processing Platform (includes demo).<br>
     </article>
   </section>

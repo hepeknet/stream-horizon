@@ -28,7 +28,9 @@ small, .small { font-size: 85%; }
 address{font-style: normal;}
 /* LIST */
 dd { margin: 0 0 0 40px; }
-ul, ol, menu { list-style: circle; list-style-image: none; margin: 0; padding: 0; }
+/*
+ul, ol, menu { list-style:circle ; list-style-image: none; margin: 0; padding: 0; }
+*/
 .readable {line-height:200%;}
 /* EMBEDDED CONTENT */
 img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; }

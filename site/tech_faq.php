@@ -9,11 +9,12 @@
   </header>
    <ol class="readable">
 	  <li><a href="#a5" class="more">Integration with OLAP (Real Time & Batch)</a></li>
-	  <li><a href="#a4" class="more">StreamHorizon JDBC mode of operation</a></li>
-	  <li><a href="#a1" class="more">StreamHorizon BULK MODE mode of operation</a><br /></li>
+	  <li><a href="#a4" class="more">StreamHorizon OLAP-JDBC mode of operation</a></li>
+	  <li><a href="#a1" class="more">StreamHorizon OLAP-BULK MODE mode of operation</a><br /></li>
       <li><a href="#a2" class="more">Refreshing OLAP via SQL procedures & functions</a></li>
 	  <li><a href="#a6" class="more">Batch oriented OLAP integration</a></li>
 	  <li><a href="#a7" class="more">Real Time OLAP integration</a></li>
+	  <li><a href="#a8" class="more">Flushing StreamHorizon caches in data processing (online) mode</a></li>
     </ol>
   <p/>
   <section class="content">
@@ -29,7 +30,7 @@ Upon decision to proceed with purchase of StreamHorizon platform our technical s
 	  </p>
     </article>
 	<article id="a4" class="detail">
-      <h3>StreamHorizon JDBC mode of operation</h3>
+      <h3>StreamHorizon OLAP-JDBC mode of operation</h3>
 	  <p>
 		If you use JDBC mode of operation of StreamHorizon all you need to do is to implement event &lt;afterFeedProcessingCompletion&gt; which is called after every successful load/processing of data (if data comes from files event will be invoked after every file is loaded into target database, if data comes from sql queries or message queues same logic is valid).
 		All that is required is to implement event &lt;afterFeedProcessingCompletion&gt; to invoke your executable (please see below) which will accept parameter like feedName or/and feedID (or any other) variable which will identify which data need be loaded from your database table into the OLAP cube. 
@@ -45,7 +46,7 @@ d:/olapCubeUploder.bat ${feedName} ${feedID} ${cubeName} ${serverName}
 	  </p>
     </article>
     <article id="a1" class="detail">
-      <h3>StreamHorizon BULK MODE mode of operation</h3>
+      <h3>StreamHorizon OLAP-BULK MODE mode of operation</h3>
       <p>
 	  IN bulk mode operation instructions are the same as for JDBC mode operation. Only difference is that as database threadpool (rather than etl threadpool) will be executing load of data into the database event which needs overriding is &lt;afterBulkLoadSuccess&gt;
 <pre>
@@ -100,8 +101,8 @@ If you configure your StreamHorizon dimensions to call stored procedure while in
 Idea is that process which executes <b>ProcessAdd</b> (adding new records into the dimension) will have a list of which identifiers need to be passed on to the OLAP cube.
 Alternative ways of achieving the same is:
 <ul>
-<li>- You may want to code <pre>select * from database dimension</pre> via SQL statement and perform MINUS in your logic against what is in your cube dimension (via MDX statement). This approach will work well if your dimensions are small to medium in size</li>
-<li>- Using triggers to create <i>to do</i> list for <b>ProcessAdd</b> dimensional updating process</li>
+<li>You may want to code <pre>select * from database dimension</pre> via SQL statement and perform MINUS in your logic against what is in your cube dimension (via MDX statement). This approach will work well if your dimensions are small to medium in size</li>
+<li>Using triggers to create <i>to do</i> list for <b>ProcessAdd</b> dimensional updating process</li>
 </ul>
 </p>
 <p>
@@ -118,6 +119,52 @@ Indexing underlying tables in your database schema may improve data retrieval pe
 </p>
 <p>
 OLAP server should be set up to issue single query per dimension rather than one query per dimensional attribute during refresh (which may be default in some OLAP engines). Later retrieval mechanism may cause refresh failures due to inconsistent data snapshots, this issue manifests with Real Time Data Warehouses which have very high data throughput.
+	  </p>
+    </article>
+	
+	<article id="a8" class="detail">
+      <h3>Flushing StreamHorizon dimension caches in data processing (online) mode</h3>
+	  <p>
+		StreamHorizon offers ability to flush dimension caches while instance is online even while processing data. Cache flush for all cached data sets can be achieved simply by issuing HTTP call containing given dimension name.
+	</p>
+	<p>
+Flushing cache is useful feature in cases when:
+<ul>
+<li>Target database has been modified by other process (external to StreamHorizon)</li>
+<li>When referential (mapping, lookup any other) data has changed and StreamHorizon instance needs be notified</li>
+</ul>
+</p>
+<p>
+Upon receiving HTTP request StreamHorizon instance will:
+<ul>
+<li>If ETL thread is in the middle of the processing when HTTP request is received:
+<ol>	
+	<li>Finish processing current feed (file, message, sql query or other) while using existing cached data</li>
+	<li>Before new feed (file, message, sql query or other) is consumed off the processing queue StreamHorizon engine will flush existing cache(s) for given ETL thread and continue processing with newly cached data</li>
+</ol>
+</li>
+<li>If ETL thread is idle (not processing) when HTTP request is received:
+<ol>
+	<li>StreamHorizon engine flushes cache(s)</li>
+	<li>ETL thread becomes available for processing of new feed (file, message, sql query or other) of the processing queue</li>
+</ol>
+</li>
+</ul>
+</p>
+<p>
+Every cache flush is propagated to all ETL threads (entire ETL threadpool) of a given StreamHorizon instance.
+</p>
+<p>
+HTTP cache flush example:
+
+Assuming that your StreamHorizon configuration xml file has defined dimension named <b>myDimension1</b>, following HTTP request will flush cached data for that particular dimension:
+<pre>
+http://localhost:21000/flushDimensionCache/?dimension=myDimension1
+</pre>
+The HTTP call above assumes StreamHorizon running on your local machine at port 21000. Generic dimension cache flush syntax is:
+<pre>
+http://&lt;serverName&gt;:&lt;port&gt;/flushDimensionCache/?dimension=&lt;dimensionNameToBeFlushed&gt;
+</pre>
 	  </p>
     </article>
   </section>

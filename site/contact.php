@@ -23,7 +23,6 @@
    <?php
 if (!isset($_POST["email"])){
   ?>
-    <h2>Drop us a message</h2>
     <p class="more"></p>
     <form id="contact_form" class="contact_form" action="contact.php" method="post" name="contact_form">
       <ul class="contact_ie9">

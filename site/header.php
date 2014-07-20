@@ -29,16 +29,12 @@
       <li><a href="events_news.php">Events/News</a></li>
     </ul>
     <ul>
-      <li><a href="streamhorizon.php">StreamHorizon</a></li>
+      <li><a href="faq.php">Product FAQ</a> / <a href="tech_faq.php">Technical FAQ</a></li>
       <li><a href="resources.php">Resources & Downloads</a></li>
     </ul>
 	 <ul>
-      <li><a href="faq.php">Product FAQ</a></li>
-      <li><a href="tech_faq.php">Technical FAQ</a></li>
-    </ul>
-    <ul>
-	  <li><a href="about.php">About Us</a></li>
-      <li><a href="contact.php">Contact Us</a></li>
+      <li><a href="about.php">About Us</a></li>
+       <li><a href="contact.php">Contact Us</a></li>
     </ul>
   </nav>
 </header>
