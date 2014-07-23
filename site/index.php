@@ -68,6 +68,18 @@
         </div>
       </div>
     </div>
+	<div>
+		Read In More detail about:
+	<ul>
+		<li>Cost-Effectiveness Analyses – <a href="./faq.php#img1">Analysis I</a> & <a href="./faq.php#img2">Analysis II</a> & <a href="./faq.php#img3">Analysis III</a></li>
+		<li><a href="./faq.php#img4">Functional & Hardware Profile</a></li>
+		<li><a href="./faq.php#img5">Reduced Workforce demand</a></li>
+		<li><a href="./faq.php#img6">Environment Risk Management</a></li>
+		<li><a href="./faq.php#img7">Targeted Program & Project profiles</a></li>
+		<li><a href="./usecases.php">Applicable industries</a></li>
+		<li><a href="./faq.php#img8">About StreamHorizon</a></li>
+	</ul>
+	</div>
   </section>
   <section class="part clearfix">
     <header class="title clearfix">

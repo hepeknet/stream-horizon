@@ -9,7 +9,7 @@ $(document).ready(function() {
 	      generateNextPrev: true,
 	      pagination: false,
 	      generatePagination: false,
-	      play: 2500,
+	      play: 4500,
 	      slideSpeed:'slow'
 	    });
     

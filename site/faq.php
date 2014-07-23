@@ -10,8 +10,8 @@
    <ol class="readable">
 	  <li><a href="#a1" class="more">When is the StreamHorizon the right choice for your project?</a><br /></li>
       <li><a href="#a2" class="more">When is the StreamHorizon not the right choice for your project?</a></li>
-	  <li><a href="#a6" class="more">What StreamHorizon platform brings to your existing Data Integration and Business Intelligence stack?</a></li>
 	  <li><a href="#a7" class="more">What is the difference between StreamHorizon and Leading Market ETL/Data Integration vendors?</a></li>
+	  <li><a href="#a6" class="more">What StreamHorizon platform brings to your existing Data Integration and Business Intelligence stack?</a></li>
 	  <li><a href="#a3" class="more">How is StreamHorizon licensed?</a></li>
 	  <li><a href="#a5" class="more">What is the recommended way to start using StreamHorizon?</a></li>
 	  <li><a href="#a4" class="more">What are minimum system requirements for running StreamHorizon?</a></li>
@@ -20,36 +20,22 @@
   <section class="content">
 	<article id="a1" class="detail">
       <h3>When is the StreamHorizon the right choice for your project?</h3>
-      <p>If you need to deliver robust project quickly. StreamHorizon single XML configuration file customization is powerful method od rapid development which saves development time and significantly reduces possibility of bugs occurring in your ETL.</p>
-	  <p>When your solution need be highly parallel and you wish not to dedicate time to solve multithreading, synchronization & database locking issues.</p>
-	  <p>When your solution must scale up in data volumes, scale vertically and/or horizontally.</p>
-	  <p>When 90% of your ETL logic can simply be configured (fact loads, parallelism, Type 1, Type 2 and other dimension types, mappings, lookups etc.) and other 10% can be implemented by your own executables or OS scripts or SQL procedures which will be simply invoked by provided StreamHorizon Event architecture. All you need to specify is when your customised logic should be invoked by ShtreamHorizon engine. This is done by simply creating XML element in configuration file which is pointing to the location of your executable logic, script or SQL procedure.</p>
-	  <p>100% of ability to override default behaviour of Streamhorizon engine by injecting your data/header/footer/cache processing Java classes which will be invoked by StreamHorizon accordingly.</p>
-	  <p>Ability to control/embed your ETL logic by invoking Pre, onSuccess, onFailure, Finally (Post) events for every data entity processed (data entity equates to message, file, sql query).</p>
-	  <p>You need a solution that can be clustered simply by installing & copying of XML configuration files</p>
+	  <ul>
+      <li>If you need to deliver robust project quickly. StreamHorizon single XML configuration file customization is powerful method of rapid development which saves development time and significantly reduces possibility of bugs occurring in your ETL.</li>
+	  <li>When your solution need be highly parallel and you wish not to dedicate time to solve multithreading, synchronization & database locking issues.</li>
+	  <li>When your solution must scale up in data volumes, scale vertically and/or horizontally.</li>
+	  <li>When 90% of your ETL logic can simply be configured (fact loads, parallelism, Type 1, Type 2 and other dimension types, mappings, lookups etc.) and other 10% can be implemented by your own executables or OS scripts or SQL procedures which will be simply invoked by provided StreamHorizon Event architecture. All you need to specify is when your customised logic should be invoked by ShtreamHorizon engine. This is done by simply creating XML element in configuration file which is pointing to the location of your executable logic, script or SQL procedure.</li>
+	  <li>100% of ability to override default behaviour of Streamhorizon engine by injecting your data/header/footer/cache processing Java classes which will be invoked by StreamHorizon accordingly.</li>
+	  <li>Ability to control/embed your ETL logic by invoking Pre, onSuccess, onFailure, Finally (Post) events for every data entity processed (data entity equates to message, file, sql query).</li>
+	  <li>You need a solution that can be clustered simply by installing & copying of XML configuration files</li>
+	  </ul>
     </article>
 	<article id="a2" class="detail">
       <h3>When is the StreamHorizon not the right choice for your project?</h3>
-      <p>If you require mainframe connectors (EBCDIC) or any other type of legacy technology connectivity</p>
-	  <p>If you already have established teams with expertise in ETL tool of your choice which aren’t high burden for your project budget (assumption made is that you do not require massively parallel database loading functionality)</p>
-    </article>
-	<article id="a6" class="detail">
-      <h3>What StreamHorizon platform brings to your existing Data Integration and Business Intelligence stack?</h3>
-	  <p>
-		StreamHorizon platform enables SQL developers and programmers to benefit from ETL framework which does not require intimate knowledge of complex ETL tools and yet offers all functionality of the same. This positions StreamHorizon as ideal candidate for strategic ETL solution.  
-	  </p>
-	  <p>
-		In case that you already have existing Data Integration & Business Intelligence stack you could use StreamHorizon as:
-		<ul>
-			<li>Platform for massively parallel bulk loading of data into the database (avoiding unnecessary database locking)</li>
-			<li>OLAP Integration - Platform for massively parallel data loading into OLAP server in both Real Time and Batch oriented architectures</li>
-			<li>Hadoop to Non-Hadoop ETL bridge (and vice versa)</li>
-			<li>Platform for scheduled massively parallel data extraction from any data source into any other data source of your choice</li>
-			<li>Framework for massively parallel file2file, message2file, db2db, db2file, file2db, Thrift2db, Thrift2file, file2Hadoop, messaage2Hadoop, dabase2Hadoop, Hadoop2Hadoop, Hadoop2file, Hadoop2database... and any other possible connector (source/target) permutation ... </li>
-			<li>StreamHorizon should be used as a simple to configure, robust ETL platform which will enable existing IT staff (with database and/or programming background) to become productive extremely quickly. No intimate knowledge of ETL tool is required as it is XML configuration based. Framework can be extended as desired by using OS scripts (all platforms supported), Java or SQL (statements and procedures)</li>
-			<li>StreamHorizon is simpler to use than Market Leading ETL tools. StreamHorizon platform offers unrivalled performance and parallelism. This is not to say that StreamHorizon cannot be used in conjuction with other ETL frameworks. For example, any ETL framework can be used as a tool (to transform data) and create bulk files while StreamHorizon can be used as massively parallel loading framework into any database. Something that market lading ETL tools cannot natively do as efficiently as StreamHorizon is able to</li>
-		</ul>
-	  </p>
+	  <ul>
+      <li>If you require mainframe connectors (EBCDIC) or any other type of legacy technology connectivity</li>
+	  <li>If you already have established teams with expertise in ETL tool of your choice which aren’t high buden for your project budget (assumption made is that you do not require massively parallel database loading functionality)</li>
+	  </ul>
     </article>
 	<article id="a7" class="detail">
       <h3>What is the difference between StreamHorizon and Leading Market ETL/Data Integration vendors?</h3>
@@ -69,6 +55,34 @@
 		<li>Ideal outsourcing candidate due to low level of skill required to operate StreamHorizon platform</li>
 		<li>Simple Environment, Release/Revert and Upgrade Risk management, fully supporting Agile methodologies</li>
 		<li>Low cost of ownership (low Business As Usual costs)</li>
+		</ul>
+	Read In More detail about:
+	<ul>
+		<li>Cost-Effectiveness Analyses – <a href="#img1">Analysis I</a> & <a href="#img2">Analysis II</a> & <a href="#img3">Analysis III</a></li>
+		<li><a href="#img4">Functional & Hardware Profile</a></li>
+		<li><a href="#img5">Reduced Workforce demand</a></li>
+		<li><a href="#img6">Environment Risk Management</a></li>
+		<li><a href="#img7">Targeted Program & Project profiles</a></li>
+		<li><a href="./usecases.php">Applicable industries</a></li>
+		<li><a href="#img8">About StreamHorizon</a></li>
+	</ul>
+	  </p>
+    </article>
+	<article id="a6" class="detail">
+      <h3>What StreamHorizon platform brings to your existing Data Integration and Business Intelligence stack?</h3>
+	  <p>
+		StreamHorizon platform enables SQL developers and programmers to benefit from ETL framework which does not require intimate knowledge of complex ETL tools and yet offers all functionality of the same. This positions StreamHorizon as ideal candidate for strategic ETL solution.  
+	  </p>
+	  <p>
+		In case that you already have existing Data Integration & Business Intelligence stack you could use StreamHorizon as:
+		<ul>
+			<li>Platform for massively parallel bulk loading of data into the database (avoiding unnecessary database locking)</li>
+			<li>OLAP Integration - Platform for massively parallel data loading into OLAP server in both Real Time and Batch oriented architectures</li>
+			<li>Hadoop to Non-Hadoop ETL bridge (and vice versa)</li>
+			<li>Platform for scheduled massively parallel data extraction from any data source into any other data source of your choice</li>
+			<li>Framework for massively parallel file2file, message2file, db2db, db2file, file2db, Thrift2db, Thrift2file, file2Hadoop, messaage2Hadoop, dabase2Hadoop, Hadoop2Hadoop, Hadoop2file, Hadoop2database... and any other possible connector (source/target) permutation ... </li>
+			<li>StreamHorizon should be used as a simple to configure, robust ETL platform which will enable existing IT staff (with database and/or programming background) to become productive extremely quickly. No intimate knowledge of ETL tool is required as it is XML configuration based. Framework can be extended as desired by using OS scripts (all platforms supported), Java or SQL (statements and procedures)</li>
+			<li>StreamHorizon is simpler to use than Market Leading ETL tools. StreamHorizon platform offers unrivalled performance and parallelism. This is not to say that StreamHorizon cannot be used in conjuction with other ETL frameworks. For example, any ETL framework can be used as a tool (to transform data) and create bulk files while StreamHorizon can be used as massively parallel loading framework into any database. Something that market lading ETL tools cannot natively do as efficiently as StreamHorizon is able to</li>
 		</ul>
 	  </p>
     </article>
@@ -113,6 +127,60 @@ Upon decision to proceed with purchase of StreamHorizon platform our technical s
 		In <i>scavenging mode</i> of operation, in which workstations are utilized to act as ETL processing engines, StreamHorizon can be run with allocated 500MB RAM and single thread.
 		For highest efficiency we recommend 64 bit JDK.
 	  </p>
+    </article>
+	<article id="img1" class="detail">
+	  <p>
+		<img src="img/sh/sh_cost_1.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img2" class="detail">
+	  <p>
+		<img src="img/sh/sh_cost_2.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img3" class="detail">
+	  <p>
+		<img src="img/sh/sh_cost_3.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img4" class="detail">
+	  <p>
+		<img src="img/sh/sh_func_hardware.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img5" class="detail">
+	  <p>
+		<img src="img/sh/sh_workforce.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img6" class="detail">
+	  <p>
+		<img src="img/sh/sh_env.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img7" class="detail">
+	  <p>
+		<img src="img/sh/sh_target_program.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img9" class="detail">
+	  <p>
+		<img src="img/sh/sh_industries.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
+	<article id="img8" class="detail">
+	  <p>
+		<img src="img/sh/sh_about.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
     </article>
   </section>
 </div>

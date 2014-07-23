@@ -93,17 +93,12 @@ ProcessUpdate can be time consuming when dimensions are large; it can also cause
 	<p>
 If you configure your StreamHorizon dimensions to call stored procedure while inserting new records into database, you could easily implement stored procedure to:
 <ul>
-<li>- Insert/update new record into dimension table</li>
-<li>- Insert/update record with key of new dimensional record created at <i>control</i> table or a queue</li>
+<li>Insert/update new record into dimension table</li>
+<li>Insert/update record with key of new dimensional record created at <i>control</i> table or a queue</li>
 </ul>
 </p>
 <p>
-Idea is that process which executes <b>ProcessAdd</b> (adding new records into the dimension) will have a list of which identifiers need to be passed on to the OLAP cube.
-Alternative ways of achieving the same is:
-<ul>
-<li>You may want to code <pre>select * from database dimension</pre> via SQL statement and perform MINUS in your logic against what is in your cube dimension (via MDX statement). This approach will work well if your dimensions are small to medium in size</li>
-<li>Using triggers to create <i>to do</i> list for <b>ProcessAdd</b> dimensional updating process</li>
-</ul>
+Idea is that process which executes ProcessAdd instructions against the OLAP cube (adding new records into the dimension(s)) has a list of new record identifiers which need to be added (uploaded) to OLAP dimensions.
 </p>
 <p>
 After all dimensions are refreshed by <b>ProcessAdd</b> then upload of data into the cube can commence. Note that you must ensure that all surrogate keys (dimensional keys) contained in cube data upload (data from fact table) are already in dimensions added by either <b>ProcessAdd</b> or <b>ProcessUpdate</b> (or any other processing type like ProcessData or ProcessFull for that matter).
