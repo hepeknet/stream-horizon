@@ -307,7 +307,8 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		}
 		if (surrogateKey == null) {
 			if (isTraceEnabled) {
-				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Going to database", naturalCacheKey, dimension.getName());
+				log.trace("Did not find surrogate key for [{}] in cache, dimension {}. Will search for value in the database", naturalCacheKey,
+						dimension.getName());
 			}
 			surrogateKey = this.getSurrogateKeyFromDatabase(parsedLine, globalAttributes, naturalCacheKey);
 			if (!noNaturalKeyColumnsDefined && naturalCacheKey != null) {

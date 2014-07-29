@@ -19,6 +19,8 @@ import com.threeglav.sh.bauk.util.StringUtil;
 
 public abstract class ConfigurationProperties {
 
+	private static final String RUNTIME_KEY_PATH = "/com/threeglav/sh/bauk/dist.sh";
+
 	private static List<BaukProperty> BAUK_PROPERTIES;
 
 	private static final Logger LOG = LoggerFactory.getLogger(ConfigurationProperties.class);
@@ -254,7 +256,7 @@ public abstract class ConfigurationProperties {
 	private static Properties getRuntimeProperties() {
 		final Properties props = new Properties();
 		try {
-			props.load(ConfigurationProperties.class.getResourceAsStream("/dist.sh"));
+			props.load(ConfigurationProperties.class.getResourceAsStream(RUNTIME_KEY_PATH));
 		} catch (final Exception exc) {
 			LOG.error("Was not able to find runtime engine properties!");
 		}

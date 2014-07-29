@@ -17,7 +17,7 @@ public interface DimensionDataProvider {
 	/**
 	 * Invoked by engine to retrieve any additional dimension records. Can be invoked multiple times. This method should
 	 * return all additional dimension records (additional to records returned by precache statement for that particular
-	 * dimension).
+	 * dimension). This method is invoked on engine startup and after every dimension cache flushing.
 	 * 
 	 * @return collection of all additional dimension records
 	 */

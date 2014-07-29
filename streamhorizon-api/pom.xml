@@ -4,18 +4,35 @@
 	<parent>
 		<groupId>com.threeglav.streamhorizon.bauk</groupId>
 		<artifactId>streamhorizon</artifactId>
-		<version>3.2.3</version>
+		<version>3.2.4</version>
 	</parent>
 	<artifactId>streamhorizon-api</artifactId>
 	<name>streamhorizon API</name>
-	
+
 	<dependencies>
 		<dependency>
-  			<groupId>org.apache.thrift</groupId>
-  			<artifactId>libthrift</artifactId>
-  			<version>${version.thrift}</version>
+			<groupId>org.apache.thrift</groupId>
+			<artifactId>libthrift</artifactId>
+			<version>${version.thrift}</version>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Built-By>${mf.built.by}</Built-By>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<reporting>
 		<plugins>

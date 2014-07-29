@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.threeglav.streamhorizon.bauk</groupId>
 		<artifactId>streamhorizon</artifactId>
-		<version>3.2.3</version>
+		<version>3.2.4</version>
 	</parent>
 	<artifactId>streamhorizon-core</artifactId>
 	<name>streamhorizon-core</name>
@@ -16,6 +16,20 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Built-By>${mf.built.by}</Built-By>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<dependencies>
