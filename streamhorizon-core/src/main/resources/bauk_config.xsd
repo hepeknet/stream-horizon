@@ -178,6 +178,13 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      <xs:element name="beforeBulkLoadProcessing" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
       <xs:element name="onStartupCommands" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
@@ -192,7 +199,14 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="onFeedProcessingFailure" minOccurs="0">
+      <xs:element name="afterFeedProcessingFailure" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="afterFeedSuccess" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
@@ -206,14 +220,14 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="onBulkLoadFailure" minOccurs="0">
+      <xs:element name="afterBulkLoadFailure" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-      <xs:element name="onBulkLoadCompletion" minOccurs="0">
+      <xs:element name="afterBulkLoadCompletion" minOccurs="0">
         <xs:complexType>
           <xs:sequence>
             <xs:element name="command" type="baukCommand" minOccurs="0" maxOccurs="unbounded"/>

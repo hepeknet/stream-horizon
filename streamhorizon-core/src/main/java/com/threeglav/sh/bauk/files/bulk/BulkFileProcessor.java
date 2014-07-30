@@ -47,11 +47,13 @@ public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor
 	private final boolean shouldExecuteOnBulkLoadSuccess;
 	private final boolean shouldExecuteOnBulkLoadFailure;
 	private final boolean shouldExecuteOnBulkLoadCompletion;
+	private final boolean shouldExecuteBeforeBulkProcessing;
 	private FeedFileNameProcessor feedFileNameProcessor;
 	private String currentThreadName;
 	private final boolean recordFileSubmissionAttempts;
 	private final ArrayList<BaukCommand> bulkInsertCommands;
 	private final BaukCommandsExecutor bulkInsertCommandsExecutor;
+	private BaukCommandsExecutor beforeBulkLoadCommandsExecutor;
 	private BaukCommandsExecutor bulkLoadSuccessCommandsExecutor;
 	private BaukCommandsExecutor bulkLoadFailureCommandsExecutor;
 	private BaukCommandsExecutor bulkLoadCompletionCommandsExecutor;
@@ -100,6 +102,11 @@ public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor
 		shouldExecuteOnBulkLoadCompletion = onBulkLoadCompletion != null && !onBulkLoadCompletion.isEmpty();
 		if (shouldExecuteOnBulkLoadCompletion) {
 			bulkLoadCompletionCommandsExecutor = new BaukCommandsExecutor(factFeed, config, onBulkLoadCompletion);
+		}
+		final ArrayList<BaukCommand> beforeBulkProcessing = this.getFactFeed().getEvents().getBeforeBulkLoadProcessing();
+		shouldExecuteBeforeBulkProcessing = beforeBulkProcessing != null && !beforeBulkProcessing.isEmpty();
+		if (shouldExecuteBeforeBulkProcessing) {
+			beforeBulkLoadCommandsExecutor = new BaukCommandsExecutor(factFeed, config, beforeBulkProcessing);
 		}
 		deleteBulkFileAfterLoading = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.DELETE_BULK_LOADED_FILES_PARAM_NAME,
 				true);
@@ -217,6 +224,10 @@ public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor
 		final Connection connection = null;
 		final PreparedStatement preparedStatement = null;
 		try {
+			if (shouldExecuteBeforeBulkProcessing) {
+				beforeBulkLoadCommandsExecutor.executeBaukCommandSequence(globalAttributes, "Before bulk processing for "
+						+ this.getFactFeed().getName());
+			}
 			bulkInsertCommandsExecutor.executeBaukCommandSequence(globalAttributes, "Bulk insert for " + this.getFactFeed().getName());
 			EngineRegistry.registerSuccessfulBulkFileLoad();
 			globalAttributes

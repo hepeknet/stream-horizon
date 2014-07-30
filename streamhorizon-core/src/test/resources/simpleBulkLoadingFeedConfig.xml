@@ -58,22 +58,22 @@
 				</attributes>
 			</targetFormatDefinition>
 			<events>
-				<onFeedProcessingFailure>
+				<afterFeedProcessingFailure>
 					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(-1, '${feedCompletionProcessingSuccessFailureFlag}')</command>
-				</onFeedProcessingFailure>
+				</afterFeedProcessingFailure>
 				<afterFeedProcessingCompletion>
 					<command type="sql">INSERT INTO FEED_REC(cnt, flag) VALUES(${feedCompletionNumberOfTotalRowsInFeed}, '${feedCompletionProcessingSuccessFailureFlag}')</command>
 				</afterFeedProcessingCompletion>
 				<afterBulkLoadSuccess>
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(111, '${bulkFilePath}')</command>
 				</afterBulkLoadSuccess>
-				<onBulkLoadFailure>
+				<afterBulkLoadFailure>
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(2, '${bulkFilePath}')</command>
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(3, '${bulkFilePath}')</command>
-				</onBulkLoadFailure>
-				<onBulkLoadCompletion>
+				</afterBulkLoadFailure>
+				<afterBulkLoadCompletion>
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(555, '${bulkFilePath}')</command>
-				</onBulkLoadCompletion>
+				</afterBulkLoadCompletion>
 			</events>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>1</etlProcessingThreadCount>

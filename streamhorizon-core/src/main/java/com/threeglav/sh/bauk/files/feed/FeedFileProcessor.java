@@ -67,7 +67,9 @@ public class FeedFileProcessor implements InputFeedProcessor {
 	private final String multiInstanceProcessorId;
 	private FileProcessingErrorHandler moveToArchiveFileProcessor;
 	private final boolean executeRollbackSequence;
+	private final boolean executeOnSuccessCommands;
 	private BaukCommandsExecutor feedProcessingFailureCommandsExecutor;
+	private BaukCommandsExecutor feedSuccessCommandsExecutor;
 	private final boolean throughputTestingMode;
 
 	public FeedFileProcessor(final Feed factFeed, final BaukConfiguration config, final String fileMask) {
@@ -113,6 +115,11 @@ public class FeedFileProcessor implements InputFeedProcessor {
 		log.info("Will execute rollback commands for feed {} = {}", factFeed.getName(), executeRollbackSequence);
 		if (executeRollbackSequence) {
 			feedProcessingFailureCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getEvents().getOnFeedProcessingFailure());
+		}
+		executeOnSuccessCommands = factFeed.getEvents() != null && factFeed.getEvents().getAfterFeedSuccess() != null
+				&& !factFeed.getEvents().getAfterFeedSuccess().isEmpty();
+		if (executeOnSuccessCommands) {
+			feedSuccessCommandsExecutor = new BaukCommandsExecutor(factFeed, config, factFeed.getEvents().getAfterFeedSuccess());
 		}
 		throughputTestingMode = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.THROUGHPUT_TESTING_MODE_PARAM_NAME, false);
 	}
@@ -256,6 +263,10 @@ public class FeedFileProcessor implements InputFeedProcessor {
 				textFileReaderComponent.process(inputStream, globalAttributes);
 			} else {
 				this.processStreamWithCompletion(inputStream, globalAttributes);
+			}
+			if (executeOnSuccessCommands) {
+				feedSuccessCommandsExecutor
+						.executeBaukCommandSequence(globalAttributes, "on-success command sequence for feed " + factFeed.getName());
 			}
 		} catch (final Exception exc) {
 			if (executeRollbackSequence) {

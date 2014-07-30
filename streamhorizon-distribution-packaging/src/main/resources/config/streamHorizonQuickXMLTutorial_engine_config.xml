@@ -252,7 +252,7 @@
 			
 			<events>		
 			<!-- All commands for a given event are executed in order in which they are supplied in the configuration file.
-
+				 All command statements of all events can utilize and will substitute values for any context attributes supplied (if any). Please see examples below. -->			
 				<!-- at startup, prior to starting any processing engine will execute (in defined order) sql or script (shell) commands. please reference all recovery and startup related scripts in this section -->
 				<onStartupCommands>
 					<!-- all context attributes will be replaced in both sql and shell commands, use normal ${contextAttributeName} notation-->
@@ -260,8 +260,6 @@
 					<command type="sql">update fact_table set key=${someAttribute} where key=-100</command>
 					<command type="shell">d:/second.bat</command>
 				</onStartupCommands>
-			
-				 All command statements of all events can utilize and will substitute values for any context attributes supplied (if any). Please see examples below. -->			
 				<afterBulkLoadSuccess>
 					<!-- afterBulkLoadSuccess event is invoked after <bulkLoadInsert> statement is successfully executed. DB thread which does bulk loading executes supplied command(s) (if supplied) of this event. Commands are executed in given order and can receive/utilize any of engine context parameters. Any context attribute will be replaced with its value
 					
@@ -271,8 +269,16 @@
 					<command type="sql">CALL simpleproc2('${firstContextAttr}',${secondContextAttr})</command>
 					<command type="shell">d:/second.bat</command>
 				</afterBulkLoadSuccess>
-				<onBulkLoadFailure>
-					<!-- onBulkLoadFailure event will be invoked only after loading of bulk data file by DB trhread has failed (else it will be ommited). DB thread which does bulk loading executes given command(s) (if supplied). Commands are executed in given order and can receive/utilize any of engine context parameters.
+				<afterFeedSuccess>
+					<!--afterFeedSuccess event is invoked upon successful execution of ETL thread fore ach data entity. Commands are executed in given order and can receive/utilize any of engine context parameters. Any context attribute will be replaced with its value
+Note that Oracle uses CALL while MSSQL uses EXEC keyword for execution. other vendors may have different keywords-->
+					<command type="shell">d:/first.bat ${someContextAttributePassedAsParameter}</command>
+					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
+					<command type="sql">CALL simpleproc2('${firstContextAttr}',${secondContextAttr})</command>
+					<command type="shell">d:/second.bat</command>
+				</afterFeedSuccess>
+				<afterBulkLoadFailure>
+					<!-- afterBulkLoadFailure event will be invoked only after loading of bulk data file by DB trhread has failed (else it will be ommited). DB thread which does bulk loading executes given command(s) (if supplied). Commands are executed in given order and can receive/utilize any of engine context parameters.
 										
 					By default feeds (files) are moved to error directory (<errorDirectory>) on processing failure.
 					
@@ -281,25 +287,30 @@
 					<command type="sql">CALL simpleproc1(${someContextAttribute1})</command>
 					<command type="sql">CALL simpleproc2('${firstContextAttr}',${secondContextAttr})</command>
 					<command type="shell">d:/second.bat</command>
-				</onBulkLoadFailure>
-				<onBulkLoadCompletion>
-					<!-- onBulkLoadCompletion event is executed by DB threads in order specified. Event is executed irrespective of sucess/failure of DB thread processing (think of event as finally{} block equivalent in Java) -->				
+				</afterBulkLoadFailure>
+				<afterBulkLoadCompletion>
+					<!-- afterBulkLoadCompletion event is executed by DB threads in order specified. Event is executed irrespective of sucess/failure of DB thread processing (think of event as finally{} block equivalent in Java) -->				
 					<command type="sql">INSERT INTO BULK_LOAD_REC(cnt,filepath) VALUES(555, '${bulkFilePath}')</command>
 					<command type="shell">d:/first.bat</command>
-				</onBulkLoadCompletion>
-				<beforeFeedProcessing>
+				</afterBulkLoadCompletion>
+				<beforeFeedProcessing>  
 					<!-- beforeFeedProcessing event is executed by ETL threads (feed processing thread) before processing of feed starts -->
 					<command type="sql">update something in database</command>
 					<command type="shell">/opt/prepare.sh</command>                                          
 				</beforeFeedProcessing>
-				<onFeedProcessingFailure>
-					<!-- onFeedProcessingFailure event is executed by ETL threads (feed processing threads) in the order specified in configuration file. Only if feed processing has failed this event will be triggered and supplied commands will be executed. Think of this event as catch{} block equivalent in Java
+				<beforeBulkLoadProcessing>
+					<!-- beforeBulkLoadProcessingevent is executed by DB threads (db processing thread) before processing of data starts -->
+					<command type="sql">update something in database</command>
+					<command type="shell">/opt/prepare.sh</command>                                          
+				</beforeBulkLoadProcessing>
+				<afterFeedProcessingFailure>
+					<!-- afterFeedProcessingFailure event is executed by ETL threads (feed processing threads) in the order specified in configuration file. Only if feed processing has failed this event will be triggered and supplied commands will be executed. Think of this event as catch{} block equivalent in Java
 					
 					By default files are moved to error directory (<errorDirectory>) on processing failure -->
 					<command type="shell">d:/rollback.bat</command>
 					<command type="sql">UPDATE some table for rollback</command>
 					<command type="shell">d:/second_rollback.bat</command>
-				</onFeedProcessingFailure>			
+				</afterFeedProcessingFailure>			
 				<afterFeedProcessingCompletion>
 					<!-- afterFeedProcessingCompletion event is executed by ETL threads (feed processing threads) in specified order. Command(s) are is executed irrespective of sucess/failure of ETL thread processing (think of this as finally{} block equivalent in Java) -->	
 					<command type="shell">d:/first.bat</command>

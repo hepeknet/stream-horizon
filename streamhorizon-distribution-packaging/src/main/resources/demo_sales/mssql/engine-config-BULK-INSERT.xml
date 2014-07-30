@@ -83,11 +83,11 @@
 					<command type="sql">truncate table sales_fact</command>				
 					<command type="sql">truncate table sh_metrics</command>
 				</onStartupCommands> 
-				<onBulkLoadCompletion>
+				<afterBulkLoadCompletion>
 					<command type="sql">
-						EXEC log_sh_metrics_bulk 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'onBulkLoadCompletion','${bulkFileName}' ,${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp}, '${bulkCompletionProcessingSuccessFailureFlag}', '${bulkCompletionProcessingErrorDescription}',${bulkProcessingThreadID}, '${bulkFilePath}'
+						EXEC log_sh_metrics_bulk 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterBulkLoadCompletion','${bulkFileName}' ,${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp}, '${bulkCompletionProcessingSuccessFailureFlag}', '${bulkCompletionProcessingErrorDescription}',${bulkProcessingThreadID}, '${bulkFilePath}'
 					</command>
-				</onBulkLoadCompletion>		
+				</afterBulkLoadCompletion>		
 				<afterFeedProcessingCompletion>	
 					<command type="sql">
 						EXEC log_sh_metrics 'server_1_mssql',${engineInstanceIdentifier},${engineInstanceStartTimestamp},'afterFeedProcessingCompletion',${feedInputFileReceivedTimestamp},${feedProcessingThreadID},'${feedInputFileName}',${feedInputFileProcessingStartedTimestamp},${feedInputFileProcessingFinishedTimestamp},${feedInputFileJdbcInsertStartedTimestamp},${feedInputFileJdbcInsertFinishedTimestamp},'${bulkFileAlreadySubmittedForLoading}',${bulkProcessingThreadID},'${bulkFilePath}','${bulkFileName}',${feedCompletionNumberOfTotalRowsInFeed},${bulkFileReceivedForProcessingTimestamp},${bulkFileProcessingStartedTimestamp},${bulkFileProcessingFinishedTimestamp},'${feedCompletionProcessingSuccessFailureFlag}','${feedCompletionProcessingErrorDescription}'

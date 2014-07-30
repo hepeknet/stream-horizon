@@ -18,6 +18,10 @@ public class FeedEvents {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> beforeFeedProcessing;
 
+	@XmlElementWrapper(name = "beforeBulkLoadProcessing")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> beforeBulkLoadProcessing;
+
 	@XmlElementWrapper(name = "onStartupCommands")
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> onStartup;
@@ -26,19 +30,23 @@ public class FeedEvents {
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> afterFeedProcessingCompletion;
 
-	@XmlElementWrapper(name = "onFeedProcessingFailure")
+	@XmlElementWrapper(name = "afterFeedProcessingFailure")
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> onFeedProcessingFailure;
+
+	@XmlElementWrapper(name = "afterFeedSuccess")
+	@XmlElement(name = "command")
+	private ArrayList<BaukCommand> afterFeedSuccess;
 
 	@XmlElementWrapper(name = "afterBulkLoadSuccess")
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> afterBulkLoadSuccess;
 
-	@XmlElementWrapper(name = "onBulkLoadFailure")
+	@XmlElementWrapper(name = "afterBulkLoadFailure")
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> onBulkLoadFailure;
 
-	@XmlElementWrapper(name = "onBulkLoadCompletion")
+	@XmlElementWrapper(name = "afterBulkLoadCompletion")
 	@XmlElement(name = "command")
 	private ArrayList<BaukCommand> onBulkLoadCompletion;
 
@@ -96,6 +104,22 @@ public class FeedEvents {
 
 	public void setOnBulkLoadCompletion(final ArrayList<BaukCommand> onBulkLoadCompletion) {
 		this.onBulkLoadCompletion = onBulkLoadCompletion;
+	}
+
+	public ArrayList<BaukCommand> getBeforeBulkLoadProcessing() {
+		return beforeBulkLoadProcessing;
+	}
+
+	public void setBeforeBulkLoadProcessing(final ArrayList<BaukCommand> beforeBulkLoadProcessing) {
+		this.beforeBulkLoadProcessing = beforeBulkLoadProcessing;
+	}
+
+	public ArrayList<BaukCommand> getAfterFeedSuccess() {
+		return afterFeedSuccess;
+	}
+
+	public void setAfterFeedSuccess(final ArrayList<BaukCommand> afterFeedSuccess) {
+		this.afterFeedSuccess = afterFeedSuccess;
 	}
 
 }
