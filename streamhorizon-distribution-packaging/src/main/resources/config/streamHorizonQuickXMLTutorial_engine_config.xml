@@ -5,7 +5,7 @@
 		<jdbcUrl>jdbc:oracle:thin:@192.168.0.14:1521:orcl</jdbcUrl>
 		<jdbcUserName>warehouse</jdbcUserName>
 		<jdbcPassword>warehouse</jdbcPassword>
-		<!-- jdbcPoolSize should be calculated as: numberOfDimensions + number of parallel jdbc connections + contingency of 10 connections. if you have 10 dimensions in your model and 50 etl threads <feedProcessingThreads> or 50 db threads <bulkLoadProcessingThreads> inserting into fact table connection pool should have minimum of 10+50 dimensions. for contingency set this parameter to 10+50+10. it is important to avoid reusing of jdbc connections by connection pool of fact loader processes as this can be detrimental for performance. default setting is 25. -->
+		<!-- jdbcPoolSize should be calculated as: numberOfDimensions + number of parallel jdbc connections + contingency of 10 connections. if you have 10 dimensions in your model and 50 etl threads <feedProcessingThreads> or 50 DB threads <bulkLoadProcessingThreads> inserting into fact table connection pool should have minimum of 10+50 dimensions. for contingency set this parameter to 10+50+10. it is important to avoid reusing of jdbc connections by connection pool of fact loader processes as this can be detrimental for performance. default setting is 25. -->
 		<jdbcPoolSize>100</jdbcPoolSize>
 	</connectionProperties>
 	<!-- Character used to enclose string values. Usually this is single quote. Check your database manual -->
@@ -37,11 +37,11 @@
 			
 			<source type="jdbc">
 				<properties>
-					// statement to use to select feed data
+					// statement to use to select feed data. It must return all data as described in sourceFormatDefinition
 					<property name="sqlStatement">select c1, c2, c3, c4 from FEED_SOURCE order by id</property>
-					// how often to run previous statement? any CRON expression supported by quartz is applicable
+					// how often to run previous statement? any CRON expression supported by quartz is applicable. For more options see http://quartz-scheduler.org/
 					<property name="schedule">0/2 * * * * ?</property>
-					// JDBC connection string
+					// JDBC connection string where feed data can be found. Any JDBC data source is supported
 					<property name="jdbcUrl">jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</property>
 				</properties>
 			</source>
@@ -49,11 +49,12 @@
 			
 			<!-- 
 			
-			When using RPC (Thrift) as feed source. Thrift file is available in streamhorizon-api.jar
+			When using RPC (Thrift) as feed source. Thrift file is available in streamhorizon-api.jar and you should use it to generate your client code.
+			Then you can connect to Thrift server started by StreamHorizon engine (see configuration below).
 			
 			<source type="rpc">
 				<properties>
-					// port on which Thrift server should listen to
+					// port on which Thrift server started as part of StreamHorizon engine should listen to
 					<property name="port">7890</property>
 				</properties>
 			</source>
@@ -66,13 +67,13 @@
 			
 			<!--engine has two threadpools:
 				1) etl threads (members of etl threadpool) <etlProcessingThreadCount> either:
-					a) process feeds from source directory into bulk directory (bulk files are later on picked up by db threads from db threadpool)
-					b) process feeds from source directory and insert them directly into database via jdbc without creating bulk files. if using jdbc inserts into fact table set db treadpool threadcount to zero <databaseProcessingThreadCount>.
-				2) db threads (members of db threadpool) <databaseProcessingThreadCount> are used to bulk load via BULK INSERT or SQL*Loader or Extenral table or procedure (functions aren't supoprted) call (which invokes external table definition or equivalent).
+					a) process feeds from source directory into bulk directory (bulk files are later on picked up by DB threads from DB threadpool)
+					b) process feeds from source directory and insert them directly into database via jdbc without creating bulk files. if using jdbc inserts into fact table set DB threadpool threadcount to zero <databaseProcessingThreadCount>.
+				2) db threads (members of db threadpool) <databaseProcessingThreadCount> are used to bulk load via BULK INSERT or SQL*Loader or External table or procedure (functions aren't supported) call (which invokes external table definition or equivalent).
 			-->
 			<threadPoolSettings>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
-				<!--set number of etl threads. etl threads proces feeds and create bulk files (or execute jdbc batched statemetns) -->
+				<!-- set number of etl threads. etl threads process feeds and create bulk files (or execute jdbc batched statements) -->
 				<etlProcessingThreadCount>20</etlProcessingThreadCount>
 				<!--set number of db threads which will concurrently load bulk files into the fact table. If 0 no bulk loading will happen -->
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
@@ -112,8 +113,8 @@
 				</header>
 				<!--define data (body) feed record structure-->
 				<data process="normal">
-					<!--if data line is defined as line with special character pelase specify character here. it is assumed that caracter is delimited from header attributes by <delimiterString> -->			
-					<!--if data line is defined as line with special character pelase specify character here. it is assumed that caracter is delimited from data attributes by <delimiterString>. if data line has no special character erase this element -->			
+					<!--if data line is defined as line with special character please specify character here. it is assumed that character is delimited from header attributes by <delimiterString> -->			
+					<!--if data line is defined as line with special character please specify character here. it is assumed that character is delimited from data attributes by <delimiterString>. if data line has no special character erase this element -->			
 					<eachLineStartsWithCharacter>D</eachLineStartsWithCharacter>
 					<!--you can utilize custom data record parser class if you need to calculate/define new context parameter based on some of the header or Implicitly available engine attributes or execute any other custom logic. note that this may significantly slow down the engine! java extension will be invoked once for every data record (ever data row in every input feed file)-->
 					<!-- check CustomDataMapper.java in $ENGINE_HOME/plugins/ folder for example -->				
@@ -134,7 +135,7 @@
 				<!--define footer feed record structure-->
 				<!-- significance of footer is to hold recordCount (number of expected records within data file and compare them to actual number of processed records from the feed file). if those two don't match engine will fail processing -->
 				<footer process="strict">
-					<!--if footer line is defined as line with special character pelase specify character here. it is assumed that caracter is delimited from data attributes by <delimiterString>. if footer line has no special character erase this element -->	
+					<!--if footer line is defined as line with special character please specify character here. it is assumed that character is delimited from data attributes by <delimiterString>. if footer line has no special character erase this element -->	
 					<eachLineStartsWithCharacter>F</eachLineStartsWithCharacter>
 					<!-- at what position will footer 'recordCount' attribute be found. if recordCount is first attribute in the footer set 1, if N'th attribute in the footer set property to N. note that delimiter for footer is read from <delimiterString> element -->
 					<recordCountAttributePosition>1</recordCountAttributePosition>
@@ -150,7 +151,11 @@
 				
 				When set to 'jdbc' you must specify types for all attributes in <targetFormatDefinition> element and bulk records will be persisted using JDBC bulk interface
 				
-				When set to 'pipe' ETL threads use named pipes to transfer data. Have to follow same guidelins as 'file' -->						
+				When set to 'pipe' ETL threads use named pipes to transfer data. Have to follow same guidelines as 'file' 
+				
+				It is also possible to define your own target types by providing plugin. See for example HDFS target type in $ENGINE_HOME/plugins/HDFSOutputWriter.java
+				
+			-->						
 			<target type="file">
 					<properties>  
 						<!-- Property "bulkOutputDirectory" names directory where bulk files will be created. Bulk files usually have format of a fact table and are inserted into database by use of SQL*Loader, External Tables in case of Oracle or BULK INSERT command for MSSQL-->
@@ -172,11 +177,11 @@
 					<!-- in case of jdbc loading this statement must be prepared statement listing all attributes that are defined in bulkLoadFormatDefinition section -->	
 						<!--EXAMPLES:-->				
 						<!-- EXAMPLE 1) function call example:
-							 this example shows how function can be called via jdbc. note that imlicitly defined engine context parameter 'bulkProcessingThreadID' is used in order to loadbalance subpartitions of target fact table and avoid locking. also note that another implicit engine context parameter 'bulkFileName' is used as function internaly need to alter table and repoint external table to data file which need be loaded. 
+							 this example shows how function can be called via jdbc. note that implicitly defined engine context parameter 'bulkProcessingThreadID' is used in order to loadbalance subpartitions of target fact table and avoid locking. also note that another implicit engine context parameter 'bulkFileName' is used as function internally need to alter table and repoint external table to data file which need be loaded. 
 							 
 							 prefixing context attributes with ${contextAttributeName} will ensure that engine engine replaces them before issuing the call against RDBMS
 							 
-							 This is most performant way to insert data into the fact table. note that best results have been acheived when bulk files aren't zipped or gz'ed and when paralelism is high (db threads load into 30-50 subpartitions. no logging mode will usually increase performance by 50%.
+							 This is most performant way to insert data into the fact table. note that best results have been achieved when bulk files aren't zipped or gz'ed and when parallelism is high (db threads load into 30-50 subpartitions. no logging mode will usually increase performance by 50%.
 						-->
 						<bulkLoadInsert>
 							<command type="sql">
@@ -186,9 +191,9 @@
 						<!--EXAMPLE 2) direct jdbc insert example
 							for performance reasons 'customized.formattedHeaderDate' customised attribute is used to deliver value which will denote table partition name P_${customized.formattedHeaderDate}. to test you may supply hardcoded value to start with P_200110101
 							
-							in similar fashion, in order to target right subpartition and enable paralel load of subpartitions, another context custom defined attribute customized.feedProcessingThreadID.modulo is used SP_${customized.feedProcessingThreadID.modulo}
+							in similar fashion, in order to target right subpartition and enable parallel load of subpartitions, another context custom defined attribute customized.feedProcessingThreadID.modulo is used SP_${customized.feedProcessingThreadID.modulo}
 						
-							note that insert statement below has 7 question marks and 9 fact table attributes. Engine will replace all context attributes prior to issuing statament against the database. as context attributes ${*} will be replaced with concrete values <bulkLoadFormatDefinition> element will require definition for only 7 <attributes> elements for fact table. 7 defined attributes will be assigned in listed order to placeholder vaues (replaced with ? sign of sql query).
+							note that insert statement below has 7 question marks and 9 fact table attributes. Engine will replace all context attributes prior to issuing statement against the database. as context attributes ${*} will be replaced with concrete values <bulkLoadFormatDefinition> element will require definition for only 7 <attributes> elements for fact table. 7 defined attributes will be assigned in listed order to placeholder values (replaced with ? sign of sql query).
 						-->					
 						<!--bulkLoadInsert>
 						<command type="sql">
@@ -200,7 +205,7 @@
 						</bulkLoadInsert-->	
 							<!--EXAMPLE 3) calling  MySQL external script or command line to bulk load the file:
 						
-						note taht implicit Engine context attributes bulkFilePath and bulkProcessingThreadID are embeded & swapped to the command prior to its execution
+						note that implicit Engine context attributes bulkFilePath and bulkProcessingThreadID are embedded & swapped to the command prior to its execution
 						
 						note that type of command is 'shell' rather than 'sql'
 						-->
@@ -236,7 +241,7 @@
 					-->
 					<!-- order of attributes is important and determines definition of created bulk file (or generated jdbc statement) -->
 					<!-- dimension.XYZ means output calculated surrogateKey (SK or ID) for dimension XYZ (based on dimension definition (please see below)) -->
-						<!-- datatypes supoprted are can be int/string/float -->
+						<!-- datatypes supported are can be int/string/float -->
 						<attribute name="dimension.dimension1" type="int" />					
 						<attribute name="dimension.dimension2" type="int" />
 					<!-- hardcoded/constant attributes. will be copied directly to output. if string don't forget to supply string delimiters -->
