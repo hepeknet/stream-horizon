@@ -27,7 +27,7 @@ public class Dimension {
 	@XmlElement(name = "mappedColumn")
 	private ArrayList<MappedColumn> mappedColumns;
 
-	@XmlElement
+	@XmlElement(required = false)
 	private SqlStatements sqlStatements;
 
 	@XmlAttribute(required = false)
@@ -44,6 +44,9 @@ public class Dimension {
 
 	@XmlElement(required = false)
 	private String dimensionDataProviderClassName;
+
+	@XmlElement(required = false)
+	private String surrogateKeyProviderClassName;
 
 	public String getName() {
 		return name;
@@ -115,6 +118,14 @@ public class Dimension {
 
 	public void setDimensionDataProviderClassName(final String dimensionDataProviderClassName) {
 		this.dimensionDataProviderClassName = dimensionDataProviderClassName;
+	}
+
+	public String getSurrogateKeyProviderClassName() {
+		return surrogateKeyProviderClassName;
+	}
+
+	public void setSurrogateKeyProviderClassName(final String surrogateKeyProviderClassName) {
+		this.surrogateKeyProviderClassName = surrogateKeyProviderClassName;
 	}
 
 	/*

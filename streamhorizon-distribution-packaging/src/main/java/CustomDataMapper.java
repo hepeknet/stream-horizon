@@ -2,6 +2,10 @@ import java.util.Map;
 
 import com.threeglav.sh.bauk.feed.FeedDataLineProcessor;
 
+/**
+ * Example how to write custom data mapper
+ * 
+ */
 public class CustomDataMapper implements FeedDataLineProcessor {
 
 	/**
@@ -17,15 +21,16 @@ public class CustomDataMapper implements FeedDataLineProcessor {
 	 *            attributes in this method.
 	 * @return modified data. Must be the same length as passed array
 	 */
-	public String[] preProcessDataLine(String[] parsedDataLine, Map<String, String> globalAttributes){
-		for(int i=0;i<parsedDataLine.length;i++){
+	@Override
+	public String[] preProcessDataLine(final String[] parsedDataLine, final Map<String, String> globalAttributes) {
+		for (int i = 0; i < parsedDataLine.length; i++) {
 			// here we basically replace whatever was in original feed with our custom values
 			parsedDataLine[i] = "Some new value";
 		}
 		globalAttributes.put("myNewAttributeName", "myNewAttributeValue");
 		return parsedDataLine;
 	}
-	
+
 	/**
 	 * Invoked once, after processor has been created. This method is invoked only once and before any processing is
 	 * done and should be used to initialize processor.
@@ -33,8 +38,9 @@ public class CustomDataMapper implements FeedDataLineProcessor {
 	 * @param engineConfigurationProperties
 	 *            configuration properties supplied to engine at startup
 	 */
-	public void init(Map<String, String> engineConfigurationProperties){
-		
+	@Override
+	public void init(final Map<String, String> engineConfigurationProperties) {
+
 	}
 
 }

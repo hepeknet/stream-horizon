@@ -20,11 +20,14 @@ import com.threeglav.sh.bauk.BulkLoadOutputValueHandler;
 import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.dimension.CachePreviouslyUsedValuesPerThreadDimensionHandler;
 import com.threeglav.sh.bauk.dimension.ConstantOutputValueHandler;
+import com.threeglav.sh.bauk.dimension.CustomDimensionHandler;
+import com.threeglav.sh.bauk.dimension.DimensionHandler;
 import com.threeglav.sh.bauk.dimension.GlobalAttributeMappingHandler;
 import com.threeglav.sh.bauk.dimension.InsertOnlyDimensionHandler;
 import com.threeglav.sh.bauk.dimension.PositionalMappingHandler;
 import com.threeglav.sh.bauk.dimension.T1DimensionHandler;
 import com.threeglav.sh.bauk.dimension.T2DimensionHandler;
+import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstanceManager;
 import com.threeglav.sh.bauk.model.BaukAttribute;
 import com.threeglav.sh.bauk.model.BaukConfiguration;
@@ -66,7 +69,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private final boolean reverseResolution;
 
 	// one handler per dimension only
-	static final Map<String, InsertOnlyDimensionHandler> cachedDimensionHandlers = new THashMap<String, InsertOnlyDimensionHandler>();
+	static final Map<String, DimensionHandler> cachedDimensionHandlers = new THashMap<String, DimensionHandler>();
 
 	static final Set<String> alreadyStartedCreatingDimensionNames = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
@@ -168,7 +171,8 @@ public class BulkOutputValuesResolver extends ConfigAware {
 					});
 					futures.add(fut);
 				} else {
-					log.debug("Someone already started creating dimension handler for {}", requiredDimensionName);
+					log.debug("Someone already started creating dimension handler for {}. All dimensions are {}", requiredDimensionName,
+							alreadyStartedCreatingDimensionNames);
 				}
 			}
 		}
@@ -187,11 +191,11 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		}
 	}
 
-	private boolean shouldCachePerThreadValues(final InsertOnlyDimensionHandler cachedDimensionHandler) {
+	private boolean shouldCachePerThreadValues(final DimensionHandler cachedDimensionHandler) {
 		final Dimension dimension = cachedDimensionHandler.getDimension();
 		boolean cachePerThreadEnabled = dimension.getCachePerThreadEnabled();
 		final DimensionType type = dimension.getType();
-		if (type == DimensionType.T1 || type == DimensionType.T2) {
+		if (type == DimensionType.T1 || type == DimensionType.T2 || type == DimensionType.CUSTOM) {
 			if (cachePerThreadEnabled) {
 				log.warn("Dimensions {} is of type {} which does not allow caching values per thread. Will disable this feature for this dimension!",
 						dimension.getName(), dimension.getType());
@@ -204,7 +208,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 	private BulkLoadOutputValueHandler getDimensionHandler(final String bulkOutputAttributeName, final int bulkHandlerPosition) {
 		final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
 		log.debug("Searching for configured dimension by name [{}]", requiredDimensionName);
-		final InsertOnlyDimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
+		final DimensionHandler cachedDimensionHandler = cachedDimensionHandlers.get(requiredDimensionName);
 		BulkLoadOutputValueHandler dimensionHandler;
 		if (cachedDimensionHandler != null) {
 			final boolean cachePerThreadEnabled = this.shouldCachePerThreadValues(cachedDimensionHandler);
@@ -214,7 +218,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				log.debug("For dimension {} caching per thread is enabled!", requiredDimensionName);
 				dimensionHandler = proxyDimHandler;
 			} else {
-				log.debug("For dimension {} caching per thread is disabled!");
+				log.debug("For dimension {} caching per thread is disabled!", requiredDimensionName);
 				dimensionHandler = cachedDimensionHandler;
 			}
 		} else {
@@ -263,21 +267,25 @@ public class BulkOutputValuesResolver extends ConfigAware {
 			throw new IllegalArgumentException("Was not able to find dimension definition for dimension with name [" + requiredDimensionName
 					+ "]. This dimension is used to create bulk output! Please check your configuration!");
 		}
+		final CacheInstance cacheInstance = cacheInstanceManager.getCacheInstance(dim.getName());
 		if (dim.getType() == DimensionType.INSERT_ONLY) {
 			log.debug("Dimension {} is type INSERT_ONLY", requiredDimensionName);
-			final InsertOnlyDimensionHandler dimHandler = new InsertOnlyDimensionHandler(dim, this.getFactFeed(),
-					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
+			final InsertOnlyDimensionHandler dimHandler = new InsertOnlyDimensionHandler(dim, this.getFactFeed(), cacheInstance, feedDataLineOffset,
+					this.getConfig());
 			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 		} else if (dim.getType() == DimensionType.T1) {
 			log.debug("Dimension {} is type T1", requiredDimensionName);
-			final T1DimensionHandler dimHandler = new T1DimensionHandler(dim, this.getFactFeed(),
-					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
+			final T1DimensionHandler dimHandler = new T1DimensionHandler(dim, this.getFactFeed(), cacheInstance, feedDataLineOffset, this.getConfig());
 			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
 		} else if (dim.getType() == DimensionType.T2) {
 			log.debug("Dimension {} is type T2", requiredDimensionName);
-			final T2DimensionHandler dimHandler = new T2DimensionHandler(dim, this.getFactFeed(),
-					cacheInstanceManager.getCacheInstance(dim.getName()), feedDataLineOffset, this.getConfig());
+			final T2DimensionHandler dimHandler = new T2DimensionHandler(dim, this.getFactFeed(), cacheInstance, feedDataLineOffset, this.getConfig());
 			cachedDimensionHandlers.put(requiredDimensionName, dimHandler);
+		} else if (dim.getType() == DimensionType.CUSTOM) {
+			log.debug("Dimension {} is type CUSTOM", requiredDimensionName);
+			final CustomDimensionHandler cdh = new CustomDimensionHandler(this.getFactFeed(), this.getConfig(), dim, feedDataLineOffset,
+					cacheInstance);
+			cachedDimensionHandlers.put(requiredDimensionName, cdh);
 		} else {
 			throw new IllegalStateException("Was not able to find type for dimension " + requiredDimensionName);
 		}

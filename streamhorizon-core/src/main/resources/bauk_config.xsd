@@ -304,6 +304,7 @@
       <xs:element ref="sqlStatements" minOccurs="0"/>
       <xs:element name="localCacheMaxSize" type="xs:int" default="5000" minOccurs="0"/>
       <xs:element name="dimensionDataProviderClassName" type="xs:string" minOccurs="0"/>
+      <xs:element name="surrogateKeyProviderClassName" type="xs:string" minOccurs="0"/>
     </xs:all>
     <xs:attribute name="name" type="xs:string" use="required"/>
     <xs:attribute name="type" type="dimensionType" use="required"/>
@@ -380,6 +381,7 @@
       <xs:enumeration value="INSERT_ONLY"/>
       <xs:enumeration value="T1"/>
       <xs:enumeration value="T2"/>
+      <xs:enumeration value="CUSTOM"/>
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

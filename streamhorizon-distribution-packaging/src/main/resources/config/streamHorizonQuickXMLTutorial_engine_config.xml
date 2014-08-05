@@ -37,7 +37,8 @@
 			
 			<source type="jdbc">
 				<properties>
-					// statement to use to select feed data. It must return all data as described in sourceFormatDefinition
+					// statement to use to select feed data. It must return data format as it is described in sourceFormatDefinition. This means that number of attributes (selected columns of sql query) of "sqlStatement" and
+					// number of attributed defined in <sourceFormatDefinition><data><attributes> element must match.
 					<property name="sqlStatement">select c1, c2, c3, c4 from FEED_SOURCE order by id</property>
 					// how often to run previous statement? any CRON expression supported by quartz is applicable. For more options see http://quartz-scheduler.org/
 					<property name="schedule">0/2 * * * * ?</property>
@@ -49,8 +50,8 @@
 			
 			<!-- 
 			
-			When using RPC (Thrift) as feed source. Thrift file is available in streamhorizon-api.jar and you should use it to generate your client code.
-			Then you can connect to Thrift server started by StreamHorizon engine (see configuration below).
+			When using RPC (Thrift) as feed source. Thrift file is available in streamhorizon-api-X.Y.Z.jar and you should use that .thrift file to generate your client code.
+			After that you can connect to Thrift server started by StreamHorizon engine (see configuration below).
 			
 			<source type="rpc">
 				<properties>

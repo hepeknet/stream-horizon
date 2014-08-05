@@ -15,6 +15,7 @@
 	  <li><a href="#a6" class="more">Batch oriented OLAP integration</a></li>
 	  <li><a href="#a7" class="more">Real Time OLAP integration</a></li>
 	  <li><a href="#a8" class="more">Flushing StreamHorizon caches in data processing (online) mode</a></li>
+	  <li><a href="#a9" class="more">In what programming language is StreamHorizon platform written?</a></li>
     </ol>
   <p/>
   <section class="content">
@@ -162,6 +163,18 @@ http://&lt;serverName&gt;:&lt;port&gt;/flushDimensionCache/?dimension=&lt;dimens
 </pre>
 	  </p>
     </article>
+	
+	<article id="a9" class="detail">
+      <h3>In what programming language is StreamHorizon platform written?</h3>
+	  <p>
+		StreamHorizon is written in Java programming language. It uses industry standard open-source libraries and APIs. Our team of experienced engineers spent a lot of time optimizing code for highly concurrent, low latency
+		execution. 
+	  </p>
+	  <p>
+		StreamHorizon developers used latest Java language features to provide lock-free, extremely efficient and highly extensible platform.
+	  </p>
+    </article>
+	
   </section>
 </div>
 <?php include 'footer.php' ?>

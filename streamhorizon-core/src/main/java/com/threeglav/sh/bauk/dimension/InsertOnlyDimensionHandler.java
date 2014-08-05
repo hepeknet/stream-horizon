@@ -2,7 +2,6 @@ package com.threeglav.sh.bauk.dimension;
 
 import gnu.trove.map.hash.THashMap;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +13,6 @@ import org.springframework.jdbc.core.RowMapper;
 import com.codahale.metrics.Counter;
 import com.threeglav.sh.bauk.BaukConstants;
 import com.threeglav.sh.bauk.BaukEngineConfigurationConstants;
-import com.threeglav.sh.bauk.ConfigAware;
 import com.threeglav.sh.bauk.ConfigurationProperties;
 import com.threeglav.sh.bauk.dimension.cache.CacheInstance;
 import com.threeglav.sh.bauk.dimension.db.InsertOnlyDimensionKeysRowMapper;
@@ -23,8 +21,6 @@ import com.threeglav.sh.bauk.model.BaukConfiguration;
 import com.threeglav.sh.bauk.model.Dimension;
 import com.threeglav.sh.bauk.model.DimensionType;
 import com.threeglav.sh.bauk.model.Feed;
-import com.threeglav.sh.bauk.model.MappedColumn;
-import com.threeglav.sh.bauk.util.AttributeParsingUtil;
 import com.threeglav.sh.bauk.util.BaukUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
 import com.threeglav.sh.bauk.util.StatefulAttributeReplacer;
@@ -33,10 +29,9 @@ import com.threeglav.sh.bauk.util.StringUtil;
 /**
  * One instance per dimension. Must be thread-safe.
  * 
- * @author Borisa
  * 
  */
-public class InsertOnlyDimensionHandler extends ConfigAware implements DimensionHandler {
+public class InsertOnlyDimensionHandler extends AbstractDimensionHandler {
 
 	private static final String DIMENSION_SK_SUFFIX = ".sk";
 
@@ -51,36 +46,21 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 	private final boolean dimensionPrecachingDisabled;
 
 	private final String dimensionLastLineSKAttributeName;
-	protected final Dimension dimension;
-	private String[] mappedColumnNames;
-	private int[] mappedColumnsPositionsInFeed;
-	private String[] naturalKeyNames;
-	protected int[] naturalKeyPositionsInFeed;
+
 	private final Counter dbAccessSelectCounter;
 	private final Counter dbAccessInsertCounter;
 	private final Counter dbAccessPreCachedValuesCounter;
-	protected final int mappedColumnsPositionOffset;
+
 	protected final String dbStringLiteral;
 	protected final String dbStringEscapeLiteral;
-	protected final boolean noNaturalKeyColumnsDefined;
-	protected final DimensionCache dimensionCache;
-	private final boolean hasNaturalKeysNotPresentInFeed;
+
 	private final boolean exposeLastLineValueInContext;
 	private final StatefulAttributeReplacer insertStatementReplacer;
 	private final StatefulAttributeReplacer selectStatementReplacer;
-	private final boolean hasOnlyOneNaturalKeyDefinedForLookup;
 
 	public InsertOnlyDimensionHandler(final Dimension dimension, final Feed factFeed, final CacheInstance cacheInstance,
 			final int naturalKeyPositionOffset, final BaukConfiguration config) {
-		super(factFeed, config);
-		if (dimension == null) {
-			throw new IllegalArgumentException("Dimension must not be null");
-		}
-		this.dimension = dimension;
-		if (cacheInstance == null) {
-			throw new IllegalArgumentException("Cache instance must not be null");
-		}
-		dimensionCache = this.initializeDimensionCache(cacheInstance, dimension);
+		super(factFeed, config, dimension, naturalKeyPositionOffset, cacheInstance);
 		if (naturalKeyPositionOffset < 0) {
 			throw new IllegalArgumentException("Natural key position offset must not be negative number");
 		}
@@ -88,21 +68,10 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		dbStringEscapeLiteral = this.getConfig().getDatabaseStringEscapeLiteral();
 		exposeLastLineValueInContext = dimension.getExposeLastLineValueInContext();
 		this.validate();
-		mappedColumnsPositionOffset = naturalKeyPositionOffset;
-		this.calculatePositionOfMappedColumnValues();
-		hasNaturalKeysNotPresentInFeed = this.calculatePositionOfNaturalKeyValues();
-		hasOnlyOneNaturalKeyDefinedForLookup = naturalKeyPositionsInFeed.length == 1;
+
 		dbAccessSelectCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database selects executed");
 		dbAccessInsertCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total database inserts executed");
 		dbAccessPreCachedValuesCounter = MetricsUtil.createCounter("Dimension [" + dimension.getName() + "] - total pre-cached values retrieved");
-		final int numberOfNaturalKeys = this.dimension.getNumberOfNaturalKeys();
-		if (numberOfNaturalKeys == 0) {
-			noNaturalKeyColumnsDefined = true;
-			log.warn("Did not find any defined natural keys for {}. Will disable any caching of data for this dimension!", dimension.getName());
-		} else {
-			noNaturalKeyColumnsDefined = false;
-			log.debug("Caching for dimension {} is enabled", dimension.getName());
-		}
 		dimensionLastLineSKAttributeName = dimension.getName() + DIMENSION_SK_SUFFIX;
 		log.debug("Last surrogate key value for {} will be available in attributes under name {}", dimension.getName(),
 				dimensionLastLineSKAttributeName);
@@ -127,16 +96,12 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		}
 	}
 
-	protected DimensionCache initializeDimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
-		return new DimensionCacheTroveImpl(cacheInstance, dimension);
-	}
-
-	@Override
-	public Dimension getDimension() {
-		return dimension;
-	}
-
 	private void validate() {
+		if (dimension.getType() != DimensionType.CUSTOM) {
+			if (dimension.getSqlStatements() == null) {
+				throw new IllegalStateException("SqlStatements configuration is required for dimension " + dimension.getName());
+			}
+		}
 		if (dimension.getMappedColumns() == null || dimension.getMappedColumns().isEmpty()) {
 			log.warn("Did not find any mapped columns for {}!", dimension.getName());
 		}
@@ -158,73 +123,6 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 		if (numberOfNaturalKeys > this.getFactFeed().getSourceFormatDefinition().getData().getAttributes().size()) {
 			throw new IllegalArgumentException("Dimension " + dimension.getName()
 					+ " has more defined natural keys than there are attributes in feed " + this.getFactFeed().getName());
-		}
-	}
-
-	private boolean calculatePositionOfNaturalKeyValues() {
-		boolean foundNaturalKeyNotPresentInFeed = false;
-		if (noNaturalKeyColumnsDefined) {
-			return foundNaturalKeyNotPresentInFeed;
-		}
-		final int numberOfNaturalKeys = dimension.getNumberOfNaturalKeys();
-		naturalKeyNames = new String[numberOfNaturalKeys];
-		naturalKeyPositionsInFeed = new int[numberOfNaturalKeys];
-		log.debug("Calculating natural keys position values. Will use offset {}", mappedColumnsPositionOffset);
-		int i = 0;
-		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed()
-				.getSourceFormatDefinition().getData().getAttributes());
-		for (final MappedColumn nk : dimension.getMappedColumns()) {
-			if (!nk.isNaturalKey()) {
-				continue;
-			}
-			final String mappedColumnName = nk.getName();
-			naturalKeyNames[i] = mappedColumnName;
-			log.debug("Trying to find position in feed for natural key {} for dimension {}", mappedColumnName, dimension.getName());
-			final Integer attrPosition = dataAttributesAndPositions.get(mappedColumnName);
-			int naturalKeyPositionValue;
-			if (attrPosition == null) {
-				naturalKeyPositionValue = NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION;
-				foundNaturalKeyNotPresentInFeed = true;
-				log.debug("Was not able to find mapping for {}.{} in feed. Will expect this value to be found in global attributes",
-						dimension.getName(), mappedColumnName);
-			} else {
-				naturalKeyPositionValue = attrPosition + mappedColumnsPositionOffset;
-			}
-			naturalKeyPositionsInFeed[i++] = naturalKeyPositionValue;
-			if (log.isDebugEnabled()) {
-				log.debug("Mapped column [{}] for dimension {} will be read from feed position {}",
-						new Object[] { mappedColumnName, dimension.getName(), naturalKeyPositionValue });
-			}
-		}
-		return foundNaturalKeyNotPresentInFeed;
-	}
-
-	private void calculatePositionOfMappedColumnValues() {
-		final int numberOfMappedColumns = dimension.getMappedColumns().size();
-		mappedColumnNames = new String[numberOfMappedColumns];
-		mappedColumnsPositionsInFeed = new int[numberOfMappedColumns];
-		log.debug("Calculating mapped columns position values. Will use offset {}", mappedColumnsPositionOffset);
-		int i = 0;
-		final Map<String, Integer> dataAttributesAndPositions = AttributeParsingUtil.getAttributeNamesAndPositions(this.getFactFeed()
-				.getSourceFormatDefinition().getData().getAttributes());
-		for (final MappedColumn mc : dimension.getMappedColumns()) {
-			final String mappedColumnName = mc.getName();
-			int mappedColumnPositionValue;
-			mappedColumnNames[i] = mappedColumnName;
-			log.debug("Trying to find position in feed for mapped column {} for dimension {}", mappedColumnName, dimension.getName());
-			final Integer attrPosition = dataAttributesAndPositions.get(mappedColumnName);
-			if (attrPosition == null) {
-				log.debug("Could not find mapping for {}.{} in feed. Will expect this value to be mapped from global attributes!",
-						dimension.getName(), mappedColumnName);
-				mappedColumnPositionValue = NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION;
-			} else {
-				mappedColumnPositionValue = attrPosition + mappedColumnsPositionOffset;
-			}
-			mappedColumnsPositionsInFeed[i++] = mappedColumnPositionValue;
-			if (log.isDebugEnabled()) {
-				log.debug("Mapped column [{}] for dimension {} will be read from feed position {}",
-						new Object[] { mappedColumnName, dimension.getName(), mappedColumnPositionValue });
-			}
 		}
 	}
 
@@ -438,97 +336,6 @@ public class InsertOnlyDimensionHandler extends ConfigAware implements Dimension
 			vals.put(mappedColumnNames[i], value);
 		}
 		return vals;
-	}
-
-	private final String buildNaturalKeyForCacheLookupOnlyOneNaturalKeyUseForLookup(final String[] parsedLine) {
-		final int key = naturalKeyPositionsInFeed[0];
-		try {
-			return parsedLine[key];
-		} catch (final ArrayIndexOutOfBoundsException aioobe) {
-			log.error(
-					"Tried to get data from input feed, position {} but looks like there is not enough data values in this row. Did you configure footer correctly? Do all rows in input feed have same length?",
-					key);
-			throw aioobe;
-		}
-	}
-
-	private final String buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(final String[] parsedLine, final StringBuilder sb) {
-		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
-			if (i != 0) {
-				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
-			}
-			final int key = naturalKeyPositionsInFeed[i];
-			try {
-				sb.append(parsedLine[key]);
-			} catch (final ArrayIndexOutOfBoundsException aioobe) {
-				log.error(
-						"Tried to get data from input feed, position {} but looks like there are only {} values available in this row. Did you configure footer correctly? Do all rows in input feed have same length? Problematic row is [{}]",
-						key, parsedLine.length, Arrays.toString(parsedLine));
-				throw aioobe;
-			}
-		}
-		return sb.toString();
-	}
-
-	private final String buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(final String[] parsedLine, final Map<String, String> globalAttributes,
-			final StringBuilder sb) {
-		for (int i = 0; i < naturalKeyPositionsInFeed.length; i++) {
-			if (i != 0) {
-				sb.append(BaukConstants.NATURAL_KEY_DELIMITER);
-			}
-			final int key = naturalKeyPositionsInFeed[i];
-			if (key == NOT_FOUND_IN_FEED_NATURAL_KEY_POSITION) {
-				final String attributeName = naturalKeyNames[i];
-				if (attributeName != null) {
-					final String globalAttributeValue = globalAttributes.get(attributeName);
-					if (isDebugEnabled) {
-						log.debug(
-								"Natural key {}.{} is not mapped to any of declared feed attributes. Will use value [{}] found in global attributes",
-								dimension.getName(), attributeName, globalAttributeValue);
-					}
-					sb.append(globalAttributeValue);
-				}
-			} else {
-				sb.append(parsedLine[key]);
-			}
-		}
-		return sb.toString();
-	}
-
-	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes, final StringBuilder sb) {
-		if (hasNaturalKeysNotPresentInFeed) {
-			return this.buildNaturalKeyForCacheLookupNotAllNaturalKeysInFeed(parsedLine, globalAttributes, sb);
-		} else if (hasOnlyOneNaturalKeyDefinedForLookup) {
-			return this.buildNaturalKeyForCacheLookupOnlyOneNaturalKeyUseForLookup(parsedLine);
-		} else {
-			return this.buildNaturalKeyForCacheLookupAllNaturalKeysInFeed(parsedLine, sb);
-		}
-	}
-
-	String buildNaturalKeyForCacheLookup(final String[] parsedLine, final Map<String, String> globalAttributes) {
-		final StringBuilder sb = new StringBuilder(StringUtil.DEFAULT_STRING_BUILDER_CAPACITY);
-		return this.buildNaturalKeyForCacheLookup(parsedLine, globalAttributes, sb);
-	}
-
-	@Override
-	public final int[] getMappedColumnPositionsInFeed() {
-		return mappedColumnsPositionsInFeed;
-	}
-
-	/*
-	 * used for testing
-	 */
-
-	String[] getMappedColumnNames() {
-		return mappedColumnNames;
-	}
-
-	String[] getNaturalKeyNames() {
-		return naturalKeyNames;
-	}
-
-	int[] getNaturalKeyPositionsInFeed() {
-		return naturalKeyPositionsInFeed;
 	}
 
 	@Override

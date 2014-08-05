@@ -18,13 +18,13 @@
 		</ul>
 		<br>
 		<ul>
-			<li>Fully <b>Configurable</b> via XML – making a project <b>ideal outsourcing candidate</b></li>
+			<li>Fully <b>Configurable</b> via <b>single</b> XML file – making a project <b>ideal outsourcing candidate</b></li>
 			<li><b>Utilizes skills of your IT staff</b> - requires no ETL platform specific knowledge</li>
 			<li>Read more in <a href="faq.php">Product FAQ section</a></li>
 		</ul>
 		<br>
 		<ul>
-			<li><b>Total Project Cost / Data Throughput</b> ratio = 0.2 (<b>20% of budget required</b> in comparison with Market Leaders)</li>
+			<li><b>Total Project Cost / Data Throughput</b> ratio = 0.2 (<b>20% of budget required</b> in comparison with ETL Market Leaders)</li>
 			<li><b>1 Hour Proof of Concept</b> – <a href="./resources.php">download</a> and test-run StreamHorizon’s demo Data Warehousing project</li>
 		</ul>
 		<br>
@@ -171,7 +171,7 @@
 	<article class="services">
 	<p>
 		<ul>
-      <li>Time to market of project delivery - measured in days rather than months.</li>
+      <li>Time to market of project delivery - measured in <b>days</b> rather than months.</li>
 	  <li>IT Skills required for development are reduced to basic IT knowledge.</li>
 	  <li>Manage data volumes typical only for Financial Exchanges, Telecom blue chips and ISP’s.</li>
 	  <li>Desktops running with StreamHorizon platform have more data processing bandwidth than commodity servers with state of the art (read complex and expensive) ETL tools and dozen of CPU’s.</li>
@@ -183,7 +183,7 @@
 	<p>
 		<ul>
       <li>Generic & Adaptable ETL platform</li>
-	  <li>Simple to setup (XML configuration)</li>
+	  <li>Simple to setup (single, human-readable XML configuration file)</li>
 	  <li>Platform geared to deliver projects of high complexity (low latency or batch oriented fashion)</li>
 		</ul>
 	</p>

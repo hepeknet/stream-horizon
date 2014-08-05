@@ -7,6 +7,6 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum DimensionType {
 
-	INSERT_ONLY, T1, T2;
+	INSERT_ONLY, T1, T2, CUSTOM;
 
 }

@@ -19,9 +19,9 @@
       </div>
       <div class="entry">
         <p>
-			StreamHorizon supports Hadoop (HBase) and non-Hadoop (Redis)
-frameworks which enable StreamHorizon users to manipulate infinitely
-large key-value collections (Dimensional 'caches') for extremely high
+			StreamHorizon supports Hadoop (HBase) and non-Hadoop (Redis, memcached, Coherence)
+key value stores which enable StreamHorizon users to manipulate infinitely
+large key-value collections (so called <b>dimensional caches</b>) for extremely high
 cardinality lookups/dimensions. This feature comes in addition to
 already supported In Memory Data Grid solutions like Infinispan &
 Hazelcast.
@@ -38,8 +38,12 @@ Hazelcast.
       </div>
       <div class="entry">
         <p>
-			StreamHorizon delivers Thrift connector in an effort to deliver
-scalable cross-language services development connectivity. Thrift
+			StreamHorizon delivers <a href="https://thrift.apache.org/">Thrift</a> connector in an effort to deliver
+scalable cross-language services development connectivity. This is another step in making StreamHorizon more extensible
+and ensuring it can fit in almost any deployment.
+</p>
+<p>
+Thrift
 enables StreamHorizon to be seamlessly integrated with  Java, C#, C++,
 Python, PHP, Perl, Haskell, Smalltalk, JavaScript, OCamel, Delphi,
 Node.js and other languages.
@@ -119,7 +123,7 @@ for a given I/O system.
 			StreamHorizon R&D team has developed & filed patent for design
 which effectively increases throughput of single JDBC connection by
 50%. StreamHorizon ETL threads are able to share single JDBC
-connection which operates in bulk mode which boosts the throughput
+connection which operates in bulk mode. This boosts the overall throughput
 without creating additional locks against the target table.
 		</p>
       </div>
@@ -153,7 +157,7 @@ operations.
         <p>
 			StreamHorizon delivers connector which utilize Unix/Linux pipes which
 enable StreamHorizon ETL streams to deliver data to the target
-database via "bulk load" concepts (like External
+database via <i>bulk load</i> concepts (like External
 Tables or SQL*Loader) without persisting bulk files as middle step
 (thereby, fully eliminating I/O from ETL processing pipeline).
 		</p>
@@ -169,10 +173,10 @@ Tables or SQL*Loader) without persisting bulk files as middle step
       </div>
       <div class="entry">
         <p>
-			After extensive performance testing StreamHorizon incorporates
-Infinispan and Hazelcast as preferred embedded In Memory Data Grid
-(IMDG) solutions. Both Infinispan and Hazelcast are integrated, packaged and distributed
-with official StreamHorizon releases. StreamHorizon architecture allows
+			After extensive performance testing StreamHorizon incorporates both
+<a href="http://infinispan.org/">Infinispan</a> and <a href="http://hazelcast.org/">Hazelcast</a> as preferred embedded In Memory Data Grid
+(IMDG) solutions for dimensional caches. Both Infinispan and Hazelcast are integrated, packaged and distributed
+with official StreamHorizon releases. StreamHorizon architecture also allows
 embedding of other (custom) IMDG providers.
 		</p>
       </div>

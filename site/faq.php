@@ -21,20 +21,20 @@
 	<article id="a1" class="detail">
       <h3>When is the StreamHorizon the right choice for your project?</h3>
 	  <ul>
-      <li>If you need to deliver robust project quickly. StreamHorizon single XML configuration file customization is powerful method of rapid development which saves development time and significantly reduces possibility of bugs occurring in your ETL.</li>
-	  <li>When your solution need be highly parallel and you wish not to dedicate time to solve multithreading, synchronization & database locking issues.</li>
+      <li>If you need to deliver robust project quickly. StreamHorizon <b>single</b> XML configuration file is powerful method of rapid development which saves development time and significantly reduces possibility of bugs occurring in your ETL.</li>
+	  <li>When your solution needs to be highly parallel and you wish not to dedicate time to solve multithreading, synchronization & database locking issues.</li>
 	  <li>When your solution must scale up in data volumes, scale vertically and/or horizontally.</li>
-	  <li>When 90% of your ETL logic can simply be configured (fact loads, parallelism, Type 1, Type 2 and other dimension types, mappings, lookups etc.) and other 10% can be implemented by your own executables or OS scripts or SQL procedures which will be simply invoked by provided StreamHorizon Event architecture. All you need to specify is when your customised logic should be invoked by ShtreamHorizon engine. This is done by simply creating XML element in configuration file which is pointing to the location of your executable logic, script or SQL procedure.</li>
-	  <li>100% of ability to override default behaviour of Streamhorizon engine by injecting your data/header/footer/cache processing Java classes which will be invoked by StreamHorizon accordingly.</li>
-	  <li>Ability to control/embed your ETL logic by invoking Pre, onSuccess, onFailure, Finally (Post) events for every data entity processed (data entity equates to message, file, sql query).</li>
-	  <li>You need a solution that can be clustered simply by installing & copying of XML configuration files</li>
+	  <li>When 90% of your ETL logic can simply be configured (fact loads, parallelism, Type 1, Type 2 and other dimension types, mappings, lookups etc.) and other 10% can be implemented by your own executables or OS scripts or SQL procedures which will be simply invoked by provided StreamHorizon Event architecture. All you need to specify is when your customised logic should be invoked by StreamHorizon engine. This is done by simply creating XML element in configuration file which is pointing to the location of your executable logic, script or SQL procedure.</li>
+	  <li>100% of ability to override default behaviour of StreamHorizon engine by injecting your data/header/footer/cache processing Java classes which will be invoked by StreamHorizon engine.</li>
+	  <li>Ability to control/embed your ETL logic by invoking Pre, onSuccess, onFailure, Finally (Post) events for every data entity processed (data entity equates to message, file, SQL query).</li>
+	  <li>You need a solution that can be clustered simply by installing and copying XML configuration files</li>
 	  </ul>
     </article>
 	<article id="a2" class="detail">
       <h3>When is the StreamHorizon not the right choice for your project?</h3>
 	  <ul>
       <li>If you require mainframe connectors (EBCDIC) or any other type of legacy technology connectivity</li>
-	  <li>If you already have established teams with expertise in ETL tool of your choice which aren’t high buden for your project budget (assumption made is that you do not require massively parallel database loading functionality)</li>
+	  <li>If you already have established teams with expertise in ETL tool of your choice which aren’t high burden for your project budget (assumption made here is that you do not require massively parallel database loading functionality)</li>
 	  </ul>
     </article>
 	<article id="a7" class="detail">
@@ -82,7 +82,7 @@
 			<li>Platform for scheduled massively parallel data extraction from any data source into any other data source of your choice</li>
 			<li>Framework for massively parallel file2file, message2file, db2db, db2file, file2db, Thrift2db, Thrift2file, file2Hadoop, messaage2Hadoop, dabase2Hadoop, Hadoop2Hadoop, Hadoop2file, Hadoop2database... and any other possible connector (source/target) permutation ... </li>
 			<li>StreamHorizon should be used as a simple to configure, robust ETL platform which will enable existing IT staff (with database and/or programming background) to become productive extremely quickly. No intimate knowledge of ETL tool is required as it is XML configuration based. Framework can be extended as desired by using OS scripts (all platforms supported), Java or SQL (statements and procedures)</li>
-			<li>StreamHorizon is simpler to use than Market Leading ETL tools. StreamHorizon platform offers unrivalled performance and parallelism. This is not to say that StreamHorizon cannot be used in conjuction with other ETL frameworks. For example, any ETL framework can be used as a tool (to transform data) and create bulk files while StreamHorizon can be used as massively parallel loading framework into any database. Something that market lading ETL tools cannot natively do as efficiently as StreamHorizon is able to</li>
+			<li>StreamHorizon is simpler to use than Market Leading ETL tools. StreamHorizon platform offers unrivalled performance and parallelism. This is not to say that StreamHorizon cannot be used in conjunction with other ETL frameworks. For example, any ETL framework can be used as a tool (to transform data) and create bulk files while StreamHorizon can be used as massively parallel loading framework into any database. Something that market lading ETL tools cannot natively do as efficiently as StreamHorizon is able to</li>
 		</ul>
 	  </p>
     </article>

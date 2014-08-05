@@ -2,6 +2,10 @@ import java.util.Map;
 
 import com.threeglav.sh.bauk.header.HeaderParser;
 
+/**
+ * Example how to write custom header parser
+ * 
+ */
 public class CustomHeaderParser implements HeaderParser {
 
 	private String configuredHeaderStartsWithString;

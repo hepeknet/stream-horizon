@@ -1,8 +1,12 @@
+import java.util.HashMap;
+import java.util.Map;
+
 import com.threeglav.sh.bauk.feed.FeedFileNameProcessor;
 
-import java.util.Map;
-import java.util.HashMap;
-
+/**
+ * Example how to write custom feed file name processor
+ * 
+ */
 public class CustomFeedFileNameProcessor implements FeedFileNameProcessor {
 
 	/**
@@ -13,12 +17,13 @@ public class CustomFeedFileNameProcessor implements FeedFileNameProcessor {
 	 *            the name of original feed file
 	 * @return map of context attribute names and values
 	 */
-	public Map<String, String> parseFeedFileName(String feedFileName){
-		Map<String, String> attributes = new HashMap<String, String>();
+	@Override
+	public Map<String, String> parseFeedFileName(final String feedFileName) {
+		final Map<String, String> attributes = new HashMap<String, String>();
 		attributes.put("myCustomAttribute", "myCustomValue");
 		return attributes;
 	}
-	
+
 	/**
 	 * Invoked once, after processor has been created. This method is invoked only once and before any processing is
 	 * done and should be used to initialize processor.
@@ -29,5 +34,5 @@ public class CustomFeedFileNameProcessor implements FeedFileNameProcessor {
 	@Override
 	public void init(final Map<String, String> engineConfigurationProperties) {
 	}
-	
+
 }

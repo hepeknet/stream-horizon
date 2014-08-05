@@ -5,6 +5,11 @@ import java.util.Map;
 import com.threeglav.sh.bauk.dimension.DimensionDataProvider;
 import com.threeglav.sh.bauk.dimension.DimensionRecord;
 
+/**
+ * Example how to write custom dimension data provider
+ * 
+ * 
+ */
 public class CustomDimensionDataProvider implements DimensionDataProvider {
 
 	@Override
