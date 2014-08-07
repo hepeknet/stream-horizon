@@ -15,7 +15,6 @@ import org.junit.Test;
 
 import com.threeglav.sh.bauk.EngineRegistry;
 import com.threeglav.sh.bauk.integration.BaukTestSetupUtil;
-import com.threeglav.sh.bauk.model.FeedTarget;
 
 public class CustomDimensionJdbcSmokeTest {
 
@@ -34,7 +33,7 @@ public class CustomDimensionJdbcSmokeTest {
 	}
 
 	@Test
-	public void testSimpleJDBCNoHeader() throws Exception {
+	public void test() throws Exception {
 		Assert.assertTrue(testSetup.getDataFromFactTable().isEmpty());
 		final long processedCount = EngineRegistry.getProcessedFeedFilesCount();
 		final long successBulkCount = EngineRegistry.getSuccessfulBulkFilesCount();
@@ -50,11 +49,11 @@ public class CustomDimensionJdbcSmokeTest {
 		while (iterator.hasNext()) {
 			rowNum++;
 			final Map<String, String> row = iterator.next();
-			if (rowNum == 1) {
+			if (rowNum == 2) {
 				Assert.assertEquals("666", row.get("f1"));
 				Assert.assertEquals("100", row.get("f2"));
 				Assert.assertEquals("200", row.get("f3"));
-			} else if (rowNum == 2) {
+			} else if (rowNum == 4) {
 				Assert.assertEquals("314159", row.get("f1"));
 				Assert.assertEquals("111", row.get("f2"));
 				Assert.assertEquals("222", row.get("f3"));
@@ -62,7 +61,7 @@ public class CustomDimensionJdbcSmokeTest {
 				Assert.assertEquals("777", row.get("f1"));
 				Assert.assertEquals("3333", row.get("f2"));
 				Assert.assertEquals("4444", row.get("f3"));
-			} else if (rowNum == 4) {
+			} else if (rowNum == 1) {
 				Assert.assertEquals("42", row.get("f1"));
 				Assert.assertEquals("9", row.get("f2"));
 				Assert.assertEquals("-9", row.get("f3"));
@@ -71,12 +70,6 @@ public class CustomDimensionJdbcSmokeTest {
 			Assert.assertTrue(row.get("f4").contains("N/A"));
 		}
 		inputFile.delete();
-	}
-
-	@Test
-	public void testSimpleJDBCNoBulkOutputFolder() throws Exception {
-		System.clearProperty(FeedTarget.FILE_TARGET_DIRECTORY_PROP_NAME);
-		this.testSimpleJDBCNoHeader();
 	}
 
 	@AfterClass

@@ -19,6 +19,11 @@
 		<!-- for delta feed it is mandatory to set nullString value, see below -->
 		<feed name="MyDataFeed1" type="full">
 			
+			<!-- for repetitive feed you can also set repetition count -->
+			<!--
+			<repetitionCount>10</repetitionCount>
+			 -->
+			
 			<!-- if they do not exist directories will be created by engine -->
 			
 			<!-- type of source can be file, rpc, jdbc -->

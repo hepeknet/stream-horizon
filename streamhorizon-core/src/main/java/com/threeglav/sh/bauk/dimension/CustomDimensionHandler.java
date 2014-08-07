@@ -52,7 +52,13 @@ public class CustomDimensionHandler extends AbstractDimensionHandler {
 		final String naturalCacheKey = this.buildNaturalKeyForCacheLookup(parsedLine, globalValues);
 		final Object surrogateKey = dimensionCache.getSurrogateKeyFromCache(naturalCacheKey);
 		if (surrogateKey == null) {
+			if (isDebugEnabled) {
+				log.debug("Was not able to find mapping for natural key {} in the cache, will lookup custom dimension", naturalCacheKey);
+			}
 			return surrogateKeyProvider.getSurrogateKeyValue(this.getOnlyMappedColumns(parsedLine), globalValues);
+		}
+		if (isDebugEnabled) {
+			log.debug("Found mapping {}->{}", naturalCacheKey, surrogateKey);
 		}
 		return surrogateKey;
 	}

@@ -223,7 +223,7 @@ public abstract class AbstractDimensionCache implements Observer, DimensionCache
 					final String naturalKey = sb.toString();
 					dimensionDataProviderCache.put(naturalKey, surrogateKey);
 				}
-				log.debug("Successfully retrieved {} additiona records for dimension {}", data.size(), dimension.getName());
+				log.debug("Successfully retrieved {} additional records for dimension {}", data.size(), dimension.getName());
 			}
 		} catch (final Exception exc) {
 			log.error("Exception while retrieving dimension records from {}. Details {}", dimensionDataProvider, exc);

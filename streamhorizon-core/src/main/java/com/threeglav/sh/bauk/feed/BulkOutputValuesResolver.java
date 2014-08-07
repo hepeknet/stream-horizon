@@ -159,6 +159,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 		for (final String bulkOutputAttributeName : bulkOutputAttributeNames) {
 			if (!StringUtil.isEmpty(bulkOutputAttributeName) && bulkOutputAttributeName.startsWith(DIMENSION_PREFIX)) {
 				final String requiredDimensionName = bulkOutputAttributeName.replace(DIMENSION_PREFIX, "");
+				log.debug("About to create dimension {}", requiredDimensionName);
 				final boolean canStartProcessing = alreadyStartedCreatingDimensionNames.add(requiredDimensionName);
 				if (canStartProcessing) {
 					log.debug("Starting creation of dimension handler for {}", requiredDimensionName);
@@ -184,7 +185,7 @@ public class BulkOutputValuesResolver extends ConfigAware {
 				}
 			}
 			exec.shutdown();
-			log.debug("Successfully finished creation of all dimension handlers");
+			log.debug("Successfully finished creation of all {} dimension handlers", futures.size());
 		} catch (final Exception exc) {
 			log.error("Exception while waiting for dimension handlers to finish", exc);
 			throw new RuntimeException(exc);

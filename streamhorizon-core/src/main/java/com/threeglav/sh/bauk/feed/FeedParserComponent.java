@@ -44,7 +44,7 @@ public final class FeedParserComponent extends ConfigAware {
 		} else if (fft == FeedType.FULL || fft == FeedType.CONTROL) {
 			feedParser = new FullFeedParser(delimiter, expectedTokensInEveryDataLine);
 		} else if (fft == FeedType.REPETITIVE) {
-			feedParser = new RepetitiveFeedParser(delimiter, 0, expectedTokensInEveryDataLine);
+			feedParser = new RepetitiveFeedParser(delimiter, ff.getRepetitionCount(), expectedTokensInEveryDataLine);
 			log.debug("Will use repetitive feed parser for feed {}", ff.getName());
 		} else {
 			throw new IllegalStateException("Unknown fact feed type " + fft);
