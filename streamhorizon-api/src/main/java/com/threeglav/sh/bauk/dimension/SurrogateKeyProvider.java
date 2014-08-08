@@ -18,8 +18,11 @@ public interface SurrogateKeyProvider {
 	 *            file.
 	 * @param globalAttributes
 	 *            all context attributes available
+	 * @param dimensionCache
+	 *            the cache for this dimension
+	 * 
 	 * @return surrogate key. Can be null.
 	 */
-	Object getSurrogateKeyValue(final String[] naturalKeyValues, final Map<String, String> globalAttributes);
+	Object getSurrogateKeyValue(final String[] naturalKeyValues, final Map<String, String> globalAttributes, DimensionCache dimensionCache);
 
 }

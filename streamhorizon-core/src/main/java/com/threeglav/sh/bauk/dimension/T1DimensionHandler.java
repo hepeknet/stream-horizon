@@ -72,7 +72,7 @@ public class T1DimensionHandler extends InsertOnlyDimensionHandler {
 	}
 
 	@Override
-	protected DimensionCache initializeDimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
+	protected DimensionalCache initializeDimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
 		return new DimensionCacheMapImpl(cacheInstance, dimension);
 	}
 

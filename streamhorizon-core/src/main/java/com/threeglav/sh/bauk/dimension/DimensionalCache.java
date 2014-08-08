@@ -3,7 +3,7 @@ package com.threeglav.sh.bauk.dimension;
 import java.util.List;
 import java.util.Observable;
 
-public interface DimensionCache {
+public interface DimensionalCache extends DimensionCache {
 
 	public abstract Integer getSurrogateKeyFromCache(String cacheKey);
 

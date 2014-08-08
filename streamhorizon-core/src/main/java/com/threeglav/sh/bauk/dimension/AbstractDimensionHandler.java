@@ -18,7 +18,7 @@ public abstract class AbstractDimensionHandler extends ConfigAware implements Di
 	protected final Dimension dimension;
 	protected String[] mappedColumnNames;
 	protected int[] mappedColumnsPositionsInFeed;
-	protected final DimensionCache dimensionCache;
+	protected final DimensionalCache dimensionCache;
 	protected final int mappedColumnsPositionOffset;
 	private final boolean hasNaturalKeysNotPresentInFeed;
 	private final boolean hasOnlyOneNaturalKeyDefinedForLookup;
@@ -80,7 +80,7 @@ public abstract class AbstractDimensionHandler extends ConfigAware implements Di
 		}
 	}
 
-	protected DimensionCache initializeDimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
+	protected DimensionalCache initializeDimensionCache(final CacheInstance cacheInstance, final Dimension dimension) {
 		log.debug("Initializing cache for dimension {}", dimension.getName());
 		return new DimensionCacheTroveImpl(cacheInstance, dimension);
 	}

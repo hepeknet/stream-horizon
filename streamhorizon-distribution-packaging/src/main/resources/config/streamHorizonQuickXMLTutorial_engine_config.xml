@@ -16,16 +16,14 @@
 		<!-- setup one <feed> element for every file format (message, database table or any data source)  which engine needs to process. <feed> name must be unique within xml definition. please use 'full' type of feed as a default unless your feed meets specific delta, repetitive or control criteria-->	
 		<!-- feed can be of type full, repetitive, delta and control -->
 		<!-- control feed can not have header and footer and it can have only one line, which will be exposed as context attributes -->
-		<!-- for delta feed it is mandatory to set nullString value, see below -->
+		<!-- for "delta" feed it is mandatory to set nullString value, see below 
+		     for "repetitive feed" you can set repetition count element to number of attributes to be skipped while processing:
+		<repetitionCount>10</repetitionCount>
+		-->
 		<feed name="MyDataFeed1" type="full">
 			
-			<!-- for repetitive feed you can also set repetition count -->
-			<!--
-			<repetitionCount>10</repetitionCount>
-			 -->
-			
-			<!-- if they do not exist directories will be created by engine -->
-			
+			<!-- if they do not exist directories will be created by engine -->				
+
 			<!-- type of source can be file, rpc, jdbc -->
 			<source type="file">
 				<properties>
@@ -42,21 +40,20 @@
 			
 			<source type="jdbc">
 				<properties>
-					// statement to use to select feed data. It must return data format as it is described in sourceFormatDefinition. This means that number of attributes (selected columns of sql query) of "sqlStatement" and
-					// number of attributed defined in <sourceFormatDefinition><data><attributes> element must match.
-					<property name="sqlStatement">select c1, c2, c3, c4 from FEED_SOURCE order by id</property>
+					// statement to use to select feed data. It must return data format as it is described in sourceFormatDefinition. This means that number of attributes (selected columns of sql query) of "sqlStatement" and number of attributed defined in <sourceFormatDefinition><data><attributes> element must match.
+					<property name="sqlStatement">select column1, column2, column3, column4 from yourSourceTable order by id</property>
 					// how often to run previous statement? any CRON expression supported by quartz is applicable. For more options see http://quartz-scheduler.org/
 					<property name="schedule">0/2 * * * * ?</property>
-					// JDBC connection string where feed data can be found. Any JDBC data source is supported
-					<property name="jdbcUrl">jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</property>
+					// JDBC connection string where source (feed) data can be found. Any JDBC data source is supported
+					<property name="jdbcUrl">jdbc:h2:mem:stream_horizon_test;DB_CLOSE_DELAY=-1</property>
 				</properties>
 			</source>
 			-->
 			
 			<!-- 
 			
-			When using RPC (Thrift) as feed source. Thrift file is available in streamhorizon-api-X.Y.Z.jar and you should use that .thrift file to generate your client code.
-			After that you can connect to Thrift server started by StreamHorizon engine (see configuration below).
+			When using RPC (Thrift) as a feed source. Thrift file is available in streamhorizon-api-X.Y.Z.jar and you should use it to generate your client code.
+			Then you can connect to Thrift server started by StreamHorizon engine (see configuration below).
 			
 			<source type="rpc">
 				<properties>
@@ -79,7 +76,7 @@
 			-->
 			<threadPoolSettings>
 				<!-- 0 to turn off feature, any other positive integer to turn it on and use that many threads (per feed) for processing -->
-				<!-- set number of etl threads. etl threads process feeds and create bulk files (or execute jdbc batched statements) -->
+				<!-- set number of etl threads. etl threads process feeds and create bulk files (or execute jd<bc batched statements) -->
 				<etlProcessingThreadCount>20</etlProcessingThreadCount>
 				<!--set number of db threads which will concurrently load bulk files into the fact table. If 0 no bulk loading will happen -->
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
@@ -344,7 +341,7 @@ Note that Oracle uses CALL while MSSQL uses EXEC keyword for execution. other ve
 				3)<cachePerThreadEnabled> caching per thread for dimension makes sense only if cardinality for that dimension is low. avoid caching for dimensions of high cardinalities (over million distinct values). or alternatively test both scenarios to derive performance statistiscs
 				4) useInCombinedLookup should be used only for dimensions which do not have many values - at most few thousand. This helps engine to optimize access to those dimensions
 				
-				three dimension types will be supported INSERT_ONLY, T1, T2. Currently only type="INSERT_ONLY"  is supported
+				Following dimension types are supported INSERT_ONLY, T1, T2, CUSTOM.
 				
 				INSERT_ONLY-mode of operation assumes that all dimensional attributes are part of natural key. if exact match isn't found in cache inser statement will be issued and new generated surrogate key will be used. pelase see below
 				
@@ -369,12 +366,22 @@ Note that Oracle uses CALL while MSSQL uses EXEC keyword for execution. other ve
 				<preCacheRecords>select dimensionSurrogateKey, tableAttribute1, tableAttribute2 from dimensionTableName1</preCacheRecords>
 			</sqlStatements>
 		</dimension>
+		<!-- CUSTOM dimension type is backed fully by Java, for precaching and for lookup. There is still internal cache -->
+		<dimension name="TEST_DIM" type="CUSTOM"> 
+			<localCacheMaxSize>50000</localCacheMaxSize>
+				<dimensionDataProviderClassName>com.threeglav.sh.bauk.integration.plugins.TestDimensionDataProvider</dimensionDataProviderClassName>
+				<surrogateKeyProviderClassName>com.threeglav.sh.bauk.integration.plugins.TestSurrogateKeyProvider</surrogateKeyProviderClassName>
+				<mappedColumns>
+					<mappedColumn name="dataAttributeName_8" naturalKey="true" /> 
+					<mappedColumn name="dataAttributeName_9" naturalKey="true" /> 
+				</mappedColumns> 
+		</dimension> 		
 		<dimension name="dimension2" type="T2" exposeLastLineValueInContext="false" cachePerThreadEnabled="true">		
 			<localCacheMaxSize>10000</localCacheMaxSize>
 			<mappedColumns>
 				<mappedColumn name="dataAttributeName_3" naturalKey="true" />
 				<mappedColumn name="dataAttributeName_4" naturalKey="true" />
-				<mappedColumn name="dataAttributeName_41" naturalKey="false" />
+				<mappedColumn name="dataAttributeName_5" naturalKey="false" />
 			</mappedColumns>
 			<sqlStatements>
 				<insertSingleRecord>
@@ -456,9 +463,9 @@ Note that Oracle uses CALL while MSSQL uses EXEC keyword for execution. other ve
 		<property name="bulk.file.acceptance.timeout.millis">2000</property>
 		<!-- batch size to be used when bulk loading using jdbc. Whenever number of batched values reaches this number it will be executed, committed and batching will start again -->
 		<property name="jdbc.bulk.loading.batch.size">10000</property>
-		<!-- applicable only when using JDBC output type. Ensures that identifiers assigned to ETL threads are only in range [0-partition.count-1] regardless how many ETL threads we have. If set to <=0 partitions will not be used -->
+		<!-- applicable only when using JDBC output type. Ensures that identifiers assigned to ETL threads are only in range [0 - (partition.count-1)] regardless how many ETL threads we have. If set to <=0 partitions will not be used -->
 		<property name="jdbc.threads.partition.count">-1</property>
-		<!-- applicable to DB threads when performing bulk loading (not when ETL threads are doing inserts like: pipes and JDBC). Ensures that identifiers bulkProcessingPartitionedThreadID assigned to DB threads are only in range [0-partition.count-1] regardless how many DB threads we have -->
+		<!-- applicable to DB threads when performing bulk loading (not when ETL threads are doing inserts like: pipes and JDBC). Ensures that identifiers bulkProcessingPartitionedThreadID assigned to DB threads are only in range [0 - (partition.count-1)] regardless how many DB threads we have -->
 		<!-- if set to <=0 partitions will not be used -->
 		<property name="bulk.load.threads.partition.count">-1</property>
 		<!-- throughput.testing.mode eliminates read I/O bottleneck while testing. when set to true, etl threads <feedProcessingThreads> will each cache one random file and process it not by reading it from disk but by reading it from repeatedly (while test lasts) from internal buffer. this will give idea of throughput without read I/O bottleneck. it is advisable that source directory contains more files than number of etl threads <feedProcessingThreads> -->
@@ -477,6 +484,3 @@ Note that Oracle uses CALL while MSSQL uses EXEC keyword for execution. other ve
 		<property name="processing.error.email.recipients">a@b.com,c@d.com</property>
 	</properties>
 </config>
-			
-			
-			

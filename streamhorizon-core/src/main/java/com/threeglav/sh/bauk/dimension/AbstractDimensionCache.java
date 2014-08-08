@@ -23,7 +23,7 @@ import com.threeglav.sh.bauk.util.CacheUtil;
 import com.threeglav.sh.bauk.util.MetricsUtil;
 import com.threeglav.sh.bauk.util.StringUtil;
 
-public abstract class AbstractDimensionCache implements Observer, DimensionCache {
+public abstract class AbstractDimensionCache implements Observer, DimensionalCache {
 
 	static final boolean LOCAL_CACHE_DISABLED = ConfigurationProperties.getSystemProperty(
 			BaukEngineConfigurationConstants.DIMENSION_LOCAL_CACHE_DISABLED, false);
@@ -239,6 +239,15 @@ public abstract class AbstractDimensionCache implements Observer, DimensionCache
 	public void removeFromCache(final String cacheKey) {
 		cacheInstance.remove(cacheKey);
 		this.removeFromLocalCache(cacheKey);
+	}
+
+	@Override
+	public void clearCache() {
+		if (cacheInstance != null) {
+			cacheInstance.clear();
+		}
+		this.clearLocalCache();
+		log.debug("Cleared caches for dimension {}", dimension.getName());
 	}
 
 }

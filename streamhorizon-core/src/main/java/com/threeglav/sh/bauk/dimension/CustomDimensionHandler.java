@@ -55,7 +55,7 @@ public class CustomDimensionHandler extends AbstractDimensionHandler {
 			if (isDebugEnabled) {
 				log.debug("Was not able to find mapping for natural key {} in the cache, will lookup custom dimension", naturalCacheKey);
 			}
-			return surrogateKeyProvider.getSurrogateKeyValue(this.getOnlyMappedColumns(parsedLine), globalValues);
+			return surrogateKeyProvider.getSurrogateKeyValue(this.getOnlyMappedColumns(parsedLine), globalValues, dimensionCache);
 		}
 		if (isDebugEnabled) {
 			log.debug("Found mapping {}->{}", naturalCacheKey, surrogateKey);
