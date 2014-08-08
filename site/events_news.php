@@ -11,6 +11,23 @@
   <section class="columnthird content">
 
 	<article class="post">
+      <h3><a href="#" class="post-title">Java backed dimensions</a></h3>
+      <div class="meta">
+		<!--
+        <p>Posted on <span class="time">June 28, 2014</span></p>
+		-->
+      </div>
+      <div class="entry">
+        <p>
+			As of StreamHorizon version 3.3.0 it is possible to create dimensions fully backed by Java code.
+			This way it is possible to use full power of Java language to perform pre-caching of dimension data and
+			lookup of keys during processing while still being part of StreamHorizon engine and use its powerful
+			caching mechanism.
+		</p>
+      </div>
+    </article>
+  
+	<article class="post">
       <h3><a href="#" class="post-title">Infinite Dimensional collections - Hadoop & Non-Hadoop platforms</a></h3>
       <div class="meta">
 		<!--
