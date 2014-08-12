@@ -5,7 +5,6 @@ import java.util.Map;
 /**
  * Interface to be implemented by custom surrogate key providers.
  * 
- * @author Borisa
  * 
  */
 public interface SurrogateKeyProvider {
