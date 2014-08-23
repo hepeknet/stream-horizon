@@ -173,6 +173,9 @@ http://&lt;serverName&gt;:&lt;port&gt;/flushDimensionCache/?dimension=&lt;dimens
 	  <p>
 		StreamHorizon developers used latest Java language features to provide lock-free, extremely efficient and highly extensible platform.
 	  </p>
+	  <p>
+		Please note that with certain <a href="./services.php">support packages</a> you will get full access to StreamHorizon git repository.
+	  </p>
     </article>
 	
   </section>

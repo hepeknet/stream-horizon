@@ -1,5 +1,5 @@
 <?php 
 
-define("SH_LATEST_VERSION", "3.3.0");
+define("SH_LATEST_VERSION", "3.3.1");
 
 ?>

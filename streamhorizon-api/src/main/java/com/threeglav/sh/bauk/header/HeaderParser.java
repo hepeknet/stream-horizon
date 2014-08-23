@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * Interface for header parser.
  * 
- * @author Borisa
+ * @author Threeglav
  * 
  */
 public interface HeaderParser {

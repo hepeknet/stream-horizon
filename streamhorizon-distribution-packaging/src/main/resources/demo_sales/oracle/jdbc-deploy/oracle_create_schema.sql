@@ -816,13 +816,13 @@ from
 select 
 servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName,fileProcessingFinish,recordInserted as "etl recordInserted"
 from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='<afterFeedProcessingCompletion>'
+where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='afterFeedProcessingCompletion'
 )etl,
 (
 select 
 servername,instancestarted,bulkfileprocessingfinish,bulkFileName,bulkFileProcessingStart,recordInserted as "bulk recordInserted"
 from sh_metrics
-where instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
+where instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='afterBulkLoadCompletion'
 )db
 where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName 
 order by instancestarted desc, servername asc;
@@ -850,7 +850,7 @@ from
 select 
 servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName,fileprocessingfinish, instancenumber
 from sh_metrics
-where filename is not null and eventname='<afterFeedProcessingCompletion>'
+where filename is not null and eventname='afterFeedProcessingCompletion'
 )
 group by servername,instancenumber,instancestarted
 )
@@ -860,7 +860,7 @@ order by instancestarted desc, servername asc,instancenumber asc;
 create or replace view sh_all_db_loader_proc_time as
 select servername as "server name",instancenumber as "instance number", instancestarted as "instance started", max(bulkFileProcessingFinish) - min(bulkFileProcessingStart)  as "processing window", count(*) as "files processed"
 from sh_metrics 
-where  eventname='<onBulkLoadCompletion>'
+where  eventname='afterBulkLoadCompletion'
 group by servername,instancenumber,instancestarted
 order by instancestarted desc, servername asc,instancenumber asc;
 
@@ -900,7 +900,7 @@ from
 select servername as "server name",instancenumber as "instance number", instancestarted as "instance started", max(bulkFileProcessingFinish) - min(bulkFileProcessingStart)  as "processing window",
  (count(*)*100000 /* hardcoded size of demo sample file* /) as "total file records processed",sum(bulkprocessingmillis)/count(*) as "avg file load time millisec", count(*) as "number of files loaded"
 from sh_metrics
-where eventname = '<onBulkLoadCompletion>' and bulkcompletionflag='S'
+where eventname = 'afterBulkLoadCompletion' and bulkcompletionflag='S'
 group by servername,instancenumber,instancestarted
 )
 group by "server name","instance number","instance started","processing window","avg file load time millisec", "number of files loaded","total file records processed"
@@ -932,13 +932,13 @@ from
 select 
 servername,instancenumber,instancestarted,filerecordcount,fileprocessingstart,bulkFileName
 from sh_metrics
-where filename is not null and eventname='<afterFeedProcessingCompletion>'
+where filename is not null and eventname='afterFeedProcessingCompletion'
 )etl,
 (
 select 
 bulkfileprocessingfinish,bulkFileName
 from sh_metrics
-where filename is null and eventname='<onBulkLoadCompletion>'
+where filename is null and eventname='afterBulkLoadCompletion'
 )db
 where etl.bulkFileName = db.bulkFileName
 group by etl.servername,etl.instancenumber,etl.instancestarted
@@ -954,13 +954,13 @@ from (select servername,instancestarted,filerecordcount,filejdbcinsertfinish,fil
               where instancestarted =
                        (select max (instancestarted) from sh_metrics)
                     and filename is not null
-                    and eventname = '<afterFeedProcessingCompletion>') etl,
+                    and eventname = 'afterFeedProcessingCompletion') etl,
             (select servername,instancestarted,bulkfileprocessingfinish,bulkfilename,bulkfileprocessingstart,recordinserted as "bulk recordInserted"
                from sh_metrics
               where instancestarted =
                        (select max (instancestarted) from sh_metrics)
                     and filename is null
-                    and eventname = '<onBulkLoadCompletion>') db
+                    and eventname = 'afterBulkLoadCompletion') db
       where     etl.servername = db.servername
             and etl.instancestarted = db.instancestarted
             and etl.bulkfilename = db.bulkfilename

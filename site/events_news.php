@@ -9,9 +9,9 @@
 	<p class="fright"><a href="faq.php" class="more arrow">StreamHorizon FAQ</a></p>
   </header>
   <section class="columnthird content">
-
+  
 	<article class="post">
-      <h3><a href="#" class="post-title">Java backed dimensions</a></h3>
+      <h3><a href="#" class="post-title">ETL Grid integrated with & cohabiting on Compute Grid</a></h3>
       <div class="meta">
 		<!--
         <p>Posted on <span class="time">June 28, 2014</span></p>
@@ -19,10 +19,50 @@
       </div>
       <div class="entry">
         <p>
-			As of StreamHorizon version 3.3.0 it is possible to create dimensions fully backed by Java code.
-			This way it is possible to use full power of Java language to perform pre-caching of dimension data and
-			lookup of keys during processing while still being part of StreamHorizon engine and use its powerful
-			caching mechanism.
+			StreamHorizon architecture is compliant with Compute Grid architectures on all (conventional and Big Data (Hadoop)) deployments. Your existing Compute grid nodes can host both, your Compute Grid
+calculation engines as well as StreamHorizon instances. This allows you to reuse existing grid to host/run your ETL & Compute Grid on the same hardware, thereby achieving minimal movement of data across the
+network and massive reduction of hardware costs. 
+</p>
+		<p>
+For more information please refer to Deployment Topologies chapter in StreamHorizon guides and presentations available at <a href="./resources.php">Resources & Downloads page</a>
+		</p>
+      </div>
+    </article>
+
+	<article class="post">
+      <h3><a href="#" class="post-title">ETL Grid (ETL Farm)</a></h3>
+      <div class="meta">
+		<!--
+        <p>Posted on <span class="time">June 28, 2014</span></p>
+		-->
+      </div>
+      <div class="entry">
+        <p>
+			ETL Grid is StreamHorizon's response to concept of long present Computing Grids (CPU Grids) in world of massively parallel, calculation intensive computing. StreamHorizon ETL Grid deployment
+architecture enables you to deliver your own ETL Grid by simply running StreamHorizon engine across all flavours of filesystems (Hadoop & non-Hadoop), Operating Systems, Clouds & Virtual deployments...
+		</p>
+		<p>
+For more information please refer to Deployment Strategies chapter in StreamHorizon guides and presentations available at <a href="./resources.php">Resources & Downloads page</a>
+		</p>
+      </div>
+    </article>
+  
+	<article class="post">
+      <h3><a href="#" class="post-title">Java backed dimensions (custom ETL dimensional processing)</a></h3>
+      <div class="meta">
+		<!--
+        <p>Posted on <span class="time">June 28, 2014</span></p>
+		-->
+      </div>
+      <div class="entry">
+        <p>
+			StreamHorizon offers ability to end user to define & create dimensional logic fully implemented in Java. This way it is possible to use full power of Java language to perform:
+		<ol>
+			<li>Pre-caching of dimensional data</li>
+			<li>Key lookups during processing</li>
+			<li>Direct Cache manipulation (manipulation of Infinispan/Hazelcast or any other configured In-Memory Data Grid)</li>
+		</ol>
+		This feature effectively enables your StreamHorizon deployment to interact with any data source which can be accessed via Java.
 		</p>
       </div>
     </article>

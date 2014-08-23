@@ -743,7 +743,7 @@ select
 servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,
 bulkFileName,fileprocessingfinish, instancenumber
 from sh_metrics
-where filename is not null and eventname='<afterFeedProcessingCompletion>'
+where filename is not null and eventname='afterFeedProcessingCompletion'
 )a 
 group by servername,instancenumber,instancestarted
 ) b 
@@ -762,13 +762,13 @@ from
 select 
 servername,instancestarted,filerecordcount,filejdbcinsertfinish,fileprocessingstart,bulkFileName,fileProcessingFinish,recordInserted as "etl recordInserted"
 from sh_metrics
-where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='<afterFeedProcessingCompletion>'
+where  instancestarted = (select max(instancestarted) from sh_metrics) and filename is not null and eventname='afterFeedProcessingCompletion'
 )etl,
 (
 select 
 servername,instancestarted,bulkfileprocessingfinish,bulkFileName,bulkFileProcessingStart,recordInserted as "bulk recordInserted"
 from sh_metrics
-where instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='<onBulkLoadCompletion>'
+where instancestarted = (select max(instancestarted) from sh_metrics) and filename is null and eventname='afterBulkLoadCompletion'
 )db
 where etl.servername=db.servername and etl.instancestarted = db.instancestarted and etl.bulkFileName = db.bulkFileName 
 order by instancestarted desc, servername asc
@@ -784,7 +784,7 @@ max(bulkFileProcessingFinish) - min(bulkFileProcessingStart)  as "processing win
 CAST(DATEPART(MINUTE, max(bulkFileProcessingFinish) - min(bulkFileProcessingStart)) as int)*60 + CAST(DATEPART(SECOND, max(bulkFileProcessingFinish) - min(bulkFileProcessingStart)) as int) as "processing window (sec)",
 count(*) as "files processed"
 from sh_metrics 
-where  eventname='<onBulkLoadCompletion>'
+where  eventname='afterBulkLoadCompletion'
 group by servername,instancenumber,instancestarted
 order by instancestarted desc, servername asc,instancenumber asc
 GO
@@ -837,13 +837,13 @@ from
 		select 
 		servername,instancenumber,instancestarted,filerecordcount,fileprocessingstart,bulkFileName
 		from sh_metrics
-		where filename is not null and eventname='<afterFeedProcessingCompletion>'
+		where filename is not null and eventname='afterFeedProcessingCompletion'
 	)etl,
 	(
 		select 
 		bulkfileprocessingfinish,bulkFileName
 		from sh_metrics
-		where filename is null and eventname='<onBulkLoadCompletion>'
+		where filename is null and eventname='afterBulkLoadCompletion'
 	)db
 	where etl.bulkFileName = db.bulkFileName
 	group by etl.servername,etl.instancenumber,etl.instancestarted
@@ -864,13 +864,13 @@ from (select servername,instancestarted,filerecordcount,filejdbcinsertfinish,fil
               where instancestarted =
                        (select max (instancestarted) from sh_metrics)
                     and filename is not null
-                    and eventname = '<afterFeedProcessingCompletion>') etl,
+                    and eventname = 'afterFeedProcessingCompletion') etl,
             (select servername,instancestarted,bulkfileprocessingfinish,bulkfilename,bulkfileprocessingstart,recordinserted as "bulk recordInserted"
                from sh_metrics
               where instancestarted =
                        (select max (instancestarted) from sh_metrics)
                     and filename is null
-                    and eventname = '<onBulkLoadCompletion>') db
+                    and eventname = 'afterBulkLoadCompletion') db
       where     etl.servername = db.servername
             and etl.instancestarted = db.instancestarted
             and etl.bulkfilename = db.bulkfilename

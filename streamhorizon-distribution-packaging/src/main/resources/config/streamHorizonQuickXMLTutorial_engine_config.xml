@@ -369,8 +369,10 @@ Note that Oracle uses CALL while MSSQL uses EXEC keyword for execution. other ve
 		<!-- CUSTOM dimension type is backed fully by Java, for precaching and for lookup. There is still internal cache -->
 		<dimension name="TEST_DIM" type="CUSTOM"> 
 			<localCacheMaxSize>50000</localCacheMaxSize>
-				<dimensionDataProviderClassName>com.threeglav.sh.bauk.integration.plugins.TestDimensionDataProvider</dimensionDataProviderClassName>
-				<surrogateKeyProviderClassName>com.threeglav.sh.bauk.integration.plugins.TestSurrogateKeyProvider</surrogateKeyProviderClassName>
+				<!-- full class name for data provider -->
+				<dimensionDataProviderClassName>CustomDimensionDataProvider</dimensionDataProviderClassName>
+				<!-- full class name for surrogate key provider -->
+				<surrogateKeyProviderClassName>CustomSurrogateKeyProvider</surrogateKeyProviderClassName>
 				<mappedColumns>
 					<mappedColumn name="dataAttributeName_8" naturalKey="true" /> 
 					<mappedColumn name="dataAttributeName_9" naturalKey="true" /> 

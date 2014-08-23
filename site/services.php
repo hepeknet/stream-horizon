@@ -61,6 +61,12 @@
 				<td>Phone and Email</td>
 			</tr>
 			<tr>
+				<th>Access to StreamHorizon source code?</th>
+				<td>No</td>
+				<td>Yes</td>
+				<td>Yes</td>
+			</tr>
+			<tr>
 				<th>Named Contacts</th>
 				<td>0</td>
 				<td>1</td>

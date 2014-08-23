@@ -3,3 +3,7 @@ mvn --batch-mode release:clean release:prepare release:perform release:update-ve
 mvn -N versions:update-child-modules
 
 mvn -DforkMode=always test
+
+
+mvn clean javadoc:javadoc
+mvn install

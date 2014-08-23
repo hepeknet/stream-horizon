@@ -45,7 +45,7 @@
     </article>
     <article id="down" class="detail">
       <h3>StreamHorizon Downloads</h3>
-      <a href="request_download.php">Try out</a> the latest version of StreamHorizon Data Processing Platform (includes demo).<br>
+      <a href="request_download.php">Try out the latest</a> (<?php echo SH_LATEST_VERSION ?>) version of StreamHorizon Data Processing Platform (includes demo application for Oracle, MSSQL and MySQL databases).<br>
     </article>
   </section>
 </div>
