@@ -763,7 +763,7 @@ jdbcProcessingMillis := milliseconddiff(fileJdbcInsertStart_ts,fileJdbcInsertFin
 insert into sh_metrics 
 (servername,instancenumber,instancestarted,eventName,fileReceived,etlThreadID,fileName,fileProcessingStart,fileProcessingFinish,fileProcessingMillis,fileJdbcInsertStart,
 fileJdbcInsertFinish,jdbcProcessingMillis,bulkFileSubmitted,dbThreadID,bulkFilePath,bulkFileName,fileRecordCount,bulkFileReceived,etlCompletionFlag,etlErrorDescription,recordInserted)
-values(servername,instancenumber,instancestarted_ts,'<'||eventName||'>',fileReceived_ts,etlThreadID,
+values(servername,instancenumber,instancestarted_ts,eventName,fileReceived_ts,etlThreadID,
 fileName,fileProcessingStart_ts,fileProcessingFinish_ts,fileProcessingMillis,fileJdbcInsertStart_ts,fileJdbcInsertFinish_ts,jdbcProcessingMillis,bulkFileSubmitted,dbThreadID,bulkFilePath,
 bulkFileName,fileRecordCount,bulkFileReceived_ts,etlCompletionFlag,etlErrorDescription,systimestamp);
 commit;       
@@ -804,7 +804,7 @@ instancestarted_ts := timestamp '1970-01-01 00:00:00' + numtodsinterval((instanc
 
 insert into sh_metrics 
 (servername,instancenumber,instancestarted,eventName,bulkErrorDescription,bulkCompletionFlag,bulkFileProcessingStart,bulkFileProcessingFinish,bulkProcessingMillis,bulkFileName,recordInserted,dbThreadID) 
-values(log_sh_metrics_bulk.servername,log_sh_metrics_bulk.instancenumber,instancestarted_ts,'<'||log_sh_metrics_bulk.eventName||'>',log_sh_metrics_bulk.bulkErrorDesc,log_sh_metrics_bulk.bulkCompletionFlag,bulkFileProcessingStart_ts,bulkFileProcessingFinish_ts,bulkProcessingMillis,log_sh_metrics_bulk.bulkFile,systimestamp,bulkThreadId);
+values(log_sh_metrics_bulk.servername,log_sh_metrics_bulk.instancenumber,instancestarted_ts,log_sh_metrics_bulk.eventName,log_sh_metrics_bulk.bulkErrorDesc,log_sh_metrics_bulk.bulkCompletionFlag,bulkFileProcessingStart_ts,bulkFileProcessingFinish_ts,bulkProcessingMillis,log_sh_metrics_bulk.bulkFile,systimestamp,bulkThreadId);
 commit;       
 end log_sh_metrics_bulk;
 /

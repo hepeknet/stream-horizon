@@ -10,12 +10,12 @@
 		<feed name="myDataFeed1" type="full"> 		
 			<source type="file">
 				<properties>
-					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
+					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></property>
 					<property name="fileNameMask">.*csv</property>
 				</properties>
 			</source>
-			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
-			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
+			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></archiveDirectory>
+			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></errorDirectory>
 			<threadPoolSettings>
 				<etlProcessingThreadCount><!--SET ME! set number of etl threads (etl paralelism). maximum thread number number fo demo is 10! ideal setting will acheive maximal throughput to target database. to start with set this number to number of cores of your server. try reducing/increasing number depending on CPU% utilisation of your server--></etlProcessingThreadCount>
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>

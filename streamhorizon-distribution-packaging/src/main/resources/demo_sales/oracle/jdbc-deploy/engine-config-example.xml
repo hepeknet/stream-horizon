@@ -53,10 +53,7 @@
 					</attributes>
 				</data>
 			</sourceFormatDefinition>
-			<target type="jdbc">
-				<properties>  
-					<property name="bulkOutputDirectory">/sh/data/bulk</property>
-				</properties>							
+			<target type="jdbc">						
 				<bulkLoadInsert>					
 					<command type="sql">
 						insert  /*+ append_values */ into sales_fact subpartition (P_${bookingDate}_SP_${feedProcessingThreadID})     

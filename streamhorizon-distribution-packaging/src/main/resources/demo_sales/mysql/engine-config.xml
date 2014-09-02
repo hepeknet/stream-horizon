@@ -9,12 +9,12 @@
 		<feed name="dataFeed" type="full">
 			<source type="file">
 				<properties>
-					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
+					<property name="directoryPath"><!--SET ME! your file feed directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></property>
 					<property name="fileNameMask">.*csv</property>
 				</properties>
 			</source>
-			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></archiveDirectory>
-			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></errorDirectory>
+			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></archiveDirectory>
+			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></errorDirectory>
 			<threadPoolSettings>
 				<etlProcessingThreadCount>21</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
@@ -54,7 +54,7 @@
 			</sourceFormatDefinition>
 			<target type="jdbc">
 				<properties>  
-					<property name="bulkOutputDirectory"><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:/dir1/dir2 format for windows OS setup--></property>
+					<property name="bulkOutputDirectory"><!--SET ME! your bulk (external table fact feeds) directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></property>
 				</properties>							
 				<bulkLoadInsert>
 					<!-- uncomment this section to load from bulk file (bulk file segment need be commented out first)-->

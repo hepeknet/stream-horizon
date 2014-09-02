@@ -13,7 +13,7 @@ import com.threeglav.sh.bauk.util.FileUtil;
 /**
  * Caches first find file and then uses it repeatedly - not touching disk. Good for testing throughput
  * 
- * @author Borisa
+ * @author Threeglav
  * 
  */
 public class ThroughputTestingFileFindingHandler extends FileFindingHandler {

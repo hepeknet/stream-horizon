@@ -678,7 +678,7 @@ SET @jdbcProcessingMillis = @fileJdbcInsertFinish - @fileJdbcInsertStart
 insert into sh_metrics 
 (servername,instancenumber,instancestarted,eventName,fileReceived,etlThreadID,fileName,fileProcessingStart,fileProcessingFinish,fileProcessingMillis,fileJdbcInsertStart,
 fileJdbcInsertFinish,jdbcProcessingMillis,bulkFileSubmitted,dbThreadID,bulkFilePath,bulkFileName,fileRecordCount,bulkFileReceived,etlCompletionFlag,etlErrorDescription,recordInserted)
-values(@servername,@instancenumber,@instancestarted_ts,'<'+@eventName+'>',@fileReceived_ts,@etlThreadID,
+values(@servername,@instancenumber,@instancestarted_ts,@eventName,@fileReceived_ts,@etlThreadID,
 @fileName,@fileProcessingStart_ts,@fileProcessingFinish_ts,@fileProcessingMillis,@fileJdbcInsertStart_ts,@fileJdbcInsertFinish_ts,@jdbcProcessingMillis,@bulkFileSubmitted,@dbThreadID,@bulkFilePath,
 @bulkFileName,@fileRecordCount,@bulkFileReceived_ts,@etlCompletionFlag,@etlErrorDescription,GETDATE());
 
@@ -712,7 +712,7 @@ SET @instancestarted_ts = sh.dbo.to_date(@instancestarted)
 insert into sh_metrics 
 (servername,instancenumber,instancestarted,eventName,bulkErrorDescription,bulkCompletionFlag,bulkFileProcessingStart,
 bulkFileProcessingFinish,bulkProcessingMillis,bulkFileName,recordInserted,dbThreadID,bulkFilePath) 
-values(@servername,@instancenumber,@instancestarted_ts,'<' + @eventName + '>',
+values(@servername,@instancenumber,@instancestarted_ts,@eventName,
 @bulkErrorDesc,@bulkCompletionFlag,@bulkFileProcessingStart_ts,@bulkFileProcessingFinish_ts,
 @bulkProcessingMillis,@bulkFile,GETDATE(),@bulkThreadId,@bulkFilePath);
 END

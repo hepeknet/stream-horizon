@@ -145,9 +145,6 @@
 		<fileSet>
 			<directory>src/main/resources/demo_sales/oracle/pipe-deploy/</directory>
 			<outputDirectory>demo_sales/oracle/pipe-deploy</outputDirectory>
-			<includes>
-				<include>*.*</include>
-			</includes>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/resources/demo_sales/bin/</directory>

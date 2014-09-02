@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>com.threeglav.streamhorizon.bauk</groupId>
 		<artifactId>streamhorizon</artifactId>
-		<version>3.3.1</version>
+		<version>3.3.2</version>
 	</parent>
 	<artifactId>streamhorizon-feed-parser</artifactId>
 

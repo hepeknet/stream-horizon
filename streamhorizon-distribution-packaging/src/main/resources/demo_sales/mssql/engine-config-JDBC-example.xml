@@ -51,10 +51,7 @@
 					</attributes>
 				</data>
 			</sourceFormatDefinition>
-			<target type="jdbc">
-				<properties>  
-					<property name="bulkOutputDirectory">G:/Data/bauk/bulk</property>
-				</properties>							
+			<target type="jdbc">							
 				<bulkLoadInsert>
 					<command type="sql">
 						insert into sales_fact

@@ -17,7 +17,7 @@
 			<archiveDirectory>/sh/data/archive</archiveDirectory>
 			<errorDirectory>/sh/data/error</errorDirectory>			
 			<threadPoolSettings>
-				<etlProcessingThreadCount>24</etlProcessingThreadCount>
+				<etlProcessingThreadCount>10</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>
 			</threadPoolSettings>					
 			<sourceFormatDefinition>

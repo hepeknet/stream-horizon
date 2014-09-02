@@ -17,7 +17,7 @@ import com.threeglav.sh.bauk.util.StringUtil;
 /**
  * For every thread there is one instance of this class
  * 
- * @author Borisa
+ * @author Threeglav
  * 
  */
 public final class CachePreviouslyUsedValuesPerThreadDimensionHandler implements BulkLoadOutputValueHandler, Observer, DimensionHandler {

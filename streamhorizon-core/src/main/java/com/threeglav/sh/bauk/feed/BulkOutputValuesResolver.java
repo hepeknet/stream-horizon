@@ -43,7 +43,7 @@ import com.threeglav.sh.bauk.util.StringUtil;
 /**
  * This class is single threaded
  * 
- * @author Borisa
+ * @author Threeglav
  * 
  */
 public class BulkOutputValuesResolver extends ConfigAware {
