@@ -20,7 +20,9 @@
 	<article id="doc" class="detail">
       <h3>StreamHorizon Documentation</h3>
 	  <p>
-	  <a href="./downloads/streamhorizon_in_nutshell.pdf">StreamHorizon in a nutshell (Quick Start)</a>
+	  <a href="./downloads/streamhorizon_in_nutshell.pdf">StreamHorizon in a nutshell (PDF)</a>
+	  <br>
+	  Single chapter guide for developer/architect audience which presents in detail StreamHorizon platform, its processing ability and configurability by using examples available in StreamHorizon demo project.
 	  </p>
 	  <p>
       <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview (PDF)</a>

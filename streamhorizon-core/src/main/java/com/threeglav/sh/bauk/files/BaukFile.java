@@ -71,7 +71,10 @@ public class BaukFile {
 	}
 
 	public void delete() throws IOException {
-		Files.delete(path);
+		final boolean canDelete = path.toFile().exists();
+		if (canDelete) {
+			Files.delete(path);
+		}
 	}
 
 	public void closeResources() {

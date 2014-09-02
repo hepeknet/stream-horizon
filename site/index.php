@@ -182,7 +182,7 @@
 	<article class="services">
 	<p>
 		<ul>
-      <li>Generic & Adaptable ETL platform</li>
+      <li>Generic and Adaptive ETL platform</li>
 	  <li>Simple to setup (single, human-readable XML configuration file)</li>
 	  <li>Platform geared to deliver projects of high complexity (low latency or batch oriented fashion)</li>
 		</ul>

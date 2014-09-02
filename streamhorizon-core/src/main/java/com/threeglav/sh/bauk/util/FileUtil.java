@@ -54,17 +54,29 @@ public abstract class FileUtil {
 	}
 
 	public static void moveFile(final Path originalPath, final Path destinationPath) {
+		boolean atomicMoveFailed = false;
 		try {
 			try {
 				Files.move(originalPath, destinationPath, StandardCopyOption.ATOMIC_MOVE);
 			} catch (final AtomicMoveNotSupportedException noAtomicMove) {
+				atomicMoveFailed = true;
 				LOG.warn("Atomic move not supported on this file system!", noAtomicMove);
 				Files.move(originalPath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
 			}
 		} catch (final IOException ie) {
-			LOG.error("IOException while moving files", ie);
+			logException(ie, originalPath, destinationPath, atomicMoveFailed);
 			throw new RuntimeException(ie);
 		}
+	}
+
+	private static final void logException(final IOException ie, final Path source, final Path target, final boolean atomicMoveFailed) {
+		final boolean sourceExists = source.toFile().exists();
+		final boolean targetExists = target.toFile().exists();
+		final boolean isSourceFile = source.toFile().isFile();
+		final boolean isTargetFile = target.toFile().isFile();
+		LOG.error(
+				"Error while moving file {} to {}. Atomic move failed = {}. Error message {}. Source file exists = {}, target file exists = {}, is source a file = {}, is target a file = {}",
+				new Object[] { source, target, atomicMoveFailed, ie.getMessage(), sourceExists, targetExists, isSourceFile, isTargetFile });
 	}
 
 	public static BaukFile createBaukFile(final Path p, final BasicFileAttributes bfa) {

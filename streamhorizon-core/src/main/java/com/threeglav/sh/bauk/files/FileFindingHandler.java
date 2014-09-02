@@ -130,6 +130,11 @@ public class FileFindingHandler implements Runnable {
 
 	private void processSingleFile(final Path path) {
 		try {
+			final boolean fileExists = path.toFile().exists();
+			if (!fileExists) {
+				log.warn("File {} does not exists. Nothing to do here. Already picked up by another process", path);
+				return;
+			}
 			final BasicFileAttributes bfa = Files.readAttributes(path, BasicFileAttributes.class);
 			final BaukFile baukFile = FileUtil.createBaukFile(path, bfa);
 			fileProcessor.process(baukFile);
