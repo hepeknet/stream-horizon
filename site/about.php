@@ -79,12 +79,12 @@ months. Skills required for delivery are reduced to the basics of IT
 knowledge.
 </p>
 <p>
-We have delivered a new generation ETL <b>adaptiveETL</b> platform,
+We have delivered a new generation ETL adaptiveETL platform,
 which eliminates performance issues even for volumes typical only of
 Financial Exchanges, Time Series Analysis & Real Time Risk Valuations.
 Desktop computers running our platform have more processing bandwidth
 than server hardware with the state of the art (read complex and
-expensive) ETL tools running on dozens of CPU’s.
+expensive) ETL tools running on dozens of CPUs.
 </p>
 <p>
 StreamHorizon, the new generation adaptiveETL platform supports out of
@@ -94,17 +94,17 @@ simplifies the Business Intelligence stack by eliminating the need to
 have MOLAP or other alternatives acting as query accelerators behind
 their relational databases (aggregate tables or equivalents). The
 reduction in complexity results in reduced implementation and hardware
-costs whilst delivery a highly maintainable and supportable system.
+costs while delivering highly maintainable and easy to support system.
 </p>
 <p>
 The performance of our platform (throughput measured in millions of
-records per second) allows database experts to index their Databases
+records per second) allows database experts to index their databases
 to an extent previously unimaginable (4+ indexes per single fact
 table) while still having real time ETL processing in place.
 By bringing together simplicity of implementation (by reducing
 development to simple XML customization) and processing performance we
 aim to make seismic shift in Data Processing & Data Integration IT
-Industry.
+industry.
 </p>
     </article>
   </section>

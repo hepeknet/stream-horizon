@@ -132,7 +132,7 @@ public final class FileAttributesHashedNameFilter implements DirectoryStream.Fil
 			return false;
 		}
 		if (isDebugEnabled) {
-			log.debug("Will accept to process {}", fileName);
+			log.debug("Will accept to process file {}", fileName);
 		}
 		return true;
 	}

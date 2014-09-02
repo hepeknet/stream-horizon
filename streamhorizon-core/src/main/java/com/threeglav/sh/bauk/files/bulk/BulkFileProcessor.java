@@ -116,7 +116,7 @@ public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor
 		recordFileSubmissionAttempts = ConfigurationProperties.getSystemProperty(BaukEngineConfigurationConstants.BULK_FILE_RECORD_FILE_SUBMISSIONS,
 				false);
 		if (!recordFileSubmissionAttempts) {
-			log.warn("Engine will not record bulk file submission attempts.");
+			log.info("Engine will not record bulk file submission attempts.");
 		} else {
 			fileSubmissionRecorder = new BulkFileSubmissionRecorder();
 			log.info("Engine will record all bulk file submission attempts.");
