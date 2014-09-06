@@ -78,6 +78,7 @@
 		<li><a href="./faq.php#img7">Targeted Program & Project profiles</a></li>
 		<li><a href="./usecases.php">Applicable industries</a></li>
 		<li><a href="./faq.php#img8">About StreamHorizon</a></li>
+		<li><a href="./faq.php#img9">Connectivity Map</a></li>
 	</ul>
 	</div>
   </section>

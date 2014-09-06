@@ -29,7 +29,9 @@
 				<properties>
 					<!-- source directory is the directory from which file feeds will be processed -->
 					<property name="directoryPath">/tmp/stream_horizon/input</property>
-					<!-- supply fileName masks for the fees to which this <feed> format definition is applicable. feeds will be loaded from source directory. Multiple masks can be specified -->
+					<!-- supply fileName masks for the fees to which this <feed> format definition is applicable. feeds will be loaded from source directory. Multiple masks can be specified 					
+						
+					When fileNameMask property is set to for example *.gz or *.zip engine will decompress files on the fly-->
 					<property name="fileNameMask">.*FEED.*done</property>
 				</properties>
 			</source>

@@ -182,6 +182,12 @@ Upon decision to proceed with purchase of StreamHorizon platform our technical s
 	  </p>
 	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
     </article>
+	<article id="img9" class="detail">
+	  <p>
+		<img src="img/sh/sh_connectivity_map.png" width="100%"/>
+	  </p>
+	  <div class="up column3 mright"> <a href="#a7" class="ir">Go up</a> </div>
+    </article>
   </section>
 </div>
 <?php include 'footer.php' ?>

@@ -30,13 +30,13 @@ public interface HeaderParser {
 	 *            full, unparsed header line. Might start with control character.
 	 * @param declaredHeaderAttributeNames
 	 *            all declared header attributes (as in configuration)
-	 * @param globalAttributes
+	 * @param contextAttributes
 	 *            global attributes available before header parsing (engine specific or attributes derived from file
 	 *            name)
 	 * 
 	 * @return map of all parsed header attributes. This map is later passed as-is and used later in processing. Must
 	 *         not return null.
 	 */
-	public Map<String, String> parseHeader(String headerLine, String[] declaredHeaderAttributeNames, Map<String, String> globalAttributes);
+	public Map<String, String> parseHeader(String headerLine, String[] declaredHeaderAttributeNames, Map<String, String> contextAttributes);
 
 }
