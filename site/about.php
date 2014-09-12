@@ -79,7 +79,7 @@ months. Skills required for delivery are reduced to the basics of IT
 knowledge.
 </p>
 <p>
-We have delivered a new generation ETL adaptiveETL platform,
+We have delivered a new generation ETL <b>adaptiveETL</b> platform,
 which eliminates performance issues even for volumes typical only of
 Financial Exchanges, Time Series Analysis & Real Time Risk Valuations.
 Desktop computers running our platform have more processing bandwidth
@@ -87,7 +87,7 @@ than server hardware with the state of the art (read complex and
 expensive) ETL tools running on dozens of CPUs.
 </p>
 <p>
-StreamHorizon, the new generation adaptiveETL platform supports out of
+StreamHorizon, the new generation <b>adaptiveETL</b> platform supports out of
 the box integration for OLAP and In-Memory platform integration.
 However, the ability to rapidly load data into database further
 simplifies the Business Intelligence stack by eliminating the need to

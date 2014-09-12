@@ -123,7 +123,7 @@
   </section>
   <section class="part clearfix">
     <header class="title clearfix">
-      <p class="fleft"><h3>Our Solution</h3></p>
+      <p class="fleft"><h3>Our Solution(Example: RDBMS based Big Data Streaming Platform)</h3></p>
 	</header>
 	<p><h4>Data Throughput of StreamHorizon platform enables:</h4></p>
     <article class="services">
