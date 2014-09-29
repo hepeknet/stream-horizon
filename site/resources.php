@@ -23,7 +23,7 @@
 	  <p>
 	  <a href="./downloads/Streamhorizon_Overview_CIO_Information_Pack.pdf">StreamHorizon C-Level roles overview (PDF)</a>
 	  <br>
-	  High Level Overview of StreamHorizon Platform, Benefits & Cost Effectivenes analysis for Executives & C-Level roles
+	  High Level Overview of StreamHorizon Platform, Benefits & Cost Effectiveness analysis for Executives & C-Level roles
 	  </p>
 	  <p>
       <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview (PDF)</a>
@@ -37,7 +37,7 @@
 		</ul>
 	  </p>
 	  <p>
-	  <a href="./downloads/StreamHorizon_and_BigData_Overview.pdf">StreamHorizon and big data overview (PDF)</a><br>
+	  <a href="./downloads/StreamHorizon_and_BigData_Overview.pdf">StreamHorizon and Big Data overview (PDF)</a><br>
 	  Overview of abilities of StreamHorizon Platform within Big Data domain (Hadoop Ecosystem, HDFS and other).<br>
 	  Document presents Big Data specific deployment strategies, integration patterns and design approach, thinking and topologies.
 	  </p>

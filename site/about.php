@@ -26,17 +26,17 @@
 Investment Banking, Insurance, ISP and Telecommunication industries.
 <p/>
 <ul>
-	<li>Architectural targets: Embrace market shift in data processing
+	<li><b>Architectural targets</b>: Embrace market shift in data processing
 field and deliver next generation ETL platform <b>adaptiveETL</b> which
 is Hadoop & Big Data compliant, massively parallel, supports
 conventional ETL architectures, Virtualizable, Cloud and Grid
 deployable, Horizontally & Vertically scalable.</li>
-	<li>Manageability targets: Simplify Data Processing & Data Integration
+	<li><b>Manageability targets</b>: Simplify Data Processing & Data Integration
 to a level where low skilled IT staff will be able to deliver IT
 projects without trade-off in elegance, simplicity and most
 importantly performance of the applications.
 	</li>
-	<li>Our philosophy: Deliver no-lock-in next generation ETL platform which requires no
+	<li><b>Our philosophy</b>: Deliver no-lock-in next generation ETL platform which requires no
 ETL platform specific coding skills. A high productivity platform with
 low TCO footprint. Platform which can be customized & extended without
 constraints by implementing custom code where and how customer see fit.

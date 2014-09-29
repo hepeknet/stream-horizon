@@ -7,7 +7,7 @@
 <div class="main center">
   <section class="part clearfix">
     <header class="title clearfix">
-      <p class="fleft"><h2>Data Processing & Data Integration Platform</h2></p>
+      <p class="fleft"><h2>Next Generation Data Processing & Data Integration Platform - <i>adaptiveETL</i></h2></p>
       <a href="faq.php" class="arrow more fright">Find out more about StreamHorizon</a> 
 	</header>
     <div class="column2 mright">
@@ -18,24 +18,44 @@
 		</ul>
 		<br>
 		<ul>
-			<li>Fully <b>Configurable</b> via <b>single</b> XML file – making a project <b>ideal outsourcing candidate</b></li>
-			<li><b>Utilizes skills of your IT staff</b> - requires no ETL platform specific knowledge</li>
-			<li>Read more in <a href="faq.php">Product FAQ section</a></li>
+			<li>Fully Configurable via XML</li>
+			<li>Requires no ETL platform specific knowledge</li>
+			<li>Shift from <b>coding</b> to <b>XML configuration</b> and reduce IT skills required to deliver, manage, run & outsource projects</li>
+			<li>Eliminated 90+% manual coding</li>
+			<li>Flexible & Customizable – override any default behaviour of StreamHorizon platform with custom Java, OS script or SQL implementation</li>
+			<li>No vendor lock-in (all custom written code runs outside StreamHorizon platform - there is no need to re-develop code if migrating your existing solution)</li>
+			<li>No ETL tool specific language</li>
+			<li>Out of the box features like Type 0,1,2, Custom dimensions, dynamic In Memory Cache formation transparent to developer</li>
 		</ul>
 		<br>
 		<ul>
-			<li><b>Total Project Cost / Data Throughput</b> ratio = 0.2 (<b>20% of budget required</b> in comparison with ETL Market Leaders)</li>
-			<li><b>1 Hour Proof of Concept</b> – <a href="./resources.php">download</a> and test-run StreamHorizon’s demo Data Warehousing project</li>
+			<li>Delivering performance critical Big Data projects</li>
+			<li>Massively parallel data streaming engine</li>
+			<li>Transparently backed with In Memory Data Grid (Coherence, Infinispan, Hazelcast, any other.)</li>
+			<li>ETL processes run in memory and interact with cache (In Memory Data Grid)</li>
+			<li>Unnecessary Staging (I/O expensive) ETL steps are eliminated</li>
 		</ul>
 		<br>
 		<ul>
-			<li>Runs on <b>Big Data</b> clusters: <a href="http://hadoop.apache.org/">Hadoop</a>, HDFS, <a href="http://kafka.apache.org/">Kafka</a>, <a href="https://storm.incubator.apache.org/">Storm</a>, Hive, <a href="http://www.cloudera.com/content/cloudera/en/products-and-services/cdh/impala.html">Impala</a> and more…</li>
-			<li>Run your <b>StreamHorizon Data Processing Cluster</b> (ETL grid)</li>
-			<li>Runs on <b>Compute Grid</b> (alongside grid libraries like Quant Library or any other)</li>
+			<li>Lambda Architecture - Hadoop (& non-Hadoop) real time & batch oriented data streaming/processing architecture</li>
+			<li>Data Streaming & Micro batch Architecture</li>
+			<li>Massively parallel conventional ETL Architecture</li>
+			<li>Batch oriented conventional ETL Architecture</li>
+		</ul>
+		<ul>
+			<li>1 Hour Proof of Concept – <a href="resources.php">download</a> and test-run StreamHorizon's demo Data Warehousing project</li>
+		</ul>
+		<ul>
+			<li>Runs on Big Data clusters: Hadoop, HDFS, <a href="http://kafka.apache.org/">Kafka</a>, <a href="https://spark.apache.org/">Spark</a>, <a href="https://storm.incubator.apache.org/">Storm</a>, Hive, Impala and more...</li>
+			<li>Run your StreamHorizon Data Processing Cluster (ETL grid)</li>
+			<li>Runs on Compute Grid (alongside grid libraries like Quant Library or any other)</li>
 		</ul>
 		<ul>
 			<li>Horizontally & Vertically scalable, Highly Available (HA), Clusterable</li>
 			<li>Running on Linux, Solaris, Windows, Compute Clouds (EC2 & others)</li>
+		</ul>
+		<ul>
+			<li>Read more in <a href="./downloads/Streamhorizon_Overview_CIO_Information_Pack.pdf">StreamHorizon C-Level roles overview (PDF)</a>, <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview (PDF)</a> or <a href="faq.php">Product FAQ section</a></li>
 		</ul>
 	  </p>
     </div>
