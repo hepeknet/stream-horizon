@@ -7,11 +7,130 @@
 <div class="main center">
   <section class="part clearfix">
     <header class="title clearfix">
-      <p class="fleft"><h2>Next Generation Data Processing & Data Integration Platform - <i>adaptiveETL</i></h2></p>
-      <a href="faq.php" class="arrow more fright">Find out more about StreamHorizon</a> 
+      <p><h2>StreamHorizon - Next Generation Data Processing and Data Integration Platform</h2></p>
 	</header>
-    <div class="column2 mright">
+	<p>
+StreamHorizon is the next generation ETL Big Data processing platform. It is highly hardware & CPU efficient, scalable and extensible replacement for existing legacy stove-pipe ETL platforms. 
+<br />
+We have named our novel approach to ETL architecture <b>adaptiveETL</b>.
+	</p>
+	<br />
+	<section class="part clearfix">
+	<article class="column3 mright services">
+      <h5>Easy to develop</h5>
+      <div class="sepmini"></div>
+	  <p>
+      Rather than custom code ETL logic, StreamHorizon enables you to fully configure your ETL logic within single & intuitive XML configuration file. 
+	  </p>
+	  <br />
+	<p>
+	More than 90% of ETL code is needlessly developed (coding of dimensional ELT logic, fact table inserts/updates, data quality transformations). StreamHorizon eliminates the need for custom coding of such ETL transformations, instead, entire ETL stream is configurable via single, intuitive XML file.
+	</p>
+    </article>
+    <article class="column3 mright services">
+      <h5>Built in ETL functionality</h5>
+      <div class="sepmini"></div>
       <p>
+	  Forget about coding custom code Type0,1,2,3... dimensional logic, deriving surrogate keys for Fact table or coding any other common ETL transformations!
+StreamHorizon simply enables you to configure XML element with table name and dimension type. 
+</p>
+<br />
+<p>
+ETL logic is thereby transparently generated & executed by StreamHorizon engine based on your configuration.
+</p>
+    </article>
+    <article class="column3 services">
+      <h5>Scalable ETL</h5>
+      <div class="sepmini"></div>
+      <p>
+		Scaling number of your ETL processes and making them run in parallel is achieved by simply specifying number of parallel instances (or threads) you wish to run.
+	</p>
+	<br />
+	<p>
+There is no need to setup <i>parameter files</i> (or equivalents) before ETL execution. 
+</p>
+<br />
+<p>
+There is no need to create numerous copies of the same ETL flow in order to achieve ETL flow parallelism.
+	  </p>
+    </article>
+	</section>
+	<section class="part clearfix">
+	<article class="column3 mright services">
+      <h5>Customizable</h5>
+      <div class="sepmini"></div>
+      <p>
+		If you wish to implement specific ETL logic rather than use available XML configurable options you may simply supply Java class and thereby override default 
+behaviour of StreamHorizon engine.
+	  </p>
+	  <br />
+	  <p>
+	  Rich plugin ecosystem enables you to <i>hook-into</i> different part of StreamHorizon execution and become a part of processing pipeline.
+	  </p>
+    </article>
+	
+	<article class="column3 mright services">
+      <h5>Quick Time to Market</h5>
+      <div class="sepmini"></div>
+      <p>
+		Customizing XML configuration rather than developing ETL code enables you to deliver fully functional Data Marts/Data Warehouses in matter of days.
+	  </p>
+	  <br />
+	  <p>
+<b>Demo & Sample Data Mart</b> - StreamHorizon Sample <a href="request_download.php">Demo Data Mart</a> can be used as starting base for your project. It comes with full configuration implementation of ETL logic for Oracle, MSSQL and MySQL databases.
+	  </p>
+    </article>
+	
+	<article class="column3 services">
+     
+      <h5>Minimize I/O operations</h5>
+      <div class="sepmini"></div>
+      <p>
+		StreamHorizon performs all data transformation steps on the fly, within single ETL process. Thereby, you can eliminate Staging area from your ETL processes if it fits your data processing design.
+	  </p>
+    </article>
+	</section>
+	<section class="part clearfix">
+	<article class="column3 mright services">
+      <h5>Clusterable, Virtualizable & Hadoop ready</h5>
+      <div class="sepmini"></div>
+      <p>
+		StreamHorizon can run on Hadoop Ecosystem, is cloud-ready and can be 100% virtualized. 
+	  </p>
+	  <br />
+	  <p>
+		StreamHorizon enables easy integration with major big-data frameworks like Storm, Spark, Samza or Hadoop (HDFS and HBase).
+	  </p>
+    </article>
+	
+	<article class="column3 mright services">
+      <h5>Run anywhere</h5>
+      <div class="sepmini"></div>
+      <p>
+		StreamHorizon is implemented as highly efficient Java library. It can process millions of events per second on standard laptop.
+	  </p>
+	  <br />
+	  <p>
+		It has low hardware footprint and can be deployed on workstations, commodity servers and compute and data 
+clusters, on all major operative systems which run Java.
+	  </p>
+    </article>
+	
+	<article class="column3 services">
+      <h5>Encapsulating In Memory Data Grid</h5>
+      <div class="sepmini"></div>
+      <p>
+		StreamHorizon ETL processes utilize embedded Infinispan (or Hazelcast) data grids which are internally used by StreamHorizon engine during data processing. This is one of the reasons
+		why StreamHorizon can achieve very high throughput and horizontal scalability.
+	  </p>
+    </article>
+  </section>
+  <br /><br />
+  <section class="part clearfix">
+  <h2>StreamHorizon in more detail</h2>
+	<div class="column2 mright">
+      <p>
+		StreamHorizon is the next generation ETL Big Data processing platform. It is highly efficient and very extensible replacement for legacy stove-pipe ETL platforms. We call this <b>adaptiveETL</b>.
 		<ul>
 			<li>Data Processing throughput of <b>1+ Million Records per second</b> (single commodity server)</li>
 			<li>Quick Time to Market – deploy StreamHorizon & <b>deliver</b> your Data integration project <b>in a single week</b></li>
@@ -59,7 +178,7 @@
 		</ul>
 	  </p>
     </div>
-    <div id="slides" class="slider column2">
+	<div id="slides" class="slider column2">
       <div class="slides_container">
         <div class="slide">
           <figure> 
@@ -101,114 +220,6 @@
 		<li><a href="./faq.php#img9">Connectivity Map</a></li>
 	</ul>
 	</div>
-  </section>
-  <section class="part clearfix">
-    <header class="title clearfix">
-      <p class="fleft"><h3>The Problem</h3></p>
-      <a href="contact.php" class="arrow more fright">Contact Us</a> </header>
-    <article class="column3 mright services">
-      
-      <h5>Complexity</h5>
-      <div class="sepmini"></div>
-	  <p>
-      <ul>
-	   <li>Data Integration can typically be characterized as a set of large (in numbers), highly coupled and moderately complex units of ETL transformations/code</li>
-	  </ul>
-	  </p>
-    </article>
-    <article class="column3 mright services">
-      
-      <h5>Performance</h5>
-      <div class="sepmini"></div>
-      <p>
-	  <ul>
-		<li>Long loading time windows</li>
-		<li>Frequent SLA breaks</li>
-		<li><b>Domino Effect</b> execution & dependencies (Waterfall paradigm)</li>
-	  </ul>
-			...above are consequence of batch oriented rather than <i>Real Time</i> & <i>Data Streaming</i> design paradigms
-	  </p>
-    </article>
-    <article class="column3 services">
-     
-      <h5>Query Latency</h5>
-      <div class="sepmini"></div>
-      <p>
-		<ul>
-			<li>Longer than desired query response times</li>
-			<li>Inadequate Ad-Hoc query capability</li>
-		</ul>
-	  </p>
-    </article>
-  </section>
-  <section class="part clearfix">
-    <header class="title clearfix">
-      <p class="fleft"><h3>Our Solution(Example: RDBMS based Big Data Streaming Platform)</h3></p>
-	</header>
-	<p><h4>Data Throughput of StreamHorizon platform enables:</h4></p>
-    <article class="services">
-	<p>
-		<ul>
-      <li>Indexing of Data Warehouses to extent previously unimaginable (4+ indexes per single fact table)</li>
-	  <li>Extensively indexed database delivers load throughput of 50-80% compared to model without indexes, however, it reduces query latency (intentional sacrifice of load latency for query performance)</li>
-	  <li>No need to utilize OLAP cubes or equivalents (In-Memory solutions) acting as <b>query accelerators</b>. Such solution are dependent on available memory and thereby impose limit to data volumes system can handle.</li>
-	  <li>StreamHorizon fully supports <b>OLAP integration</b> (please refer to <a href="faq.php">Product FAQ page</a>). OLAP delivers slice & dice and drill-down/data pivoting capability via Excel or any other user front end tool.</li>
-		</ul>
-	</p>
-    </article>
-	<br>
-	<article class="services">
-	<p>
-		<ul>
-      <li>Horizontal scaling of In-Memory software comes with a price (increased latency) as queried data is collated from multiple servers into single resultset</li>
-	  <li>No need to purchase exotic or specialist hardware appliances</li>
-	  <li>No need to purchase In-Memory/OLAP hardware & licence</li>
-		</ul>
-	</p>
-	</article>
-	<br>
-	<article class="services">
-	  <p class="center">
-		<table class="centeredTable noBorders">
-			<caption>Run simplified software stack: <br /><br /></caption>
-			<thead>
-				<tr class="noBorders">
-					<th class="noBorders">StreamHorizon + Vanilla Database</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr class="noBorders">
-					<th class="noBorders">vs</th>
-				</tr>
-				<tr>
-					<th class="noBorders">ETL Tool + Database (usually exotic) + OLAP/In-Memory solution (usually clustered)</th>
-				</tr>
-			</tbody>
-		</table>
-	  </p>
-	  <br /><br />
-    </article>
-	<br>
-	<article class="services">
-	<p>
-		<ul>
-      <li>Time to market of project delivery - measured in <b>days</b> rather than months.</li>
-	  <li>IT Skills required for development are reduced to basic IT knowledge.</li>
-	  <li>Manage data volumes typical only for Financial Exchanges, Telecom blue chips and ISP’s.</li>
-	  <li>Desktops running with StreamHorizon platform have more data processing bandwidth than commodity servers with state of the art (read complex and expensive) ETL tools and dozen of CPU’s.</li>
-		</ul>
-	</p>
-    </article>
-	<br>
-	<article class="services">
-	<p>
-		<ul>
-      <li>Generic and <b>Adaptive</b> ETL platform</li>
-	  <li>Simple to setup (single, human-readable XML configuration file)</li>
-	  <li>Platform geared to deliver projects of high complexity (low latency or batch oriented fashion)</li>
-		</ul>
-	</p>
-    </article>
-  </section>
+	</section>
 </div>
 <?php include 'footer.php' ?>

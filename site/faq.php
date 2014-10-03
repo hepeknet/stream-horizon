@@ -8,16 +8,23 @@
     <p class="fleft"></p>
   </header>
    <ol class="readable">
+	  <li><a href="#a0" class="more">What is StreamHorizon?</a><br /></li>
 	  <li><a href="#a1" class="more">When is the StreamHorizon the right choice for your project?</a><br /></li>
       <li><a href="#a2" class="more">When is the StreamHorizon not the right choice for your project?</a></li>
 	  <li><a href="#a7" class="more">What is the difference between StreamHorizon and Leading Market ETL/Data Integration vendors?</a></li>
 	  <li><a href="#a6" class="more">What StreamHorizon platform brings to your existing Data Integration and Business Intelligence stack?</a></li>
 	  <li><a href="#a3" class="more">How is StreamHorizon licensed?</a></li>
 	  <li><a href="#a5" class="more">What is the recommended way to start using StreamHorizon?</a></li>
-	  <li><a href="#a4" class="more">What are minimum system requirements for running StreamHorizon?</a></li>
+	  <li><a href="#a4" class="more">What are the minimum system requirements for running StreamHorizon?</a></li>
     </ol>
   <p/>
   <section class="content">
+	<article id="a0" class="detail">
+      <h3>What is StreamHorizon?</h3>
+	  <ul>
+      <li>StreamHorizon is the next generation ETL Big Data processing platform. It is highly efficient and very extensible replacement for legacy stove-pipe ETL platforms. We call this <b>adaptiveETL</b>.</li>
+	  </ul>
+    </article>
 	<article id="a1" class="detail">
       <h3>When is the StreamHorizon the right choice for your project?</h3>
 	  <ul>
@@ -111,7 +118,7 @@ Upon decision to proceed with purchase of StreamHorizon platform our technical s
 	  </p>
     </article>
 	<article id="a4" class="detail">
-      <h3>What are minimum system requirements for running StreamHorizon?</h3>
+      <h3>What are the minimum system requirements for running StreamHorizon?</h3>
 	  <p>
 		Minimal requirements are:
 		<ul>

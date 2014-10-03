@@ -1,5 +1,5 @@
 <meta charset="UTF-8">
-<meta name="description" content="StreamHorizon Data Processing Platform, process 1 million records per second on a commodity server">
+<meta name="description" content="Next generation ETL Big Data processing platform, StreamHorizon Data Processing Platform, process 1 million records per second on a commodity server">
 <meta name="keywords" content="adaptiveETL informatica datastage data stage business objects crystal reports abinitio talent seas analysis services data processing platform oracle mssql mysql casandra noSQL kdb+ sybaseIQ ETL data integration data processing data mining business intelligence management information systems ETL tools sybase goldman sachs GS JP Morgan Merrill lynch Lloyds TSB Citi Citigroup Barckalys Capital Credit Suisse Morgan Stanley LSE NYSE DOW JONES CME ABN amro RBS AIG Royal Bank of scotland Watchovia Lehman Broters Bearn Sterns Official Provider Data Services consultancy leading data integration best complete example used utilised data mining performant market risk credit risk time series foreign exchange profit and loss PnL PNL Mark to Market MTM real time batch oriented FCAPS telecom data mining" />
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/style_blog.css" >
