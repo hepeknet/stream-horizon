@@ -14,7 +14,7 @@ NOTE: to assign correct privileges please AFTER you execute this script run comm
 --create or replace directory EXT_LOADER_DATA as 'your bulk file directory (as it is setup in  engine-config.xml <bulkOutputDirectory> tag)';
 --create or replace directory LOG as 'directory for logging erros (please choose any on your OS)';
 
-
+alter session set current_schema = sh;
 
 declare 
 parallelism integer :=50;

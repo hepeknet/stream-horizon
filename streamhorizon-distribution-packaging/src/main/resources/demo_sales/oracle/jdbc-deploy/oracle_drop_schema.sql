@@ -1,5 +1,7 @@
 /* set your dataowner if desired...*/
---alter session set current_schema = <YourDataOwner>; 
+alter session set current_schema = sh; 
+
+WHENEVER SQLERROR CONTINUE;
 
 DROP SEQUENCE promotion_dim_seq;
 

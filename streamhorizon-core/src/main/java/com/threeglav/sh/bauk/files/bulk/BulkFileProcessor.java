@@ -76,7 +76,7 @@ public class BulkFileProcessor extends ConfigAware implements InputFeedProcessor
 		log.debug("Current processing id is {}", processorId);
 		final boolean isMultiInstance = ConfigurationProperties.isConfiguredPartitionedMultipleInstances();
 		if (isMultiInstance) {
-			final int multiInst = ConfigurationProperties.calculateMultiInstanceFeedProcessorId(currentCounterValue, this.factFeed);
+			final int multiInst = ConfigurationProperties.calculateMultiInstanceBulkProcessorId(currentCounterValue, this.factFeed);
 			multiInstanceProcessorId = String.valueOf(multiInst);
 			log.info("Successfully set multi instance feed thread identifier to {}", multiInst);
 		} else {

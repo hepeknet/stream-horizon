@@ -1,15 +1,12 @@
 /*
 
-NOTE: create user with adequate privileges in your Oracle database and execute the script below (just in case you need create user statement: create USER sh identified by sh;  GRANT ALL PRIVILEGES TO sh;  )  please verify with your DBA that this privilege statement complies with your data access policy
-NOTE: change create table statement for sales_fact if you wish to load datae in tablespace other than USER tablespace
+NOTE: create user 'sh' with password 'sh' and with adequate privileges in your Oracle database and execute the script below (just in case you need create user statement: create USER sh identified by sh;  GRANT ALL PRIVILEGES TO sh;  )  please verify with your DBA that this privilege statement complies with your data access policy
+NOTE: change create table statement for sales_fact if you wish to load data into tablespace other than USERS tablespace
 NOTE: maximum number of StreamHorizon db threads (<bulkProcessingThreadID>) which this model supports is 50. If you wish to run more than 50 db threads please extend subpartition definition of fact table given below 
-NOTE: fact table has single partition created for value booking_date_id=20140107. if you wish to run your own rather than StreamHorizon sample data set you may want to create additional partitions. to do so run following statement: ALTER TABLE  WAREHOUSE.RWH_RISK_FACT_SMALL_SUB ADD PARTITION P_20130910 VALUES  (20130910)  COMPRESS BASIC
-NOTE: for test purposes fact table sales_fact is created in NOLOGGING mode as low number of LGRW  (logwriters) may impact performance unnecessarily
+NOTE: fact table has single partition created for value booking_date_id=20140107. if you wish to run your own rather than StreamHorizon sample data set you may wish to create additional partitions. to do so run following statement for example: ALTER TABLE SH.SALES_FACT ADD PARTITION P_20140108 VALUES  (20140108)  COMPRESS BASIC
+NOTE: for test purposes fact table sales_fact is created in NOLOGGING mode as low number of LGRW (logwriters) may impact performance unnecessarily
 
 */
-
-/* set your dataowner if desired...*/
---alter session set current_schema = <YourDataOwner>;
 
 alter session set current_schema = sh; 
 
@@ -144,7 +141,7 @@ STORAGE    (
             BUFFER_POOL      DEFAULT
            )
 NOLOGGING
-TABLESPACE "RWH_DATA" --------------------------------------------------------------------------------------------------------------------------------------
+TABLESPACE "USERS" 
 PARTITION BY LIST (booking_date_id)
 SUBPARTITION BY LIST (sub) SUBPARTITION TEMPLATE (
     SUBPARTITION SP_0 VALUES (0)  COMPRESS BASIC,
@@ -246,7 +243,7 @@ STORAGE    (
             BUFFER_POOL      DEFAULT
            )
 NOLOGGING
-TABLESPACE "RWH_DATA" --------------------------------------------------------------------------------------------------------------------------------------
+TABLESPACE "USERS" 
 PARTITION BY LIST (booking_date_id)
 SUBPARTITION BY LIST (sub) SUBPARTITION TEMPLATE (
     SUBPARTITION SP_0 VALUES (0)  COMPRESS BASIC,
