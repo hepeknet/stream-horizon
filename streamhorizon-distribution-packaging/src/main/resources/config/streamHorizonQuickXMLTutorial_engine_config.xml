@@ -117,9 +117,9 @@
 					</attributes>
 				</header>
 				<!--define data (body) feed record structure-->
-				<data process="normal">
-					<!--if data line is defined as line with special character please specify character here. it is assumed that character is delimited from header attributes by <delimiterString> -->			
-					<!--if data line is defined as line with special character please specify character here. it is assumed that character is delimited from data attributes by <delimiterString>. if data line has no special character erase this element -->			
+				<!-- process attribute can have values normal (first character of every data line will be checked), no_validation (first character of every data line will not be checked) -->
+				<data process="normal">			
+					<!--if data line is defined as line with special character please specify character here and set process='normal'. It is assumed that character is delimited from data attributes by <delimiterString>. if data line has no special character erase this element and set process='no_validation' -->			
 					<eachLineStartsWithCharacter>D</eachLineStartsWithCharacter>
 					<!--you can utilize custom data record parser class if you need to calculate/define new context parameter based on some of the header or Implicitly available engine attributes or execute any other custom logic. note that this may significantly slow down the engine! java extension will be invoked once for every data record (ever data row in every input feed file)-->
 					<!-- check CustomDataMapper.java in $ENGINE_HOME/plugins/ folder for example -->				
