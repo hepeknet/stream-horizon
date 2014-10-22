@@ -71,13 +71,12 @@ if (!isset($_POST["email"])){
 	$country = $_POST["country"];
 	$title = $_POST["jobtitle"];
     // message lines should not exceed 70 characters (PHP rule), so wrap it
-	$message = "Thank you for expressing interest in StreamHorizon Data Processing Platform. \n\rYour link to download trial version of StreamHorizon \n\r http://stream-horizon.com/downloads/qw324a8902jlsd4lnljolkjdsgsd232/stream-horizon-" . SH_LATEST_VERSION . "-dist.zip";
-	$message .= "\n\r or \n\r http://stream-horizon.com/downloads/qw324a8902jlsd4lnljolkjdsgsd232/stream-horizon-" . SH_LATEST_VERSION . "-dist.tar.gz";
-	$message .= "\n\rDo not hesitate to contact us in case you have any questions or suggestions. \n\r We are looking forward to further cooperation.\n\r\n\r StreamHorizon Team \n\r support@stream-horizon.com \n\r www.stream-horizon.com";
+	$message = "Thank you for expressing interest in StreamHorizon Data Processing Platform. \n\rYour link to download trial version of StreamHorizon is \n\r http://stream-horizon.com/downloads/qw324a8902jlsd4lnljolkjdsgsd232/stream-horizon-" . SH_LATEST_VERSION . "-dist-trial.zip";
+	$message .= "\n\rDo not hesitate to contact us in case you have any questions or suggestions. \n\rWe are looking forward to further cooperation.\n\r\n\r StreamHorizon Team \n\r support@stream-horizon.com \n\r www.stream-horizon.com";
 	$notifyMessage = "$from asked for trial version of StreamHorizon DPP and download link was sent. \n\r Name: $username \n\r Company: $company \n\r Job title: $title \n\r Phone: $phone \n\r Country: $country \n\r Project info: $project";
     $message = wordwrap($message, 70);
     // send mail
-    // mail($from,"Your trial version of StreamHorizon Data Processing Platform",$message,"From: support@stream-horizon.com\n");
+    mail($from,"Your trial version of StreamHorizon Data Processing Platform",$message,"From: support@stream-horizon.com\n");
 	mail("borisha.zivkovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@stream-horizon.com\n");
 	mail("mladen.golubovic@gmail.com","Someone asked for trial version of StreamHorizon DataProcessingPlatform",$notifyMessage,"From: support@stream-horizon.com\n");
     echo "<p>Thank you for expressing interest in StreamHorizon Data Processing Platform. An email will be sent to you with download link.</p><p>Do not hesitate to contact us in case you have any questions at <b>support@stream-horizon.com</b>!</p>";
