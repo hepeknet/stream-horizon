@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<config>
+	<properties>
+		<property name="remoting.server.port">0</property>
+	</properties>
+	<connectionProperties>
+		<jdbcUrl>jdbc:h2:mem:bauk_test;DB_CLOSE_DELAY=-1</jdbcUrl>
+		<jdbcPoolSize>20</jdbcPoolSize>
+	</connectionProperties>
+	<feeds>
+		<feed name="TEST_jdbc_Feed" type="full">
+			<fileNameProcessorClassName>com.threeglav.sh.bauk.custom.MyFeedFileNameProcessor</fileNameProcessorClassName>
+			<source type="file">
+				<properties>
+					<property name="directoryPath"></property>
+					<property name="fileNameMask">.*bauk_test</property>
+				</properties>
+			</source>
+			<target type="jdbc">
+				<bulkLoadInsert>
+					<command type="sql">insert into TEST_FACT(f1,f2,f3,f4) values(?,?,?,'${bulkFileName}')</command>
+				</bulkLoadInsert>
+			</target>
+			<archiveDirectory></archiveDirectory>
+			<errorDirectory></errorDirectory>
+			<sourceFormatDefinition>
+				<delimiterString>,</delimiterString>
+				<header process="no_header" />
+				<data process="no_validation">
+					<eachLineStartsWithCharacter></eachLineStartsWithCharacter>
+					<attributes>
+						<attribute name="attr1" />
+						<attribute name="attr2" />
+						<attribute name="a_in" />
+						<attribute name="b_in" />
+					</attributes>
+				</data>
+				<footer process="skip" />
+			</sourceFormatDefinition>
+			<targetFormatDefinition>
+				<attributes>
+					<attribute name="dimension.TEST_DIM" type="int" />
+					<attribute name="my1" type="int" />
+					<attribute name="my2" type="int" />
+				</attributes>
+			</targetFormatDefinition>
+			<threadPoolSettings>
+				<etlProcessingThreadCount>1</etlProcessingThreadCount>
+				<databaseProcessingThreadCount>1</databaseProcessingThreadCount>
+			</threadPoolSettings>
+		</feed>
+	</feeds>
+	<dimensions>
+		<dimension name="TEST_DIM" type="INSERT_ONLY">
+			<localCacheMaxSize>50000</localCacheMaxSize>
+			<mappedColumns>
+				<mappedColumn name="a_in" naturalKey="true" />
+				<mappedColumn name="b_in" naturalKey="true" />
+			</mappedColumns>
+			<sqlStatements>
+				<insertSingleRecord>
+					insert into TEST_DIM(a,b) values ('${a_in}','${b_in}')
+				</insertSingleRecord>
+				<selectRecordIdentifier>select id from TEST_DIM where a='${a_in}' and b='${b_in}'</selectRecordIdentifier>
+				<preCacheRecords>select id, a, b from TEST_DIM</preCacheRecords>
+			</sqlStatements>
+		</dimension>
+	</dimensions>
+</config>

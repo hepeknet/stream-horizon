@@ -35,7 +35,10 @@
 					<property name="fileNameMask">.*FEED.*done</property>
 				</properties>
 			</source>
-			
+			<!-- Class name of custom implementation for feed file name processor. In case when some information should be extracted from file name of every input feed file it is possible to provide customized implementation to parse file name and provide new context attributes. Check CustomFeedFileNameProcessor.java in $ENGINE_HOME/plugins/ folder for example -->
+			<!--
+			<fileNameProcessorClassName>CustomFeedFileNameProcessor</fileNameProcessorClassName>
+			-->
 			<!--
 			
 			When using JDBC as feed source.
@@ -87,10 +90,6 @@
 			<sourceFormatDefinition>
 				<!-- <nullString> is used only by 'type="delta"' (not 'type="full"') feed parsers -->
 				<nullString>!</nullString>
-				<!-- Class name of custom implementation for feed file name processor. In case when some information should be extracted from file name of every input feed file it is possible to provide customized implementation to parse file name and provide new context attributes. Check CustomFeedFileNameProcessor.java in $ENGINE_HOME/plugins/ folder for example -->
-				<!--
-				<fileNameProcessorClassName>CustomFeedFileNameProcessor</fileNameProcessorClassName>
-				-->
 				<!-- <delimiterString> defnes delimiter used in your feed -->
 				<delimiterString>^$</delimiterString>
 				<!---->
