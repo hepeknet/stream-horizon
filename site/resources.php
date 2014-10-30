@@ -12,14 +12,14 @@
     <p class="mbottom"></p>
     <menu>
     <ul>
-	  <li><a href="#arch" class="arrow more">Architecture</a></li>
+	  <li><a href="#arch" class="arrow more">Overview</a></li>
 	  <li><a href="#doc" class="arrow more">Documentation</a></li>
 	  <li><a href="#down" class="arrow more">Downloads</a></li>
     </ul>
     </menu> </aside>
   <section class="columnthird content">
 	<article id="arch" class="detail">
-      <h3>StreamHorizon Architecture</h3>
+      <h3>StreamHorizon Overview</h3>
 	  <p>
 	  <a href="./downloads/Streamhorizon_Overview_CIO_Information_Pack.pdf">StreamHorizon C-Level roles overview (PDF)</a>
 	  <br>
@@ -43,7 +43,7 @@
 	  </p>
     </article>
 	<article id="doc" class="detail">
-      <h3>StreamHorizon Documentation</h3>
+      <h3>StreamHorizon Developer Documentation</h3>
 	  <p>
 	  <a href="./downloads/streamhorizon_in_nutshell.pdf">StreamHorizon in a nutshell (PDF)</a>
 	  <br>
@@ -55,8 +55,11 @@
 	  </p>
     </article>
     <article id="down" class="detail">
-      <h3>StreamHorizon Downloads</h3>
-      <a href="request_download.php">Try out the latest</a> (<?php echo SH_LATEST_VERSION ?>) version of StreamHorizon Data Processing Platform (includes demo application for Oracle, MSSQL and MySQL databases).<br>
+      <h3>StreamHorizon Demo Download</h3>
+      <a href="request_download.php">Try out the latest</a> (<?php echo SH_LATEST_VERSION ?>) version of StreamHorizon Data Processing
+Platform. Demo includes complete Data Warehouse Project of a retail website (e.g. Amazon), full ETL logic (XML configuration) and data feeds (files). To run the demo you would require database server. Demo
+comes with simple create database script and file feeds. All you need to do is to configure JDBC connection to your database server, setup desirable number of processing threads and start StreamHorizon. Demo
+application is available for Oracle, MSSQL and MySQL databases.<br>
     </article>
   </section>
 </div>

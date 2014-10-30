@@ -133,7 +133,7 @@ clusters, on all major operative systems which run Java.
       <p>
 		StreamHorizon is the next generation ETL Big Data processing platform. It is highly efficient and very extensible replacement for legacy stove-pipe ETL platforms. We call this <b>adaptiveETL</b>.
 		<ul>
-			<li>Data Processing throughput of <b>1+ Million Records per second</b> (single commodity server)</li>
+			<li>Data Processing throughput of <b>1+ Million Records per second</b> (single commodity server). Download and test StreamHorizon Demo Data Warehousing project in <a href="./request_download.php">one hour</a></li>
 			<li>Quick Time to Market – deploy StreamHorizon & <b>deliver</b> your Data integration project <b>in a single week</b></li>
 		</ul>
 		<br>
