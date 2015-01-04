@@ -8,12 +8,12 @@
 		<feed name="myDataFeed1" type="full"> 		
 			<source type="file">
 				<properties>
-					<property name="directoryPath">G:/Data/bauk/source</property>
+					<property name="directoryPath">C:\data\source</property>
 					<property name="fileNameMask">.*csv</property>
 				</properties>
 			</source>
-			<archiveDirectory>G:/Data/bauk/archive</archiveDirectory>
-			<errorDirectory>G:/Data/bauk/error</errorDirectory>				
+			<archiveDirectory>C:\data\archive</archiveDirectory>
+			<errorDirectory>C:\data\error</errorDirectory>				
 			<threadPoolSettings>
 				<etlProcessingThreadCount>32</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>0</databaseProcessingThreadCount>

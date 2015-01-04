@@ -16,7 +16,7 @@
 			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></errorDirectory>			
 			<threadPoolSettings>
 				<etlProcessingThreadCount><!--SET ME! set number of etl threads (etl parallelism). ideal setting will achieve maximal throughput to target database. to start with set this number to number of cores of your server. try reducing/increasing number depending on CPU% utilisation of your server--></etlProcessingThreadCount>	
-				<databaseProcessingThreadCount><!--SET ME! set number of db loader threads (db load parallelism). ideal setting will achieve maximum throughput to target database. to start with set this number to 40 which is maximum paralelism as sales_fact table has 40 partitions. depending on I/O performance paralelism of 40 may be too high (or too low), in which case trying setting less/more than 40 could be benefitial for throughput. if you need higher paralelism (40+) please alter create table (data file, log file and partition scheme) scripts for all sales_fact table --></databaseProcessingThreadCount>
+				<databaseProcessingThreadCount><!--SET ME! set number of db loader threads (db load parallelism). ideal setting will achieve maximum throughput to target database. to start with set this number to 40 which is maximum parallelism as sales_fact table has 40 partitions. depending on I/O performance parallelism of 40 may be too high (or too low), in which case trying setting less/more than 40 could be beneficial for throughput. if you need higher parallelism (40+) please alter create table (data file, log file and partition scheme) scripts for all sales_fact table --></databaseProcessingThreadCount>
 			</threadPoolSettings>					
 			<sourceFormatDefinition>
 				<delimiterString>,</delimiterString>
@@ -53,11 +53,11 @@
 			</sourceFormatDefinition>
 			<target type="file">
 				<properties>  
-					<property name="bulkOutputDirectory"><!--SET ME! your bulk directory comes here(default location is $ENGINE_HOME/demo_sales/mssql/bulk_loader.bat), use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></property>
+					<property name="bulkOutputDirectory"><!--SET ME! your bulk directory comes here.this is directory where StreamHorizon will create (persist) bulk files before it loads them into the database --></property>
 					<property name="bulkLoadOutputExtension">data</property>
 				</properties>							
 				<bulkLoadInsert>
-					<command type="shell"><!--SET ME! set full file path to the bulk_loader.bat file and leave '${bulkFileName}' as parameter to the bat exectuable. example: D:\bin\bulk_loader.bat ${bulkFileName} --></command>			
+					<command type="shell"><!--SET ME! set full file path to the bulk_loader.bat file and leave '${bulkFileName}' as parameter to the bat executable.  bulk_loader.bat file is located at $ENGINE_HOME\demo-sales\mssql\ directory of your StreamHorizon installation. example: D:\apps\bauk\3.3.4\demo_sales\mssql\bulk_loader.bat ${bulkFileName} --></command>			
 				</bulkLoadInsert>	
 			</target>		
 			<targetFormatDefinition>

@@ -13,7 +13,7 @@
 StreamHorizon is the next generation ETL Big Data processing platform. 
 StreamHorizon is hardware efficient, scalable and extensible replacement for existing legacy stove-pipe ETL platforms. 
 We have named our novel approach to ETL architecture <b>adaptiveETL</b>. 
-Testimony to performance of adaptiveETL is a fact that processing throughput of 1+ million records per second is achievable on a single commodity server.
+Testimony to performance of adaptiveETL is a fact that processing throughput of 1+ million records per second is achievable on a single commodity server. Download and test StreamHorizon Demo Data Warehousing project in <a href="./request_download.php">one hour</a>.
 	</p>
 	<br />
 	<section class="part clearfix">

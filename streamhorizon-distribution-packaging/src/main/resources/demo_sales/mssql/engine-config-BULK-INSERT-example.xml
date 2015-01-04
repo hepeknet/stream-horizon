@@ -9,12 +9,12 @@
 		<feed name="myDataFeed1" type="full"> 		
 			<source type="file">
 				<properties>
-					<property name="directoryPath">G:/Data/bauk/source</property>
+					<property name="directoryPath">C:\data\source</property>
 					<property name="fileNameMask">.*csv</property>
 				</properties>
 			</source>
-			<archiveDirectory>G:/Data/bauk/archive</archiveDirectory>
-			<errorDirectory>G:/Data/bauk/error</errorDirectory>				
+			<archiveDirectory>C:\data\archive</archiveDirectory>
+			<errorDirectory>C:\data\error</errorDirectory>				
 			<threadPoolSettings>
 				<etlProcessingThreadCount>40</etlProcessingThreadCount>
 				<databaseProcessingThreadCount>40</databaseProcessingThreadCount>
@@ -54,11 +54,11 @@
 			</sourceFormatDefinition>
 			<target type="file">
 				<properties>  
-					<property name="bulkOutputDirectory">G:/Data/bauk/bulk</property>
+					<property name="bulkOutputDirectory">C:\data\bulk</property>
 					<property name="bulkLoadOutputExtension">data</property>
 				</properties>							
 				<bulkLoadInsert>					
-					<command type="shell">D:\bauk\bin\bulk_loader.bat ${bulkFileName}</command>					
+					<command type="shell">D:\apps\bauk\version\demo_sales\mssql\bulk_loader.bat ${bulkFileName}</command>					
 				</bulkLoadInsert>	
 			</target>		
 			<targetFormatDefinition>
