@@ -1,11 +1,22 @@
 /*
 
-BEFORE EXECUTION: Run find and replace for your data file directory (if required). For example replace 'G:\Data\MSSQL10_50.SH\MSSQL\DATA\' given below with 'C:\Data\MSSQL10_50.SH\MSSQL\DATA\'
-BEFORE EXECUTION: Run find and replace for your data file directory (if required). For example replace 'G:\LOG\MSSQL10_50.SH\MSSQL\LOG' given below with 'C:\LOG\MSSQL10_50.SH\MSSQL\LOG'
+BEFORE EXECUTION: Run string 'find and replace' for your data files
+directory. This script uses random data directory
+'G:\Data\MSSQL10_50.SH\MSSQL\DATA\' please change it to point to your
+data directory (for example: 'S:\youDataDirectory\'). Note that your
+data files directory should reside on a high throughput storage system
+(like conventional SAN, SDD or any other), database is unable of
+delivering high data throughput if running on a single HDD hard disk
+for example.
 
-NOTE: Demo doesn't utilize Windows authentication, it rather creates new MSSQL user & login
-NOTE: Create database script will allocate by default 16GB of storage space. (This may be changed by altering number of logs and data files in which case alteration to sh_partitionFunction and sh_partitionScheme is required)
-NOTE: You may want to reduce default allocation of SIZE=50MB,MAXSIZE=10GB,FILEGROWTH=50MB which is used for every data and log file (this can be done simply by find & replace of string 'SIZE=50MB,MAXSIZE=10GB,FILEGROWTH=50MB' into for example 'SIZE=500MB,MAXSIZE=10GB,FILEGROWTH=500MB'
+BEFORE EXECUTION: Run string 'find and replace' for your log files
+directory. This script uses random data directory
+'G:\LOG\MSSQL10_50.SH\MSSQL\LOG' please change it to point to your
+data directory (for example: 'S:\youLogDirectory\'). Note that your
+data files directory should reside on a high throughput storage system
+(like conventional SAN, SDD or any other), database is unable of
+delivering high data throughput if running on a single HDD hard disk
+for example.
 
 */
 

@@ -1,7 +1,7 @@
 /*
 NOTE: if you wish to set your data owner please uncomment first command of this script
 NOTE: to create external table directory please uncomment and modify second and third commands of the script as advised below before you execute it
-NOTE: to assign correct privileges please AFTER you execute this script run command:       
+NOTE: to assign correct privileges AFTER you execute this script please run following commands:       
             GRANT ALL ON DIRECTORY EXT_LOADER_DATA TO <YOUR USER COMES HERE>                
             GRANT ALL ON DIRECTORY LOG TO <YOUR USER COMES HERE>
 
@@ -12,7 +12,7 @@ NOTE: to assign correct privileges please AFTER you execute this script run comm
 
 /* modify this command to your own directory on your server and make sure that read/write privileges are correctly assigned  */
 --create or replace directory EXT_LOADER_DATA as 'your bulk file directory (as it is setup in  engine-config.xml <bulkOutputDirectory> tag)';
---create or replace directory LOG as 'directory for logging erros (please choose any on your OS)';
+--create or replace directory LOG as 'directory for error logging';
 
 alter session set current_schema = sh;
 

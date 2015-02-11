@@ -14,11 +14,11 @@
 					<property name="fileNameMask">.*csv</property>
 				</properties>
 			</source>
-			<archiveDirectory><!--SET ME! your arhive directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></archiveDirectory>
+			<archiveDirectory><!--SET ME! your archive directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></archiveDirectory>
 			<errorDirectory><!--SET ME! your error directory comes here, use /dir1/dir2 format for unix and c:\dir1\dir2 format for windows OS setup--></errorDirectory>		
 			<threadPoolSettings>
-				<etlProcessingThreadCount><etlProcessingThreadCount><!--SET ME! set number of etl threads (etl paralelism). ideal setting will acheive maximal throughput to target database. to start with set this number to number of cores of your server. try reducing/increasing number depending on CPU% utilisation of your server--></etlProcessingThreadCount></etlProcessingThreadCount>				
-				<databaseProcessingThreadCount><!--SET ME! set number of db loader threads (db load paralelism). ideal setting will acheive maximal throughput to target database. to start with set this number to 50 which is maximum paralelism as sales_fact table has 50 subpartitions. depending on I/O performance paralelism of 50 may be too high, in which case trying setting less than 50 could be benefitial for throughput. if you need higher paralelism (50+) please alter create table scripts for all sales_fact and sales_fact_agg tables. --></databaseProcessingThreadCount>
+				<etlProcessingThreadCount><etlProcessingThreadCount><!--SET ME! set number of ETL threads (ETL parallelism). Ideal setting will achieve maximum throughput to target database. To start with set this number to number of cores of your server try reducing/increasing number depending on CPU% utilization of your server--></etlProcessingThreadCount></etlProcessingThreadCount>				
+				<databaseProcessingThreadCount><!--SET ME! set number of DB loader threads (DB load parallelism). Ideal setting will achieve maximum throughput to target database. To start with set this number to 50 which is maximum parallelism as sales_fact table has 50 subpartitions. Depending on I/O performance parallelism of 50 may be too high, in which case trying setting less than 50 could improve overall throughput. If you need higher parallelism (50+) please alter create table scripts for all sales_fact and sales_fact_agg tables. --></databaseProcessingThreadCount>
 			</threadPoolSettings>					
 			<sourceFormatDefinition>
 				<delimiterString>,</delimiterString>
@@ -78,8 +78,8 @@
 						<attribute name="feed.priceBeforeDiscount" type="float" />
 						<attribute name="feed.priceAfterDiscount" type="float" />
 						<attribute name="feed.saleCosts" type="float" />
-						<!--fact table attribute sub is not suppy here, it is derived by stored procedure p_sh_external_table_load -->							
-						<!--fact table attribute fileID is not suppy here, it is derived by stored procedure p_sh_external_table_load -->
+						<!--fact table attribute sub is not supplied here, it is derived by stored procedure p_sh_external_table_load -->							
+						<!--fact table attribute fileID is not supplied here, it is derived by stored procedure p_sh_external_table_load -->
 				</attributes>
 			</targetFormatDefinition>				
 			<events>					
