@@ -10,6 +10,20 @@
   </header>
   <section class="columnthird content">
   
+  	<article class="post">
+      <h3><a href="#" class="post-title">StreamHorizon YouTube channel is available</a></h3>
+      <div class="meta">
+		<!--
+        <p>Posted on <span class="time">June 28, 2014</span></p>
+		-->
+      </div>
+      <div class="entry">
+        <p>
+			Now it is possible to see StreamHorizon Data Processing Platform in action on our <a href="https://www.youtube.com/channel/UCdKt8NUmGauq6COhqjJcxhQ">YouTube channel</a>. Enjoy!
+		</p>
+      </div>
+    </article>
+  
 	<article class="post">
       <h3><a href="#" class="post-title">ETL Grid integrated with & cohabiting on Compute Grid</a></h3>
       <div class="meta">

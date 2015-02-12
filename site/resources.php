@@ -15,6 +15,7 @@
 	  <li><a href="#arch" class="arrow more">Overview</a></li>
 	  <li><a href="#doc" class="arrow more">Documentation</a></li>
 	  <li><a href="#down" class="arrow more">Downloads</a></li>
+	  <li><a href="#vid" class="arrow more">Videos</a></li>
     </ul>
     </menu> </aside>
   <section class="columnthird content">
@@ -61,6 +62,22 @@ Platform. Demo includes complete Data Warehouse Project of a retail website (e.g
 comes with simple create database script and file feeds. All you need to do is to configure JDBC connection to your database server, setup desirable number of processing threads and start StreamHorizon. Demo
 application is available for Oracle, MSSQL and MySQL databases.<br>
     </article>
+    
+    <article id="vid" class="detail">
+      <h3>StreamHorizon Benchmark Demo Videos</h3>
+	  <p>
+	  StreamHorizon Benchmark Demo Videos can be viewed at <a href="https://www.youtube.com/channel/UCdKt8NUmGauq6COhqjJcxhQ">YouTube channel</a>
+	  <br />
+	  Most interesting ones are:
+	  <br />
+	  <a href="https://www.youtube.com/watch?v=iOhJNKCEsyc">Oracle Bulk Insert</a>
+	  <br />
+	  <a href="https://www.youtube.com/watch?v=Mhmm7q3N4wg">Oracle Bulk Insert With Indexes</a>
+	  <br />
+	  <a href="https://www.youtube.com/watch?v=Nbs-D5eCKos">Oracle ETL and Bulk</a>
+	  </p>
+    </article>
+    
   </section>
 </div>
 <?php include 'footer.php' ?>
