@@ -175,6 +175,7 @@ clusters, on all major operative systems which run Java.
 			<li>Running on Linux, Solaris, Windows, Compute Clouds (EC2 & others)</li>
 		</ul>
 		<ul>
+			<li>See StreamHorizon Data Processing Platform in action on our <a href="https://www.youtube.com/channel/UCdKt8NUmGauq6COhqjJcxhQ">YouTube channel</a></li>
 			<li>Read more in <a href="./downloads/Streamhorizon_Overview_CIO_Information_Pack.pdf">StreamHorizon C-Level roles overview (PDF)</a>, <a href="./downloads/StreamHorizon_Overview.pdf">StreamHorizon overview (PDF)</a> or <a href="faq.php">Product FAQ section</a></li>
 		</ul>
 	  </p>
