@@ -68,7 +68,7 @@ application is available for Oracle, MSSQL and MySQL databases.<br>
 	  <p>
 	  StreamHorizon Benchmark Demo Videos can be viewed at <a href="https://www.youtube.com/channel/UCdKt8NUmGauq6COhqjJcxhQ">YouTube channel</a>
 	  <br />
-	  Most interesting ones are:
+	  Oracle demo videos:
 	  <br />
 	  <a href="https://www.youtube.com/watch?v=iOhJNKCEsyc">Oracle Bulk Insert</a>
 	  <br />
@@ -76,6 +76,18 @@ application is available for Oracle, MSSQL and MySQL databases.<br>
 	  <br />
 	  <a href="https://www.youtube.com/watch?v=Nbs-D5eCKos">Oracle ETL and Bulk</a>
 	  </p>
+	  MSSQL demo videos:
+	  <br />
+	  <a href="https://www.youtube.com/watch?v=leiBRedsuGs">MSSQL Bulk Insert</a>
+	  <br />
+	  <a href="https://www.youtube.com/watch?v=wxnWACVd8Lo">MSSQL Bulk Insert With Indexes</a>
+	  <br />
+	  <a href="https://www.youtube.com/watch?v=x_1qO-AG1DQ">MSSQL ETL and Bulk</a>
+	  </p>
+ 	  <a href="https://www.youtube.com/watch?v=UxwxpFfTPxc">File 2 File processing</a>
+	  <br />
+	  <a href="https://www.youtube.com/watch?v=SF_Mzao89mo">Demo Hardware specification</a>
+	  <br />
     </article>
     
   </section>

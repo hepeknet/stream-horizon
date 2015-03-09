@@ -13,7 +13,10 @@
 StreamHorizon is the next generation ETL Big Data processing platform. 
 StreamHorizon is hardware efficient, scalable and extensible replacement for existing legacy stove-pipe ETL platforms. 
 We have named our novel approach to ETL architecture <b>adaptiveETL</b>. 
-Testimony to performance of adaptiveETL is a fact that processing throughput of 1+ million records per second is achievable on a single commodity server. Download and test StreamHorizon Demo Data Warehousing project in <a href="./request_download.php">one hour</a>.
+Testimony to performance of adaptiveETL is a fact that processing throughput of 1+ million records per second is achievable on a single commodity server. Download and test StreamHorizon Demo Data Warehousing project in <a href="./request_download.php">one hour</a>
+	</p>
+	<p>
+StreamHorizon Oracle & MSSQL <a href="https://www.youtube.com/channel/UCdKt8NUmGauq6COhqjJcxhQ">demo videos</a> are available at StreamHorizon YouTube channel.
 	</p>
 	<br />
 	<section class="part clearfix">
@@ -134,6 +137,7 @@ clusters, on all major operative systems which run Java.
 		StreamHorizon is the next generation ETL Big Data processing platform. It is highly efficient and very extensible replacement for legacy stove-pipe ETL platforms. We call this <b>adaptiveETL</b>.
 		<ul>
 			<li>Data Processing throughput of <b>1+ Million Records per second</b> (single commodity server). Download and test StreamHorizon Demo Data Warehousing project in <a href="./request_download.php">one hour</a></li>
+			<li>StreamHorizon Oracle & MSSQL <a href="https://www.youtube.com/channel/UCdKt8NUmGauq6COhqjJcxhQ">demo videos</a> are available at StreamHorizon YouTube channel</li>
 			<li>Quick Time to Market – deploy StreamHorizon & <b>deliver</b> your Data integration project <b>in a single week</b></li>
 		</ul>
 		<br>
