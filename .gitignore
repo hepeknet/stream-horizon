@@ -35,3 +35,5 @@ target/*
 release.properties
 *.releaseBackup
 *.versionsBackup
+*.*~
+*~
